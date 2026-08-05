@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+  type JSX
+} from 'react'
 import type { MenuState } from './ContextMenu'
 
 /** Rows rendered before the first scroll, and added each time the end nears. */
@@ -13,8 +21,20 @@ interface DiffLine {
   text: string
   oldNo: number | null
   newNo: number | null
+  /** Heading of the file this line belongs to, so files can be collapsed. */
+  file: string
   /** Word-level segments for add/del rows, when a finer highlight is available. */
   wd?: WordDiffInfo
+}
+
+export interface DiffPaneHandle {
+  /** Collapse every file, or expand them all if they already are collapsed. */
+  toggleAll(): void
+}
+
+export interface CollapseState {
+  files: number
+  allCollapsed: boolean
 }
 
 /** One word of a changed line: common across both sides, or only on one. */
@@ -86,18 +106,22 @@ function parsePatch(patch: string): DiffLine[] {
   // Header prefixes are only header prefixes between "diff --git" and the
   // first hunk: a deleted line reading "-- so long" also starts with "--- ".
   let inHeader = false
+  // Lines before any "diff --git" (a --no-index patch, say) belong to no file
+  // heading and must never be hidden by a collapse.
+  let file = ''
 
   for (const text of patch.split('\n')) {
     if (text.startsWith('diff --git') || text.startsWith('diff --cc')) {
       inHeader = true
-      out.push({ kind: 'file', text: fileLabel(text), oldNo: null, newNo: null })
+      file = fileLabel(text)
+      out.push({ kind: 'file', text: file, oldNo: null, newNo: null, file })
     } else if (text.startsWith('\\ No newline')) {
       // Belongs to the hunk it follows, not to any header.
-      out.push({ kind: 'meta', text, oldNo: null, newNo: null })
+      out.push({ kind: 'meta', text, oldNo: null, newNo: null , file })
     } else if (inHeader && HEADER_NOISE.some((p) => text.startsWith(p))) {
       continue
     } else if (inHeader && HEADER_FACTS.some((p) => text.startsWith(p))) {
-      out.push({ kind: 'meta', text, oldNo: null, newNo: null })
+      out.push({ kind: 'meta', text, oldNo: null, newNo: null , file })
     } else if (text.startsWith('@@')) {
       inHeader = false
       const m = /^@@+ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(text)
@@ -105,13 +129,13 @@ function parsePatch(patch: string): DiffLine[] {
         oldNo = Number(m[1])
         newNo = Number(m[2])
       }
-      out.push({ kind: 'hunk', text, oldNo: null, newNo: null })
+      out.push({ kind: 'hunk', text, oldNo: null, newNo: null , file })
     } else if (text.startsWith('+')) {
-      out.push({ kind: 'add', text, oldNo: null, newNo: newNo++ })
+      out.push({ kind: 'add', text, oldNo: null, newNo: newNo++ , file })
     } else if (text.startsWith('-')) {
-      out.push({ kind: 'del', text, oldNo: oldNo++, newNo: null })
+      out.push({ kind: 'del', text, oldNo: oldNo++, newNo: null , file })
     } else {
-      out.push({ kind: 'ctx', text, oldNo: oldNo++, newNo: newNo++ })
+      out.push({ kind: 'ctx', text, oldNo: oldNo++, newNo: newNo++ , file })
     }
   }
 
@@ -260,30 +284,87 @@ function Segs({ segs }: { segs: WordSeg[] }): JSX.Element {
   )
 }
 
-export function DiffPane({
-  patch,
-  notice,
-  placeholder,
-  wrap,
-  view,
-  wordDiff,
-  onMenu
+/** Clickable file heading: the anchor of a multi-file diff, and its fold. */
+function FileHeading({
+  name,
+  collapsed,
+  onToggle
 }: {
-  patch: string
-  notice?: string
-  placeholder: string
-  wrap: boolean
-  view: DiffView
-  wordDiff: boolean
-  onMenu: (state: MenuState) => void
+  name: string
+  collapsed: boolean
+  onToggle: () => void
 }): JSX.Element {
-  const lines = useMemo(() => {
+  return (
+    <div
+      className={`diff-line dl-file${collapsed ? ' collapsed' : ''}`}
+      onClick={onToggle}
+      title={collapsed ? `Expand ${name}` : `Collapse ${name}`}
+    >
+      <span className="twisty">{collapsed ? '▶' : '▼'}</span>
+      <span className="diff-text">{name}</span>
+    </div>
+  )
+}
+
+export const DiffPane = forwardRef<
+  DiffPaneHandle,
+  {
+    patch: string
+    notice?: string
+    placeholder: string
+    wrap: boolean
+    view: DiffView
+    wordDiff: boolean
+    onMenu: (state: MenuState) => void
+    /** Reported so the pane header can offer Collapse All / Expand All. */
+    onCollapseState?: (state: CollapseState) => void
+  }
+>(function DiffPane(
+  { patch, notice, placeholder, wrap, view, wordDiff, onMenu, onCollapseState },
+  ref
+): JSX.Element {
+  const parsed = useMemo(() => {
     const ls = parsePatch(patch)
     if (!wordDiff) return ls
     const wd = pairWordDiffs(ls)
     if (wd.size === 0) return ls
     return ls.map((l, idx) => (wd.has(idx) ? { ...l, wd: wd.get(idx) } : l))
   }, [patch, wordDiff])
+
+  const fileNames = useMemo(
+    () => parsed.filter((l) => l.kind === 'file').map((l) => l.text),
+    [parsed]
+  )
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+
+  // A new diff arrives fully expanded.
+  useEffect(() => setCollapsed(new Set()), [patch])
+
+  const allCollapsed = fileNames.length > 0 && collapsed.size >= fileNames.length
+  useImperativeHandle(
+    ref,
+    () => ({
+      toggleAll: () => setCollapsed(allCollapsed ? new Set() : new Set(fileNames))
+    }),
+    [allCollapsed, fileNames]
+  )
+  useEffect(() => {
+    onCollapseState?.({ files: fileNames.length, allCollapsed })
+  }, [fileNames.length, allCollapsed, onCollapseState])
+
+  const toggleFile = (name: string): void =>
+    setCollapsed((prev) => {
+      const next = new Set(prev)
+      if (next.has(name)) next.delete(name)
+      else next.add(name)
+      return next
+    })
+
+  // A collapsed file keeps only its heading.
+  const lines = useMemo(
+    () => (collapsed.size === 0 ? parsed : parsed.filter((l) => l.kind === 'file' || !collapsed.has(l.file))),
+    [parsed, collapsed]
+  )
   const rows = useMemo(() => (view === 'split' ? pairLines(lines) : []), [lines, view])
   const total = view === 'split' ? rows.length : lines.length
   const hostRef = useRef<HTMLDivElement>(null)
@@ -335,9 +416,12 @@ export function DiffPane({
           {lines.slice(0, shown).map((l, i) =>
             // A file heading spans the full width; gutters would only indent it.
             l.kind === 'file' ? (
-              <div key={i} className="diff-line dl-file">
-                <span className="diff-text">{l.text}</span>
-              </div>
+              <FileHeading
+                key={i}
+                name={l.text}
+                collapsed={collapsed.has(l.text)}
+                onToggle={() => toggleFile(l.text)}
+              />
             ) : (
               <div key={i} className={`diff-line ${CLS[l.kind]}`}>
                 <span className="diff-gutter">{l.oldNo ?? ''}</span>
@@ -357,9 +441,18 @@ export function DiffPane({
         <div className="diff-split">
           {rows.slice(0, shown).map((r, i) =>
             r.full ? (
-              <div key={i} className={`diff-line diff-full ${CLS[r.full.kind]}`}>
-                <span className="diff-text">{r.full.text || ' '}</span>
-              </div>
+              r.full.kind === 'file' ? (
+                <FileHeading
+                  key={i}
+                  name={r.full.text}
+                  collapsed={collapsed.has(r.full.text)}
+                  onToggle={() => toggleFile(r.full!.text)}
+                />
+              ) : (
+                <div key={i} className={`diff-line diff-full ${CLS[r.full.kind]}`}>
+                  <span className="diff-text">{r.full.text || ' '}</span>
+                </div>
+              )
             ) : (
               <div key={i} className="diff-pair">
                 <div className={`diff-line ${r.left ? CLS[r.left.kind] : 'dl-empty'}`}>
@@ -395,4 +488,4 @@ export function DiffPane({
       )}
     </div>
   )
-}
+})

@@ -13,7 +13,13 @@ import {
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { ContextMenu, type MenuItem, type MenuState } from './components/ContextMenu'
 import { CodePane } from './components/CodePane'
-import { DiffPane, type DiffView } from './components/DiffPane'
+import {
+  DiffPane,
+  type CollapseState,
+  type DiffPaneHandle,
+  type DiffView
+} from './components/DiffPane'
+import { FileDoc, isMarkdownPath } from './components/FileDoc'
 import { FilesPane, type FileEntry } from './components/FilesPane'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { MarkdownPane } from './components/MarkdownPane'
@@ -29,6 +35,17 @@ import type {
 } from '../../shared/types'
 
 const PAGE = 300
+
+/** A file opened in the diff pane, beside (not instead of) the diff. */
+interface FileDocState {
+  /** Revision + path; opening the same file twice reuses its document. */
+  id: string
+  path: string
+  /** Revision to read at; null is the work tree. */
+  rev: string | null
+  /** Markdown documents open rendered, with a toggle back to the source. */
+  preview: boolean
+}
 
 type View =
   | { mode: 'worktree' }
@@ -125,12 +142,18 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const [selectedCommit, setSelectedCommit] = useState<string | null>(WORKTREE_ROW)
   const [compareCommit, setCompareCommit] = useState<string | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
-  // Viewing a whole file is a one-off action, not a remembered preference:
-  // selecting anything else drops back to its diff.
-  const [fileView, setFileView] = useState(false)
+  // The diff is always the first document; opening a file adds another beside
+  // it rather than replacing it, so a diff can stay on screen while a file is
+  // read. Snapshots have no diff, so there the first document is a file.
+  const [docs, setDocs] = useState<FileDocState[]>([])
+  const [activeDoc, setActiveDoc] = useState<string | null>(null)
   const [maximized, setMaximized] = useState(false)
-  const [fileSource, setFileSource] = useState<string | null>(null)
-  const [fileError, setFileError] = useState<string | null>(null)
+  const [docSource, setDocSource] = useState<string | null>(null)
+  const diffRef = useRef<DiffPaneHandle>(null)
+  const [collapseState, setCollapseState] = useState<CollapseState>({
+    files: 0,
+    allCollapsed: false
+  })
   const [tick, setTick] = useState(0)
   const loadingMore = useRef(false)
   const exhausted = useRef(false)
@@ -161,7 +184,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setSelectedCommit(WORKTREE_ROW)
     setCompareCommit(null)
     setSelectedFile(null)
-    setFileView(false)
+    setDocs([])
+    setActiveDoc(null)
   }, [browsing])
 
   useImperativeHandle(ref, () => ({ refresh }), [refresh])
@@ -233,46 +257,47 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     }
   }, [root, view, status])
 
-  /* ---------- whole-file view ---------- */
+  /* ---------- documents (diff + opened files) ---------- */
 
-  const isMarkdown = /\.(md|markdown|mdown|mkd)$/i.test(selectedFile ?? '')
-  // A snapshot has no diff to show, so it is always a file view.
-  const viewingFile = !!selectedFile && (fileView || view.mode === 'snapshot')
-  const previewing = viewingFile && isMarkdown
+  /** Revision a file opened from this view should be read at. */
+  const revForView = useCallback((): string | null => {
+    if (view.mode === 'commit' || view.mode === 'snapshot') return view.hash
+    if (view.mode === 'range') return view.to
+    return null
+  }, [view])
 
-  // The file view always shows the file as a whole: on disk for the work tree,
-  // at the selected revision everywhere else.
+  const openFileDoc = useCallback(
+    (path: string) => {
+      const rev = revForView()
+      const id = `${rev ?? 'work'}:${path}`
+      setDocs((prev) =>
+        prev.some((d) => d.id === id)
+          ? prev
+          : [...prev, { id, path, rev, preview: isMarkdownPath(path) }]
+      )
+      setActiveDoc(id)
+    },
+    [revForView]
+  )
+
+  const closeDoc = useCallback((id: string) => {
+    setDocs((prev) => {
+      const i = prev.findIndex((d) => d.id === id)
+      if (i < 0) return prev
+      const next = prev.filter((d) => d.id !== id)
+      setActiveDoc((cur) => (cur === id ? (next[Math.min(i, next.length - 1)]?.id ?? null) : cur))
+      return next
+    })
+  }, [])
+
+  const doc = docs.find((d) => d.id === activeDoc) ?? null
+  const viewingFile = doc !== null
+  const previewing = viewingFile && doc.preview && isMarkdownPath(doc.path)
+
+  // Snapshots have no diff, so a file selected there opens as a document.
   useEffect(() => {
-    if (!viewingFile || !selectedFile) {
-      setFileSource(null)
-      return
-    }
-    let cancelled = false
-    const rev =
-      view.mode === 'commit' || view.mode === 'snapshot'
-        ? view.hash
-        : view.mode === 'range'
-          ? view.to
-          : null
-
-    void (async () => {
-      try {
-        const r = rev
-          ? await window.gitty.git.snapshotFile(root, rev, selectedFile)
-          : await window.gitty.git.readWorking(root, selectedFile)
-        if (cancelled) return
-        setFileSource(r.binary ? null : r.content)
-        setFileError(r.binary ? 'Binary or oversized file.' : null)
-      } catch (e) {
-        if (cancelled) return
-        setFileSource(null)
-        setFileError(String(e))
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [root, view, selectedFile, viewingFile, tick])
+    if (view.mode === 'snapshot' && selectedFile) openFileDoc(selectedFile)
+  }, [view, selectedFile, openFileDoc])
 
   /* ---------- diff loading ---------- */
 
@@ -327,7 +352,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setCompareCommit(null)
     setSelectedCommit(c.hash)
     setSelectedFile(null)
-    setFileView(false)
+    setDocs([])
+    setActiveDoc(null)
     setView({ mode: 'commit', hash: c.hash, short: c.short, subject: c.subject })
   }, [])
 
@@ -336,7 +362,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setCompareCommit(null)
     setSelectedCommit(c.hash)
     setSelectedFile(null)
-    setFileView(false)
+    setDocs([])
+    setActiveDoc(null)
     setView({ mode: 'snapshot', hash: c.hash, short: c.short, subject: c.subject })
   }, [])
 
@@ -345,7 +372,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setSelectedCommit(WORKTREE_ROW)
     setCompareCommit(null)
     setSelectedFile(null)
-    setFileView(false)
+    setDocs([])
+    setActiveDoc(null)
   }, [])
 
   const onSelectCommit = useCallback(
@@ -371,7 +399,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       const [from, to] = iSel > iCmp ? [selectedCommit, hash] : [hash, selectedCommit]
       setCompareCommit(hash)
       setSelectedFile(null)
-      setFileView(false)
+      setDocs([])
+      setActiveDoc(null)
       setView({ mode: 'range', from, to })
     },
     [commits, selectedCommit, showCommit, backToWorkTree]
@@ -424,7 +453,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       items.push({
         label: previewing ? 'Copy Markdown Source' : 'Copy File Contents',
         separatorBefore: items.length > 0,
-        action: () => void window.gitty.clipboard.write(fileSource ?? '')
+        action: () => void window.gitty.clipboard.write(docSource ?? '')
       })
       items.push({
         label: wrap ? 'Disable Word Wrap' : 'Enable Word Wrap',
@@ -441,7 +470,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       if (view.mode !== 'snapshot') {
         items.push({
           label: 'Show Diff Instead',
-          action: () => setFileView(false)
+          action: () => setActiveDoc(null)
         })
       }
     } else {
@@ -452,9 +481,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       })
       if (selectedFile) {
         items.push({
-          label: isMarkdown ? 'Preview Markdown' : 'View File',
+          label: isMarkdownPath(selectedFile) ? 'Preview Markdown' : 'View File',
           separatorBefore: true,
-          action: () => setFileView(true)
+          action: () => openFileDoc(selectedFile)
         })
       }
       items.push({
@@ -485,7 +514,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         accel: 'Double click',
         action: () => {
           setSelectedFile(entry.path)
-          setFileView(true)
+          openFileDoc(entry.path)
         }
       }
     ]
@@ -568,9 +597,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     return `Range ${view.from.slice(0, 8)}..${view.to.slice(0, 8)}`
   }, [view])
 
-  const diffTitle = viewingFile
-    ? `${selectedFile}${previewing ? ' (preview)' : ''}` +
-      (view.mode === 'snapshot' ? ` @ ${view.short}` : '')
+  const diffTitle = doc
+    ? `${doc.path}${previewing ? ' (preview)' : ''}` +
+      (doc.rev ? ` @ ${doc.rev.slice(0, 8)}` : '')
     : (diff?.title ?? 'Diff')
 
   return (
@@ -602,13 +631,14 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     selected={selectedFile}
                     onSelect={(f) => {
                       setSelectedFile(f.path)
-                      setFileView(false)
+                      // A single click browses the diff; opened files stay open.
+                      if (view.mode !== 'snapshot') setActiveDoc(null)
                     }}
                     onOpen={(f) => {
-                      // Double-click views the file in the pane beside it;
-                      // the system application is a context-menu choice.
+                      // Double-click opens the file as its own document beside
+                      // the diff; the system application is a menu choice.
                       setSelectedFile(f.path)
-                      setFileView(true)
+                      openFileDoc(f.path)
                     }}
                     onMenu={fileMenu}
                     emptyText={
@@ -658,24 +688,63 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                             : 'Every file in this commit is shown'
                       }
                       onClick={() => {
-                        setFileView(false)
+                        setActiveDoc(null)
                         setSelectedFile(null)
                       }}
                     >
                       Show Whole Diff
                     </button>
                   )}
-                  {selectedFile && view.mode !== 'snapshot' && (
+                  {selectedFile && view.mode !== 'snapshot' && !viewingFile && (
                     <button
-                      className={`toggle${viewingFile ? ' on' : ''}`}
+                      className="toggle"
                       title={
-                        isMarkdown
-                          ? 'Render this markdown file'
-                          : 'Show the whole file instead of the diff'
+                        isMarkdownPath(selectedFile)
+                          ? 'Open this markdown file rendered, beside the diff'
+                          : 'Open the whole file beside the diff'
                       }
-                      onClick={() => setFileView((v) => !v)}
+                      onClick={() => openFileDoc(selectedFile)}
                     >
-                      {isMarkdown ? 'Preview' : 'View File'}
+                      {isMarkdownPath(selectedFile) ? 'Preview' : 'View File'}
+                    </button>
+                  )}
+                  {previewing && doc && (
+                    <button
+                      className="toggle on"
+                      title="Show the markdown source instead"
+                      onClick={() =>
+                        setDocs((prev) =>
+                          prev.map((d) => (d.id === doc.id ? { ...d, preview: false } : d))
+                        )
+                      }
+                    >
+                      Preview
+                    </button>
+                  )}
+                  {viewingFile && doc && !previewing && isMarkdownPath(doc.path) && (
+                    <button
+                      className="toggle"
+                      title="Render this markdown file"
+                      onClick={() =>
+                        setDocs((prev) =>
+                          prev.map((d) => (d.id === doc.id ? { ...d, preview: true } : d))
+                        )
+                      }
+                    >
+                      Preview
+                    </button>
+                  )}
+                  {!viewingFile && collapseState.files > 1 && (
+                    <button
+                      className="toggle"
+                      title={
+                        collapseState.allCollapsed
+                          ? 'Expand every file'
+                          : 'Collapse every file to its name'
+                      }
+                      onClick={() => diffRef.current?.toggleAll()}
+                    >
+                      {collapseState.allCollapsed ? 'Expand All' : 'Collapse All'}
                     </button>
                   )}
                   <button
@@ -711,28 +780,58 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     {maximized ? 'Restore' : 'Full Screen'}
                   </button>
                 </div>
-                {viewingFile ? (
-                  fileSource === null ? (
-                    <div className="pane-body">
-                      <div className="empty">{fileError ?? 'Loading…'}</div>
-                    </div>
-                  ) : previewing ? (
-                    <MarkdownPane
-                      source={fileSource}
-                      outline={mdOutline}
-                      wrap={wrap}
-                      onMenu={diffMenu}
-                    />
-                  ) : (
-                    <CodePane
-                      source={fileSource}
-                      path={selectedFile ?? ''}
-                      wrap={wrap}
-                      onMenu={diffMenu}
-                    />
-                  )
+                {/* One strip per open document: the diff, then each opened
+                    file. Only shown once there is something to switch to. */}
+                {docs.length > 0 && (
+                  <div className="doc-tabs">
+                    {view.mode !== 'snapshot' && (
+                      <div
+                        className={`doc-tab${activeDoc === null ? ' active' : ''}`}
+                        onClick={() => setActiveDoc(null)}
+                        title="The diff"
+                      >
+                        Diff
+                      </div>
+                    )}
+                    {docs.map((d) => (
+                      <div
+                        key={d.id}
+                        className={`doc-tab${activeDoc === d.id ? ' active' : ''}`}
+                        onClick={() => setActiveDoc(d.id)}
+                        title={d.rev ? `${d.path} @ ${d.rev.slice(0, 8)}` : d.path}
+                      >
+                        <span className="doc-name">{d.path.split('/').pop()}</span>
+                        <span
+                          className="doc-close"
+                          title="Close"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            closeDoc(d.id)
+                          }}
+                        >
+                          ×
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {doc ? (
+                  <FileDoc
+                    key={doc.id}
+                    root={root}
+                    path={doc.path}
+                    rev={doc.rev}
+                    preview={doc.preview}
+                    wrap={wrap}
+                    outline={mdOutline}
+                    reloadKey={tick}
+                    onSource={setDocSource}
+                    onMenu={diffMenu}
+                  />
                 ) : (
                   <DiffPane
+                    ref={diffRef}
+                    onCollapseState={setCollapseState}
                     patch={diff?.patch ?? ''}
                     notice={diff?.notice}
                     wrap={wrap}

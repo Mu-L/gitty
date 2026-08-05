@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The diff pane holds several documents at once. A single click still browses
+  diffs in place, but double-clicking a file (or **View File** / **Preview**)
+  opens it in a strip beside the diff rather than over it, so a diff can stay on
+  screen while a file is read. Each document remembers the revision it was
+  opened at, closes with its own **×**, and reloads on its own when the work
+  tree changes.
+- Files in a multi-file diff fold: a triangle on each file heading collapses it
+  to its name, and **Collapse All** / **Expand All** in the header does the lot.
+  Everything starts expanded, and a new diff arrives expanded.
+
 - Every commit has a local URL: a web server inside the app (127.0.0.1 only)
   renders commits for the system browser. Right-click a commit for **Open in
   Browser** or **Copy Commit URL**; the commits pane's **Open in Browser**
