@@ -54,6 +54,12 @@ EOF
     chmod +x "$desktop/gitty.desktop"
   fi
 
+  # Without a refreshed cache the entry shows up with a blank icon until the
+  # session is restarted: GTK trusts the theme's cache over the directory.
+  if command -v gtk-update-icon-cache >/dev/null 2>&1; then
+    gtk-update-icon-cache -f -t "$data/icons/hicolor" >/dev/null 2>&1 || true
+  fi
+
   if command -v update-desktop-database >/dev/null 2>&1; then
     update-desktop-database "$apps_dir" >/dev/null 2>&1 || true
   fi

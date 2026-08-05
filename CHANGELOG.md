@@ -53,7 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   theme and a `gitty.desktop` entry lands in the application menu (and on the
   desktop when the session has one), launching with a new `gitty --any` flag
   that lets it start from outside a work tree and open the last repositories
-  instead of failing.
+  instead of failing. The icon theme cache is refreshed afterwards, so the
+  entry appears with its icon rather than a blank one until the next login.
 
 ## [0.1.1] - 2026-08-05
 

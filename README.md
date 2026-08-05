@@ -52,7 +52,8 @@ Install the `gitty` command once:
 
 `setup.sh` also installs a desktop launcher: the icon is added to the hicolor
 theme and a `gitty.desktop` entry appears in the application menu (and on the
-desktop, when the session has one).
+desktop, when the session has one). The icon cache and desktop database are
+refreshed afterwards, so the entry shows up with its icon straight away.
 
 Then open a repository from anywhere:
 
