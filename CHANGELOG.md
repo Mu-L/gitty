@@ -7,31 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- `setup.sh` — installs `gitty` as a global command into `~/.local/bin` (or
-  `/usr/local/bin` with `--system`), so any repository can be opened with
-  `gitty .`.
-- Working Tree row pinned above the commit log: it shows how many files are
-  uncommitted and selecting it brings the top panes back to the work tree. It
-  takes part in keyboard navigation and is selected on startup.
-
-### Changed
-
-- `run.sh` resolves symlinks, so the installed `gitty` command works from any
-  directory.
-- Linux launches with the SUID sandbox disabled
-  (`ELECTRON_DISABLE_SANDBOX=1`) to avoid the chrome-sandbox permission abort
-  that setuid binaries inside `node_modules` trigger.
-
-### Fixed
-
-- The repository argument is now the first command-line entry that names a
-  directory, so `electron out/main/index.js <repo>` no longer mistakes the entry
-  script for the repository.
-- Commit rows keep their columns aligned: hash, time and author no longer
-  stretch to fit their content, and pane titles survive long hint text.
-
 ## [0.1.0] - 2026-08-05
 
 Initial release.
@@ -42,6 +17,9 @@ Initial release.
   draggable separators between every pane.
 - Working tree pane: collapsible file tree with staged and unstaged status
   columns, untracked files included.
+- Working Tree row pinned above the commit log: it shows how many files are
+  uncommitted and selecting it brings the top panes back to the work tree. It
+  takes part in keyboard navigation and is selected on startup.
 - File interactions: click to diff, double-click to open with the system
   default application, right-click to open, reveal in the file manager, or copy
   the relative path, absolute path or file name.
@@ -58,7 +36,11 @@ Initial release.
   <kbd>Ctrl+R</kbd> to refresh manually.
 - Repository selection via `./run.sh [repo]`, `$GITTY_REPO`, a command-line
   argument, or <kbd>Ctrl+O</kbd> in the app.
-- `run.sh` launcher that installs dependencies and rebuilds stale bundles.
+- `run.sh` launcher that installs dependencies and rebuilds stale bundles, and
+  `setup.sh` to install it as a global `gitty` command in `~/.local/bin` (or
+  `/usr/local/bin` with `--system`).
+- Linux runs with the SUID sandbox disabled (`ELECTRON_DISABLE_SANDBOX=1`);
+  `chrome-sandbox` cannot keep its root-owned setuid bit inside `node_modules`.
 
 [Unreleased]: https://github.com/baojie/gitty/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/baojie/gitty/releases/tag/v0.1.0
