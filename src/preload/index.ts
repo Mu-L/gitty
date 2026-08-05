@@ -1,3 +1,4 @@
+import os from 'node:os'
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
   Commit,
@@ -6,18 +7,26 @@ import type {
   DiffRequest,
   DiffResult,
   PtyExit,
+  RepoChanged,
   RepoStatus,
   SnapshotFileContent
 } from '../shared/types'
 
 const api = {
+  /** Used to shorten paths for display. */
+  homeDir: os.homedir(),
   repo: {
     initial: (): Promise<string> => ipcRenderer.invoke('repo:initial'),
     resolve: (cwd: string): Promise<string | null> => ipcRenderer.invoke('repo:resolve', cwd),
     pick: (): Promise<string | null> => ipcRenderer.invoke('repo:pick'),
     watch: (root: string): Promise<boolean> => ipcRenderer.invoke('repo:watch', root),
-    onChanged: (cb: () => void): (() => void) => {
-      const h = (): void => cb()
+    close: (root: string): Promise<boolean> => ipcRenderer.invoke('repo:close', root),
+    /** Repositories opened before, most recent first. */
+    recent: (): Promise<string[]> => ipcRenderer.invoke('recent:list'),
+    remember: (root: string): Promise<string[]> => ipcRenderer.invoke('recent:add', root),
+    forgetAll: (): Promise<void> => ipcRenderer.invoke('recent:clear'),
+    onChanged: (cb: (changed: RepoChanged) => void): (() => void) => {
+      const h = (_e: unknown, changed: RepoChanged): void => cb(changed)
       ipcRenderer.on('repo:changed', h)
       return () => ipcRenderer.removeListener('repo:changed', h)
     },
@@ -61,18 +70,22 @@ const api = {
   clipboard: {
     write: (text: string): Promise<void> => ipcRenderer.invoke('clipboard:write', text)
   },
+  // Several shells can be alive at once — the pane splits — so every call and
+  // every event names the session it belongs to.
   terminal: {
-    start: (root: string, cols: number, rows: number): Promise<boolean> =>
-      ipcRenderer.invoke('terminal:start', root, cols, rows),
-    input: (data: string): void => ipcRenderer.send('terminal:input', data),
-    resize: (cols: number, rows: number): void => ipcRenderer.send('terminal:resize', cols, rows),
-    onData: (cb: (data: string) => void): (() => void) => {
-      const h = (_e: unknown, data: string): void => cb(data)
+    start: (id: string, root: string, cols: number, rows: number): Promise<boolean> =>
+      ipcRenderer.invoke('terminal:start', id, root, cols, rows),
+    input: (id: string, data: string): void => ipcRenderer.send('terminal:input', id, data),
+    resize: (id: string, cols: number, rows: number): void =>
+      ipcRenderer.send('terminal:resize', id, cols, rows),
+    close: (id: string): void => ipcRenderer.send('terminal:close', id),
+    onData: (cb: (id: string, data: string) => void): (() => void) => {
+      const h = (_e: unknown, id: string, data: string): void => cb(id, data)
       ipcRenderer.on('terminal:data', h)
       return () => ipcRenderer.removeListener('terminal:data', h)
     },
-    onExit: (cb: (info: PtyExit) => void): (() => void) => {
-      const h = (_e: unknown, info: PtyExit): void => cb(info)
+    onExit: (cb: (id: string, info: PtyExit) => void): (() => void) => {
+      const h = (_e: unknown, id: string, info: PtyExit): void => cb(id, info)
       ipcRenderer.on('terminal:exit', h)
       return () => ipcRenderer.removeListener('terminal:exit', h)
     }

@@ -93,7 +93,13 @@ export interface SnapshotFileContent {
   binary: boolean
 }
 
+/** One shell's exit, delivered alongside the session id it came from. */
 export interface PtyExit {
   exitCode: number
   signal?: number
+}
+
+/** A repository watcher fired; tells the renderer which repo changed. */
+export interface RepoChanged {
+  root: string
 }

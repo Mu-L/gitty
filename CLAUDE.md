@@ -73,9 +73,31 @@ rename records carry an extra NUL field, which is why those loops advance the
 index by hand. Diffs above 2 MB are truncated with a notice rather than sent
 whole. Whatever `git` is on `PATH` is what the app shows.
 
+### Multiple repositories, tabs
+
+`App.tsx` is a thin tab manager: the list of open roots, which is active, the
+app-wide preferences (theme, font size, wrap, …), and the settings dialog. Each
+open root renders one `RepoTab` (`src/renderer/src/RepoTab.tsx`) owning that
+repository's whole session — status, log, the `View`, selected file, context
+menu, and its own `TerminalsPane`. Inactive tabs stay mounted (`display: none`),
+so switching never disturbs another repo's view state or shells. The main
+process keeps one watcher per root and tags `repo:changed` with the root, so
+each tab refreshes only its own repository. The tab bar (basename, dirty dot,
+close button, `+` to open) sits below the panes, with an empty state when every
+tab is closed. `react-resizable-panels` keeps layout state per Group id, so
+`RepoTab` suffixes its ids with the root.
+
+### Recent repositories
+
+`src/main/recent.ts` keeps the list in `app.getPath('userData')` — which is why
+`app.setName('Gitty')` runs before anything else, or an unpackaged run would
+scatter state into `~/.config/Electron`. Reads filter out paths that no longer
+exist, so a deleted repository disappears from the menu on its own. Remembering
+is best-effort and never blocks opening a repository.
+
 ### The `View` union drives the UI
 
-`App.tsx` holds a `View` of four modes — `worktree`, `commit`, `range`,
+Each `RepoTab` holds a `View` of four modes — `worktree`, `commit`, `range`,
 `snapshot` — and both top panes are derived from it:
 
 | mode | top-left file list | top-right |
@@ -89,12 +111,10 @@ whole. Whatever `git` is on `PATH` is what the app shows.
 pseudo-commit (`WORKTREE_ROW`) standing for the work tree; it joins keyboard
 navigation and selecting it returns to `worktree` mode.
 
-Snapshot mode reuses the diff renderer by prefixing every content line with a
-space so it parses as context lines. Its entries carry a synthetic
-`gitty:snapshot:<hash>:<path>` absPath, which has no on-disk existence — that is
-what the file context menu keys off to route "Open File" through a temp copy of
-that revision and to drop "Reveal in File Manager", which would have nothing to
-reveal.
+Snapshot entries carry a synthetic `gitty:snapshot:<hash>:<path>` absPath, which
+has no on-disk existence — that is what the file context menu keys off to route
+"Open File" through a temp copy of that revision and to drop "Reveal in File
+Manager", which would have nothing to reveal.
 
 ### DiffPane
 
@@ -137,17 +157,32 @@ kill whatever is running in it.
 
 ### Terminal
 
-One pty at a time, held in a module-level variable in `src/main/index.ts`.
-Starting a new session disposes the old one, and a disposed session goes silent
-so its exit notice cannot land in the terminal that replaced it.
+The pane splits, so ptys are kept in a `Map` keyed by a session id the renderer
+mints (`src/main/index.ts`), and every `terminal:*` message names its session.
+A disposed session goes silent so its exit notice cannot land in the terminal
+that replaced it, and a reload disposes them all — the ids that could reach
+them are gone with the old renderer.
+
+`TerminalsPane` holds the split as a tree: a leaf is one shell, a branch shares
+its area between children, and splitting the same way twice extends the branch
+instead of nesting. Changing the set of children remounts its `Group` so the
+panels share out evenly again, which is only affordable because **the xterm
+instances live outside React** — a module-level registry in `TerminalPane.tsx`
+owns the DOM node and the terminal, and the component merely re-parents that
+node. Unmounting a real xterm would take the running shell with it, and every
+split moves terminals between panels. Sessions therefore end only in
+`destroySession`: **Close**, a shell that exited, or the tab's `TerminalsPane`
+unmounting (closing the repository tab).
 
 ### Refresh
 
 `src/main/watcher.ts` watches the work tree recursively, filters `.git` down to
 the few paths that matter (`HEAD`, `index`, `refs/`, …) plus build-output noise,
-and debounces into a single `repo:changed` event. The renderer reloads status
-and log on it. Watching is best-effort; the manual refresh path must keep
-working if it fails.
+and debounces into a `repo:changed` event tagged with the root. The main process
+keeps one watcher per open repository in a `Map`; closing a tab (`repo:close`)
+stops that root's watcher. Each `RepoTab` reloads status and log only for its own
+root. Watching is best-effort; the manual refresh path must keep working if it
+fails.
 
 ## Gotchas
 

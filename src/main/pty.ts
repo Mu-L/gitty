@@ -15,10 +15,12 @@ function defaultShell(): string {
 
 /**
  * Spawn an interactive login shell rooted at the repository, streaming its
- * output to the renderer over `terminal:data`.
+ * output to the renderer over `terminal:data`. Every message carries the
+ * session id, since the renderer may hold several split terminals at once.
  */
 export function createTerminal(
   wc: WebContents,
+  id: string,
   cwd: string,
   cols = 80,
   rows = 24
@@ -40,10 +42,10 @@ export function createTerminal(
   let disposed = false
 
   proc.onData((data) => {
-    if (!disposed && !wc.isDestroyed()) wc.send('terminal:data', data)
+    if (!disposed && !wc.isDestroyed()) wc.send('terminal:data', id, data)
   })
   proc.onExit(({ exitCode, signal }) => {
-    if (!disposed && !wc.isDestroyed()) wc.send('terminal:exit', { exitCode, signal })
+    if (!disposed && !wc.isDestroyed()) wc.send('terminal:exit', id, { exitCode, signal })
   })
 
   return {

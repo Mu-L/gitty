@@ -3,12 +3,32 @@ import path from 'node:path'
 import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, shell } from 'electron'
 import * as git from './git'
 import { createTerminal, type TerminalSession } from './pty'
+import { addRecent, clearRecent, listRecent } from './recent'
 import { watchRepo, type RepoWatcher } from './watcher'
 import type { DiffRequest } from '../shared/types'
 
+// Fixes the userData directory (~/.config/Gitty) rather than inheriting
+// Electron's default name when running unpackaged.
+app.setName('Gitty')
+
 let win: BrowserWindow | null = null
-let term: TerminalSession | null = null
-let watcher: RepoWatcher | null = null
+
+// The renderer can split the terminal pane, so shells are keyed by the id it
+// hands out rather than held one at a time.
+const terms = new Map<string, TerminalSession>()
+
+// Each open tab watches its own repository, so several may be watched at once.
+const watchers = new Map<string, RepoWatcher>()
+
+function disposeTerminal(id: string): void {
+  terms.get(id)?.dispose()
+  terms.delete(id)
+}
+
+function disposeAllTerminals(): void {
+  for (const t of terms.values()) t.dispose()
+  terms.clear()
+}
 
 /**
  * Repository to open on launch: $GITTY_REPO, else the first command-line
@@ -97,11 +117,14 @@ function createWindow(): void {
   })
 
   win.on('ready-to-show', () => win?.show())
+  // A reload throws away the renderer's terminal ids, so its shells would
+  // otherwise linger with nothing able to reach them.
+  win.webContents.on('did-start-loading', disposeAllTerminals)
+
   win.on('closed', () => {
-    term?.dispose()
-    term = null
-    watcher?.close()
-    watcher = null
+    disposeAllTerminals()
+    for (const w of watchers.values()) w.close()
+    watchers.clear()
     win = null
   })
 
@@ -144,11 +167,27 @@ function registerIpc(): void {
     }
   })
 
+  ipcMain.handle('recent:list', () => listRecent())
+  ipcMain.handle('recent:add', (_e, root: string) => addRecent(root))
+  ipcMain.handle('recent:clear', () => clearRecent())
+
   ipcMain.handle('repo:watch', (_e, root: string) => {
-    watcher?.close()
-    watcher = watchRepo(root, () => {
-      if (win && !win.isDestroyed()) win.webContents.send('repo:changed')
-    })
+    // Re-watching the same root replaces its watcher; others stay untouched.
+    watchers.get(root)?.close()
+    watchers.set(
+      root,
+      watchRepo(root, () => {
+        if (win && !win.isDestroyed()) win.webContents.send('repo:changed', { root })
+      })
+    )
+    return true
+  })
+
+  // A closed tab stops watching its repository; its terminals are already gone,
+  // disposed by the renderer when the tab's terminal pane unmounts.
+  ipcMain.handle('repo:close', (_e, root: string) => {
+    watchers.get(root)?.close()
+    watchers.delete(root)
     return true
   })
 
@@ -194,13 +233,19 @@ function registerIpc(): void {
     clipboard.writeText(text)
   })
 
-  ipcMain.handle('terminal:start', (e, root: string, cols: number, rows: number) => {
-    term?.dispose()
-    term = createTerminal(e.sender, root, cols, rows)
-    return true
-  })
-  ipcMain.on('terminal:input', (_e, data: string) => term?.write(data))
-  ipcMain.on('terminal:resize', (_e, cols: number, rows: number) => term?.resize(cols, rows))
+  ipcMain.handle(
+    'terminal:start',
+    (e, id: string, root: string, cols: number, rows: number) => {
+      disposeTerminal(id)
+      terms.set(id, createTerminal(e.sender, id, root, cols, rows))
+      return true
+    }
+  )
+  ipcMain.on('terminal:input', (_e, id: string, data: string) => terms.get(id)?.write(data))
+  ipcMain.on('terminal:resize', (_e, id: string, cols: number, rows: number) =>
+    terms.get(id)?.resize(cols, rows)
+  )
+  ipcMain.on('terminal:close', (_e, id: string) => disposeTerminal(id))
 }
 
 app.whenReady().then(() => {

@@ -572,14 +572,67 @@ button:hover {
 
 /* ---------- terminal ---------- */
 
-.term-host {
+.term-body {
+  display: flex;
   flex: 1;
+  min-height: 0;
+}
+
+.term-split {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Both a flex child (a lone terminal) and a panel child (a split one), so it
+   has to claim its box either way — a collapsed width would have the shell
+   wrapping at a couple of columns. */
+.term-host {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
   min-height: 0;
   padding: 2px 4px;
 }
 
+.term-host > div,
 .term-host .xterm {
+  flex: 1;
+  min-width: 0;
   height: 100%;
+  /* Fitting rounds down to whole rows; the leftover strip must not show
+     xterm's own black through the pane, nor grow a scrollbar. */
+  overflow: hidden;
+  background: var(--bg-pane);
+}
+
+/* Fitting rounds down to whole rows, so a few pixels of viewport always sit
+   below the last one. xterm.css paints those black; the pane must not have a
+   dark strip along the bottom of every split. */
+.term-host .xterm-viewport {
+  overflow-x: hidden;
+  background: transparent;
+}
+
+/* Defining these at all replaces the platform scrollbar, arrows included. */
+.term-host .xterm-viewport::-webkit-scrollbar {
+  width: 7px;
+}
+
+.term-host .xterm-viewport::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: var(--border);
+}
+
+.term-host .xterm-viewport::-webkit-scrollbar-thumb:hover {
+  background: var(--border-active);
+}
+
+/* Only worth marking once the pane is split. An inset shadow rather than a
+   border: focus must not resize the terminal it moves to. */
+.term-host.active {
+  box-shadow: inset 0 0 0 1px var(--border-active);
 }
 
 /* ---------- markdown preview ---------- */
@@ -1138,4 +1191,132 @@ button:hover {
   gap: 8px;
   padding: 8px 12px;
   border-top: 1px solid var(--border);
+}
+
+/* Repository name in the title bar, doubling as the recent-repository menu. */
+.repo-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 0 6px;
+  border-color: transparent;
+}
+
+.repo-button:hover {
+  border-color: var(--border);
+}
+
+.repo-button .caret {
+  color: var(--fg-dim);
+}
+
+/* ---------- repository tabs ---------- */
+
+/* The column between title bar and tab bar that the open repositories share;
+   only the active tab is visible, the others stay mounted and hidden. */
+.tab-content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+/* The per-tab container App renders; hidden ones keep their subtree mounted
+   (view state and shells survive) but take no space. */
+.repo-tab-shell {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.repo-tab {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.repo-tab .grid {
+  flex: 1;
+  min-height: 0;
+}
+
+.tabbar {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  padding: 3px 6px;
+  background: var(--bg-header);
+  border-top: 1px solid var(--border);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+  min-width: 60px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px 4px 0 0;
+  background: var(--bg-pane);
+  color: var(--fg-dim);
+  cursor: pointer;
+  user-select: none;
+}
+
+.tab:hover {
+  background: var(--bg-hover);
+}
+
+.tab.active {
+  background: var(--bg-select);
+  color: var(--fg);
+  border-color: var(--border-active);
+}
+
+.tab-name {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tab-dirty {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--yellow);
+}
+
+.tab-close {
+  flex: none;
+  padding: 0 4px;
+  border: 0;
+  line-height: 1;
+  color: var(--fg-faint);
+}
+
+.tab-close:hover {
+  color: var(--red);
+}
+
+.tab-add {
+  flex: none;
+  padding: 0 8px;
+}
+
+/* No repositories open yet. */
+.tab-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  color: var(--fg-faint);
 }

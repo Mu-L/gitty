@@ -76,6 +76,27 @@ On Linux the app runs with Chromium's SUID sandbox disabled
 root with mode 4755 — cannot survive inside `node_modules`, so disabling it is
 the pragmatic choice for a local tool that only reads your own repositories.
 
+## Multiple repositories
+
+A tab bar along the bottom holds every open repository — its basename, a dot
+when the working tree has uncommitted changes, and a **×** to close it. **+**
+(and **Ctrl+O**) opens another repository into a new tab; the title bar always
+shows the active one. Each tab keeps its own panes and terminal, so a commit you
+are reading and a shell you left running stay exactly where they were when you
+switch away and back. Closing the last tab leaves an empty window with a button
+to open the next repository. (Open tabs are not remembered across restarts.)
+
+## Recent repositories
+
+The repository name in the title bar is a menu of the repositories opened
+before — basename plus its parent directory — most recent first. Picking one
+opens it in a new tab; **Open Repository…** and **Clear Recent** sit below. The
+list lives in `~/.config/Gitty/recent-repos.json`, holds twelve entries, and
+skips any that have since been moved or deleted.
+
+Starting Gitty from a directory that is not inside a work tree falls back to the
+last repository opened, instead of just complaining.
+
 ## The panes
 
 ### Working Tree (top left)
@@ -160,6 +181,17 @@ A real interactive login shell (`$SHELL`) rooted at the repository, so any git
 command can be run directly. The other panes refresh automatically when the
 repository changes on disk.
 
+The pane splits into as many shells as you want: **Split →** puts a new one
+beside the focused terminal, **Split ↓** below it, and the separators between
+them drag like every other pane. Clicking a terminal focuses it — the outlined
+one is where the next split or **Close** lands. Splitting the same way twice
+extends the row or column rather than nesting, so three side-by-side terminals
+resize against each other.
+
+**Close** ends the focused shell; leaving a shell with `exit` closes its split
+by itself. The last terminal always stays: exiting it leaves the notice on
+screen instead of an empty pane.
+
 ## Keyboard shortcuts
 
 | Key | Action |
@@ -168,15 +200,19 @@ repository changes on disk.
 | <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Mark a second commit and diff the pair |
 | <kbd>Esc</kbd> | Back to the working tree |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |
-| <kbd>Ctrl+O</kbd> | Open another repository |
+| <kbd>Ctrl+O</kbd> | Open another repository in a new tab |
+| <kbd>Ctrl+,</kbd> | Settings |
 
 ## Architecture
 
 ```
-src/main       Electron main process — git commands, pty, fs watcher, IPC
+src/main       Electron main process — git commands, ptys, fs watchers,
+               the recent-repository store, IPC
 src/preload    contextBridge API exposed to the renderer as window.gitty
-src/renderer   React UI — the four panes
+src/renderer   React UI — App.tsx manages tabs, RepoTab.tsx owns one
+               repository's four panes
 src/shared     Types shared by both sides
+build          Application icon (SVG source and rendered PNG)
 ```
 
 Git is driven through `execFile('git', …)` with `--porcelain=v2 -z` /

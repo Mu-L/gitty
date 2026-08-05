@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Repository tabs: a bar along the bottom holds every open repository, each with
+  its own four panes and terminal. **+** or **Ctrl+O** opens another repository
+  into a new tab instead of replacing the current one, a dot marks tabs whose
+  working tree has uncommitted changes, and **×** closes one (leaving an empty
+  window to open the next when the last closes). Switching tabs never disturbs
+  the other repository's view state or shells. Tabs are not persisted across
+  restarts.
+
+- A split terminal pane: **Split →** opens a shell beside the focused one,
+  **Split ↓** below it, and **Close** ends it. Splits nest and their separators
+  drag like every other pane; splitting the same way twice extends the row or
+  column rather than nesting again. Clicking a terminal focuses it, and the
+  focused one is outlined once there is more than one. A shell that exits
+  closes its own split, except the last one, which keeps the pane and its
+  notice.
+
+- Recent repositories are remembered: the title bar's repository name opens a
+  menu of the last twelve opened, most recent first, with **Open Repository…**
+  and **Clear Recent** below it. The list is kept by the main process in
+  `~/.config/Gitty/recent-repos.json` and entries that no longer exist are
+  skipped. Launching from a directory outside any work tree now falls back to
+  the last repository opened rather than only reporting the error.
+
 - An application icon, used as the window icon on Linux and Windows: a dark
   rounded square split into the four panes, each tinted with its accent colour
   (green work tree, red diff, cyan commit log, blue terminal) and carrying a
