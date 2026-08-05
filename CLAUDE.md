@@ -106,7 +106,12 @@ under `gitty.wrap` / `gitty.diffView`.
 from disk via `git.readWorking` in the work tree, from the revision via
 `git.snapshotFile` elsewhere. markdown-it runs with `html: false` so raw HTML
 stays inert without a sanitiser; heading ids are assigned on the token stream
-before rendering, so the outline and the document cannot disagree. Link clicks
+before rendering, so the outline and the document cannot disagree. Front matter
+is sliced off before parsing (markdown-it would read `---` as a rule) and
+rendered as its own highlighted block. highlight.js is imported through
+`lib/core` with languages registered one by one — the full bundle dwarfs the
+rest of the renderer — and its token colours are mapped onto the app palette in
+CSS instead of importing one of its themes. Link clicks
 are intercepted — a plain `<a>` navigation would replace the whole app window.
 
 Full screen is a `position: fixed` class on the pane rather than a different

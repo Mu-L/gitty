@@ -93,6 +93,11 @@ stays a diff until you ask for the rendered document. It renders the file as a
 whole: the version on disk in the work tree, the version at the selected commit
 everywhere else.
 
+Fenced code blocks are syntax-highlighted when they name a language, YAML front
+matter is lifted out and shown as its own highlighted block, and heading levels,
+list markers, links and inline code are colour-coded so structure reads at a
+glance.
+
 - **Wrap** — the same toggle as the diff, on by default. Prose always wraps; in
   a preview this decides whether fenced code blocks, wide tables and long inline
   strings wrap too, rather than scrolling sideways.

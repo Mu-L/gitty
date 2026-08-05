@@ -14,6 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   elsewhere — with an **Outline** of its headings that indents by level, follows
   the reading position and jumps on click. Raw HTML is left inert and links open
   in the system browser.
+- Colour in the markdown preview: fenced code blocks are syntax-highlighted
+  through highlight.js when they name a language (22 common ones are
+  registered), YAML front matter is lifted out of the document and shown as its
+  own highlighted block, and heading levels, list markers, blockquotes, table
+  headers, links and inline code are colour-coded. Token colours are mapped onto
+  the app's own palette rather than imported from a highlight.js theme, so code
+  matches the diff and the terminal.
 - Word wrap now applies to the markdown preview as well, on by default and
   sharing the diff's toggle: fenced code blocks, wide tables and long inline
   strings wrap instead of scrolling sideways.
