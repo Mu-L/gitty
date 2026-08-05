@@ -132,6 +132,7 @@ button:hover {
 }
 
 .pane-header .title {
+  flex: 0 1 auto;
   color: var(--fg);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -141,8 +142,13 @@ button:hover {
   flex: 1;
 }
 
+/* Hints give up their space before the title does. */
 .pane-header .hint {
+  flex: 0 100 auto;
+  min-width: 0;
   color: var(--fg-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pane-body {
@@ -270,32 +276,56 @@ button:hover {
   background: var(--bg-select);
 }
 
+/* The uncommitted-changes row pinned above the log. */
+.worktree-row {
+  border-bottom: 1px solid var(--border);
+}
+
+.worktree-row .commit-hash {
+  color: var(--cyan);
+}
+
+.worktree-row .dim {
+  color: var(--fg-dim);
+}
+
 .commit-row.compare {
   background: var(--bg-select-dim);
   box-shadow: inset 2px 0 0 var(--magenta);
 }
 
 .commit-hash {
+  flex: none;
+  min-width: 9ch;
   color: var(--yellow);
 }
 
 .commit-time {
-  color: var(--fg-dim);
+  flex: none;
   width: 78px;
+  color: var(--fg-dim);
 }
 
+/* Fixed widths keep the subject column aligned across rows. */
 .commit-author {
-  color: var(--cyan);
+  flex: none;
   width: 110px;
+  color: var(--cyan);
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .commit-refs {
+  flex: none;
+  max-width: 40%;
   color: var(--green);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .commit-subject {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }

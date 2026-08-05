@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import path from 'node:path'
 import { app, BrowserWindow, clipboard, dialog, ipcMain, shell } from 'electron'
 import * as git from './git'
@@ -9,12 +10,23 @@ let win: BrowserWindow | null = null
 let term: TerminalSession | null = null
 let watcher: RepoWatcher | null = null
 
-/** Repository to open on launch: $GITTY_REPO, else a CLI argument, else the cwd. */
+/**
+ * Repository to open on launch: $GITTY_REPO, else the first command-line
+ * argument that names a directory (argv also holds the electron binary and,
+ * when unpackaged, the entry script), else the cwd.
+ */
 function initialPath(): string {
   if (process.env.GITTY_REPO) return path.resolve(process.env.GITTY_REPO)
-  const args = process.argv.slice(app.isPackaged ? 1 : 2)
-  const candidate = args.find((a) => !a.startsWith('-') && a !== '.')
-  return candidate ? path.resolve(candidate) : process.cwd()
+  for (const arg of process.argv.slice(1)) {
+    if (arg.startsWith('-')) continue
+    const candidate = path.resolve(arg)
+    try {
+      if (fs.statSync(candidate).isDirectory()) return candidate
+    } catch {
+      /* not a path we can use */
+    }
+  }
+  return process.cwd()
 }
 
 function createWindow(): void {

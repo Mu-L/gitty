@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `setup.sh` — installs `gitty` as a global command into `~/.local/bin` (or
   `/usr/local/bin` with `--system`), so any repository can be opened with
   `gitty .`.
+- Working Tree row pinned above the commit log: it shows how many files are
+  uncommitted and selecting it brings the top panes back to the work tree. It
+  takes part in keyboard navigation and is selected on startup.
 
 ### Changed
 
@@ -20,6 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Linux launches with the SUID sandbox disabled
   (`ELECTRON_DISABLE_SANDBOX=1`) to avoid the chrome-sandbox permission abort
   that setuid binaries inside `node_modules` trigger.
+
+### Fixed
+
+- The repository argument is now the first command-line entry that names a
+  directory, so `electron out/main/index.js <repo>` no longer mistakes the entry
+  script for the repository.
+- Commit rows keep their columns aligned: hash, time and author no longer
+  stretch to fit their content, and pane titles survive long hint text.
 
 ## [0.1.0] - 2026-08-05
 
@@ -34,8 +45,6 @@ Initial release.
 - File interactions: click to diff, double-click to open with the system
   default application, right-click to open, reveal in the file manager, or copy
   the relative path, absolute path or file name.
-- Working Tree row pinned above the commit log, showing the number of
-  uncommitted changes and switching the top panes back to the work tree.
 - Commit log: paged loading (300 commits at a time, extended on scroll),
   keyboard navigation, <kbd>Enter</kbd> to show a commit's diff, and
   <kbd>Ctrl+Click</kbd> / <kbd>Space</kbd> to diff two selected commits.
@@ -49,8 +58,7 @@ Initial release.
   <kbd>Ctrl+R</kbd> to refresh manually.
 - Repository selection via `./run.sh [repo]`, `$GITTY_REPO`, a command-line
   argument, or <kbd>Ctrl+O</kbd> in the app.
-- `run.sh` launcher that installs dependencies and rebuilds stale bundles, and
-  `setup.sh` to install it as a global `gitty` command.
+- `run.sh` launcher that installs dependencies and rebuilds stale bundles.
 
 [Unreleased]: https://github.com/baojie/gitty/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/baojie/gitty/releases/tag/v0.1.0

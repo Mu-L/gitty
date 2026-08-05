@@ -3,7 +3,7 @@ import { Group, Panel, Separator } from 'react-resizable-panels'
 import { ContextMenu, type MenuItem, type MenuState } from './components/ContextMenu'
 import { DiffPane } from './components/DiffPane'
 import { FilesPane, type FileEntry } from './components/FilesPane'
-import { LogPane } from './components/LogPane'
+import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { TerminalPane } from './components/TerminalPane'
 import type {
   Commit,
@@ -46,7 +46,7 @@ export default function App(): JSX.Element {
   const [viewFiles, setViewFiles] = useState<FileEntry[]>([])
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [diff, setDiff] = useState<DiffResult | null>(null)
-  const [selectedCommit, setSelectedCommit] = useState<string | null>(null)
+  const [selectedCommit, setSelectedCommit] = useState<string | null>(WORKTREE_ROW)
   const [compareCommit, setCompareCommit] = useState<string | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -66,7 +66,7 @@ export default function App(): JSX.Element {
     setRoot(resolved)
     setView({ mode: 'worktree' })
     setSelectedFile(null)
-    setSelectedCommit(null)
+    setSelectedCommit(WORKTREE_ROW)
     setCompareCommit(null)
     setDiff(null)
     setCommits([])
@@ -189,8 +189,19 @@ export default function App(): JSX.Element {
     setView({ mode: 'commit', hash: c.hash, short: c.short, subject: c.subject })
   }, [])
 
+  const backToWorkTree = useCallback(() => {
+    setView({ mode: 'worktree' })
+    setSelectedCommit(WORKTREE_ROW)
+    setCompareCommit(null)
+    setSelectedFile(null)
+  }, [])
+
   const onSelectCommit = useCallback(
     (hash: string, additive: boolean) => {
+      if (hash === WORKTREE_ROW) {
+        backToWorkTree()
+        return
+      }
       const c = commits.find((x) => x.hash === hash)
       if (!c) return
 
@@ -210,14 +221,8 @@ export default function App(): JSX.Element {
       setSelectedFile(null)
       setView({ mode: 'range', from, to })
     },
-    [commits, selectedCommit, showCommit]
+    [commits, selectedCommit, showCommit, backToWorkTree]
   )
-
-  const backToWorkTree = useCallback(() => {
-    setView({ mode: 'worktree' })
-    setCompareCommit(null)
-    setSelectedFile(null)
-  }, [])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
@@ -382,8 +387,8 @@ export default function App(): JSX.Element {
               <div className="pane">
                 <div className="pane-header">
                   <span className="title">Commits</span>
-                  {compareCommit && <span className="badge">comparing 2 commits</span>}
                   <span className="spacer" />
+                  {compareCommit && <span className="badge">comparing 2 commits</span>}
                   <span className="hint">
                     ↑↓ move · Enter show · Ctrl+Click compare · Esc work tree
                   </span>
@@ -392,8 +397,13 @@ export default function App(): JSX.Element {
                   commits={commits}
                   selected={selectedCommit}
                   compare={compareCommit}
+                  changedCount={status?.files.length ?? 0}
                   onSelect={onSelectCommit}
                   onEnter={(hash) => {
+                    if (hash === WORKTREE_ROW) {
+                      backToWorkTree()
+                      return
+                    }
                     const c = commits.find((x) => x.hash === hash)
                     if (c) showCommit(c)
                   }}
