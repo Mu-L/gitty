@@ -514,6 +514,19 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   }
 
   const commitMenu = (c: Commit, at: MenuState): void => {
+    // The local web server renders this commit for the system browser; the
+    // URL is only meaningful while the repo stays open, so it is fetched at
+    // click time rather than stashed.
+    const openInBrowser = (): void => {
+      void window.gitty.web.commitUrl(root, c.hash).then((url) => {
+        if (url) void window.gitty.file.openExternal(url)
+      })
+    }
+    const copyUrl = (): void => {
+      void window.gitty.web.commitUrl(root, c.hash).then((url) => {
+        if (url) void window.gitty.clipboard.write(url)
+      })
+    }
     const items: MenuItem[] = [
       { label: 'Show Commit Diff', accel: 'Enter', action: () => showCommit(c) },
       {
@@ -523,6 +536,12 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       },
       { label: 'Copy Short Hash', action: () => void window.gitty.clipboard.write(c.short) },
       { label: 'Copy Subject', action: () => void window.gitty.clipboard.write(c.subject) },
+      {
+        label: 'Open in Browser',
+        separatorBefore: true,
+        action: openInBrowser
+      },
+      { label: 'Copy Commit URL', action: copyUrl },
       {
         label: 'Browse Snapshot',
         separatorBefore: true,
@@ -749,6 +768,17 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       ⎇ {browsing}
                     </span>
                   )}
+                  <button
+                    className="toggle"
+                    title="Open this repository's commits in the browser"
+                    onClick={() => {
+                      void window.gitty.web.repoUrl(root).then((url) => {
+                        if (url) void window.gitty.file.openExternal(url)
+                      })
+                    }}
+                  >
+                    Open in Browser
+                  </button>
                   <span className="spacer" />
                   {compareCommit && <span className="badge">comparing 2 commits</span>}
                   <span className="hint">

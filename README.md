@@ -201,6 +201,12 @@ Each tab browses on its own.
 - **↑ ↓ / j k / PgUp / PgDn / Home / End** — move the cursor.
 - **Right-click** — show the diff, copy the hash, the short hash or the subject,
   or diff against the currently selected commit.
+- **Right-click → Open in Browser** — render this commit in the system browser;
+  **Copy Commit URL** copies the link. A web server inside the app (listening on
+  `127.0.0.1` only, for your own browser) serves every open repository as a
+  browsable commit list — the commits pane's **Open in Browser** button lands
+  there — with each commit's metadata, files and diff, and per-file diffs one
+  click away. The URLs work while the repository is open.
 - Selecting a file in the top-left pane narrows the diff to that file;
   **Show Whole Diff** widens it back out.
 

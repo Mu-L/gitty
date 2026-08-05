@@ -116,3 +116,9 @@ export interface PtyExit {
 export interface RepoChanged {
   root: string
 }
+
+/**
+ * A URL the local web server serves for a repository or commit, or null when
+ * the server is not running or the repo is not open.
+ */
+export type WebUrl = string | null

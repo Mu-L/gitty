@@ -5,6 +5,7 @@ import * as git from './git'
 import { createTerminal, type TerminalSession } from './pty'
 import { addRecent, clearRecent, listRecent, removeRecent } from './recent'
 import { watchRepo, type RepoWatcher } from './watcher'
+import * as web from './web'
 import type { DiffRequest } from '../shared/types'
 
 // Fixes the userData directory (~/.config/Gitty) rather than inheriting
@@ -193,6 +194,8 @@ function registerIpc(): void {
         if (win && !win.isDestroyed()) win.webContents.send('repo:changed', { root })
       })
     )
+    // The web server serves any open repo; a re-open just re-registers it.
+    web.registerRepo(root)
     return true
   })
 
@@ -201,6 +204,7 @@ function registerIpc(): void {
   ipcMain.handle('repo:close', (_e, root: string) => {
     watchers.get(root)?.close()
     watchers.delete(root)
+    web.unregisterRepo(root)
     return true
   })
 
@@ -245,6 +249,9 @@ function registerIpc(): void {
   ipcMain.handle('file:reveal', (_e, abs: string) => {
     shell.showItemInFolder(abs)
   })
+
+  ipcMain.handle('web:repoUrl', (_e, root: string) => web.repoUrl(root))
+  ipcMain.handle('web:commitUrl', (_e, root: string, hash: string) => web.commitUrl(root, hash))
   ipcMain.handle('clipboard:write', (_e, text: string) => {
     clipboard.writeText(text)
   })
@@ -264,7 +271,9 @@ function registerIpc(): void {
   ipcMain.on('terminal:close', (_e, id: string) => disposeTerminal(id))
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // The web server must be up before the renderer can ask for URLs.
+  await web.start()
   registerIpc()
   installMenu()
   createWindow()
@@ -275,4 +284,8 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
+})
+
+app.on('will-quit', () => {
+  web.stop()
 })

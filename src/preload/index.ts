@@ -10,7 +10,8 @@ import type {
   PtyExit,
   RepoChanged,
   RepoStatus,
-  SnapshotFileContent
+  SnapshotFileContent,
+  WebUrl
 } from '../shared/types'
 
 const api = {
@@ -72,6 +73,12 @@ const api = {
     open: (abs: string): Promise<string | null> => ipcRenderer.invoke('file:open', abs),
     reveal: (abs: string): Promise<void> => ipcRenderer.invoke('file:reveal', abs),
     openExternal: (url: string): Promise<void> => ipcRenderer.invoke('file:openExternal', url)
+  },
+  /** The local web server that renders commits for the browser. */
+  web: {
+    repoUrl: (root: string): Promise<WebUrl> => ipcRenderer.invoke('web:repoUrl', root),
+    commitUrl: (root: string, hash: string): Promise<WebUrl> =>
+      ipcRenderer.invoke('web:commitUrl', root, hash)
   },
   clipboard: {
     write: (text: string): Promise<void> => ipcRenderer.invoke('clipboard:write', text)

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Every commit has a local URL: a web server inside the app (127.0.0.1 only)
+  renders commits for the system browser. Right-click a commit for **Open in
+  Browser** or **Copy Commit URL**; the commits pane's **Open in Browser**
+  button lands on the repository's commit list, where each row links into its
+  commit page — metadata, message, file list and diff, with per-file diffs one
+  click away. URLs work while the repository is open.
 - The diff pane shows everything at once when no file is selected: in the work
   tree that is every uncommitted change — staged and unstaged together, with
   untracked files inlined (up to 50, then a notice) since `git diff` omits them
