@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-08-05
+
 ### Added
 
 - Whole-file view beyond markdown: **View File** — a double-click in the file
@@ -41,7 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Full-screen mode for the diff / preview pane, from its button, a double-click
   on its header, or <kbd>Esc</kbd> to leave. The pane is drawn over the layout,
   so the terminal underneath keeps its shell and scrollback.
-
 - Word wrap in the diff pane, on by default, toggled from the header or the
   context menu and remembered between runs.
 - Side-by-side diff view alongside the inline one: deletions are zipped with the
@@ -75,6 +76,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   than the row around them, in both inline and side-by-side views. Toggle it
   from the diff's context menu, and very long or single-token lines fall back
   to the row-level highlight.
+- Double-clicking a file views it in the pane beside the tree instead of handing
+  it to the system application, which moved to the context menu as "Open in
+  System App".
+- README screenshot updated for this release (`ref/gitty-0.1.1.png`).
 
 ### Fixed
 
@@ -122,5 +127,6 @@ Initial release.
   `chrome-sandbox` cannot keep its root-owned setuid bit inside `node_modules`.
 - README shows a screenshot of the interface (`ref/gitty-0.1.0.png`).
 
-[Unreleased]: https://github.com/baojie/gitty/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/baojie/gitty/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/baojie/gitty/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/baojie/gitty/releases/tag/v0.1.0

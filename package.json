@@ -1,6 +1,6 @@
 {
   "name": "gitty",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A four-pane git history browser",
   "main": "./out/main/index.js",
   "author": "baojie",
