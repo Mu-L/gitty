@@ -456,7 +456,6 @@ export default function App(): JSX.Element {
   )
 }
 
-/** Home-relative directory of a path, for the recent-repository menu. */
 /** Coarse age of a branch's last commit, to date the branch menu's entries. */
 function ago(iso: string): string {
   const then = new Date(iso).getTime()
@@ -469,6 +468,7 @@ function ago(iso: string): string {
   return `${Math.floor(days / 365)}y ago`
 }
 
+/** Home-relative directory of a path, for the recent-repository menu. */
 function shortenPath(p: string): string {
   const dir = p.slice(0, p.lastIndexOf('/')) || '/'
   const home = window.gitty.homeDir
