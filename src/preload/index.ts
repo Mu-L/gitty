@@ -25,6 +25,7 @@ const api = {
     /** Repositories opened before, most recent first. */
     recent: (): Promise<string[]> => ipcRenderer.invoke('recent:list'),
     remember: (root: string): Promise<string[]> => ipcRenderer.invoke('recent:add', root),
+    forget: (root: string): Promise<string[]> => ipcRenderer.invoke('recent:remove', root),
     forgetAll: (): Promise<void> => ipcRenderer.invoke('recent:clear'),
     onChanged: (cb: (changed: RepoChanged) => void): (() => void) => {
       const h = (_e: unknown, changed: RepoChanged): void => cb(changed)

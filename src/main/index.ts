@@ -3,7 +3,7 @@ import path from 'node:path'
 import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, shell } from 'electron'
 import * as git from './git'
 import { createTerminal, type TerminalSession } from './pty'
-import { addRecent, clearRecent, listRecent } from './recent'
+import { addRecent, clearRecent, listRecent, removeRecent } from './recent'
 import { watchRepo, type RepoWatcher } from './watcher'
 import type { DiffRequest } from '../shared/types'
 
@@ -169,6 +169,7 @@ function registerIpc(): void {
 
   ipcMain.handle('recent:list', () => listRecent())
   ipcMain.handle('recent:add', (_e, root: string) => addRecent(root))
+  ipcMain.handle('recent:remove', (_e, root: string) => removeRecent(root))
   ipcMain.handle('recent:clear', () => clearRecent())
 
   ipcMain.handle('repo:watch', (_e, root: string) => {

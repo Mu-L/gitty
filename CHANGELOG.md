@@ -34,8 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   notice.
 
 - Recent repositories are remembered: the title bar's repository name opens a
-  menu of the last twelve opened, most recent first, with **Open Repository…**
-  and **Clear Recent** below it. The list is kept by the main process in
+  menu of the last twelve opened, most recent first; picking one opens it in a
+  new tab, and **Open Repository…** and **Clear Recent** sit below. The list is
+  kept by the main process in
   `~/.config/Gitty/recent-repos.json` and entries that no longer exist are
   skipped. Launching from a directory outside any work tree now falls back to
   the last repository opened rather than only reporting the error.

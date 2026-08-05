@@ -64,6 +64,48 @@ export default function App(): JSX.Element {
     return true
   }, [])
 
+  /** Replace the active tab's repository, keeping its position in the bar. */
+  const openInActiveTab = useCallback(
+    async (candidate: string): Promise<boolean> => {
+      const resolved = await window.gitty.repo.resolve(candidate)
+      if (!resolved) {
+        setError(`${candidate} is not inside a git work tree.`)
+        return false
+      }
+      setError(null)
+      const previous = active
+      if (previous === resolved) return true
+      // Already open in another tab: just go there rather than duplicating it.
+      if (roots.includes(resolved)) {
+        setActive(resolved)
+        return true
+      }
+      setRoots((prev) =>
+        previous && prev.includes(previous)
+          ? prev.map((r) => (r === previous ? resolved : r))
+          : [...prev, resolved]
+      )
+      setActive(resolved)
+      await window.gitty.repo.watch(resolved)
+      setRecent(await window.gitty.repo.remember(resolved))
+      if (previous) {
+        void window.gitty.repo.close(previous)
+        setStatusByRoot((prev) => {
+          const next = { ...prev }
+          delete next[previous]
+          return next
+        })
+        setBrowsingByRoot((prev) => {
+          const next = { ...prev }
+          delete next[previous]
+          return next
+        })
+      }
+      return true
+    },
+    [active, roots]
+  )
+
   const closeTab = useCallback(
     (root: string) => {
       void window.gitty.repo.close(root)
@@ -176,12 +218,20 @@ export default function App(): JSX.Element {
 
   /* ---------- repository menu (recent + open) ---------- */
 
-  const openRecentMenu = (x: number, y: number): void => {
-    const others = recent.filter((p) => p !== active)
+  // Rebuilt rather than captured, so removing an entry updates the open menu.
+  function recentItems(list: string[]): MenuItem[] {
+    const others = list.filter((p) => p !== active)
     const items: MenuItem[] = others.map((p) => ({
       label: p.split('/').pop() || p,
       accel: shortenPath(p),
-      action: () => void openTab(p)
+      title: `${p}\n\nClick to open in a new tab\nCtrl+click to open in this tab\nRight-click to remove from the list`,
+      action: (mods) => void (mods?.ctrl ? openInActiveTab(p) : openTab(p)),
+      auxAction: () => void openInActiveTab(p),
+      altAction: () =>
+        void window.gitty.repo.forget(p).then((next) => {
+          setRecent(next)
+          setMenu((m) => (m ? { ...m, items: recentItems(next) } : m))
+        })
     }))
     if (items.length === 0) {
       items.push({ label: 'No other repositories yet', action: () => {} })
@@ -201,7 +251,11 @@ export default function App(): JSX.Element {
         }
       })
     }
-    setMenu({ x, y, items })
+    return items
+  }
+
+  const openRecentMenu = (x: number, y: number): void => {
+    setMenu({ x, y, items: recentItems(recent) })
   }
 
   /* ---------- branch menu ---------- */

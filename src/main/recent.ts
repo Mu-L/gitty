@@ -47,6 +47,13 @@ export function addRecent(root: string): string[] {
   return list
 }
 
+/** Drop one repository from the list. */
+export function removeRecent(root: string): string[] {
+  const list = read().filter((p) => p !== root)
+  write(list)
+  return list
+}
+
 export function clearRecent(): void {
   write([])
 }
