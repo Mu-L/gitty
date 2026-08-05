@@ -46,6 +46,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A replaced terminal session (window reload, repository switch) no longer
   writes its exit notice into the terminal that succeeded it.
+- Hovering a diff-pane button showed the header's own tooltip ("Double-click to
+  toggle full screen") whenever the button had none of its own. Tooltips now sit
+  on the individual parts, and every button carries its own.
+- "Show Whole Diff" no longer appears while browsing a snapshot, where there is
+  no whole diff to widen back to — clicking it just emptied the pane.
 
 ## [0.1.0] - 2026-08-05
 

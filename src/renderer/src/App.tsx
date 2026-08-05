@@ -559,18 +559,31 @@ export default function App(): JSX.Element {
               <div className={`pane${maximized ? ' maximized' : ''}`}>
                 <div
                   className="pane-header"
-                  title="Double-click to toggle full screen"
                   onDoubleClick={(e) => {
                     // Buttons in the header have their own meaning.
                     if ((e.target as HTMLElement).closest('button')) return
                     setMaximized((m) => !m)
                   }}
                 >
-                  <span className="title">{diffTitle}</span>
-                  <span className="spacer" />
-                  {selectedFile && view.mode !== 'worktree' && !previewing && (
-                    <button onClick={() => setSelectedFile(null)}>Show Whole Diff</button>
-                  )}
+                  {/* Tooltips live on the individual parts: a title on the
+                      header itself would show up under every button that has
+                      none of its own. */}
+                  <span className="title" title={diffTitle}>
+                    {diffTitle}
+                  </span>
+                  <span className="spacer" title="Double-click to toggle full screen" />
+                  {/* Only commit and range diffs have a "whole" to widen back
+                      to; a snapshot is always one file at a time. */}
+                  {selectedFile &&
+                    !previewing &&
+                    (view.mode === 'commit' || view.mode === 'range') && (
+                      <button
+                        title="Widen the diff back to every file in this commit"
+                        onClick={() => setSelectedFile(null)}
+                      >
+                        Show Whole Diff
+                      </button>
+                    )}
                   {isMarkdown && (
                     <button
                       className={`toggle${previewing ? ' on' : ''}`}
