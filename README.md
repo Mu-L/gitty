@@ -16,6 +16,8 @@ its path, click two commits to diff them.
 
 All panes are resizable by dragging the separators.
 
+![Gitty 0.1.0](ref/gitty-0.1.0.png)
+
 ## Requirements
 
 - Node.js 20 or newer

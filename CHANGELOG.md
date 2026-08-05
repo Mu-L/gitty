@@ -41,6 +41,7 @@ Initial release.
   `/usr/local/bin` with `--system`).
 - Linux runs with the SUID sandbox disabled (`ELECTRON_DISABLE_SANDBOX=1`);
   `chrome-sandbox` cannot keep its root-owned setuid bit inside `node_modules`.
+- README shows a screenshot of the interface (`ref/gitty-0.1.0.png`).
 
 [Unreleased]: https://github.com/baojie/gitty/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/baojie/gitty/releases/tag/v0.1.0
