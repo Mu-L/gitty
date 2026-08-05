@@ -4,6 +4,7 @@ import { ContextMenu, type MenuItem, type MenuState } from './components/Context
 import { DiffPane, type DiffView } from './components/DiffPane'
 import { FilesPane, type FileEntry } from './components/FilesPane'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
+import { MarkdownPane } from './components/MarkdownPane'
 import { TerminalPane } from './components/TerminalPane'
 import type {
   Commit,
@@ -54,6 +55,14 @@ export default function App(): JSX.Element {
   const [diffView, setDiffView] = useState<DiffView>(
     () => (localStorage.getItem('gitty.diffView') as DiffView | null) ?? 'inline'
   )
+  // Preview is opt-in: a history browser shows diffs unless asked otherwise.
+  const [mdPreview, setMdPreview] = useState(() => localStorage.getItem('gitty.mdPreview') === 'on')
+  const [maximized, setMaximized] = useState(false)
+  const [mdOutline, setMdOutline] = useState(
+    () => localStorage.getItem('gitty.mdOutline') !== 'off'
+  )
+  const [mdSource, setMdSource] = useState<string | null>(null)
+  const [mdError, setMdError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [tick, setTick] = useState(0)
   const loadingMore = useRef(false)
@@ -164,6 +173,45 @@ export default function App(): JSX.Element {
       cancelled = true
     }
   }, [root, view, status])
+
+  /* ---------- markdown preview ---------- */
+
+  const isMarkdown = /\.(md|markdown|mdown|mkd)$/i.test(selectedFile ?? '')
+  const previewing = isMarkdown && mdPreview
+
+  // The preview always shows the file as a whole: on disk for the work tree,
+  // at the selected revision everywhere else.
+  useEffect(() => {
+    if (!root || !previewing || !selectedFile) {
+      setMdSource(null)
+      return
+    }
+    let cancelled = false
+    const rev =
+      view.mode === 'commit' || view.mode === 'snapshot'
+        ? view.hash
+        : view.mode === 'range'
+          ? view.to
+          : null
+
+    void (async () => {
+      try {
+        const r = rev
+          ? await window.gitty.git.snapshotFile(root, rev, selectedFile)
+          : await window.gitty.git.readWorking(root, selectedFile)
+        if (cancelled) return
+        setMdSource(r.binary ? null : r.content)
+        setMdError(r.binary ? 'Binary or oversized file.' : null)
+      } catch (e) {
+        if (cancelled) return
+        setMdSource(null)
+        setMdError(String(e))
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [root, view, selectedFile, previewing, tick])
 
   /* ---------- diff loading ---------- */
 
@@ -285,7 +333,11 @@ export default function App(): JSX.Element {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') backToWorkTree()
+      // Escape unwinds one level at a time: full screen first, then the view.
+      if (e.key === 'Escape') {
+        if (maximized) setMaximized(false)
+        else backToWorkTree()
+      }
       else if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key === 'r')) {
         e.preventDefault()
         void refresh()
@@ -296,7 +348,7 @@ export default function App(): JSX.Element {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [backToWorkTree, refresh, openRepo])
+  }, [backToWorkTree, refresh, openRepo, maximized])
 
   const loadMore = useCallback(async () => {
     if (!root || loadingMore.current || exhausted.current) return
@@ -313,7 +365,9 @@ export default function App(): JSX.Element {
   useEffect(() => {
     localStorage.setItem('gitty.wrap', wrap ? 'on' : 'off')
     localStorage.setItem('gitty.diffView', diffView)
-  }, [wrap, diffView])
+    localStorage.setItem('gitty.mdPreview', mdPreview ? 'on' : 'off')
+    localStorage.setItem('gitty.mdOutline', mdOutline ? 'on' : 'off')
+  }, [wrap, diffView, mdPreview, mdOutline])
 
   /* ---------- context menus ---------- */
 
@@ -327,20 +381,44 @@ export default function App(): JSX.Element {
         action: () => void window.gitty.clipboard.write(selection)
       })
     }
-    items.push({
-      label: 'Copy Whole Diff',
-      separatorBefore: items.length > 0,
-      action: () => void window.gitty.clipboard.write(diff?.patch ?? '')
-    })
-    items.push({
-      label: wrap ? 'Disable Word Wrap' : 'Enable Word Wrap',
-      separatorBefore: true,
-      action: () => setWrap((w) => !w)
-    })
-    items.push({
-      label: diffView === 'inline' ? 'Side-by-Side View' : 'Inline View',
-      action: () => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))
-    })
+    if (previewing) {
+      items.push({
+        label: 'Copy Markdown Source',
+        separatorBefore: items.length > 0,
+        action: () => void window.gitty.clipboard.write(mdSource ?? '')
+      })
+      items.push({
+        label: mdOutline ? 'Hide Outline' : 'Show Outline',
+        separatorBefore: true,
+        action: () => setMdOutline((o) => !o)
+      })
+      items.push({
+        label: 'Show Diff Instead',
+        action: () => setMdPreview(false)
+      })
+    } else {
+      items.push({
+        label: 'Copy Whole Diff',
+        separatorBefore: items.length > 0,
+        action: () => void window.gitty.clipboard.write(diff?.patch ?? '')
+      })
+      if (isMarkdown) {
+        items.push({
+          label: 'Preview Markdown',
+          separatorBefore: true,
+          action: () => setMdPreview(true)
+        })
+      }
+      items.push({
+        label: wrap ? 'Disable Word Wrap' : 'Enable Word Wrap',
+        separatorBefore: !isMarkdown,
+        action: () => setWrap((w) => !w)
+      })
+      items.push({
+        label: diffView === 'inline' ? 'Side-by-Side View' : 'Inline View',
+        action: () => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))
+      })
+    }
     setMenu({ ...at, items })
   }
 
@@ -411,7 +489,9 @@ export default function App(): JSX.Element {
     return `Range ${view.from.slice(0, 8)}..${view.to.slice(0, 8)}`
   }, [view])
 
-  const diffTitle = diff?.title ?? 'Diff'
+  const diffTitle = previewing
+    ? `${selectedFile} (preview)`
+    : (diff?.title ?? 'Diff')
 
   return (
     <div className="app" onContextMenu={(e) => e.preventDefault()}>
@@ -476,42 +556,88 @@ export default function App(): JSX.Element {
             </Panel>
             <Separator className="sep-v" />
             <Panel minSize="20%">
-              <div className="pane">
-                <div className="pane-header">
+              <div className={`pane${maximized ? ' maximized' : ''}`}>
+                <div
+                  className="pane-header"
+                  title="Double-click to toggle full screen"
+                  onDoubleClick={(e) => {
+                    // Buttons in the header have their own meaning.
+                    if ((e.target as HTMLElement).closest('button')) return
+                    setMaximized((m) => !m)
+                  }}
+                >
                   <span className="title">{diffTitle}</span>
                   <span className="spacer" />
-                  {selectedFile && view.mode !== 'worktree' && (
+                  {selectedFile && view.mode !== 'worktree' && !previewing && (
                     <button onClick={() => setSelectedFile(null)}>Show Whole Diff</button>
                   )}
+                  {isMarkdown && (
+                    <button
+                      className={`toggle${previewing ? ' on' : ''}`}
+                      title="Render this markdown file"
+                      onClick={() => setMdPreview((p) => !p)}
+                    >
+                      Preview
+                    </button>
+                  )}
+                  {previewing ? (
+                    <button
+                      className={`toggle${mdOutline ? ' on' : ''}`}
+                      title="Show the heading outline"
+                      onClick={() => setMdOutline((o) => !o)}
+                    >
+                      Outline
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        className={`toggle${wrap ? ' on' : ''}`}
+                        title="Wrap long lines"
+                        onClick={() => setWrap((w) => !w)}
+                      >
+                        Wrap
+                      </button>
+                      <button
+                        className="toggle"
+                        title="Switch between inline and side-by-side"
+                        onClick={() => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))}
+                      >
+                        {diffView === 'inline' ? 'Inline' : 'Side-by-Side'}
+                      </button>
+                    </>
+                  )}
                   <button
-                    className={`toggle${wrap ? ' on' : ''}`}
-                    title="Wrap long lines"
-                    onClick={() => setWrap((w) => !w)}
+                    className={`toggle${maximized ? ' on' : ''}`}
+                    title={maximized ? 'Restore the four-pane layout (Esc)' : 'Fill the window'}
+                    onClick={() => setMaximized((m) => !m)}
                   >
-                    Wrap
-                  </button>
-                  <button
-                    className="toggle"
-                    title="Switch between inline and side-by-side"
-                    onClick={() => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))}
-                  >
-                    {diffView === 'inline' ? 'Inline' : 'Side-by-Side'}
+                    {maximized ? 'Restore' : 'Full Screen'}
                   </button>
                 </div>
-                <DiffPane
-                  patch={diff?.patch ?? ''}
-                  notice={diff?.notice}
-                  wrap={wrap}
-                  view={diffView}
-                  onMenu={diffMenu}
-                  placeholder={
-                    view.mode === 'worktree'
-                      ? 'Select a file to see its diff.'
-                      : view.mode === 'snapshot'
-                        ? 'Select a file to view it at this commit.'
-                        : 'No textual changes.'
-                  }
-                />
+                {previewing ? (
+                  mdSource === null ? (
+                    <div className="pane-body">
+                      <div className="empty">{mdError ?? 'Loading…'}</div>
+                    </div>
+                  ) : (
+                    <MarkdownPane source={mdSource} outline={mdOutline} onMenu={diffMenu} />
+                  )
+                ) : (
+                  <DiffPane
+                    patch={diff?.patch ?? ''}
+                    notice={diff?.notice}
+                    wrap={wrap}
+                    view={diffView}
+                    onMenu={diffMenu}
+                    placeholder={
+                      view.mode === 'worktree'
+                        ? 'Select a file to see its diff.'
+                        : view.mode === 'snapshot'
+                          ? 'Select a file to view it at this commit.'
+                          : 'No textual changes.'
+                    }
+                  />
+                )}
               </div>
             </Panel>
           </Group>

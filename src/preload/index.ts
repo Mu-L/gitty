@@ -43,11 +43,14 @@ const api = {
     snapshotFile: (root: string, hash: string, filePath: string): Promise<SnapshotFileContent> =>
       ipcRenderer.invoke('git:snapshotFile', root, hash, filePath),
     snapshotOpen: (root: string, hash: string, filePath: string): Promise<string | null> =>
-      ipcRenderer.invoke('git:snapshotOpen', root, hash, filePath)
+      ipcRenderer.invoke('git:snapshotOpen', root, hash, filePath),
+    readWorking: (root: string, filePath: string): Promise<SnapshotFileContent> =>
+      ipcRenderer.invoke('git:readWorking', root, filePath)
   },
   file: {
     open: (abs: string): Promise<string | null> => ipcRenderer.invoke('file:open', abs),
-    reveal: (abs: string): Promise<void> => ipcRenderer.invoke('file:reveal', abs)
+    reveal: (abs: string): Promise<void> => ipcRenderer.invoke('file:reveal', abs),
+    openExternal: (url: string): Promise<void> => ipcRenderer.invoke('file:openExternal', url)
   },
   clipboard: {
     write: (text: string): Promise<void> => ipcRenderer.invoke('clipboard:write', text)

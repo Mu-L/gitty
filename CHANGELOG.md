@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Markdown preview for `.md` files, off by default: the **Preview** button
+  renders the whole file — from disk in the work tree, from the selected commit
+  elsewhere — with an **Outline** of its headings that indents by level, follows
+  the reading position and jumps on click. Raw HTML is left inert and links open
+  in the system browser.
+- Full-screen mode for the diff / preview pane, from its button, a double-click
+  on its header, or <kbd>Esc</kbd> to leave. The pane is drawn over the layout,
+  so the terminal underneath keeps its shell and scrollback.
+
 - Word wrap in the diff pane, on by default, toggled from the header or the
   context menu and remembered between runs.
 - Side-by-side diff view alongside the inline one: deletions are zipped with the

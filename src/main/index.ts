@@ -165,6 +165,15 @@ function registerIpc(): void {
     return (await shell.openPath(tmp)) || null
   })
 
+  ipcMain.handle('git:readWorking', (_e, root: string, filePath: string) =>
+    git.readWorkingFile(root, filePath)
+  )
+
+  ipcMain.handle('file:openExternal', (_e, url: string) => {
+    // Only ever hand real web links to the system browser.
+    if (/^https?:\/\//i.test(url)) void shell.openExternal(url)
+  })
+
   ipcMain.handle('file:open', async (_e, abs: string) => {
     const err = await shell.openPath(abs)
     return err || null

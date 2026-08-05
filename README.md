@@ -77,11 +77,28 @@ Unified diff with old/new line numbers, hunk headers and add/delete colouring.
 - **Inline / Side-by-Side** — one column with `+`/`-` markers, or old and new
   next to each other, where a run of deletions is zipped with the additions that
   follow it. Wrapped halves stay aligned.
-- **Right-click** — Copy Selection, Copy Whole Diff, and the same two toggles.
+- **Full Screen** — the pane fills the window; <kbd>Esc</kbd>, the **Restore**
+  button or a double-click on the header brings the four panes back. The
+  terminal below keeps running while it is covered.
+- **Right-click** — Copy Selection, Copy Whole Diff, and the same toggles.
 
-Both settings are remembered between runs. Rows render in chunks of 1500 and
-extend as you scroll, so large commits stay responsive; diffs above 2 MB are
-truncated with a notice.
+Settings are remembered between runs. Rows render in chunks of 1500 and extend
+as you scroll, so large commits stay responsive; diffs above 2 MB are truncated
+with a notice.
+
+#### Markdown preview
+
+Selecting a `.md` file adds a **Preview** button — off by default, so a diff
+stays a diff until you ask for the rendered document. It renders the file as a
+whole: the version on disk in the work tree, the version at the selected commit
+everywhere else.
+
+- **Outline** — the heading structure beside the document, indented by level,
+  tracking the heading you have scrolled to. Click an entry to jump.
+- **Right-click** — Copy Selection, Copy Markdown Source, and Show Diff Instead.
+
+Raw HTML inside the markdown is not rendered, and links open in the system
+browser rather than inside the app.
 
 ### Commits (bottom left)
 

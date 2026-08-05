@@ -253,6 +253,25 @@ export async function showFile(root: string, rev: string, filePath: string): Pro
   return git(root, ['show', `${rev}:${filePath}`])
 }
 
+/**
+ * Contents of a file in the work tree, for previewing what is on disk rather
+ * than what is committed. Shares the snapshot result shape.
+ */
+export async function readWorkingFile(
+  root: string,
+  filePath: string
+): Promise<SnapshotFileContent> {
+  const abs = path.resolve(root, filePath)
+  // Never read outside the repository, whatever the renderer asks for.
+  if (abs !== root && !abs.startsWith(root + path.sep)) {
+    throw new Error('path escapes the repository')
+  }
+  const stat = await fs.promises.stat(abs)
+  if (stat.size > MAX_PATCH_BYTES) return { content: '', binary: true }
+  const content = await fs.promises.readFile(abs, 'utf8')
+  return content.includes('\0') ? { content: '', binary: true } : { content, binary: false }
+}
+
 /** Full file list of a commit — the tree as it was at that moment. */
 export async function snapshotFiles(root: string, hash: string): Promise<string[]> {
   const raw = await git(root, ['ls-tree', '-r', '--name-only', '-z', hash])

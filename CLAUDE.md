@@ -101,6 +101,18 @@ each run of deletions with the additions that follow it, one grid row per pair,
 so wrapped halves stay aligned. Wrap and view mode persist in `localStorage`
 under `gitty.wrap` / `gitty.diffView`.
 
+`MarkdownPane` takes over the same pane for `.md` files when preview is on
+(`gitty.mdPreview`, off by default). It renders whole-file source, not a diff:
+from disk via `git.readWorking` in the work tree, from the revision via
+`git.snapshotFile` elsewhere. markdown-it runs with `html: false` so raw HTML
+stays inert without a sanitiser; heading ids are assigned on the token stream
+before rendering, so the outline and the document cannot disagree. Link clicks
+are intercepted — a plain `<a>` navigation would replace the whole app window.
+
+Full screen is a `position: fixed` class on the pane rather than a different
+tree, deliberately: unmounting the layout would dispose the terminal's pty and
+kill whatever is running in it.
+
 ### Terminal
 
 One pty at a time, held in a module-level variable in `src/main/index.ts`.
