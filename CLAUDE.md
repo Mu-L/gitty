@@ -15,12 +15,17 @@ nothing that lands in the repository is.
 ## Commands
 
 ```bash
-./run.sh [repo]          # build if stale, then launch on that repository
+./run.sh [repo]          # build if stale, launch detached, print the pid
+./run.sh --fg [repo]     # same but attached to the terminal
 ./run.sh --dev [repo]    # electron-vite dev with hot reload
 npm run typecheck        # tsc over both tsconfigs — the only automated check
 npm run build            # electron-vite build into out/
 ./setup.sh               # symlink run.sh as `gitty` into ~/.local/bin
 ```
+
+A detached run writes everything to
+`${XDG_STATE_HOME:-~/.local/state}/gitty/gitty.log`; use `--fg` when you want
+the output inline.
 
 There is **no test suite and no linter configured**. `npm run typecheck` is the
 whole automated safety net; run it after every change. Verification beyond that

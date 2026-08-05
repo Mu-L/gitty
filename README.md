@@ -38,8 +38,14 @@ Then open a repository from anywhere:
 ```bash
 gitty                    # open the repository in the current directory
 gitty /path/to/repo      # open another repository
+gitty --fg               # keep it attached to the terminal (Ctrl+C quits)
 gitty --dev              # hot-reloading development mode
 ```
+
+Gitty detaches from the terminal and prints its pid, so the shell stays usable
+and closing it does not take the window down. Output goes to
+`${XDG_STATE_HOME:-~/.local/state}/gitty/gitty.log`, which is trimmed to its
+last megabyte once it passes 4 MB.
 
 `./run.sh` is the same script and works identically without the symlink. The
 launcher installs dependencies and rebuilds the bundle when sources changed, so

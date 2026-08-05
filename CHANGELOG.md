@@ -45,6 +45,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `gitty` now detaches from the terminal instead of holding it: it prints the
+  pid and returns, the window survives the shell closing, and output goes to
+  `${XDG_STATE_HOME:-~/.local/state}/gitty/gitty.log` (trimmed to its last
+  megabyte past 4 MB). `--fg` keeps the old attached behaviour, and `--dev` is
+  unaffected.
 - The diff pane renders in chunks of 1500 rows that grow as you scroll, instead
   of a fixed-height virtual window. Variable row heights are what wrapping and
   the side-by-side grid need.
