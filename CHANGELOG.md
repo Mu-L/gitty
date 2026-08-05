@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Browse any branch's history: the branch in the title bar is now a menu of
+  every local and remote-tracking branch, newest first, and picking one points
+  the commit log at it. Nothing is checked out — the work tree, its diffs and
+  the shells stay on the branch git is actually on — so the title bar reads
+  `⎇ main › other-branch` and the commit pane carries the branch it is
+  listing. **Back to <branch>** returns to the checked-out one, and each tab
+  browses independently.
+
 - Repository tabs: a bar along the bottom holds every open repository, each with
   its own four panes and terminal. **+** or **Ctrl+O** opens another repository
   into a new tab instead of replacing the current one, a dot marks tabs whose

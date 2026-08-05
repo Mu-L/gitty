@@ -1,6 +1,7 @@
 import os from 'node:os'
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
+  Branch,
   Commit,
   CommitDetail,
   CommitFile,
@@ -45,8 +46,10 @@ const api = {
   },
   git: {
     status: (root: string): Promise<RepoStatus> => ipcRenderer.invoke('git:status', root),
-    log: (root: string, limit: number, skip = 0): Promise<Commit[]> =>
-      ipcRenderer.invoke('git:log', root, limit, skip),
+    /** `ref` points the log at another branch; null or omitted means HEAD. */
+    log: (root: string, limit: number, skip = 0, ref: string | null = null): Promise<Commit[]> =>
+      ipcRenderer.invoke('git:log', root, limit, skip, ref),
+    branches: (root: string): Promise<Branch[]> => ipcRenderer.invoke('git:branches', root),
     commitDetail: (root: string, hash: string): Promise<CommitDetail> =>
       ipcRenderer.invoke('git:commitDetail', root, hash),
     rangeFiles: (root: string, from: string, to: string): Promise<CommitFile[]> =>

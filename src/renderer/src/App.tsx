@@ -10,12 +10,15 @@ import { ContextMenu, type MenuItem, type MenuState } from './components/Context
 import { SettingsPane, type Theme } from './components/SettingsPane'
 import { RepoTab, type RepoTabHandle } from './RepoTab'
 import type { DiffView } from './components/DiffPane'
-import type { RepoStatus } from '../../shared/types'
+import type { Branch, RepoStatus } from '../../shared/types'
 
 export default function App(): JSX.Element {
   const [roots, setRoots] = useState<string[]>([])
   const [active, setActive] = useState<string | null>(null)
   const [statusByRoot, setStatusByRoot] = useState<Record<string, RepoStatus>>({})
+  // Branch each tab is browsing; absent means its checked-out one. Kept here
+  // rather than in RepoTab because the title bar is where it is chosen.
+  const [browsingByRoot, setBrowsingByRoot] = useState<Record<string, string>>({})
   const tabRefs = useRef<Record<string, RepoTabHandle | null>>({})
 
   // Preferences are app-wide: changing the theme or row height touches every
@@ -69,6 +72,11 @@ export default function App(): JSX.Element {
         delete next[root]
         return next
       })
+      setBrowsingByRoot((prev) => {
+        const next = { ...prev }
+        delete next[root]
+        return next
+      })
       const i = roots.indexOf(root)
       if (i < 0) return
       const next = roots.filter((r) => r !== root)
@@ -107,6 +115,7 @@ export default function App(): JSX.Element {
   }, [])
 
   const activeStatus = active ? statusByRoot[active] ?? null : null
+  const activeBrowsing = active ? browsingByRoot[active] ?? null : null
 
   useEffect(
     () =>
@@ -195,6 +204,55 @@ export default function App(): JSX.Element {
     setMenu({ x, y, items })
   }
 
+  /* ---------- branch menu ---------- */
+
+  const browse = (root: string, branch: string | null): void => {
+    setBrowsingByRoot((prev) => {
+      const next = { ...prev }
+      if (branch === null) delete next[root]
+      else next[root] = branch
+      return next
+    })
+  }
+
+  /**
+   * Point the log at another branch. Nothing here checks anything out: the
+   * work tree, its diffs and the shells stay on the branch git is actually on.
+   */
+  const openBranchMenu = async (x: number, y: number): Promise<void> => {
+    if (!active) return
+    const root = active
+    const list = await window.gitty.git.branches(root)
+    // The branch whose history is on screen: what was picked, or the one
+    // checked out when nothing was.
+    const showing = browsingByRoot[root] ?? activeStatus?.branch ?? null
+
+    const entry = (b: Branch): MenuItem => ({
+      label: `${b.name === showing ? '●' : ' '} ${b.name}`,
+      accel: b.head ? 'HEAD' : ago(b.date),
+      title: b.subject,
+      action: () => browse(root, b.head ? null : b.name)
+    })
+
+    const locals = list.filter((b) => !b.remote)
+    const remotes = list.filter((b) => b.remote)
+    // The checked-out branch leads, however old its last commit is.
+    locals.sort((a, b) => Number(b.head) - Number(a.head))
+
+    const items: MenuItem[] = locals.map(entry)
+    if (items.length === 0) items.push({ label: 'No branches yet', action: () => {} })
+    remotes.forEach((b, i) => items.push({ ...entry(b), separatorBefore: i === 0 }))
+    if (browsingByRoot[root]) {
+      items.push({
+        label: `Back to ${activeStatus?.branch ?? 'HEAD'}`,
+        separatorBefore: true,
+        action: () => browse(root, null)
+      })
+    }
+    setMenu({ x, y, items })
+  }
+
+
   return (
     <div className="app" onContextMenu={(e) => e.preventDefault()}>
       <div className="titlebar">
@@ -212,7 +270,18 @@ export default function App(): JSX.Element {
         </button>
         {activeStatus && (
           <>
-            <span className="branch">⎇ {activeStatus.branch}</span>
+            <button
+              className="repo-button branch-button"
+              title="Browse another branch's history (nothing is checked out)"
+              onClick={(e) => {
+                const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                void openBranchMenu(r.left, r.bottom + 2)
+              }}
+            >
+              <span className="branch">⎇ {activeStatus.branch}</span>
+              {activeBrowsing && <span className="browsing">› {activeBrowsing}</span>}
+              <span className="caret">▾</span>
+            </button>
             {activeStatus.upstream && (
               <span className="tracking">
                 {activeStatus.upstream} ↑{activeStatus.ahead} ↓{activeStatus.behind}
@@ -264,6 +333,7 @@ export default function App(): JSX.Element {
                 setWordDiff={setWordDiff}
                 mdOutline={mdOutline}
                 setMdOutline={setMdOutline}
+                browsing={browsingByRoot[r] ?? null}
                 settingsOpen={settingsOpen}
                 onStatus={onStatus}
               />
@@ -327,6 +397,18 @@ export default function App(): JSX.Element {
 }
 
 /** Home-relative directory of a path, for the recent-repository menu. */
+/** Coarse age of a branch's last commit, to date the branch menu's entries. */
+function ago(iso: string): string {
+  const then = new Date(iso).getTime()
+  if (Number.isNaN(then)) return ''
+  const days = Math.floor((Date.now() - then) / 86_400_000)
+  if (days < 1) return 'today'
+  if (days === 1) return 'yesterday'
+  if (days < 30) return `${days}d ago`
+  if (days < 365) return `${Math.floor(days / 30)}mo ago`
+  return `${Math.floor(days / 365)}y ago`
+}
+
 function shortenPath(p: string): string {
   const dir = p.slice(0, p.lastIndexOf('/')) || '/'
   const home = window.gitty.homeDir

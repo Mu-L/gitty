@@ -111,6 +111,20 @@ Each `RepoTab` holds a `View` of four modes — `worktree`, `commit`, `range`,
 pseudo-commit (`WORKTREE_ROW`) standing for the work tree; it joins keyboard
 navigation and selecting it returns to `worktree` mode.
 
+### Browsing another branch
+
+The title bar's branch is a menu (`git for-each-ref` over `refs/heads` and
+`refs/remotes`) and picking one sets `browsingByRoot[root]` in `App.tsx`, which
+each `RepoTab` takes as its `browsing` prop and passes to `git.log` as a ref.
+That is the whole feature: **nothing is checked out**. Status, the work tree
+pane, its diffs and the shells all still describe the branch git is on, which is
+why the work-tree row stays in the log and the title bar shows both names. A
+change of branch drops the loaded commits rather than merging two histories,
+and clears the selection with them.
+
+`refs/remotes/origin/HEAD` is filtered out by full ref name: its short name is
+plain `origin`, which would read as a branch of its own.
+
 Snapshot entries carry a synthetic `gitty:snapshot:<hash>:<path>` absPath, which
 has no on-disk existence — that is what the file context menu keys off to route
 "Open File" through a temp copy of that revision and to drop "Reveal in File

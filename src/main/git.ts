@@ -4,6 +4,7 @@ import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import path from 'node:path'
 import type {
+  Branch,
   Commit,
   CommitDetail,
   CommitFile,
@@ -109,7 +110,52 @@ export async function status(root: string): Promise<RepoStatus> {
   return { root, ...parseStatus(root, raw) }
 }
 
-export async function log(root: string, limit: number, skip = 0): Promise<Commit[]> {
+/**
+ * Every local and remote-tracking branch, newest commit first. `origin/HEAD`
+ * and friends are symbolic refs pointing at a branch that is already listed,
+ * so they are dropped rather than shown twice.
+ */
+export async function branches(root: string): Promise<Branch[]> {
+  const fmt =
+    ['%(refname)', '%(refname:short)', '%(HEAD)', '%(committerdate:iso-strict)', '%(subject)'].join(
+      US
+    ) + RS
+  let raw: string
+  try {
+    raw = await git(root, [
+      'for-each-ref',
+      `--format=${fmt}`,
+      '--sort=-committerdate',
+      'refs/heads',
+      'refs/remotes'
+    ])
+  } catch {
+    return []
+  }
+  return raw
+    .split(RS)
+    .map((r) => r.trim())
+    .filter(Boolean)
+    .map((rec) => rec.split(US))
+    // By full ref name: `refs/remotes/origin/HEAD` shortens to plain "origin",
+    // which says nothing about what it is.
+    .filter(([refname]) => !refname.endsWith('/HEAD'))
+    .map(([refname, name, head, date, subject]) => ({
+      name,
+      remote: refname.startsWith('refs/remotes/'),
+      head: head === '*',
+      subject: subject ?? '',
+      date: date ?? ''
+    }))
+}
+
+/** `ref` points the log at another branch; undefined means HEAD. */
+export async function log(
+  root: string,
+  limit: number,
+  skip = 0,
+  ref?: string | null
+): Promise<Commit[]> {
   const fmt = ['%H', '%h', '%an', '%ae', '%aI', '%s', '%D', '%P'].join(US) + RS
   let raw: string
   try {
@@ -117,7 +163,10 @@ export async function log(root: string, limit: number, skip = 0): Promise<Commit
       'log',
       `--max-count=${limit}`,
       `--skip=${skip}`,
-      `--pretty=format:${fmt}`
+      `--pretty=format:${fmt}`,
+      ...(ref ? [ref] : []),
+      // Nothing after this is a path, so a branch cannot be read as one.
+      '--'
     ])
   } catch {
     return [] // fresh repo with no commits yet

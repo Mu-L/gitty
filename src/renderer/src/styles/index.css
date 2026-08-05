@@ -141,12 +141,38 @@ button:hover {
   text-overflow: ellipsis;
 }
 
+/* Branch names are unbounded; they give up space before the buttons do. */
+.titlebar .branch,
+.titlebar .browsing {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.titlebar .repo-button {
+  flex: 0 100 auto;
+}
+
+.titlebar .branch-button {
+  flex: 0 1 auto;
+}
+
+/* Within the button, the checked-out branch truncates before the one being
+   browsed: that one is the answer to "what am I looking at". */
 .titlebar .branch {
+  flex: 0 10 auto;
   color: var(--green);
 }
 
 .titlebar .tracking {
   color: var(--fg-dim);
+}
+
+/* The branch being browsed, when it is not the checked-out one. Coloured like
+   the badge on the commit pane that lists it. */
+.titlebar .browsing {
+  flex: 0 1 auto;
+  color: var(--magenta);
 }
 
 .titlebar .spacer {
@@ -387,6 +413,13 @@ button:hover {
   flex: 1;
   min-width: 0;
   overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Not a count like the others — it names a branch, which can be long. */
+.branch-badge {
+  overflow: hidden;
+  max-width: 40%;
   text-overflow: ellipsis;
 }
 
@@ -1208,6 +1241,7 @@ button:hover {
 }
 
 .repo-button .caret {
+  flex: none;
   color: var(--fg-dim);
 }
 

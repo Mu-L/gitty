@@ -165,6 +165,14 @@ The log of the current branch, loaded 300 at a time and extended as you scroll.
 The first row is the **Working Tree** — the uncommitted changes, with a count of
 changed files; selecting it brings the top panes back to the work tree.
 
+The branch in the title bar opens a menu of every local and remote-tracking
+branch, newest commit first, and picking one shows that branch's history
+instead. It is a read-only look: gitty runs no `checkout`, so the work tree,
+its diffs and the terminals stay exactly where git left them. While you are
+looking at another branch the title bar reads `⎇ main › other-branch` and the
+commit pane says which branch it is listing; **Back to <branch>** returns.
+Each tab browses on its own.
+
 - **Click** or <kbd>Enter</kbd> — show that commit: its files fill the top-left
   pane and its full diff the top-right one.
 - **Ctrl+Click** (<kbd>Cmd</kbd> on macOS), <kbd>Shift+Click</kbd> or

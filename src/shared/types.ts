@@ -26,6 +26,18 @@ export interface RepoStatus {
   files: WorkingFile[]
 }
 
+/** A ref the commit log can be pointed at, local or remote-tracking. */
+export interface Branch {
+  /** Short name: "main", "origin/main". */
+  name: string
+  remote: boolean
+  /** The checked-out branch — the one the work tree belongs to. */
+  head: boolean
+  /** Subject of the commit it points at, for the menu. */
+  subject: string
+  date: string
+}
+
 export interface Commit {
   hash: string
   short: string

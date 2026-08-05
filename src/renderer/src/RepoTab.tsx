@@ -73,6 +73,10 @@ export interface RepoTabProps {
   setWordDiff: Dispatch<SetStateAction<boolean>>
   mdOutline: boolean
   setMdOutline: Dispatch<SetStateAction<boolean>>
+  /** Branch whose history the log shows; null is HEAD, the checked-out one.
+   *  Browsing another branch never touches the work tree — the top-left pane
+   *  and its diffs still come from disk. */
+  browsing: string | null
   /** Settings dialog open; Escape belongs to it first, not to this tab. */
   settingsOpen: boolean
   /** Report the latest status so the tab bar and title bar can reflect it. */
@@ -106,6 +110,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setWordDiff,
     mdOutline,
     setMdOutline,
+    browsing,
     settingsOpen,
     onStatus
   },
@@ -133,13 +138,31 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const refresh = useCallback(async () => {
     const [st, log] = await Promise.all([
       window.gitty.git.status(root),
-      window.gitty.git.log(root, PAGE, 0)
+      window.gitty.git.log(root, PAGE, 0, browsing)
     ])
     setStatus(st)
     onStatus(st)
     setCommits((prev) => (prev.length > PAGE ? mergeLog(prev, log) : log))
     setTick((t) => t + 1)
-  }, [root, onStatus])
+  }, [root, browsing, onStatus])
+
+  // Another branch means another history: drop what is loaded rather than
+  // merging two logs, and let go of a selection that may not be in it. The
+  // work tree is unaffected, so the work-tree row stays where it is.
+  const firstBrowse = useRef(true)
+  useEffect(() => {
+    if (firstBrowse.current) {
+      firstBrowse.current = false
+      return
+    }
+    setCommits([])
+    exhausted.current = false
+    setView({ mode: 'worktree' })
+    setSelectedCommit(WORKTREE_ROW)
+    setCompareCommit(null)
+    setSelectedFile(null)
+    setFileView(false)
+  }, [browsing])
 
   useImperativeHandle(ref, () => ({ refresh }), [refresh])
 
@@ -376,13 +399,13 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     if (loadingMore.current || exhausted.current) return
     loadingMore.current = true
     try {
-      const more = await window.gitty.git.log(root, PAGE, commits.length)
+      const more = await window.gitty.git.log(root, PAGE, commits.length, browsing)
       if (more.length === 0) exhausted.current = true
       else setCommits((prev) => mergeLog(prev, more))
     } finally {
       loadingMore.current = false
     }
-  }, [root, commits.length])
+  }, [root, browsing, commits.length])
 
   /* ---------- context menus ---------- */
 
@@ -697,6 +720,13 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
               <div className="pane">
                 <div className="pane-header">
                   <span className="title">Commits</span>
+                  {/* Only worth saying when it is not the checked-out branch;
+                      otherwise the title bar already says it. */}
+                  {browsing && (
+                    <span className="badge branch-badge" title="Browsing another branch">
+                      ⎇ {browsing}
+                    </span>
+                  )}
                   <span className="spacer" />
                   {compareCommit && <span className="badge">comparing 2 commits</span>}
                   <span className="hint">

@@ -192,9 +192,12 @@ function registerIpc(): void {
   })
 
   ipcMain.handle('git:status', (_e, root: string) => git.status(root))
-  ipcMain.handle('git:log', (_e, root: string, limit: number, skip: number) =>
-    git.log(root, limit, skip)
+  ipcMain.handle(
+    'git:log',
+    (_e, root: string, limit: number, skip: number, ref: string | null) =>
+      git.log(root, limit, skip, ref)
   )
+  ipcMain.handle('git:branches', (_e, root: string) => git.branches(root))
   ipcMain.handle('git:commitDetail', (_e, root: string, hash: string) =>
     git.commitDetail(root, hash)
   )
