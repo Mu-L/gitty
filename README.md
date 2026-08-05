@@ -24,15 +24,32 @@ All panes are resizable by dragging the separators.
 
 ## Running
 
+Install the `gitty` command once:
+
 ```bash
-./run.sh                 # open the repository in the current directory
-./run.sh /path/to/repo   # open another repository
-./run.sh --dev           # hot-reloading development mode
+./setup.sh               # symlink into ~/.local/bin (no sudo)
+./setup.sh --system      # symlink into /usr/local/bin (needs sudo)
 ```
 
-The script installs dependencies and rebuilds the bundle when sources changed,
-so the first run may take a moment. `npm run dev`, `npm run build` and
-`npm start` are available directly as well.
+Then open a repository from anywhere:
+
+```bash
+gitty                    # open the repository in the current directory
+gitty /path/to/repo      # open another repository
+gitty --dev              # hot-reloading development mode
+```
+
+`./run.sh` is the same script and works identically without the symlink. The
+launcher installs dependencies and rebuilds the bundle when sources changed, so
+the first run may take a moment. `npm run dev`, `npm run build` and `npm start`
+are available directly as well.
+
+### Linux: sandbox
+
+On Linux the app runs with Chromium's SUID sandbox disabled
+(`ELECTRON_DISABLE_SANDBOX=1`). The usual fix — making `chrome-sandbox` owned by
+root with mode 4755 — cannot survive inside `node_modules`, so disabling it is
+the pragmatic choice for a local tool that only reads your own repositories.
 
 ## The panes
 
@@ -59,6 +76,8 @@ truncated with a notice. The text is selectable for copying.
 ### Commits (bottom left)
 
 The log of the current branch, loaded 300 at a time and extended as you scroll.
+The first row is the **Working Tree** — the uncommitted changes, with a count of
+changed files; selecting it brings the top panes back to the work tree.
 
 - **Click** or <kbd>Enter</kbd> — show that commit: its files fill the top-left
   pane and its full diff the top-right one.
