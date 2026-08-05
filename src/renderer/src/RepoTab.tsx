@@ -555,9 +555,17 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   return (
     <div className="repo-tab" onContextMenu={(e) => e.preventDefault()}>
-      <Group orientation="vertical" className="grid" id={groupId(root, 'rows')}>
+      {/* Hidden tabs stay mounted, so their groups must opt out of hit
+          testing: react-resizable-panels checks every registered group against
+          the pointer, and a display:none group reports a zero-sized rect. */}
+      <Group
+        orientation="vertical"
+        className="grid"
+        id={groupId(root, 'rows')}
+        disabled={!active}
+      >
         <Panel defaultSize="55%" minSize="20%">
-          <Group orientation="horizontal" id={groupId(root, 'top')}>
+          <Group orientation="horizontal" id={groupId(root, 'top')} disabled={!active}>
             <Panel defaultSize="38%" minSize="15%">
               <div className="pane">
                 <div className="pane-header">
@@ -715,7 +723,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         <Separator className="sep-h" />
 
         <Panel minSize="20%">
-          <Group orientation="horizontal" id={groupId(root, 'bottom')}>
+          <Group orientation="horizontal" id={groupId(root, 'bottom')} disabled={!active}>
             <Panel defaultSize="58%" minSize="20%">
               <div className="pane">
                 <div className="pane-header">
@@ -757,7 +765,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
               {/* A repo tab owns its terminal group; the shells are keyed by
                   session id in the main process, so they survive tab switches
                   and are disposed when this tab unmounts. */}
-              <TerminalsPane root={root} theme={theme} fontSize={fontSize} />
+              <TerminalsPane root={root} theme={theme} fontSize={fontSize} disabled={!active} />
             </Panel>
           </Group>
         </Panel>

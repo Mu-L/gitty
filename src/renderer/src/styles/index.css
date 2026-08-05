@@ -1295,26 +1295,35 @@ button:hover {
 .tab-content {
   display: flex;
   flex: 1;
+  min-width: 0;
   min-height: 0;
+  overflow: hidden;
 }
 
 /* The per-tab container App renders; hidden ones keep their subtree mounted
    (view state and shells survive) but take no space. */
+/* min-width: 0 is load-bearing: a flex item defaults to min-width: auto, so
+   without it the tab is stretched by its own nowrap content (long paths, long
+   commit subjects) and the panel group ends up wider than the window. */
 .repo-tab-shell {
   display: flex;
   flex: 1;
+  min-width: 0;
   min-height: 0;
+  overflow: hidden;
 }
 
 .repo-tab {
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
   min-height: 0;
 }
 
 .repo-tab .grid {
   flex: 1;
+  min-width: 0;
   min-height: 0;
 }
 

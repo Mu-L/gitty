@@ -87,6 +87,16 @@ close button, `+` to open) sits below the panes, with an empty state when every
 tab is closed. `react-resizable-panels` keeps layout state per Group id, so
 `RepoTab` suffixes its ids with the root.
 
+Two things the tab shells must not lose. **`min-width: 0`** on `.tab-content`,
+`.repo-tab-shell` and `.repo-tab`: a flex item defaults to `min-width: auto`, so
+without it a tab is stretched by its own nowrap content — long paths, long
+commit subjects — and its panel group ends up wider than the window. The panel
+percentages stay correct while the total is wrong, which shows up as one pane
+squeezed to a sliver (its header buttons clipped away) and another pushed off
+screen entirely. And **`disabled={!active}`** on every Group of a hidden tab:
+the library hit-tests the pointer against every registered group, and a
+`display: none` group reports a zero-sized rect.
+
 ### Recent repositories
 
 `src/main/recent.ts` keeps the list in `app.getPath('userData')` — which is why

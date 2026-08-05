@@ -60,11 +60,14 @@ function nodeKey(node: Node): string {
 export function TerminalsPane({
   root,
   theme,
-  fontSize
+  fontSize,
+  disabled = false
 }: {
   root: string
   theme: Theme
   fontSize: number
+  /** Set on hidden tabs, so their splits stay out of pointer hit testing. */
+  disabled?: boolean
 }): JSX.Element {
   // Lazily, so a re-render does not burn ids the layout never uses.
   const [first] = useState(nextId)
@@ -116,7 +119,12 @@ export function TerminalsPane({
     }
     const sep = node.orientation === 'horizontal' ? 'sep-v' : 'sep-h'
     return (
-      <Group orientation={node.orientation} id={`term-${nodeKey(node)}`} className="term-split">
+      <Group
+        orientation={node.orientation}
+        id={`term-${root}-${nodeKey(node)}`}
+        className="term-split"
+        disabled={disabled}
+      >
         {node.children.map((child, i) => (
           <Fragment key={nodeKey(child)}>
             {i > 0 && <Separator className={sep} />}
