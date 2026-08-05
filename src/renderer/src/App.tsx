@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type JSX
+} from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { ContextMenu, type MenuItem, type MenuState } from './components/ContextMenu'
 import { CodePane } from './components/CodePane'
@@ -6,6 +14,7 @@ import { DiffPane, type DiffView } from './components/DiffPane'
 import { FilesPane, type FileEntry } from './components/FilesPane'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { MarkdownPane } from './components/MarkdownPane'
+import { SettingsPane, type Theme } from './components/SettingsPane'
 import { TerminalPane } from './components/TerminalPane'
 import type {
   Commit,
@@ -65,6 +74,18 @@ export default function App(): JSX.Element {
   const [mdOutline, setMdOutline] = useState(
     () => localStorage.getItem('gitty.mdOutline') !== 'off'
   )
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [theme, setTheme] = useState<Theme>(
+    () => (localStorage.getItem('gitty.theme') === 'light' ? 'light' : 'dark')
+  )
+  const [fontSize, setFontSize] = useState(() => {
+    const v = Number(localStorage.getItem('gitty.fontSize'))
+    return Number.isFinite(v) ? Math.min(16, Math.max(11, v)) : 12.5
+  })
+  const [rowHeight, setRowHeight] = useState(() => {
+    const v = Number(localStorage.getItem('gitty.rowHeight'))
+    return Number.isFinite(v) ? Math.min(26, Math.max(18, v)) : 20
+  })
   const [fileSource, setFileSource] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -122,6 +143,8 @@ export default function App(): JSX.Element {
       }),
     [openRepo]
   )
+
+  useEffect(() => window.gitty.repo.onMenuSettings(() => setSettingsOpen(true)), [])
 
   /* ---------- file list per view ---------- */
 
@@ -294,6 +317,16 @@ export default function App(): JSX.Element {
     setFileView(false)
   }, [])
 
+  const resetSettings = useCallback(() => {
+    setTheme('dark')
+    setFontSize(12.5)
+    setRowHeight(20)
+    setWrap(true)
+    setDiffView('inline')
+    setWordDiff(true)
+    setMdOutline(true)
+  }, [])
+
   const onSelectCommit = useCallback(
     (hash: string, additive: boolean) => {
       if (hash === WORKTREE_ROW) {
@@ -325,22 +358,25 @@ export default function App(): JSX.Element {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
-      // Escape unwinds one level at a time: full screen first, then the view.
+      // Escape unwinds one level at a time: settings, full screen, then the view.
       if (e.key === 'Escape') {
-        if (maximized) setMaximized(false)
+        if (settingsOpen) setSettingsOpen(false)
+        else if (maximized) setMaximized(false)
         else backToWorkTree()
-      }
-      else if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key === 'r')) {
+      } else if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key === 'r')) {
         e.preventDefault()
         void refresh()
       } else if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
         e.preventDefault()
         void window.gitty.repo.pick().then((p) => { if (p) void openRepo(p) })
+      } else if ((e.ctrlKey || e.metaKey) && e.key === ',') {
+        e.preventDefault()
+        setSettingsOpen(true)
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [backToWorkTree, refresh, openRepo, maximized])
+  }, [backToWorkTree, refresh, openRepo, maximized, settingsOpen])
 
   const loadMore = useCallback(async () => {
     if (!root || loadingMore.current || exhausted.current) return
@@ -354,12 +390,25 @@ export default function App(): JSX.Element {
     }
   }, [root, commits.length])
 
+  // Push the visual knobs onto <html> as layout effects, so child passive
+  // effects (TerminalPane reads the CSS variables) always see the new values.
+  useLayoutEffect(() => {
+    const el = document.documentElement
+    el.dataset.theme = theme
+    el.style.setProperty('--font-size', `${fontSize}px`)
+    el.style.setProperty('--row-h', `${rowHeight}px`)
+    el.style.colorScheme = theme
+  }, [theme, fontSize, rowHeight])
+
   useEffect(() => {
     localStorage.setItem('gitty.wrap', wrap ? 'on' : 'off')
     localStorage.setItem('gitty.diffView', diffView)
     localStorage.setItem('gitty.wordDiff', wordDiff ? 'on' : 'off')
     localStorage.setItem('gitty.mdOutline', mdOutline ? 'on' : 'off')
-  }, [wrap, diffView, wordDiff, mdOutline])
+    localStorage.setItem('gitty.theme', theme)
+    localStorage.setItem('gitty.fontSize', String(fontSize))
+    localStorage.setItem('gitty.rowHeight', String(rowHeight))
+  }, [wrap, diffView, wordDiff, mdOutline, theme, fontSize, rowHeight])
 
   /* ---------- context menus ---------- */
 
@@ -525,6 +574,14 @@ export default function App(): JSX.Element {
         )}
         {error && <span style={{ color: 'var(--red)' }}>{error}</span>}
         <span className="spacer" />
+        <button
+          onClick={() => {
+            setMenu(null)
+            setSettingsOpen(true)
+          }}
+        >
+          Settings
+        </button>
         <button onClick={() => void window.gitty.repo.pick().then((p) => { if (p) void openRepo(p) })}>
           Open Repository
         </button>
@@ -729,7 +786,7 @@ export default function App(): JSX.Element {
                   <span className="spacer" />
                   <span className="hint">{root}</span>
                 </div>
-                {root && <TerminalPane root={root} />}
+                {root && <TerminalPane root={root} theme={theme} fontSize={fontSize} />}
               </div>
             </Panel>
           </Group>
@@ -737,6 +794,25 @@ export default function App(): JSX.Element {
       </Group>
 
       <ContextMenu state={menu} onClose={() => setMenu(null)} />
+      <SettingsPane
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        theme={theme}
+        setTheme={setTheme}
+        fontSize={fontSize}
+        setFontSize={setFontSize}
+        rowHeight={rowHeight}
+        setRowHeight={setRowHeight}
+        wrap={wrap}
+        setWrap={setWrap}
+        diffView={diffView}
+        setDiffView={setDiffView}
+        wordDiff={wordDiff}
+        setWordDiff={setWordDiff}
+        mdOutline={mdOutline}
+        setMdOutline={setMdOutline}
+        onReset={resetSettings}
+      />
     </div>
   )
 }

@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rather than a remembered mode: selecting another file or another commit goes
   straight back to the diff. Snapshots are the exception and always view files,
   having no diff to show.
+- A settings dialog (**Settings** in the title bar, File ▸ Settings, or
+  <kbd>Cmd/Ctrl+,</kbd>) collects every preference in one place: a **theme**
+  toggle (dark, the default, and light), the font size and row height as
+  sliders, and the existing diff layout, word wrap, word highlight and markdown
+  outline switches, each with a **Restore Defaults** button. The terminal
+  palette follows the theme, reading the same CSS variables as the rest of the
+  UI.
 - Markdown preview for `.md` files, off by default: the **Preview** button
   renders the whole file — from disk in the work tree, from the selected commit
   elsewhere — with an **Outline** of its headings that indents by level, follows

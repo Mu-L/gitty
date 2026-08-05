@@ -1,40 +1,64 @@
 import { useEffect, useRef, type JSX } from 'react'
-import { Terminal } from '@xterm/xterm'
+import { Terminal, type ITheme } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 
-const THEME = {
-  background: '#171a21',
-  foreground: '#c8cede',
-  cursor: '#c8cede',
-  selectionBackground: '#2c3446',
-  black: '#12141a',
-  red: '#e26a6a',
-  green: '#61c26b',
-  yellow: '#d8b34a',
-  blue: '#5b9cff',
-  magenta: '#b98ae0',
-  cyan: '#4fc3d0',
-  white: '#c8cede'
+export type Theme = 'dark' | 'light'
+
+/**
+ * Read the terminal palette from the CSS variables, so the terminal follows
+ * the app theme without a second, duplicated colour set.
+ */
+function readTheme(): ITheme {
+  const v = (name: string): string =>
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+  return {
+    background: v('--bg-pane'),
+    foreground: v('--fg'),
+    cursor: v('--fg'),
+    selectionBackground: v('--bg-select'),
+    black: v('--bg'),
+    red: v('--red'),
+    green: v('--green'),
+    yellow: v('--yellow'),
+    blue: v('--blue'),
+    magenta: v('--magenta'),
+    cyan: v('--cyan'),
+    white: v('--fg')
+  }
 }
 
 /** Embedded interactive shell rooted at the repository. */
-export function TerminalPane({ root }: { root: string }): JSX.Element {
+export function TerminalPane({
+  root,
+  theme,
+  fontSize
+}: {
+  root: string
+  theme: Theme
+  fontSize: number
+}): JSX.Element {
   const hostRef = useRef<HTMLDivElement>(null)
+  const termRef = useRef<Terminal | null>(null)
+  const fitRef = useRef<FitAddon | null>(null)
 
+  // Create the terminal once per repository; the shell must survive later
+  // appearance changes, which the effect below applies live instead.
   useEffect(() => {
     const host = hostRef.current
     if (!host) return
 
     const term = new Terminal({
       fontFamily: getComputedStyle(document.body).fontFamily,
-      fontSize: 12.5,
-      theme: THEME,
+      fontSize,
+      theme: readTheme(),
       cursorBlink: true,
       scrollback: 10_000,
       allowProposedApi: true
     })
+    termRef.current = term
     const fit = new FitAddon()
+    fitRef.current = fit
     term.loadAddon(fit)
     term.loadAddon(new WebLinksAddon())
     term.open(host)
@@ -65,8 +89,24 @@ export function TerminalPane({ root }: { root: string }): JSX.Element {
       offData()
       offExit()
       term.dispose()
+      termRef.current = null
+      fitRef.current = null
     }
-  }, [root])
+  }, [root, fontSize])
+
+  // Apply appearance changes live, keeping the running shell.
+  useEffect(() => {
+    const term = termRef.current
+    if (!term) return
+    term.options.fontSize = fontSize
+    term.options.theme = readTheme()
+    try {
+      fitRef.current?.fit()
+    } catch {
+      /* host not laid out yet */
+    }
+    window.gitty.terminal.resize(term.cols, term.rows)
+  }, [theme, fontSize])
 
   return <div className="term-host" ref={hostRef} />
 }

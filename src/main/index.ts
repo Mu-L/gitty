@@ -47,6 +47,11 @@ function installMenu(): void {
             accelerator: 'CmdOrCtrl+O',
             click: () => win?.webContents.send('menu:open-repo')
           },
+          {
+            label: 'Settings…',
+            accelerator: 'CmdOrCtrl+,',
+            click: () => win?.webContents.send('menu:open-settings')
+          },
           { type: 'separator' as const },
           isMac ? { role: 'close' as const } : { role: 'quit' as const }
         ]

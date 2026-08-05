@@ -26,6 +26,12 @@ const api = {
       const h = (): void => cb()
       ipcRenderer.on('menu:open-repo', h)
       return () => ipcRenderer.removeListener('menu:open-repo', h)
+    },
+    /** Fired by the File ▸ Settings item and the Cmd/Ctrl+, accelerator. */
+    onMenuSettings: (cb: () => void): (() => void) => {
+      const h = (): void => cb()
+      ipcRenderer.on('menu:open-settings', h)
+      return () => ipcRenderer.removeListener('menu:open-settings', h)
     }
   },
   git: {
