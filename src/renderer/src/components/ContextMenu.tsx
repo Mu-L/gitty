@@ -3,7 +3,13 @@ import { useEffect, useLayoutEffect, useRef, useState, type JSX } from 'react'
 export interface MenuItem {
   label: string
   accel?: string
-  action: () => void
+  /** Hover tooltip; the label is often abbreviated. */
+  title?: string
+  action: (mods?: { ctrl: boolean }) => void
+  /** Right-click on the item itself, for a secondary action such as removal. */
+  altAction?: () => void
+  /** Middle-click, conventionally "the other place". */
+  auxAction?: () => void
   separatorBefore?: boolean
 }
 
@@ -64,9 +70,23 @@ export function ContextMenu({
           {item.separatorBefore && <div className="ctx-sep" />}
           <div
             className="ctx-item"
-            onClick={() => {
-              item.action()
+            title={item.title}
+            onClick={(e) => {
+              item.action({ ctrl: e.ctrlKey || e.metaKey })
               onClose()
+            }}
+            onAuxClick={(e) => {
+              if (e.button !== 1 || !item.auxAction) return
+              e.preventDefault()
+              item.auxAction()
+              onClose()
+            }}
+            onContextMenu={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              if (!item.altAction) return
+              // The menu stays open so several entries can be removed in a row.
+              item.altAction()
             }}
           >
             <span>{item.label}</span>
