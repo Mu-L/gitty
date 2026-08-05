@@ -503,6 +503,48 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setMenu({ ...at, items })
   }
 
+  /** Right-click on a file heading inside a diff. */
+  const diffFileMenu = (path: string, at: MenuState): void => {
+    const name = path.split('/').pop() ?? path
+    const rev = revForView()
+    const absPath = `${root}/${path}`
+    setMenu({
+      ...at,
+      items: [
+        {
+          label: `Open ${name} in a New Tab`,
+          accel: 'Ctrl+click',
+          action: () => openFileDoc(path)
+        },
+        {
+          label: 'Select in the File List',
+          action: () => setSelectedFile(path)
+        },
+        {
+          label: 'Copy Relative Path',
+          separatorBefore: true,
+          action: () => void window.gitty.clipboard.write(path)
+        },
+        { label: 'Copy Absolute Path', action: () => void window.gitty.clipboard.write(absPath) },
+        { label: 'Copy File Name', action: () => void window.gitty.clipboard.write(name) },
+        // Only meaningful for the file as it is on disk right now.
+        ...(rev
+          ? []
+          : [
+              {
+                label: 'Open in System App',
+                separatorBefore: true,
+                action: () => void window.gitty.file.open(absPath)
+              },
+              {
+                label: 'Reveal in File Manager',
+                action: () => void window.gitty.file.reveal(absPath)
+              }
+            ])
+      ]
+    })
+  }
+
   const fileMenu = (entry: FileEntry, at: MenuState): void => {
     const rel = entry.path
     // Snapshot entries carry a virtual absPath; opening must go through the
@@ -831,6 +873,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                 ) : (
                   <DiffPane
                     ref={diffRef}
+                    onOpenFile={openFileDoc}
+                    onFileMenu={diffFileMenu}
                     onCollapseState={setCollapseState}
                     patch={diff?.patch ?? ''}
                     notice={diff?.notice}

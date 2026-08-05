@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   screen while a file is read. Each document remembers the revision it was
   opened at, closes with its own **×**, and reloads on its own when the work
   tree changes.
+- A file heading inside a diff opens that file: **Ctrl+click** it, or use its
+  context menu, which also copies the path and — for the work tree, where the
+  file on disk is still the version shown — hands it to the system application.
+  A rename opens the new path.
 - Files in a multi-file diff fold: a triangle on each file heading collapses it
   to its name, and **Collapse All** / **Expand All** in the header does the lot.
   Everything starts expanded, and a new diff arrives expanded.

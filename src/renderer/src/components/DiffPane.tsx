@@ -284,21 +284,38 @@ function Segs({ segs }: { segs: WordSeg[] }): JSX.Element {
   )
 }
 
+/**
+ * A rename reads as "old → new"; the file to open is the new one.
+ */
+export function headingPath(name: string): string {
+  const arrow = name.lastIndexOf(' → ')
+  return arrow < 0 ? name : name.slice(arrow + 3)
+}
+
 /** Clickable file heading: the anchor of a multi-file diff, and its fold. */
 function FileHeading({
   name,
   collapsed,
-  onToggle
+  onToggle,
+  onOpen,
+  onMenu
 }: {
   name: string
   collapsed: boolean
   onToggle: () => void
+  onOpen: () => void
+  onMenu: (state: MenuState) => void
 }): JSX.Element {
   return (
     <div
       className={`diff-line dl-file${collapsed ? ' collapsed' : ''}`}
-      onClick={onToggle}
-      title={collapsed ? `Expand ${name}` : `Collapse ${name}`}
+      onClick={(e) => (e.ctrlKey || e.metaKey ? onOpen() : onToggle())}
+      onContextMenu={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        onMenu({ x: e.clientX, y: e.clientY, items: [] })
+      }}
+      title={`${name}\n\nClick to ${collapsed ? 'expand' : 'collapse'}\nCtrl+click to open it in a new tab\nRight-click for more`}
     >
       <span className="twisty">{collapsed ? '▶' : '▼'}</span>
       <span className="diff-text">{name}</span>
@@ -316,11 +333,14 @@ export const DiffPane = forwardRef<
     view: DiffView
     wordDiff: boolean
     onMenu: (state: MenuState) => void
+    /** Ctrl+click or right-click on a file heading, with its path. */
+    onOpenFile?: (path: string) => void
+    onFileMenu?: (path: string, state: MenuState) => void
     /** Reported so the pane header can offer Collapse All / Expand All. */
     onCollapseState?: (state: CollapseState) => void
   }
 >(function DiffPane(
-  { patch, notice, placeholder, wrap, view, wordDiff, onMenu, onCollapseState },
+  { patch, notice, placeholder, wrap, view, wordDiff, onMenu, onOpenFile, onFileMenu, onCollapseState },
   ref
 ): JSX.Element {
   const parsed = useMemo(() => {
@@ -421,6 +441,8 @@ export const DiffPane = forwardRef<
                 name={l.text}
                 collapsed={collapsed.has(l.text)}
                 onToggle={() => toggleFile(l.text)}
+                onOpen={() => onOpenFile?.(headingPath(l.text))}
+                onMenu={(at) => onFileMenu?.(headingPath(l.text), at)}
               />
             ) : (
               <div key={i} className={`diff-line ${CLS[l.kind]}`}>
@@ -447,6 +469,8 @@ export const DiffPane = forwardRef<
                   name={r.full.text}
                   collapsed={collapsed.has(r.full.text)}
                   onToggle={() => toggleFile(r.full!.text)}
+                  onOpen={() => onOpenFile?.(headingPath(r.full!.text))}
+                  onMenu={(at) => onFileMenu?.(headingPath(r.full!.text), at)}
                 />
               ) : (
                 <div key={i} className={`diff-line diff-full ${CLS[r.full.kind]}`}>
