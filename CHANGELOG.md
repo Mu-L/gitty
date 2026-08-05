@@ -26,12 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   restarts.
 
 - A split terminal pane: **Split →** opens a shell beside the focused one,
-  **Split ↓** below it, and **Close** ends it. Splits nest and their separators
-  drag like every other pane; splitting the same way twice extends the row or
-  column rather than nesting again. Clicking a terminal focuses it, and the
-  focused one is outlined once there is more than one. A shell that exits
-  closes its own split, except the last one, which keeps the pane and its
-  notice.
+  **Split ↓** below it, and a small round **×** at each terminal's top right
+  closes it — the last one has none, since an empty pane would have no way
+  back. Splits nest and their separators drag like every other pane; splitting
+  the same way twice extends the row or column rather than nesting again.
+  Clicking a terminal focuses it, and the focused one is outlined once there
+  is more than one. A shell that exits closes its own split, except the last
+  one, which keeps the pane and its notice.
 
 - Recent repositories are remembered: the title bar's repository name opens a
   menu of the last twelve opened, most recent first; picking one opens it in a

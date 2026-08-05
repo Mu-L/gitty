@@ -623,6 +623,7 @@ button:hover {
    has to claim its box either way — a collapsed width would have the shell
    wrapping at a couple of columns. */
 .term-host {
+  position: relative;
   display: flex;
   flex: 1;
   width: 100%;
@@ -669,6 +670,37 @@ button:hover {
    border: focus must not resize the terminal it moves to. */
 .term-host.active {
   box-shadow: inset 0 0 0 1px var(--border-active);
+}
+
+/* A per-terminal close: a small round button at the top right of the host,
+   floating over the scrollback. The last terminal has no way back once closed,
+   so it gets no button. */
+.term-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-header);
+  color: var(--fg-dim);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.term-close:hover {
+  opacity: 1;
+  color: var(--fg);
+  background: var(--border-active);
 }
 
 /* ---------- markdown preview ---------- */

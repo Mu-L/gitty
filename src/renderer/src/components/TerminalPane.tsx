@@ -122,7 +122,9 @@ export function TerminalPane({
   theme,
   fontSize,
   active,
+  canClose,
   onFocus,
+  onClose,
   onExit
 }: {
   id: string
@@ -130,7 +132,9 @@ export function TerminalPane({
   theme: Theme
   fontSize: number
   active: boolean
+  canClose: boolean
   onFocus: () => void
+  onClose: () => void
   onExit: () => void
 }): JSX.Element {
   const boxRef = useRef<HTMLDivElement>(null)
@@ -168,6 +172,21 @@ export function TerminalPane({
       onMouseDown={onFocus}
       // A click on the padding around the terminal should still land in it.
       onClick={() => focusSession(id)}
-    />
+    >
+      {canClose && (
+        <button
+          className="term-close"
+          title="Close this terminal"
+          // The button floats over the shell; a click on it must not also
+          // focus the terminal underneath.
+          onClick={(e) => {
+            e.stopPropagation()
+            onClose()
+          }}
+        >
+          ×
+        </button>
+      )}
+    </div>
   )
 }

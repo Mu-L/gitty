@@ -107,7 +107,9 @@ export function TerminalsPane({
           theme={theme}
           fontSize={fontSize}
           active={ids.length > 1 && node.id === focused}
+          canClose={ids.length > 1}
           onFocus={() => setFocused(node.id)}
+          onClose={() => close(node.id)}
           onExit={() => close(node.id)}
         />
       )
@@ -135,17 +137,6 @@ export function TerminalsPane({
         </button>
         <button title="Split the focused terminal downwards" onClick={() => split('vertical')}>
           Split ↓
-        </button>
-        <button
-          title={
-            ids.length > 1
-              ? 'Close the focused terminal'
-              : 'The last terminal cannot be closed — exit its shell to restart it'
-          }
-          disabled={ids.length < 2}
-          onClick={() => close(focused)}
-        >
-          Close
         </button>
         <span className="hint">{root}</span>
       </div>
