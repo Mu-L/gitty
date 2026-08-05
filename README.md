@@ -93,9 +93,13 @@ stays a diff until you ask for the rendered document. It renders the file as a
 whole: the version on disk in the work tree, the version at the selected commit
 everywhere else.
 
+- **Wrap** — the same toggle as the diff, on by default. Prose always wraps; in
+  a preview this decides whether fenced code blocks, wide tables and long inline
+  strings wrap too, rather than scrolling sideways.
 - **Outline** — the heading structure beside the document, indented by level,
   tracking the heading you have scrolled to. Click an entry to jump.
-- **Right-click** — Copy Selection, Copy Markdown Source, and Show Diff Instead.
+- **Right-click** — Copy Selection, Copy Markdown Source, the wrap and outline
+  toggles, and Show Diff Instead.
 
 Raw HTML inside the markdown is not rendered, and links open in the system
 browser rather than inside the app.

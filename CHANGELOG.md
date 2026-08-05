@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   elsewhere — with an **Outline** of its headings that indents by level, follows
   the reading position and jumps on click. Raw HTML is left inert and links open
   in the system browser.
+- Word wrap now applies to the markdown preview as well, on by default and
+  sharing the diff's toggle: fenced code blocks, wide tables and long inline
+  strings wrap instead of scrolling sideways.
 - Full-screen mode for the diff / preview pane, from its button, a double-click
   on its header, or <kbd>Esc</kbd> to leave. The pane is drawn over the layout,
   so the terminal underneath keeps its shell and scrollback.

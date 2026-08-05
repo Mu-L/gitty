@@ -388,8 +388,12 @@ export default function App(): JSX.Element {
         action: () => void window.gitty.clipboard.write(mdSource ?? '')
       })
       items.push({
-        label: mdOutline ? 'Hide Outline' : 'Show Outline',
+        label: wrap ? 'Disable Word Wrap' : 'Enable Word Wrap',
         separatorBefore: true,
+        action: () => setWrap((w) => !w)
+      })
+      items.push({
+        label: mdOutline ? 'Hide Outline' : 'Show Outline',
         action: () => setMdOutline((o) => !o)
       })
       items.push({
@@ -593,6 +597,13 @@ export default function App(): JSX.Element {
                       Preview
                     </button>
                   )}
+                  <button
+                    className={`toggle${wrap ? ' on' : ''}`}
+                    title={previewing ? 'Wrap code blocks and tables' : 'Wrap long lines'}
+                    onClick={() => setWrap((w) => !w)}
+                  >
+                    Wrap
+                  </button>
                   {previewing ? (
                     <button
                       className={`toggle${mdOutline ? ' on' : ''}`}
@@ -603,13 +614,6 @@ export default function App(): JSX.Element {
                     </button>
                   ) : (
                     <>
-                      <button
-                        className={`toggle${wrap ? ' on' : ''}`}
-                        title="Wrap long lines"
-                        onClick={() => setWrap((w) => !w)}
-                      >
-                        Wrap
-                      </button>
                       <button
                         className="toggle"
                         title="Switch between inline and side-by-side"
@@ -633,7 +637,12 @@ export default function App(): JSX.Element {
                       <div className="empty">{mdError ?? 'Loading…'}</div>
                     </div>
                   ) : (
-                    <MarkdownPane source={mdSource} outline={mdOutline} onMenu={diffMenu} />
+                    <MarkdownPane
+                      source={mdSource}
+                      outline={mdOutline}
+                      wrap={wrap}
+                      onMenu={diffMenu}
+                    />
                   )
                 ) : (
                   <DiffPane

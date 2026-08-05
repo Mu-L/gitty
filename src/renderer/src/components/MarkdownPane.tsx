@@ -49,11 +49,14 @@ function render(source: string): { html: string; headings: Heading[] } {
 export function MarkdownPane({
   source,
   outline,
+  wrap,
   onMenu
 }: {
   source: string
   /** Show the heading outline beside the document. */
   outline: boolean
+  /** Wrap fenced code blocks and tables instead of scrolling them sideways. */
+  wrap: boolean
   onMenu: (state: MenuState) => void
 }): JSX.Element {
   const { html, headings } = useMemo(() => render(source), [source])
@@ -111,7 +114,7 @@ export function MarkdownPane({
         </nav>
       )}
       <div
-        className="md-body"
+        className={`md-body${wrap ? ' wrap' : ''}`}
         ref={bodyRef}
         onClick={(e) => {
           // Links must never navigate the window away from the app.

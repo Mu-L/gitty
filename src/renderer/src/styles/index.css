@@ -661,6 +661,29 @@ button:hover {
   line-height: 1.5;
 }
 
+/* Wrapping applies to the parts that would otherwise scroll sideways:
+   fenced code, wide tables and unbreakable inline strings such as URLs. */
+.md-body.wrap pre {
+  overflow-x: visible;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.md-body.wrap code {
+  overflow-wrap: anywhere;
+}
+
+.md-body.wrap table {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.md-body.wrap td,
+.md-body.wrap th {
+  overflow-wrap: anywhere;
+}
+
 .md-body blockquote {
   padding: 0.1em 1em;
   border-left: 3px solid var(--border);
