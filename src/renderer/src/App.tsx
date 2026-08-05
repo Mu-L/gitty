@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { ContextMenu, type MenuItem, type MenuState } from './components/ContextMenu'
-import { DiffPane } from './components/DiffPane'
+import { DiffPane, type DiffView } from './components/DiffPane'
 import { FilesPane, type FileEntry } from './components/FilesPane'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { TerminalPane } from './components/TerminalPane'
@@ -49,6 +49,10 @@ export default function App(): JSX.Element {
   const [selectedCommit, setSelectedCommit] = useState<string | null>(WORKTREE_ROW)
   const [compareCommit, setCompareCommit] = useState<string | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
+  const [wrap, setWrap] = useState(() => localStorage.getItem('gitty.wrap') !== 'off')
+  const [diffView, setDiffView] = useState<DiffView>(
+    () => (localStorage.getItem('gitty.diffView') as DiffView | null) ?? 'inline'
+  )
   const [error, setError] = useState<string | null>(null)
   const [tick, setTick] = useState(0)
   const loadingMore = useRef(false)
@@ -94,6 +98,16 @@ export default function App(): JSX.Element {
   }, [refresh])
 
   useEffect(() => window.gitty.repo.onChanged(() => void refresh()), [refresh])
+
+  useEffect(
+    () =>
+      window.gitty.repo.onMenuOpen(() => {
+        void window.gitty.repo.pick().then((p) => {
+          if (p) void openRepo(p)
+        })
+      }),
+    [openRepo]
+  )
 
   /* ---------- file list per view ---------- */
 
@@ -251,7 +265,39 @@ export default function App(): JSX.Element {
     }
   }, [root, commits.length])
 
+  useEffect(() => {
+    localStorage.setItem('gitty.wrap', wrap ? 'on' : 'off')
+    localStorage.setItem('gitty.diffView', diffView)
+  }, [wrap, diffView])
+
   /* ---------- context menus ---------- */
+
+  const diffMenu = (at: MenuState): void => {
+    const selection = window.getSelection()?.toString() ?? ''
+    const items: MenuItem[] = []
+    if (selection) {
+      items.push({
+        label: 'Copy Selection',
+        accel: 'Ctrl+C',
+        action: () => void window.gitty.clipboard.write(selection)
+      })
+    }
+    items.push({
+      label: 'Copy Whole Diff',
+      separatorBefore: items.length > 0,
+      action: () => void window.gitty.clipboard.write(diff?.patch ?? '')
+    })
+    items.push({
+      label: wrap ? 'Disable Word Wrap' : 'Enable Word Wrap',
+      separatorBefore: true,
+      action: () => setWrap((w) => !w)
+    })
+    items.push({
+      label: diffView === 'inline' ? 'Side-by-Side View' : 'Inline View',
+      action: () => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))
+    })
+    setMenu({ ...at, items })
+  }
 
   const fileMenu = (entry: FileEntry, at: MenuState): void => {
     const rel = entry.path
@@ -364,10 +410,27 @@ export default function App(): JSX.Element {
                   {selectedFile && view.mode !== 'worktree' && (
                     <button onClick={() => setSelectedFile(null)}>Show Whole Diff</button>
                   )}
+                  <button
+                    className={`toggle${wrap ? ' on' : ''}`}
+                    title="Wrap long lines"
+                    onClick={() => setWrap((w) => !w)}
+                  >
+                    Wrap
+                  </button>
+                  <button
+                    className="toggle"
+                    title="Switch between inline and side-by-side"
+                    onClick={() => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))}
+                  >
+                    {diffView === 'inline' ? 'Inline' : 'Side-by-Side'}
+                  </button>
                 </div>
                 <DiffPane
                   patch={diff?.patch ?? ''}
                   notice={diff?.notice}
+                  wrap={wrap}
+                  view={diffView}
+                  onMenu={diffMenu}
                   placeholder={
                     view.mode === 'worktree'
                       ? 'Select a file to see its diff.'

@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { app, BrowserWindow, clipboard, dialog, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, shell } from 'electron'
 import * as git from './git'
 import { createTerminal, type TerminalSession } from './pty'
 import { watchRepo, type RepoWatcher } from './watcher'
@@ -29,6 +29,46 @@ function initialPath(): string {
   return process.cwd()
 }
 
+/**
+ * A minimal application menu. Without one, Chromium's edit accelerators
+ * (Ctrl+C to copy selected diff text, Ctrl+A, …) are not bound at all.
+ * The bar itself stays hidden; only the shortcuts matter here.
+ */
+function installMenu(): void {
+  const isMac = process.platform === 'darwin'
+  Menu.setApplicationMenu(
+    Menu.buildFromTemplate([
+      ...(isMac ? [{ role: 'appMenu' as const }] : []),
+      {
+        label: 'File',
+        submenu: [
+          {
+            label: 'Open Repository…',
+            accelerator: 'CmdOrCtrl+O',
+            click: () => win?.webContents.send('menu:open-repo')
+          },
+          { type: 'separator' as const },
+          isMac ? { role: 'close' as const } : { role: 'quit' as const }
+        ]
+      },
+      { role: 'editMenu' as const },
+      {
+        label: 'View',
+        submenu: [
+          { role: 'reload' as const },
+          { role: 'toggleDevTools' as const },
+          { type: 'separator' as const },
+          { role: 'resetZoom' as const },
+          { role: 'zoomIn' as const },
+          { role: 'zoomOut' as const },
+          { type: 'separator' as const },
+          { role: 'togglefullscreen' as const }
+        ]
+      }
+    ])
+  )
+}
+
 function createWindow(): void {
   win = new BrowserWindow({
     width: 1600,
@@ -38,6 +78,7 @@ function createWindow(): void {
     show: false,
     backgroundColor: '#12141a',
     title: 'Gitty',
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -136,6 +177,7 @@ function registerIpc(): void {
 
 app.whenReady().then(() => {
   registerIpc()
+  installMenu()
   createWindow()
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

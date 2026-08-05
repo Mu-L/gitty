@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Word wrap in the diff pane, on by default, toggled from the header or the
+  context menu and remembered between runs.
+- Side-by-side diff view alongside the inline one: deletions are zipped with the
+  additions that follow them, and each pair is a grid row so wrapped halves stay
+  aligned. Also remembered between runs.
+- Context menu in the diff pane: Copy Selection, Copy Whole Diff, and the wrap
+  and view toggles.
+- Minimal application menu (hidden bar) so Chromium's edit accelerators —
+  <kbd>Ctrl+C</kbd> on selected diff text, <kbd>Ctrl+A</kbd> — are bound at all,
+  plus File ▸ Open Repository and a View menu with reload and zoom.
+
+### Changed
+
+- The diff pane renders in chunks of 1500 rows that grow as you scroll, instead
+  of a fixed-height virtual window. Variable row heights are what wrapping and
+  the side-by-side grid need.
+
+### Fixed
+
+- A replaced terminal session (window reload, repository switch) no longer
+  writes its exit notice into the terminal that succeeded it.
+
 ## [0.1.0] - 2026-08-05
 
 Initial release.

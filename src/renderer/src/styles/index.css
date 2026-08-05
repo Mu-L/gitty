@@ -6,6 +6,7 @@
   --bg-header: #1d212a;
   --bg-hover: #222735;
   --bg-select: #2c3446;
+  --bg-select-bright: #3a4663;
   --bg-select-dim: #232937;
   --border: #2a2f3c;
   --border-active: #4a7dff;
@@ -273,7 +274,13 @@ button:hover {
 }
 
 .commit-row.selected {
-  background: var(--bg-select);
+  background: var(--bg-select-bright);
+  box-shadow: inset 3px 0 0 var(--border-active);
+}
+
+.commit-row.selected .commit-hash {
+  color: #fff;
+  font-weight: 700;
 }
 
 /* The uncommitted-changes row pinned above the log. */
@@ -291,7 +298,7 @@ button:hover {
 
 .commit-row.compare {
   background: var(--bg-select-dim);
-  box-shadow: inset 2px 0 0 var(--magenta);
+  box-shadow: inset 3px 0 0 var(--magenta);
 }
 
 .commit-hash {
@@ -349,12 +356,19 @@ button:hover {
 
 .diff-line {
   display: flex;
-  height: var(--row-h);
+  min-height: var(--row-h);
   white-space: pre;
+}
+
+/* Off-screen rows are skipped until scrolled to; heights are estimated. */
+.diff.inline .diff-line {
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--row-h);
 }
 
 .diff-gutter {
   flex: none;
+  align-self: stretch;
   width: 46px;
   padding-right: 6px;
   text-align: right;
@@ -364,8 +378,62 @@ button:hover {
 }
 
 .diff-text {
-  padding: 0 8px;
   flex: 1;
+  min-width: 0;
+  padding: 0 8px;
+}
+
+/* Wrapping trades the horizontal scrollbar for taller rows. */
+.diff.wrap .diff-line {
+  white-space: pre-wrap;
+}
+
+.diff.wrap .diff-text {
+  overflow-wrap: anywhere;
+}
+
+/* Side-by-side: each pair is a two-column grid row, so both halves stay
+   aligned even when wrapped text makes them different heights. */
+.diff-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.diff-pair > .diff-line {
+  min-width: 0;
+  border-right: 1px solid var(--border);
+}
+
+.diff-full {
+  border-top: 1px solid var(--border);
+}
+
+.dl-empty {
+  background: #14161d;
+}
+
+.diff-more {
+  padding: 4px 10px;
+  color: var(--fg-dim);
+  background: var(--bg-header);
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+
+.diff-more:hover {
+  color: var(--fg);
+}
+
+/* Toolbar controls in the diff pane header. */
+.toggle {
+  padding: 0 7px;
+  color: var(--fg-dim);
+}
+
+.toggle.on {
+  color: var(--fg);
+  border-color: var(--border-active);
 }
 
 .dl-add {

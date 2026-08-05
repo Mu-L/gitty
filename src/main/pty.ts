@@ -35,11 +35,15 @@ export function createTerminal(
     >
   })
 
+  // A replaced session (window reload, repository switch) must stay quiet:
+  // its output would otherwise land in the terminal that succeeded it.
+  let disposed = false
+
   proc.onData((data) => {
-    if (!wc.isDestroyed()) wc.send('terminal:data', data)
+    if (!disposed && !wc.isDestroyed()) wc.send('terminal:data', data)
   })
   proc.onExit(({ exitCode, signal }) => {
-    if (!wc.isDestroyed()) wc.send('terminal:exit', { exitCode, signal })
+    if (!disposed && !wc.isDestroyed()) wc.send('terminal:exit', { exitCode, signal })
   })
 
   return {
@@ -52,6 +56,7 @@ export function createTerminal(
       }
     },
     dispose: () => {
+      disposed = true
       try {
         proc.kill()
       } catch {

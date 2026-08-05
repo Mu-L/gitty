@@ -72,8 +72,16 @@ instead; **Back to Work Tree** (or <kbd>Esc</kbd>) returns to the working tree.
 ### Diff (top right)
 
 Unified diff with old/new line numbers, hunk headers and add/delete colouring.
-Long diffs are virtualised so large commits stay responsive; diffs above 2 MB are
-truncated with a notice. The text is selectable for copying.
+
+- **Wrap** — wrap long lines instead of scrolling sideways. On by default.
+- **Inline / Side-by-Side** — one column with `+`/`-` markers, or old and new
+  next to each other, where a run of deletions is zipped with the additions that
+  follow it. Wrapped halves stay aligned.
+- **Right-click** — Copy Selection, Copy Whole Diff, and the same two toggles.
+
+Both settings are remembered between runs. Rows render in chunks of 1500 and
+extend as you scroll, so large commits stay responsive; diffs above 2 MB are
+truncated with a notice.
 
 ### Commits (bottom left)
 

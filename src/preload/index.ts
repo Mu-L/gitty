@@ -19,6 +19,12 @@ const api = {
       const h = (): void => cb()
       ipcRenderer.on('repo:changed', h)
       return () => ipcRenderer.removeListener('repo:changed', h)
+    },
+    /** Fired by the File ▸ Open Repository menu item. */
+    onMenuOpen: (cb: () => void): (() => void) => {
+      const h = (): void => cb()
+      ipcRenderer.on('menu:open-repo', h)
+      return () => ipcRenderer.removeListener('menu:open-repo', h)
     }
   },
   git: {
