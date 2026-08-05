@@ -96,10 +96,17 @@ to open the next repository. (Open tabs are not remembered across restarts.)
 ## Recent repositories
 
 The repository name in the title bar is a menu of the repositories opened
-before — basename plus its parent directory — most recent first. Picking one
-opens it in a new tab; **Open Repository…** and **Clear Recent** sit below. The
-list lives in `~/.config/Gitty/recent-repos.json`, holds twelve entries, and
-skips any that have since been moved or deleted.
+before — basename plus its parent directory — most recent first.
+
+- **Click** — open it in a new tab.
+- **Ctrl/Cmd+click** or **middle-click** — open it in the current tab, replacing
+  the repository there and keeping the tab's place in the bar.
+- **Right-click** — remove the entry from the list. The menu stays open, so
+  several can be cleared in a row.
+
+**Open Repository…** and **Clear Recent** sit below. The list lives in
+`~/.config/Gitty/recent-repos.json`, holds twelve entries, and skips any that
+have since been moved or deleted.
 
 Starting Gitty from a directory that is not inside a work tree falls back to the
 last repository opened, instead of just complaining.
