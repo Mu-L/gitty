@@ -58,8 +58,9 @@ export default function App(): JSX.Element {
   )
   // Word-level highlighting is on by default; fine-grained changes stand out.
   const [wordDiff, setWordDiff] = useState(() => localStorage.getItem('gitty.wordDiff') !== 'off')
-  // Viewing whole files is opt-in: a history browser shows diffs by default.
-  const [fileView, setFileView] = useState(() => localStorage.getItem('gitty.fileView') === 'on')
+  // Viewing a whole file is a one-off action, not a remembered preference:
+  // selecting anything else drops back to its diff.
+  const [fileView, setFileView] = useState(false)
   const [maximized, setMaximized] = useState(false)
   const [mdOutline, setMdOutline] = useState(
     () => localStorage.getItem('gitty.mdOutline') !== 'off'
@@ -272,6 +273,7 @@ export default function App(): JSX.Element {
     setCompareCommit(null)
     setSelectedCommit(c.hash)
     setSelectedFile(null)
+    setFileView(false)
     setView({ mode: 'commit', hash: c.hash, short: c.short, subject: c.subject })
   }, [])
 
@@ -280,6 +282,7 @@ export default function App(): JSX.Element {
     setCompareCommit(null)
     setSelectedCommit(c.hash)
     setSelectedFile(null)
+    setFileView(false)
     setView({ mode: 'snapshot', hash: c.hash, short: c.short, subject: c.subject })
   }, [])
 
@@ -288,6 +291,7 @@ export default function App(): JSX.Element {
     setSelectedCommit(WORKTREE_ROW)
     setCompareCommit(null)
     setSelectedFile(null)
+    setFileView(false)
   }, [])
 
   const onSelectCommit = useCallback(
@@ -313,6 +317,7 @@ export default function App(): JSX.Element {
       const [from, to] = iSel > iCmp ? [selectedCommit, hash] : [hash, selectedCommit]
       setCompareCommit(hash)
       setSelectedFile(null)
+      setFileView(false)
       setView({ mode: 'range', from, to })
     },
     [commits, selectedCommit, showCommit, backToWorkTree]
@@ -353,9 +358,8 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.wrap', wrap ? 'on' : 'off')
     localStorage.setItem('gitty.diffView', diffView)
     localStorage.setItem('gitty.wordDiff', wordDiff ? 'on' : 'off')
-    localStorage.setItem('gitty.fileView', fileView ? 'on' : 'off')
     localStorage.setItem('gitty.mdOutline', mdOutline ? 'on' : 'off')
-  }, [wrap, diffView, wordDiff, fileView, mdOutline])
+  }, [wrap, diffView, wordDiff, mdOutline])
 
   /* ---------- context menus ---------- */
 
@@ -544,7 +548,10 @@ export default function App(): JSX.Element {
                   <FilesPane
                     entries={viewFiles}
                     selected={selectedFile}
-                    onSelect={(f) => setSelectedFile(f.path)}
+                    onSelect={(f) => {
+                      setSelectedFile(f.path)
+                      setFileView(false)
+                    }}
                     onOpen={(f) => {
                       // Double-click views the file in the pane beside it;
                       // the system application is a context-menu choice.

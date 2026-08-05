@@ -89,8 +89,9 @@ Unified diff with old/new line numbers, hunk headers and add/delete colouring.
   terminal below keeps running while it is covered.
 - **View File** — show the file's whole contents instead of its diff, with line
   numbers and syntax highlighting: from disk in the work tree, at the selected
-  revision elsewhere. Markdown files get **Preview** instead (see below).
-  Snapshots are always viewed this way, having no diff to show.
+  revision elsewhere. Markdown files get **Preview** instead (see below). This
+  lasts until you select another file or commit — the default is always the
+  diff. Snapshots are the exception and always view files, having no diff.
 - **Right-click** — Copy Selection, Copy Whole Diff, and the same toggles.
 
 Settings are remembered between runs. Rows render in chunks of 1500 and extend

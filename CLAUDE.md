@@ -108,8 +108,11 @@ under `gitty.wrap` / `gitty.diffView`.
 
 ### Viewing whole files
 
-`gitty.fileView` (off by default) swaps the diff for the file itself, and
-snapshot mode forces it on — a snapshot has no diff. Either way the source comes
+`fileView` swaps the diff for the file itself. It is deliberately **not**
+persisted and is cleared whenever another file or commit is selected: a history
+browser defaults to diffs, and viewing a file is an action (double-click, menu,
+header toggle) rather than a mode to get stuck in. Snapshot mode forces it on —
+a snapshot has no diff. Either way the source comes
 from `git.readWorking` in the work tree and `git.snapshotFile` at a revision;
 `CodePane` renders it with line numbers, and `MarkdownPane` takes over for `.md`.
 
