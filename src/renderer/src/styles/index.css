@@ -135,13 +135,21 @@ button:hover {
   white-space: nowrap;
 }
 
+.titlebar .titlebar-icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
 .titlebar .repo {
   color: var(--fg);
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Branch names are unbounded; they give up space before the buttons do. */
+/* Branch names are unbounded; they truncate rather than push the buttons off
+   the bar. The repository path gives up its room first — which branch is on
+   screen matters more than the middle of a long path. */
 .titlebar .branch,
 .titlebar .browsing {
   min-width: 0;

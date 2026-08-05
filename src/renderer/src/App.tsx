@@ -47,6 +47,8 @@ export default function App(): JSX.Element {
   const [recent, setRecent] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
+  // The four-pane icon, fetched from the main process as a data URL.
+  const [appIcon, setAppIcon] = useState<string | null>(null)
 
   /* ---------- tab management ---------- */
 
@@ -147,6 +149,8 @@ export default function App(): JSX.Element {
       }
     })()
   }, [openTab])
+
+  useEffect(() => void window.gitty.appIcon().then(setAppIcon), [])
 
   const refreshActive = useCallback(() => {
     tabRefs.current[active ?? '']?.refresh()
@@ -306,10 +310,12 @@ export default function App(): JSX.Element {
     setMenu({ x, y, items })
   }
 
-
   return (
     <div className="app" onContextMenu={(e) => e.preventDefault()}>
       <div className="titlebar">
+        {appIcon && (
+          <img className="titlebar-icon" src={appIcon} alt="Gitty" draggable={false} />
+        )}
         <strong>Gitty</strong>
         <button
           className="repo-button"

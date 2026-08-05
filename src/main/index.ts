@@ -144,6 +144,18 @@ function createWindow(): void {
 function registerIpc(): void {
   ipcMain.handle('repo:initial', () => initialPath())
 
+  // The window icon doubles as the title-bar mark. The renderer cannot read
+  // build/ for itself, so serve it as a data URL. Null when the PNG is absent
+  // (e.g. running unpackaged from a tarball without build assets).
+  ipcMain.handle('app:icon', () => {
+    const icon = path.join(app.getAppPath(), 'build', 'icon.png')
+    try {
+      return `data:image/png;base64,${fs.readFileSync(icon).toString('base64')}`
+    } catch {
+      return null
+    }
+  })
+
   ipcMain.handle('repo:resolve', async (_e, cwd: string) => {
     try {
       return await git.resolveRepo(cwd)

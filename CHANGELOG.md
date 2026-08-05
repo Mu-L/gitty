@@ -42,12 +42,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   skipped. Launching from a directory outside any work tree now falls back to
   the last repository opened rather than only reporting the error.
 
-- An application icon, used as the window icon on Linux and Windows: a dark
-  rounded square split into the four panes, each tinted with its accent colour
-  (green work tree, red diff, cyan commit log, blue terminal) and carrying a
-  small glyph for what it shows — a file block, added and removed lines, a
-  commit timeline and a shell prompt. The SVG source lives in `build/` next to
-  the rendered PNG.
+- An application icon, used as the window icon on Linux and Windows and as a
+  small mark next to the **Gitty** name in the title bar: a dark rounded square
+  split into the four panes, each tinted with its accent colour (green work
+  tree, red diff, cyan commit log, blue terminal) and carrying a small glyph for
+  what it shows — a file block, added and removed lines, a commit timeline and
+  a shell prompt. The SVG source lives in `build/` next to the rendered PNG.
 
 ## [0.1.1] - 2026-08-05
 

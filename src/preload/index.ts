@@ -16,6 +16,8 @@ import type {
 const api = {
   /** Used to shorten paths for display. */
   homeDir: os.homedir(),
+  /** The app icon as a data URL, for the title bar; null when unavailable. */
+  appIcon: (): Promise<string | null> => ipcRenderer.invoke('app:icon'),
   repo: {
     initial: (): Promise<string> => ipcRenderer.invoke('repo:initial'),
     resolve: (cwd: string): Promise<string | null> => ipcRenderer.invoke('repo:resolve', cwd),
