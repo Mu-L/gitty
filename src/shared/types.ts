@@ -68,7 +68,8 @@ export type DiffSide = 'worktree' | 'index'
 
 export interface DiffRequestWorking {
   kind: 'working'
-  path: string
+  /** Omit for every uncommitted change at once. */
+  path?: string
   side: DiffSide
   untracked: boolean
 }

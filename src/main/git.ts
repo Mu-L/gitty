@@ -21,6 +21,9 @@ const exec = promisify(execFile)
 /** Diffs larger than this are not sent to the renderer; it would just lock up the pane. */
 const MAX_PATCH_BYTES = 2 * 1024 * 1024
 
+/** Untracked files inlined into the whole-work-tree diff before giving up. */
+const MAX_UNTRACKED_IN_DIFF = 50
+
 const RS = '\x1e' // record separator
 const US = '\x1f' // unit separator
 
@@ -264,6 +267,39 @@ export async function diff(root: string, req: DiffRequest): Promise<DiffResult> 
   const common = ['--no-color', '--no-ext-diff']
 
   if (req.kind === 'working') {
+    if (!req.path) {
+      // Everything uncommitted at once. Against HEAD rather than the index, so
+      // one diff covers both staged and unstaged work.
+      const tracked = await git(root, ['diff', ...common, 'HEAD']).catch(() =>
+        // A repository without commits yet has no HEAD to diff against.
+        git(root, ['diff', ...common, '--cached'])
+      )
+      // Untracked files have no blob for git to diff, so each is compared
+      // against the empty file — otherwise "every change" would silently omit
+      // exactly the files the status column marks as new.
+      const untracked = (await status(root)).files.filter((f) => f.untracked)
+      const shown = untracked.slice(0, MAX_UNTRACKED_IN_DIFF)
+      const parts = [tracked]
+      for (const f of shown) {
+        const one = await git(root, [
+          'diff',
+          ...common,
+          '--no-index',
+          '--',
+          '/dev/null',
+          f.path
+        ]).catch((e: { stdout?: string }) => e.stdout ?? '')
+        if (one) parts.push(one)
+      }
+      const result = clip(parts.filter(Boolean).join(''), 'Working tree')
+      const omitted = untracked.length - shown.length
+      if (omitted > 0) {
+        result.notice = [result.notice, `${omitted} more untracked files not shown.`]
+          .filter(Boolean)
+          .join(' ')
+      }
+      return result
+    }
     if (req.untracked) {
       // Untracked files have no index entry; compare against the empty tree.
       const patch = await git(root, [

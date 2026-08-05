@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The diff pane shows everything at once when no file is selected: in the work
+  tree that is every uncommitted change — staged and unstaged together, with
+  untracked files inlined (up to 50, then a notice) since `git diff` omits them
+  — and in a commit it is the full commit diff, as before. The work tree used
+  to show nothing there but a prompt to pick a file.
+
 - Browse any branch's history: the branch in the title bar is now a menu of
   every local and remote-tracking branch, newest first, and picking one points
   the commit log at it. Nothing is checked out — the work tree, its diffs and
@@ -111,6 +117,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   application. Nothing in the work tree or at HEAD is touched.
 
 ### Changed
+
+- **Show Whole Diff** no longer comes and goes: it stays in the diff header for
+  the work tree, a commit and a range alike, lit while the whole diff is on
+  screen, and it now also appears while viewing a file — returning to the whole
+  diff took two clicks before.
 
 - `gitty` now detaches from the terminal instead of holding it: it prints the
   pid and returns, the window survives the shell closing, and output goes to

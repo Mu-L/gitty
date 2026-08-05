@@ -290,8 +290,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // Whenever the view, the selected file or the repo state changes, reload the diff.
   useEffect(() => {
     if (view.mode === 'worktree') {
+      // No file picked: show every uncommitted change at once.
       if (!selectedFile) {
-        setDiff(null)
+        void loadDiff({ kind: 'working', side: 'worktree', untracked: false })
         return
       }
       const f = status?.files.find((x) => x.path === selectedFile)
@@ -622,16 +623,29 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   <span className="spacer" title="Double-click to toggle full screen" />
                   {/* Only commit and range diffs have a "whole" to widen back
                       to; a snapshot is always one file at a time. */}
-                  {selectedFile &&
-                    !viewingFile &&
-                    (view.mode === 'commit' || view.mode === 'range') && (
-                      <button
-                        title="Widen the diff back to every file in this commit"
-                        onClick={() => setSelectedFile(null)}
-                      >
-                        Show Whole Diff
-                      </button>
-                    )}
+                  {/* Always present for a commit or a range, lit when the
+                      whole diff is what is already on screen: a button that
+                      comes and goes is harder to find than one that stays. */}
+                  {view.mode !== 'snapshot' && (
+                    <button
+                      className={`toggle${selectedFile ? '' : ' on'}`}
+                      title={
+                        selectedFile
+                          ? view.mode === 'worktree'
+                            ? 'Widen the diff back to every uncommitted change'
+                            : 'Widen the diff back to every file in this commit'
+                          : view.mode === 'worktree'
+                            ? 'Every uncommitted change is shown'
+                            : 'Every file in this commit is shown'
+                      }
+                      onClick={() => {
+                        setFileView(false)
+                        setSelectedFile(null)
+                      }}
+                    >
+                      Show Whole Diff
+                    </button>
+                  )}
                   {selectedFile && view.mode !== 'snapshot' && (
                     <button
                       className={`toggle${viewingFile ? ' on' : ''}`}
@@ -708,7 +722,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     onMenu={diffMenu}
                     placeholder={
                       view.mode === 'worktree'
-                        ? 'Select a file to see its diff.'
+                        ? 'Working tree clean.'
                         : view.mode === 'snapshot'
                           ? 'Select a file to view it at this commit.'
                           : 'No textual changes.'

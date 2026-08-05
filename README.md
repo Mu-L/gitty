@@ -131,7 +131,14 @@ instead; **Back to Work Tree** (or <kbd>Esc</kbd>) returns to the working tree.
 ### Diff (top right)
 
 Unified diff with old/new line numbers, hunk headers and add/delete colouring.
+With no file selected it shows everything at once: every uncommitted change in
+the work tree, or every file in the selected commit.
 
+- **Show Whole Diff** — back to that combined diff after picking a file. It
+  stays in the header and lights up while the whole diff is what you are
+  looking at. The work-tree version covers staged and unstaged changes together
+  and inlines untracked files (up to 50, then a notice), which `git diff` alone
+  leaves out.
 - **Wrap** — wrap long lines instead of scrolling sideways. On by default.
 - **Inline / Side-by-Side** — one column with `+`/`-` markers, or old and new
   next to each other, where a run of deletions is zipped with the additions that
@@ -195,7 +202,7 @@ Each tab browses on its own.
 - **Right-click** — show the diff, copy the hash, the short hash or the subject,
   or diff against the currently selected commit.
 - Selecting a file in the top-left pane narrows the diff to that file;
-  **Show Whole Diff** widens it again.
+  **Show Whole Diff** widens it back out.
 
 ### Terminal (bottom right)
 
