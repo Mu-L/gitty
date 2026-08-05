@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minimal application menu (hidden bar) so Chromium's edit accelerators —
   <kbd>Ctrl+C</kbd> on selected diff text, <kbd>Ctrl+A</kbd> — are bound at all,
   plus File ▸ Open Repository and a View menu with reload and zoom.
+- Browse Snapshot from a commit's context menu: the whole repository as it was
+  at that commit, read-only — files come from the tree (`ls-tree`), contents
+  from `git show`, and double-click opens a temp export with the system
+  application. Nothing in the work tree or at HEAD is touched.
 
 ### Changed
 

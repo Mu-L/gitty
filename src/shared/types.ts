@@ -86,6 +86,13 @@ export interface DiffResult {
   notice?: string
 }
 
+/** A single file's contents at a commit, for read-only snapshot browsing. */
+export interface SnapshotFileContent {
+  content: string
+  /** True when the file is binary or too large to display; content is empty. */
+  binary: boolean
+}
+
 export interface PtyExit {
   exitCode: number
   signal?: number

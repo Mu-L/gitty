@@ -6,7 +6,8 @@ import type {
   DiffRequest,
   DiffResult,
   PtyExit,
-  RepoStatus
+  RepoStatus,
+  SnapshotFileContent
 } from '../shared/types'
 
 const api = {
@@ -36,7 +37,13 @@ const api = {
     rangeFiles: (root: string, from: string, to: string): Promise<CommitFile[]> =>
       ipcRenderer.invoke('git:rangeFiles', root, from, to),
     diff: (root: string, req: DiffRequest): Promise<DiffResult> =>
-      ipcRenderer.invoke('git:diff', root, req)
+      ipcRenderer.invoke('git:diff', root, req),
+    snapshotFiles: (root: string, hash: string): Promise<string[]> =>
+      ipcRenderer.invoke('git:snapshotFiles', root, hash),
+    snapshotFile: (root: string, hash: string, filePath: string): Promise<SnapshotFileContent> =>
+      ipcRenderer.invoke('git:snapshotFile', root, hash, filePath),
+    snapshotOpen: (root: string, hash: string, filePath: string): Promise<string | null> =>
+      ipcRenderer.invoke('git:snapshotOpen', root, hash, filePath)
   },
   file: {
     open: (abs: string): Promise<string | null> => ipcRenderer.invoke('file:open', abs),

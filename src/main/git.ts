@@ -1,3 +1,5 @@
+import fs from 'node:fs'
+import os from 'node:os'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import path from 'node:path'
@@ -9,6 +11,7 @@ import type {
   DiffResult,
   FileStatusCode,
   RepoStatus,
+  SnapshotFileContent,
   WorkingFile
 } from '../shared/types'
 
@@ -248,4 +251,41 @@ export async function diff(root: string, req: DiffRequest): Promise<DiffResult> 
 /** File contents at a revision, used by the diff pane for added/removed files. */
 export async function showFile(root: string, rev: string, filePath: string): Promise<string> {
   return git(root, ['show', `${rev}:${filePath}`])
+}
+
+/** Full file list of a commit — the tree as it was at that moment. */
+export async function snapshotFiles(root: string, hash: string): Promise<string[]> {
+  const raw = await git(root, ['ls-tree', '-r', '--name-only', '-z', hash])
+  return raw.split('\0').filter((p) => p.length > 0)
+}
+
+/** Contents of one file at a revision; binary files report rather than dump. */
+export async function snapshotFile(
+  root: string,
+  hash: string,
+  filePath: string
+): Promise<SnapshotFileContent> {
+  const content = await git(root, ['show', `${hash}:${filePath}`])
+  if (content.includes('\0')) return { content: '', binary: true }
+  if (Buffer.byteLength(content) > MAX_PATCH_BYTES) {
+    return { content: '', binary: true }
+  }
+  return { content, binary: false }
+}
+
+/**
+ * Write one file's contents at a revision to a temp file so the system default
+ * application can open it. The temp name is derived from hash + path, so
+ * opening the same snapshot file twice reuses (overwrites) the same file.
+ */
+export async function snapshotWriteTemp(
+  root: string,
+  hash: string,
+  filePath: string
+): Promise<string> {
+  const content = await git(root, ['show', `${hash}:${filePath}`])
+  const name = `gitty-${hash.slice(0, 8)}-${filePath.replace(/[\\/]/g, '_').slice(0, 80)}`
+  const tmp = path.join(os.tmpdir(), name)
+  await fs.promises.writeFile(tmp, content)
+  return tmp
 }

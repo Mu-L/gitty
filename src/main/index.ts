@@ -154,6 +154,16 @@ function registerIpc(): void {
     git.rangeFiles(root, from, to)
   )
   ipcMain.handle('git:diff', (_e, root: string, req: DiffRequest) => git.diff(root, req))
+  ipcMain.handle('git:snapshotFiles', (_e, root: string, hash: string) =>
+    git.snapshotFiles(root, hash)
+  )
+  ipcMain.handle('git:snapshotFile', (_e, root: string, hash: string, filePath: string) =>
+    git.snapshotFile(root, hash, filePath)
+  )
+  ipcMain.handle('git:snapshotOpen', async (_e, root: string, hash: string, filePath: string) => {
+    const tmp = await git.snapshotWriteTemp(root, hash, filePath)
+    return (await shell.openPath(tmp)) || null
+  })
 
   ipcMain.handle('file:open', async (_e, abs: string) => {
     const err = await shell.openPath(abs)

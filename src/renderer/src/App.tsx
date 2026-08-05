@@ -20,6 +20,7 @@ type View =
   | { mode: 'worktree' }
   | { mode: 'commit'; hash: string; short: string; subject: string }
   | { mode: 'range'; from: string; to: string }
+  | { mode: 'snapshot'; hash: string; short: string; subject: string }
 
 function statusMarks(f: WorkingFile): FileEntry['marks'] {
   if (f.untracked) {
@@ -127,6 +128,21 @@ export default function App(): JSX.Element {
         if (!cancelled) setViewFiles(files)
         return
       }
+      // Snapshot mode: the whole tree at that commit, read-only.
+      if (view.mode === 'snapshot') {
+        const paths = await window.gitty.git.snapshotFiles(root, view.hash)
+        if (cancelled) return
+        setViewFiles(
+          paths.map<FileEntry>((p) => ({
+            path: p,
+            // Virtual path — no file on disk; fileMenu/onOpen branch on this prefix.
+            absPath: `gitty:snapshot:${view.hash}:${p}`,
+            marks: [],
+            deleted: false
+          }))
+        )
+        return
+      }
       const files =
         view.mode === 'commit'
           ? (await window.gitty.git.commitDetail(root, view.hash)).files
@@ -184,13 +200,34 @@ export default function App(): JSX.Element {
       })
     } else if (view.mode === 'commit') {
       void loadDiff({ kind: 'commit', hash: view.hash, path: selectedFile ?? undefined })
-    } else {
+    } else if (view.mode === 'range') {
       void loadDiff({
         kind: 'range',
         from: view.from,
         to: view.to,
         path: selectedFile ?? undefined
       })
+    } else {
+      // Snapshot: show the raw file contents at that commit, read-only.
+      if (!selectedFile) {
+        setDiff(null)
+        return
+      }
+      void (async () => {
+        try {
+          const r = await window.gitty.git.snapshotFile(root, view.hash, selectedFile)
+          if (r.binary) {
+            setDiff({ patch: '', title: `${selectedFile} @ ${view.short}`, notice: 'Binary file.' })
+          } else {
+            // Prefix every line with a space → parsed as context lines, so the
+            // DiffPane renders them as plain read-only text.
+            const patch = r.content.split('\n').map((l) => ' ' + l).join('\n')
+            setDiff({ patch, title: `${selectedFile} @ ${view.short} (snapshot)` })
+          }
+        } catch (e) {
+          setDiff({ patch: '', title: selectedFile, notice: String(e) })
+        }
+      })()
     }
   }, [root, view, selectedFile, status, tick, loadDiff])
 
@@ -201,6 +238,14 @@ export default function App(): JSX.Element {
     setSelectedCommit(c.hash)
     setSelectedFile(null)
     setView({ mode: 'commit', hash: c.hash, short: c.short, subject: c.subject })
+  }, [])
+
+  /** Browse the whole repository as it was at this commit, read-only. */
+  const showSnapshot = useCallback((c: Commit) => {
+    setCompareCommit(null)
+    setSelectedCommit(c.hash)
+    setSelectedFile(null)
+    setView({ mode: 'snapshot', hash: c.hash, short: c.short, subject: c.subject })
   }, [])
 
   const backToWorkTree = useCallback(() => {
@@ -301,20 +346,32 @@ export default function App(): JSX.Element {
 
   const fileMenu = (entry: FileEntry, at: MenuState): void => {
     const rel = entry.path
-    const items: MenuItem[] = [
-      { label: 'Open File', accel: 'Double click', action: () => void window.gitty.file.open(entry.absPath) },
-      { label: 'Reveal in File Manager', action: () => void window.gitty.file.reveal(entry.absPath) },
-      {
-        label: 'Copy Relative Path',
-        separatorBefore: true,
-        action: () => void window.gitty.clipboard.write(rel)
-      },
-      { label: 'Copy Absolute Path', action: () => void window.gitty.clipboard.write(entry.absPath) },
-      {
-        label: 'Copy File Name',
-        action: () => void window.gitty.clipboard.write(rel.split('/').pop() ?? rel)
-      }
-    ]
+    // Snapshot entries carry a virtual absPath; opening must go through the
+    // snapshot temp file, and "Reveal" has nothing to reveal on disk.
+    const snapshot = entry.absPath.startsWith('gitty:snapshot:')
+    const items: MenuItem[] = []
+    if (snapshot && view.mode === 'snapshot') {
+      items.push({
+        label: 'Open File',
+        accel: 'Double click',
+        action: () => void window.gitty.git.snapshotOpen(root!, view.hash, rel)
+      })
+    } else {
+      items.push(
+        { label: 'Open File', accel: 'Double click', action: () => void window.gitty.file.open(entry.absPath) },
+        { label: 'Reveal in File Manager', action: () => void window.gitty.file.reveal(entry.absPath) }
+      )
+    }
+    items.push({
+      label: 'Copy Relative Path',
+      separatorBefore: items.length > 0,
+      action: () => void window.gitty.clipboard.write(rel)
+    })
+    items.push({ label: 'Copy Absolute Path', action: () => void window.gitty.clipboard.write(entry.absPath) })
+    items.push({
+      label: 'Copy File Name',
+      action: () => void window.gitty.clipboard.write(rel.split('/').pop() ?? rel)
+    })
     setMenu({ ...at, items })
   }
 
@@ -327,7 +384,12 @@ export default function App(): JSX.Element {
         action: () => void window.gitty.clipboard.write(c.hash)
       },
       { label: 'Copy Short Hash', action: () => void window.gitty.clipboard.write(c.short) },
-      { label: 'Copy Subject', action: () => void window.gitty.clipboard.write(c.subject) }
+      { label: 'Copy Subject', action: () => void window.gitty.clipboard.write(c.subject) },
+      {
+        label: 'Browse Snapshot',
+        separatorBefore: true,
+        action: () => showSnapshot(c)
+      }
     ]
     if (selectedCommit && selectedCommit !== c.hash) {
       items.push({
@@ -345,6 +407,7 @@ export default function App(): JSX.Element {
   const filesTitle = useMemo(() => {
     if (view.mode === 'worktree') return 'Working Tree'
     if (view.mode === 'commit') return `Commit ${view.short} — ${view.subject}`
+    if (view.mode === 'snapshot') return `Snapshot ${view.short} — ${view.subject}`
     return `Range ${view.from.slice(0, 8)}..${view.to.slice(0, 8)}`
   }, [view])
 
@@ -392,10 +455,20 @@ export default function App(): JSX.Element {
                     entries={viewFiles}
                     selected={selectedFile}
                     onSelect={(f) => setSelectedFile(f.path)}
-                    onOpen={(f) => void window.gitty.file.open(f.absPath)}
+                    onOpen={(f) => {
+                      if (view.mode === 'snapshot') {
+                        void window.gitty.git.snapshotOpen(root!, view.hash, f.path)
+                      } else {
+                        void window.gitty.file.open(f.absPath)
+                      }
+                    }}
                     onMenu={fileMenu}
                     emptyText={
-                      view.mode === 'worktree' ? 'Working tree clean.' : 'No files in this diff.'
+                      view.mode === 'worktree'
+                        ? 'Working tree clean.'
+                        : view.mode === 'snapshot'
+                          ? 'No files in this snapshot.'
+                          : 'No files in this diff.'
                     }
                   />
                 </div>
@@ -434,7 +507,9 @@ export default function App(): JSX.Element {
                   placeholder={
                     view.mode === 'worktree'
                       ? 'Select a file to see its diff.'
-                      : 'No textual changes.'
+                      : view.mode === 'snapshot'
+                        ? 'Select a file to view it at this commit.'
+                        : 'No textual changes.'
                   }
                 />
               </div>
