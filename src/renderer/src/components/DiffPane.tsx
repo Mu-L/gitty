@@ -44,10 +44,14 @@ const CLS: Record<LineKind, string> = {
   meta: 'dl-meta'
 }
 
-const META_PREFIXES = [
-  'index ',
-  '--- ',
-  '+++ ',
+/**
+ * Header lines worth nothing once the file name is a heading of its own: blob
+ * hashes and the a/ b/ paths already shown above. Dropped from the output.
+ */
+const HEADER_NOISE = ['index ', '--- ', '+++ ']
+
+/** Header lines that say something the diff body does not. */
+const HEADER_FACTS = [
   'old mode',
   'new mode',
   'new file',
@@ -58,9 +62,19 @@ const META_PREFIXES = [
   'rename to',
   'copy from',
   'copy to',
-  'Binary files',
-  '\\ No newline'
+  'Binary files'
 ]
+
+/** `diff --git a/x b/y` — the readable part is the path, not the command. */
+const FILE_LINE = /^diff --(?:git|cc) (?:a\/(.+?) b\/(.+)|(.+))$/
+
+function fileLabel(text: string): string {
+  const m = FILE_LINE.exec(text)
+  if (!m) return text
+  const [, from, to, combined] = m
+  if (combined) return combined
+  return from === to ? from : `${from} → ${to}`
+}
 
 /** Parse a unified diff into lines carrying old/new line numbers. */
 function parsePatch(patch: string): DiffLine[] {
@@ -69,12 +83,23 @@ function parsePatch(patch: string): DiffLine[] {
   let oldNo = 0
   let newNo = 0
 
+  // Header prefixes are only header prefixes between "diff --git" and the
+  // first hunk: a deleted line reading "-- so long" also starts with "--- ".
+  let inHeader = false
+
   for (const text of patch.split('\n')) {
     if (text.startsWith('diff --git') || text.startsWith('diff --cc')) {
-      out.push({ kind: 'file', text, oldNo: null, newNo: null })
-    } else if (META_PREFIXES.some((p) => text.startsWith(p))) {
+      inHeader = true
+      out.push({ kind: 'file', text: fileLabel(text), oldNo: null, newNo: null })
+    } else if (text.startsWith('\\ No newline')) {
+      // Belongs to the hunk it follows, not to any header.
+      out.push({ kind: 'meta', text, oldNo: null, newNo: null })
+    } else if (inHeader && HEADER_NOISE.some((p) => text.startsWith(p))) {
+      continue
+    } else if (inHeader && HEADER_FACTS.some((p) => text.startsWith(p))) {
       out.push({ kind: 'meta', text, oldNo: null, newNo: null })
     } else if (text.startsWith('@@')) {
+      inHeader = false
       const m = /^@@+ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(text)
       if (m) {
         oldNo = Number(m[1])
@@ -307,19 +332,26 @@ export function DiffPane({
 
       {view === 'inline' ? (
         <div className="diff-lines">
-          {lines.slice(0, shown).map((l, i) => (
-            <div key={i} className={`diff-line ${CLS[l.kind]}`}>
-              <span className="diff-gutter">{l.oldNo ?? ''}</span>
-              <span className="diff-gutter">{l.newNo ?? ''}</span>
-              <span className="diff-text">
-                {l.wd
-                  ? l.kind === 'add'
-                    ? <Segs segs={l.wd.newSegs} />
-                    : <Segs segs={l.wd.oldSegs} />
-                  : (l.text || ' ')}
-              </span>
-            </div>
-          ))}
+          {lines.slice(0, shown).map((l, i) =>
+            // A file heading spans the full width; gutters would only indent it.
+            l.kind === 'file' ? (
+              <div key={i} className="diff-line dl-file">
+                <span className="diff-text">{l.text}</span>
+              </div>
+            ) : (
+              <div key={i} className={`diff-line ${CLS[l.kind]}`}>
+                <span className="diff-gutter">{l.oldNo ?? ''}</span>
+                <span className="diff-gutter">{l.newNo ?? ''}</span>
+                <span className="diff-text">
+                  {l.wd
+                    ? l.kind === 'add'
+                      ? <Segs segs={l.wd.newSegs} />
+                      : <Segs segs={l.wd.oldSegs} />
+                    : (l.text || ' ')}
+                </span>
+              </div>
+            )
+          )}
         </div>
       ) : (
         <div className="diff-split">

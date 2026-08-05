@@ -556,14 +556,27 @@ button:hover {
   color: var(--wd-add-fg);
 }
 
+/* The hunk header only marks a line range: useful, but not the thing to
+   look at first. The file name above it is. */
 .dl-hunk {
-  background: var(--diff-hunk);
-  color: var(--blue);
+  background: transparent;
+  color: var(--fg-faint);
 }
 
+/* File heading: the anchor when several files run together in one diff. */
 .dl-file {
-  color: var(--fg);
-  font-weight: 600;
+  margin-top: 18px;
+  padding: 1px 0;
+  background: var(--bg-header);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+.diff-lines > .dl-file:first-child,
+.diff-split > .dl-file:first-child {
+  margin-top: 0;
 }
 
 .dl-meta {

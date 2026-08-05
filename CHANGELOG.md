@@ -14,7 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   untracked files inlined (up to 50, then a notice) since `git diff` omits them
   — and in a commit it is the full commit diff, as before. The work tree used
   to show nothing there but a prompt to pick a file.
-
 - Browse any branch's history: the branch in the title bar is now a menu of
   every local and remote-tracking branch, newest first, and picking one points
   the commit log at it. Nothing is checked out — the work tree, its diffs and
@@ -22,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `⎇ main › other-branch` and the commit pane carries the branch it is
   listing. **Back to <branch>** returns to the checked-out one, and each tab
   browses independently.
-
 - Repository tabs: a bar along the bottom holds every open repository, each with
   its own four panes and terminal. **+** or **Ctrl+O** opens another repository
   into a new tab instead of replacing the current one, a dot marks tabs whose
@@ -30,7 +28,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   window to open the next when the last closes). Switching tabs never disturbs
   the other repository's view state or shells. Tabs are not persisted across
   restarts.
-
 - A split terminal pane: **Split →** opens a shell beside the focused one,
   **Split ↓** below it, and a small round **×** at each terminal's top right
   closes it — the last one has none, since an empty pane would have no way
@@ -39,7 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Clicking a terminal focuses it, and the focused one is outlined once there
   is more than one. A shell that exits closes its own split, except the last
   one, which keeps the pane and its notice.
-
 - Recent repositories are remembered: the title bar's repository name opens a
   menu of the last twelve opened, most recent first; picking one opens it in a
   new tab, **Ctrl/Cmd+click** or a middle-click opens it in the current tab
@@ -50,14 +46,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `~/.config/Gitty/recent-repos.json` and entries that no longer exist are
   skipped. Launching from a directory outside any work tree now falls back to
   the last repository opened rather than only reporting the error.
-
 - An application icon, used as the window icon on Linux and Windows and as a
   small mark next to the **Gitty** name in the title bar: a dark rounded square
   split into the four panes, each tinted with its accent colour (green work
   tree, red diff, cyan commit log, blue terminal) and carrying a small glyph for
   what it shows — a file block, added and removed lines, a commit timeline and
   a shell prompt. The SVG source lives in `build/` next to the rendered PNG.
-
 - A desktop launcher from `./setup.sh`: the icon is installed into the hicolor
   theme and a `gitty.desktop` entry lands in the application menu (and on the
   desktop when the session has one), launching with a new `gitty --any` flag
@@ -118,11 +112,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The diff pane reads as a list of files: the `diff --git a/x b/x` line is
+  replaced by the path itself (`old → new` for a rename) as a full-width
+  heading, files are separated by a blank line, and the hunk header — a line
+  range, not the thing to look at first — is dimmed rather than highlighted.
+- Blob hashes and the `---` / `+++` path lines are folded away, since the
+  heading already names the file. Headers that carry meaning — `new file`,
+  `deleted file`, `rename from` / `to`, `Binary files` — stay.
 - **Show Whole Diff** no longer comes and goes: it stays in the diff header for
   the work tree, a commit and a range alike, lit while the whole diff is on
   screen, and it now also appears while viewing a file — returning to the whole
   diff took two clicks before.
-
 - `gitty` now detaches from the terminal instead of holding it: it prints the
   pid and returns, the window survives the shell closing, and output goes to
   `${XDG_STATE_HOME:-~/.local/state}/gitty/gitty.log` (trimmed to its last
@@ -146,6 +146,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A deleted line beginning with `-- ` (rendered as `--- ` in a diff) was
+  mistaken for a file header and vanished from the pane. Header prefixes now
+  only count between `diff --git` and the first hunk.
 - A replaced terminal session (window reload, repository switch) no longer
   writes its exit notice into the terminal that succeeded it.
 - Hovering a diff-pane button showed the header's own tooltip ("Double-click to
