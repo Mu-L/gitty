@@ -44,6 +44,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Selected commit rows are more prominent: the cursor row gets a brighter
   background with a blue accent bar and a bold white hash, and the compared
   (second) row a wider magenta accent bar.
+- Word-level highlighting in the diff, on by default: changed words within a
+  line are diffed against their paired counterpart and get a brighter block
+  than the row around them, in both inline and side-by-side views. Toggle it
+  from the diff's context menu, and very long or single-token lines fall back
+  to the row-level highlight.
 
 ### Fixed
 

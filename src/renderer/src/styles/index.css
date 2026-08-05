@@ -446,6 +446,22 @@ button:hover {
   color: var(--red);
 }
 
+/* Word-level highlights: changed words sit on a brighter block than the
+   surrounding row, so fine-grained edits stand out. */
+.wd {
+  border-radius: 2px;
+}
+
+.wd-del {
+  background: #5b2626;
+  color: #ffb1b1;
+}
+
+.wd-add {
+  background: #21502c;
+  color: #b6f0be;
+}
+
 .dl-hunk {
   background: var(--diff-hunk);
   color: var(--blue);

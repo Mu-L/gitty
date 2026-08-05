@@ -13,6 +13,19 @@ interface DiffLine {
   text: string
   oldNo: number | null
   newNo: number | null
+  /** Word-level segments for add/del rows, when a finer highlight is available. */
+  wd?: WordDiffInfo
+}
+
+/** One word of a changed line: common across both sides, or only on one. */
+interface WordSeg {
+  text: string
+  kind: 'same' | 'add' | 'del'
+}
+
+interface WordDiffInfo {
+  oldSegs: WordSeg[]
+  newSegs: WordSeg[]
 }
 
 /** One rendered row: either a pair of sides, or a header spanning both. */
@@ -120,12 +133,115 @@ function body(line: DiffLine): string {
     : line.text
 }
 
+/** Lines above this token count skip word-level diff — the DP is too heavy. */
+const MAX_TOKENS = 200
+
+/** Split a line into tokens (words and whitespace), for word-level diffing. */
+function tokenize(text: string): string[] {
+  return text.match(/\S+|\s+/g) ?? []
+}
+
+/**
+ * Word-level diff of two line bodies. Runs a length-LCS over tokens and marks
+ * each as common or changed. Returns null when the lines are too large to make
+ * the DP worthwhile, or when nothing actually differs.
+ */
+function computeWordDiff(oldText: string, newText: string): WordDiffInfo | null {
+  const a = tokenize(oldText)
+  const b = tokenize(newText)
+  if (a.length > MAX_TOKENS || b.length > MAX_TOKENS) return null
+  // Single-token lines can't be split any further; row-level colour suffices.
+  if (a.length <= 1 && b.length <= 1) return null
+
+  const n = a.length
+  const m = b.length
+  const dp: number[][] = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0))
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1])
+    }
+  }
+
+  const oldSegs: WordSeg[] = []
+  const newSegs: WordSeg[] = []
+  let i = 0
+  let j = 0
+  while (i < n || j < m) {
+    if (i < n && j < m && a[i] === b[j]) {
+      oldSegs.push({ text: a[i], kind: 'same' })
+      newSegs.push({ text: a[i], kind: 'same' })
+      i++
+      j++
+    } else if (j < m && (i === n || dp[i][j + 1] >= dp[i + 1][j])) {
+      newSegs.push({ text: b[j], kind: 'add' })
+      j++
+    } else {
+      oldSegs.push({ text: a[i], kind: 'del' })
+      i++
+    }
+  }
+  if (!oldSegs.some((s) => s.kind === 'del') && !newSegs.some((s) => s.kind === 'add')) {
+    return null
+  }
+  return { oldSegs, newSegs }
+}
+
+/**
+ * Map every add/del row's index to its word-level diff. Runs of deletions are
+ * paired positionally with the additions that follow them — the same pairing
+ * the side-by-side view uses — so a modified line highlights against its match.
+ */
+function pairWordDiffs(lines: DiffLine[]): Map<number, WordDiffInfo> {
+  const map = new Map<number, WordDiffInfo>()
+  let i = 0
+  while (i < lines.length) {
+    if (lines[i].kind !== 'del') {
+      i++
+      continue
+    }
+    const delStart = i
+    while (i < lines.length && lines[i].kind === 'del') i++
+    const delEnd = i
+    while (i < lines.length && lines[i].kind === 'add') i++
+    const addEnd = i
+    const nDel = delEnd - delStart
+    const nAdd = addEnd - delEnd
+    for (let k = 0; k < Math.max(nDel, nAdd); k++) {
+      const oldText = k < nDel ? body(lines[delStart + k]) : ''
+      const newText = k < nAdd ? body(lines[delEnd + k]) : ''
+      const wd = computeWordDiff(oldText, newText)
+      if (!wd) continue
+      if (k < nDel) map.set(delStart + k, wd)
+      if (k < nAdd) map.set(delEnd + k, wd)
+    }
+  }
+  return map
+}
+
+/** Render a line's word segments; changed words get the extra highlight. */
+function Segs({ segs }: { segs: WordSeg[] }): JSX.Element {
+  return (
+    <>
+      {segs.map((s, i) =>
+        s.kind === 'same' ? (
+          <span key={i}>{s.text}</span>
+        ) : (
+          <span key={i} className={`wd wd-${s.kind}`}>
+            {s.text}
+          </span>
+        )
+      )}
+    </>
+  )
+}
+
 export function DiffPane({
   patch,
   notice,
   placeholder,
   wrap,
   view,
+  wordDiff,
   onMenu
 }: {
   patch: string
@@ -133,9 +249,16 @@ export function DiffPane({
   placeholder: string
   wrap: boolean
   view: DiffView
+  wordDiff: boolean
   onMenu: (state: MenuState) => void
 }): JSX.Element {
-  const lines = useMemo(() => parsePatch(patch), [patch])
+  const lines = useMemo(() => {
+    const ls = parsePatch(patch)
+    if (!wordDiff) return ls
+    const wd = pairWordDiffs(ls)
+    if (wd.size === 0) return ls
+    return ls.map((l, idx) => (wd.has(idx) ? { ...l, wd: wd.get(idx) } : l))
+  }, [patch, wordDiff])
   const rows = useMemo(() => (view === 'split' ? pairLines(lines) : []), [lines, view])
   const total = view === 'split' ? rows.length : lines.length
   const hostRef = useRef<HTMLDivElement>(null)
@@ -188,7 +311,13 @@ export function DiffPane({
             <div key={i} className={`diff-line ${CLS[l.kind]}`}>
               <span className="diff-gutter">{l.oldNo ?? ''}</span>
               <span className="diff-gutter">{l.newNo ?? ''}</span>
-              <span className="diff-text">{l.text || ' '}</span>
+              <span className="diff-text">
+                {l.wd
+                  ? l.kind === 'add'
+                    ? <Segs segs={l.wd.newSegs} />
+                    : <Segs segs={l.wd.oldSegs} />
+                  : (l.text || ' ')}
+              </span>
             </div>
           ))}
         </div>
@@ -203,11 +332,23 @@ export function DiffPane({
               <div key={i} className="diff-pair">
                 <div className={`diff-line ${r.left ? CLS[r.left.kind] : 'dl-empty'}`}>
                   <span className="diff-gutter">{r.left?.oldNo ?? ''}</span>
-                  <span className="diff-text">{r.left ? body(r.left) || ' ' : ''}</span>
+                  <span className="diff-text">
+                    {r.left
+                      ? r.left.wd
+                        ? <Segs segs={r.left.wd.oldSegs} />
+                        : (body(r.left) || ' ')
+                      : ''}
+                  </span>
                 </div>
                 <div className={`diff-line ${r.right ? CLS[r.right.kind] : 'dl-empty'}`}>
                   <span className="diff-gutter">{r.right?.newNo ?? ''}</span>
-                  <span className="diff-text">{r.right ? body(r.right) || ' ' : ''}</span>
+                  <span className="diff-text">
+                    {r.right
+                      ? r.right.wd
+                        ? <Segs segs={r.right.wd.newSegs} />
+                        : (body(r.right) || ' ')
+                      : ''}
+                  </span>
                 </div>
               </div>
             )

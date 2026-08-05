@@ -55,6 +55,8 @@ export default function App(): JSX.Element {
   const [diffView, setDiffView] = useState<DiffView>(
     () => (localStorage.getItem('gitty.diffView') as DiffView | null) ?? 'inline'
   )
+  // Word-level highlighting is on by default; fine-grained changes stand out.
+  const [wordDiff, setWordDiff] = useState(() => localStorage.getItem('gitty.wordDiff') !== 'off')
   // Preview is opt-in: a history browser shows diffs unless asked otherwise.
   const [mdPreview, setMdPreview] = useState(() => localStorage.getItem('gitty.mdPreview') === 'on')
   const [maximized, setMaximized] = useState(false)
@@ -365,9 +367,10 @@ export default function App(): JSX.Element {
   useEffect(() => {
     localStorage.setItem('gitty.wrap', wrap ? 'on' : 'off')
     localStorage.setItem('gitty.diffView', diffView)
+    localStorage.setItem('gitty.wordDiff', wordDiff ? 'on' : 'off')
     localStorage.setItem('gitty.mdPreview', mdPreview ? 'on' : 'off')
     localStorage.setItem('gitty.mdOutline', mdOutline ? 'on' : 'off')
-  }, [wrap, diffView, mdPreview, mdOutline])
+  }, [wrap, diffView, wordDiff, mdPreview, mdOutline])
 
   /* ---------- context menus ---------- */
 
@@ -417,6 +420,10 @@ export default function App(): JSX.Element {
         label: wrap ? 'Disable Word Wrap' : 'Enable Word Wrap',
         separatorBefore: !isMarkdown,
         action: () => setWrap((w) => !w)
+      })
+      items.push({
+        label: wordDiff ? 'Disable Word Highlight' : 'Enable Word Highlight',
+        action: () => setWordDiff((w) => !w)
       })
       items.push({
         label: diffView === 'inline' ? 'Side-by-Side View' : 'Inline View',
@@ -650,6 +657,7 @@ export default function App(): JSX.Element {
                     notice={diff?.notice}
                     wrap={wrap}
                     view={diffView}
+                    wordDiff={wordDiff}
                     onMenu={diffMenu}
                     placeholder={
                       view.mode === 'worktree'
