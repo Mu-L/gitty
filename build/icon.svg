@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d2333"/>
+      <stop offset="1" stop-color="#0d1017"/>
+    </linearGradient>
+    <linearGradient id="paneTL" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#24402c"/>
+      <stop offset="1" stop-color="#1a2d22"/>
+    </linearGradient>
+    <linearGradient id="paneTR" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#432629"/>
+      <stop offset="1" stop-color="#341f21"/>
+    </linearGradient>
+    <linearGradient id="paneBL" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1f3c42"/>
+      <stop offset="1" stop-color="#172f35"/>
+    </linearGradient>
+    <linearGradient id="paneBR" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#243350"/>
+      <stop offset="1" stop-color="#1b2842"/>
+    </linearGradient>
+  </defs>
+
+  <!-- app background, rounded like a modern app icon -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+
+  <!-- the four panes, each tinted with its accent, separated by a gutter -->
+  <g>
+    <rect x="40" y="40" width="204" height="204" rx="30" fill="url(#paneTL)"/>
+    <rect x="268" y="40" width="204" height="204" rx="30" fill="url(#paneTR)"/>
+    <rect x="40" y="268" width="204" height="204" rx="30" fill="url(#paneBL)"/>
+    <rect x="268" y="268" width="204" height="204" rx="30" fill="url(#paneBR)"/>
+  </g>
+
+  <!-- work tree (top left): a green file block -->
+  <rect x="108" y="108" width="68" height="68" rx="16" fill="#61c26b" opacity="0.16"/>
+  <rect x="122" y="122" width="40" height="40" rx="9" fill="#61c26b"/>
+
+  <!-- diff (top right): added and removed lines, green over red -->
+  <circle cx="370" cy="142" r="52" fill="#e26a6a" opacity="0.14"/>
+  <rect x="330" y="132" width="80" height="10" rx="5" fill="#61c26b"/>
+  <rect x="330" y="152" width="80" height="10" rx="5" fill="#e26a6a"/>
+
+  <!-- commits (bottom left): a timeline with two commits -->
+  <circle cx="142" cy="370" r="52" fill="#4fc3d0" opacity="0.14"/>
+  <line x1="142" y1="316" x2="142" y2="424" stroke="#4fc3d0" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="142" cy="350" r="14" fill="#4fc3d0"/>
+  <circle cx="142" cy="394" r="14" fill="#4fc3d0"/>
+
+  <!-- terminal (bottom right): a shell prompt and cursor -->
+  <circle cx="370" cy="370" r="52" fill="#5b9cff" opacity="0.14"/>
+  <polyline points="332,346 352,370 332,394" fill="none" stroke="#5b9cff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="364" y="358" width="16" height="24" rx="5" fill="#5b9cff"/>
+</svg>

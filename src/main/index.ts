@@ -75,6 +75,9 @@ function installMenu(): void {
 }
 
 function createWindow(): void {
+  // BrowserWindow's icon shows on Linux and Windows; the macOS dock has its
+  // own. Guard it in case the file is absent when running unpackaged.
+  const icon = path.join(app.getAppPath(), 'build', 'icon.png')
   win = new BrowserWindow({
     width: 1600,
     height: 1000,
@@ -84,6 +87,7 @@ function createWindow(): void {
     backgroundColor: '#12141a',
     title: 'Gitty',
     autoHideMenuBar: true,
+    ...(fs.existsSync(icon) ? { icon } : {}),
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       sandbox: false,
