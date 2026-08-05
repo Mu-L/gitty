@@ -1,0 +1,416 @@
+@import '@xterm/xterm/css/xterm.css';
+
+:root {
+  --bg: #12141a;
+  --bg-pane: #171a21;
+  --bg-header: #1d212a;
+  --bg-hover: #222735;
+  --bg-select: #2c3446;
+  --bg-select-dim: #232937;
+  --border: #2a2f3c;
+  --border-active: #4a7dff;
+  --fg: #c8cede;
+  --fg-dim: #7b8497;
+  --fg-faint: #565e6e;
+  --green: #61c26b;
+  --red: #e26a6a;
+  --yellow: #d8b34a;
+  --blue: #5b9cff;
+  --cyan: #4fc3d0;
+  --magenta: #b98ae0;
+  --diff-add-bg: #1a2f22;
+  --diff-del-bg: #35201f;
+  --diff-hunk: #2a3244;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Menlo', 'Consolas', monospace;
+  --row-h: 20px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: var(--row-h);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  cursor: default;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--bg-hover);
+}
+
+/* ---------- layout ---------- */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px;
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.titlebar .repo {
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.titlebar .branch {
+  color: var(--green);
+}
+
+.titlebar .tracking {
+  color: var(--fg-dim);
+}
+
+.titlebar .spacer {
+  flex: 1;
+}
+
+.grid {
+  flex: 1;
+  min-height: 0;
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--bg-pane);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.pane:focus-within {
+  border-color: var(--border-active);
+}
+
+.pane-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 8px;
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border);
+  color: var(--fg-dim);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.pane-header .title {
+  color: var(--fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pane-header .spacer {
+  flex: 1;
+}
+
+.pane-header .hint {
+  color: var(--fg-faint);
+}
+
+.pane-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.empty {
+  padding: 10px;
+  color: var(--fg-faint);
+}
+
+/* resize handles */
+
+.sep-v {
+  width: 5px;
+}
+
+.sep-h {
+  height: 5px;
+}
+
+.sep-v:hover,
+.sep-h:hover,
+[data-separator][data-state='dragging'] {
+  background: var(--border-active);
+}
+
+/* ---------- file tree ---------- */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--row-h);
+  padding: 0 8px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.row:hover {
+  background: var(--bg-hover);
+}
+
+.row.selected {
+  background: var(--bg-select);
+}
+
+.tree-indent {
+  display: inline-block;
+}
+
+.twisty {
+  width: 10px;
+  color: var(--fg-dim);
+}
+
+.status-code {
+  width: 16px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.st-M {
+  color: var(--yellow);
+}
+
+.st-A {
+  color: var(--green);
+}
+
+.st-D {
+  color: var(--red);
+}
+
+.st-R,
+.st-C {
+  color: var(--magenta);
+}
+
+.st-U {
+  color: var(--red);
+}
+
+.st-untracked {
+  color: var(--red);
+}
+
+.st-staged {
+  color: var(--green);
+}
+
+.dir-name {
+  color: var(--cyan);
+}
+
+.file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-name.deleted {
+  text-decoration: line-through;
+  color: var(--fg-dim);
+}
+
+/* ---------- commit log ---------- */
+
+.commit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--row-h);
+  padding: 0 8px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.commit-row:hover {
+  background: var(--bg-hover);
+}
+
+.commit-row.selected {
+  background: var(--bg-select);
+}
+
+.commit-row.compare {
+  background: var(--bg-select-dim);
+  box-shadow: inset 2px 0 0 var(--magenta);
+}
+
+.commit-hash {
+  color: var(--yellow);
+}
+
+.commit-time {
+  color: var(--fg-dim);
+  width: 78px;
+}
+
+.commit-author {
+  color: var(--cyan);
+  width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.commit-refs {
+  color: var(--green);
+}
+
+.commit-subject {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 5px;
+  color: var(--magenta);
+  font-size: 11px;
+}
+
+/* ---------- diff ---------- */
+
+.diff {
+  position: relative;
+  font-variant-ligatures: none;
+  user-select: text;
+  cursor: text;
+}
+
+.diff-line {
+  display: flex;
+  height: var(--row-h);
+  white-space: pre;
+}
+
+.diff-gutter {
+  flex: none;
+  width: 46px;
+  padding-right: 6px;
+  text-align: right;
+  color: var(--fg-faint);
+  background: var(--bg-pane);
+  user-select: none;
+}
+
+.diff-text {
+  padding: 0 8px;
+  flex: 1;
+}
+
+.dl-add {
+  background: var(--diff-add-bg);
+  color: var(--green);
+}
+
+.dl-del {
+  background: var(--diff-del-bg);
+  color: var(--red);
+}
+
+.dl-hunk {
+  background: var(--diff-hunk);
+  color: var(--blue);
+}
+
+.dl-file {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.dl-meta {
+  color: var(--fg-faint);
+}
+
+.notice {
+  padding: 2px 8px;
+  background: #3a2f1a;
+  color: var(--yellow);
+}
+
+/* ---------- context menu ---------- */
+
+.ctx {
+  position: fixed;
+  z-index: 100;
+  min-width: 210px;
+  padding: 4px 0;
+  background: var(--bg-header);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  box-shadow: 0 8px 24px #0009;
+}
+
+.ctx-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 3px 12px;
+  cursor: pointer;
+}
+
+.ctx-item:hover {
+  background: var(--bg-select);
+}
+
+.ctx-item .accel {
+  color: var(--fg-faint);
+}
+
+.ctx-sep {
+  height: 1px;
+  margin: 4px 0;
+  background: var(--border);
+}
+
+/* ---------- terminal ---------- */
+
+.term-host {
+  flex: 1;
+  min-height: 0;
+  padding: 2px 4px;
+}
+
+.term-host .xterm {
+  height: 100%;
+}
