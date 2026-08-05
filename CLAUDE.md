@@ -106,18 +106,27 @@ each run of deletions with the additions that follow it, one grid row per pair,
 so wrapped halves stay aligned. Wrap and view mode persist in `localStorage`
 under `gitty.wrap` / `gitty.diffView`.
 
-`MarkdownPane` takes over the same pane for `.md` files when preview is on
-(`gitty.mdPreview`, off by default). It renders whole-file source, not a diff:
-from disk via `git.readWorking` in the work tree, from the revision via
-`git.snapshotFile` elsewhere. markdown-it runs with `html: false` so raw HTML
-stays inert without a sanitiser; heading ids are assigned on the token stream
-before rendering, so the outline and the document cannot disagree. Front matter
-is sliced off before parsing (markdown-it would read `---` as a rule) and
-rendered as its own highlighted block. highlight.js is imported through
-`lib/core` with languages registered one by one — the full bundle dwarfs the
-rest of the renderer — and its token colours are mapped onto the app palette in
-CSS instead of importing one of its themes. Link clicks
-are intercepted — a plain `<a>` navigation would replace the whole app window.
+### Viewing whole files
+
+`gitty.fileView` (off by default) swaps the diff for the file itself, and
+snapshot mode forces it on — a snapshot has no diff. Either way the source comes
+from `git.readWorking` in the work tree and `git.snapshotFile` at a revision;
+`CodePane` renders it with line numbers, and `MarkdownPane` takes over for `.md`.
+
+`highlight.ts` is shared by both. highlight.js is imported through `lib/core`
+with languages registered one by one — the full bundle dwarfs the rest of the
+renderer — and its token colours are mapped onto the app palette in CSS rather
+than importing one of its themes. `highlightLines` exists because highlight.js
+emits one blob whose spans run across newlines (block comments, template
+literals): it walks the output keeping the stack of open spans, so each line can
+be its own element without broken markup.
+
+In `MarkdownPane`, markdown-it runs with `html: false` so raw HTML stays inert
+without a sanitiser; heading ids are assigned on the token stream before
+rendering, so the outline and the document cannot disagree; front matter is
+sliced off first, since markdown-it would read `---` as a horizontal rule; and
+link clicks are intercepted, because a plain `<a>` navigation would replace the
+whole app window.
 
 Full screen is a `position: fixed` class on the pane rather than a different
 tree, deliberately: unmounting the layout would dispose the terminal's pty and

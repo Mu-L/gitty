@@ -67,9 +67,10 @@ Changed files as a collapsible tree. Two status columns are shown: the staged
 state (green) and the work-tree state (yellow / red); untracked files are `??`.
 
 - **Click** — show the file's diff on the right.
-- **Double-click** — open the file with the system default application.
-- **Right-click** — Open File, Reveal in File Manager, Copy Relative Path, Copy
-  Absolute Path, Copy File Name.
+- **Double-click** — view the whole file on the right, with line numbers and
+  syntax highlighting (a rendered document for markdown).
+- **Right-click** — View File, Open in System App, Reveal in File Manager, Copy
+  Relative Path, Copy Absolute Path, Copy File Name.
 - **Click a folder** — collapse or expand it.
 
 When a commit or a commit range is selected, this pane lists that commit's files
@@ -86,6 +87,10 @@ Unified diff with old/new line numbers, hunk headers and add/delete colouring.
 - **Full Screen** — the pane fills the window; <kbd>Esc</kbd>, the **Restore**
   button or a double-click on the header brings the four panes back. The
   terminal below keeps running while it is covered.
+- **View File** — show the file's whole contents instead of its diff, with line
+  numbers and syntax highlighting: from disk in the work tree, at the selected
+  revision elsewhere. Markdown files get **Preview** instead (see below).
+  Snapshots are always viewed this way, having no diff to show.
 - **Right-click** — Copy Selection, Copy Whole Diff, and the same toggles.
 
 Settings are remembered between runs. Rows render in chunks of 1500 and extend

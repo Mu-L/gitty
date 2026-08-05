@@ -876,3 +876,123 @@ button:hover {
 .md-body .hljs-strong {
   font-weight: 700;
 }
+
+/* ---------- whole-file view ---------- */
+
+.code {
+  font-variant-ligatures: none;
+  user-select: text;
+  cursor: text;
+}
+
+.code-line {
+  display: flex;
+  min-height: var(--row-h);
+  white-space: pre;
+  content-visibility: auto;
+  contain-intrinsic-size: auto var(--row-h);
+}
+
+.code-line:hover {
+  background: #1b1f28;
+}
+
+.code-gutter {
+  flex: none;
+  align-self: stretch;
+  width: 52px;
+  padding-right: 10px;
+  text-align: right;
+  color: var(--fg-faint);
+  background: var(--bg-pane);
+  user-select: none;
+}
+
+.code-text {
+  flex: 1;
+  min-width: 0;
+  padding: 0 8px;
+}
+
+.code.wrap .code-line {
+  white-space: pre-wrap;
+}
+
+.code.wrap .code-text {
+  overflow-wrap: anywhere;
+}
+
+/* The token colours are shared with the markdown preview. */
+.code .hljs-comment,
+.code .hljs-quote {
+  color: var(--fg-faint);
+  font-style: italic;
+}
+
+.code .hljs-keyword,
+.code .hljs-selector-tag,
+.code .hljs-literal,
+.code .hljs-doctag,
+.code .hljs-formula {
+  color: var(--magenta);
+}
+
+.code .hljs-string,
+.code .hljs-regexp,
+.code .hljs-addition,
+.code .hljs-meta-string {
+  color: var(--green);
+}
+
+.code .hljs-number,
+.code .hljs-symbol,
+.code .hljs-bullet,
+.code .hljs-link,
+.code .hljs-selector-attr,
+.code .hljs-selector-pseudo,
+.code .hljs-template-variable {
+  color: var(--yellow);
+}
+
+.code .hljs-title,
+.code .hljs-title.function_,
+.code .hljs-section,
+.code .hljs-name {
+  color: var(--blue);
+}
+
+.code .hljs-built_in,
+.code .hljs-class .hljs-title,
+.code .hljs-title.class_,
+.code .hljs-type,
+.code .hljs-selector-id {
+  color: var(--cyan);
+}
+
+.code .hljs-attr,
+.code .hljs-attribute,
+.code .hljs-variable,
+.code .hljs-property,
+.code .hljs-params,
+.code .hljs-template-tag {
+  color: #d7b9f0;
+}
+
+.code .hljs-meta,
+.code .hljs-meta .hljs-keyword,
+.code .hljs-punctuation,
+.code .hljs-operator {
+  color: var(--fg-dim);
+}
+
+.code .hljs-deletion {
+  color: var(--red);
+}
+
+.code .hljs-emphasis {
+  font-style: italic;
+}
+
+.code .hljs-strong {
+  font-weight: 700;
+}

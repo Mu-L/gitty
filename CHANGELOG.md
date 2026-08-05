@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Whole-file view beyond markdown: the **View File** toggle shows any file's
+  full contents with line numbers and syntax highlighting instead of its diff —
+  from disk in the work tree, at the selected revision elsewhere. Snapshots
+  always view files this way, because they have no diff to show.
 - Markdown preview for `.md` files, off by default: the **Preview** button
   renders the whole file — from disk in the work tree, from the selected commit
   elsewhere — with an **Outline** of its headings that indents by level, follows

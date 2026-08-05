@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { ContextMenu, type MenuItem, type MenuState } from './components/ContextMenu'
+import { CodePane } from './components/CodePane'
 import { DiffPane, type DiffView } from './components/DiffPane'
 import { FilesPane, type FileEntry } from './components/FilesPane'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
@@ -57,14 +58,14 @@ export default function App(): JSX.Element {
   )
   // Word-level highlighting is on by default; fine-grained changes stand out.
   const [wordDiff, setWordDiff] = useState(() => localStorage.getItem('gitty.wordDiff') !== 'off')
-  // Preview is opt-in: a history browser shows diffs unless asked otherwise.
-  const [mdPreview, setMdPreview] = useState(() => localStorage.getItem('gitty.mdPreview') === 'on')
+  // Viewing whole files is opt-in: a history browser shows diffs by default.
+  const [fileView, setFileView] = useState(() => localStorage.getItem('gitty.fileView') === 'on')
   const [maximized, setMaximized] = useState(false)
   const [mdOutline, setMdOutline] = useState(
     () => localStorage.getItem('gitty.mdOutline') !== 'off'
   )
-  const [mdSource, setMdSource] = useState<string | null>(null)
-  const [mdError, setMdError] = useState<string | null>(null)
+  const [fileSource, setFileSource] = useState<string | null>(null)
+  const [fileError, setFileError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [tick, setTick] = useState(0)
   const loadingMore = useRef(false)
@@ -176,16 +177,18 @@ export default function App(): JSX.Element {
     }
   }, [root, view, status])
 
-  /* ---------- markdown preview ---------- */
+  /* ---------- whole-file view ---------- */
 
   const isMarkdown = /\.(md|markdown|mdown|mkd)$/i.test(selectedFile ?? '')
-  const previewing = isMarkdown && mdPreview
+  // A snapshot has no diff to show, so it is always a file view.
+  const viewingFile = !!selectedFile && (fileView || view.mode === 'snapshot')
+  const previewing = viewingFile && isMarkdown
 
-  // The preview always shows the file as a whole: on disk for the work tree,
+  // The file view always shows the file as a whole: on disk for the work tree,
   // at the selected revision everywhere else.
   useEffect(() => {
-    if (!root || !previewing || !selectedFile) {
-      setMdSource(null)
+    if (!root || !viewingFile || !selectedFile) {
+      setFileSource(null)
       return
     }
     let cancelled = false
@@ -202,18 +205,18 @@ export default function App(): JSX.Element {
           ? await window.gitty.git.snapshotFile(root, rev, selectedFile)
           : await window.gitty.git.readWorking(root, selectedFile)
         if (cancelled) return
-        setMdSource(r.binary ? null : r.content)
-        setMdError(r.binary ? 'Binary or oversized file.' : null)
+        setFileSource(r.binary ? null : r.content)
+        setFileError(r.binary ? 'Binary or oversized file.' : null)
       } catch (e) {
         if (cancelled) return
-        setMdSource(null)
-        setMdError(String(e))
+        setFileSource(null)
+        setFileError(String(e))
       }
     })()
     return () => {
       cancelled = true
     }
-  }, [root, view, selectedFile, previewing, tick])
+  }, [root, view, selectedFile, viewingFile, tick])
 
   /* ---------- diff loading ---------- */
 
@@ -258,26 +261,8 @@ export default function App(): JSX.Element {
         path: selectedFile ?? undefined
       })
     } else {
-      // Snapshot: show the raw file contents at that commit, read-only.
-      if (!selectedFile) {
-        setDiff(null)
-        return
-      }
-      void (async () => {
-        try {
-          const r = await window.gitty.git.snapshotFile(root, view.hash, selectedFile)
-          if (r.binary) {
-            setDiff({ patch: '', title: `${selectedFile} @ ${view.short}`, notice: 'Binary file.' })
-          } else {
-            // Prefix every line with a space → parsed as context lines, so the
-            // DiffPane renders them as plain read-only text.
-            const patch = r.content.split('\n').map((l) => ' ' + l).join('\n')
-            setDiff({ patch, title: `${selectedFile} @ ${view.short} (snapshot)` })
-          }
-        } catch (e) {
-          setDiff({ patch: '', title: selectedFile, notice: String(e) })
-        }
-      })()
+      // Snapshot has no diff; the file view renders its contents instead.
+      setDiff(null)
     }
   }, [root, view, selectedFile, status, tick, loadDiff])
 
@@ -368,9 +353,9 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.wrap', wrap ? 'on' : 'off')
     localStorage.setItem('gitty.diffView', diffView)
     localStorage.setItem('gitty.wordDiff', wordDiff ? 'on' : 'off')
-    localStorage.setItem('gitty.mdPreview', mdPreview ? 'on' : 'off')
+    localStorage.setItem('gitty.fileView', fileView ? 'on' : 'off')
     localStorage.setItem('gitty.mdOutline', mdOutline ? 'on' : 'off')
-  }, [wrap, diffView, wordDiff, mdPreview, mdOutline])
+  }, [wrap, diffView, wordDiff, fileView, mdOutline])
 
   /* ---------- context menus ---------- */
 
@@ -384,41 +369,46 @@ export default function App(): JSX.Element {
         action: () => void window.gitty.clipboard.write(selection)
       })
     }
-    if (previewing) {
+    if (viewingFile) {
       items.push({
-        label: 'Copy Markdown Source',
+        label: previewing ? 'Copy Markdown Source' : 'Copy File Contents',
         separatorBefore: items.length > 0,
-        action: () => void window.gitty.clipboard.write(mdSource ?? '')
+        action: () => void window.gitty.clipboard.write(fileSource ?? '')
       })
       items.push({
         label: wrap ? 'Disable Word Wrap' : 'Enable Word Wrap',
         separatorBefore: true,
         action: () => setWrap((w) => !w)
       })
-      items.push({
-        label: mdOutline ? 'Hide Outline' : 'Show Outline',
-        action: () => setMdOutline((o) => !o)
-      })
-      items.push({
-        label: 'Show Diff Instead',
-        action: () => setMdPreview(false)
-      })
+      if (previewing) {
+        items.push({
+          label: mdOutline ? 'Hide Outline' : 'Show Outline',
+          action: () => setMdOutline((o) => !o)
+        })
+      }
+      // A snapshot has no diff to go back to.
+      if (view.mode !== 'snapshot') {
+        items.push({
+          label: 'Show Diff Instead',
+          action: () => setFileView(false)
+        })
+      }
     } else {
       items.push({
         label: 'Copy Whole Diff',
         separatorBefore: items.length > 0,
         action: () => void window.gitty.clipboard.write(diff?.patch ?? '')
       })
-      if (isMarkdown) {
+      if (selectedFile) {
         items.push({
-          label: 'Preview Markdown',
+          label: isMarkdown ? 'Preview Markdown' : 'View File',
           separatorBefore: true,
-          action: () => setMdPreview(true)
+          action: () => setFileView(true)
         })
       }
       items.push({
         label: wrap ? 'Disable Word Wrap' : 'Enable Word Wrap',
-        separatorBefore: !isMarkdown,
+        separatorBefore: !selectedFile,
         action: () => setWrap((w) => !w)
       })
       items.push({
@@ -438,16 +428,24 @@ export default function App(): JSX.Element {
     // Snapshot entries carry a virtual absPath; opening must go through the
     // snapshot temp file, and "Reveal" has nothing to reveal on disk.
     const snapshot = entry.absPath.startsWith('gitty:snapshot:')
-    const items: MenuItem[] = []
+    const items: MenuItem[] = [
+      {
+        label: 'View File',
+        accel: 'Double click',
+        action: () => {
+          setSelectedFile(entry.path)
+          setFileView(true)
+        }
+      }
+    ]
     if (snapshot && view.mode === 'snapshot') {
       items.push({
-        label: 'Open File',
-        accel: 'Double click',
+        label: 'Open in System App',
         action: () => void window.gitty.git.snapshotOpen(root!, view.hash, rel)
       })
     } else {
       items.push(
-        { label: 'Open File', accel: 'Double click', action: () => void window.gitty.file.open(entry.absPath) },
+        { label: 'Open in System App', action: () => void window.gitty.file.open(entry.absPath) },
         { label: 'Reveal in File Manager', action: () => void window.gitty.file.reveal(entry.absPath) }
       )
     }
@@ -500,8 +498,9 @@ export default function App(): JSX.Element {
     return `Range ${view.from.slice(0, 8)}..${view.to.slice(0, 8)}`
   }, [view])
 
-  const diffTitle = previewing
-    ? `${selectedFile} (preview)`
+  const diffTitle = viewingFile
+    ? `${selectedFile}${previewing ? ' (preview)' : ''}` +
+      (view.mode === 'snapshot' ? ` @ ${view.short}` : '')
     : (diff?.title ?? 'Diff')
 
   return (
@@ -539,7 +538,7 @@ export default function App(): JSX.Element {
                   {view.mode !== 'worktree' && (
                     <button onClick={backToWorkTree}>Back to Work Tree</button>
                   )}
-                  <span className="hint">dbl-click opens · right-click copies</span>
+                  <span className="hint">dbl-click views · right-click for more</span>
                 </div>
                 <div className="pane-body">
                   <FilesPane
@@ -547,11 +546,10 @@ export default function App(): JSX.Element {
                     selected={selectedFile}
                     onSelect={(f) => setSelectedFile(f.path)}
                     onOpen={(f) => {
-                      if (view.mode === 'snapshot') {
-                        void window.gitty.git.snapshotOpen(root!, view.hash, f.path)
-                      } else {
-                        void window.gitty.file.open(f.absPath)
-                      }
+                      // Double-click views the file in the pane beside it;
+                      // the system application is a context-menu choice.
+                      setSelectedFile(f.path)
+                      setFileView(true)
                     }}
                     onMenu={fileMenu}
                     emptyText={
@@ -586,7 +584,7 @@ export default function App(): JSX.Element {
                   {/* Only commit and range diffs have a "whole" to widen back
                       to; a snapshot is always one file at a time. */}
                   {selectedFile &&
-                    !previewing &&
+                    !viewingFile &&
                     (view.mode === 'commit' || view.mode === 'range') && (
                       <button
                         title="Widen the diff back to every file in this commit"
@@ -595,13 +593,17 @@ export default function App(): JSX.Element {
                         Show Whole Diff
                       </button>
                     )}
-                  {isMarkdown && (
+                  {selectedFile && view.mode !== 'snapshot' && (
                     <button
-                      className={`toggle${previewing ? ' on' : ''}`}
-                      title="Render this markdown file"
-                      onClick={() => setMdPreview((p) => !p)}
+                      className={`toggle${viewingFile ? ' on' : ''}`}
+                      title={
+                        isMarkdown
+                          ? 'Render this markdown file'
+                          : 'Show the whole file instead of the diff'
+                      }
+                      onClick={() => setFileView((v) => !v)}
                     >
-                      Preview
+                      {isMarkdown ? 'Preview' : 'View File'}
                     </button>
                   )}
                   <button
@@ -611,7 +613,7 @@ export default function App(): JSX.Element {
                   >
                     Wrap
                   </button>
-                  {previewing ? (
+                  {previewing && (
                     <button
                       className={`toggle${mdOutline ? ' on' : ''}`}
                       title="Show the heading outline"
@@ -619,16 +621,15 @@ export default function App(): JSX.Element {
                     >
                       Outline
                     </button>
-                  ) : (
-                    <>
-                      <button
-                        className="toggle"
-                        title="Switch between inline and side-by-side"
-                        onClick={() => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))}
-                      >
-                        {diffView === 'inline' ? 'Inline' : 'Side-by-Side'}
-                      </button>
-                    </>
+                  )}
+                  {!viewingFile && (
+                    <button
+                      className="toggle"
+                      title="Switch between inline and side-by-side"
+                      onClick={() => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))}
+                    >
+                      {diffView === 'inline' ? 'Inline' : 'Side-by-Side'}
+                    </button>
                   )}
                   <button
                     className={`toggle${maximized ? ' on' : ''}`}
@@ -638,15 +639,22 @@ export default function App(): JSX.Element {
                     {maximized ? 'Restore' : 'Full Screen'}
                   </button>
                 </div>
-                {previewing ? (
-                  mdSource === null ? (
+                {viewingFile ? (
+                  fileSource === null ? (
                     <div className="pane-body">
-                      <div className="empty">{mdError ?? 'Loading…'}</div>
+                      <div className="empty">{fileError ?? 'Loading…'}</div>
                     </div>
-                  ) : (
+                  ) : previewing ? (
                     <MarkdownPane
-                      source={mdSource}
+                      source={fileSource}
                       outline={mdOutline}
+                      wrap={wrap}
+                      onMenu={diffMenu}
+                    />
+                  ) : (
+                    <CodePane
+                      source={fileSource}
+                      path={selectedFile ?? ''}
                       wrap={wrap}
                       onMenu={diffMenu}
                     />
