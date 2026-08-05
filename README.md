@@ -18,6 +18,23 @@ All panes are resizable by dragging the separators.
 
 ![Gitty 0.1.1](ref/gitty-0.1.1.png)
 
+## Why another one?
+
+Because every tool I reached for got one thing wrong:
+
+- **IDEs** — too heavy and too slow. (Believe me, I have tried every one I could
+  find.)
+- **lazygit, grv** — excellent tools, but unfriendly to the mouse and to
+  selecting text.
+- **gitui** — I want the commit list and the diff on screen at the same time.
+- **SmartGit, GitKraken** — Java, heavy, dated, and they want your money.
+- **gitg** and friends — again, no commit list and diff side by side.
+- **tig** — diffs only, no file tree to browse.
+- **gitk** — ugly!
+
+Two more things I wanted and almost nothing offered: a **markdown preview**, and
+**copy and paste that just works** anywhere in the window.
+
 ## Requirements
 
 - Node.js 20 or newer
