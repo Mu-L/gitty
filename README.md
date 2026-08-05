@@ -50,6 +50,10 @@ Install the `gitty` command once:
 ./setup.sh --system      # symlink into /usr/local/bin (needs sudo)
 ```
 
+`setup.sh` also installs a desktop launcher: the icon is added to the hicolor
+theme and a `gitty.desktop` entry appears in the application menu (and on the
+desktop, when the session has one).
+
 Then open a repository from anywhere:
 
 ```bash
@@ -57,6 +61,8 @@ gitty                    # open the repository in the current directory
 gitty /path/to/repo      # open another repository
 gitty --fg               # keep it attached to the terminal (Ctrl+C quits)
 gitty --dev              # hot-reloading development mode
+gitty --any              # start even outside a work tree (what the desktop
+                         # entry uses), falling back to the last repositories
 ```
 
 Gitty detaches from the terminal and prints its pid, so the shell stays usable

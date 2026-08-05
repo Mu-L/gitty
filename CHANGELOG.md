@@ -49,6 +49,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   what it shows — a file block, added and removed lines, a commit timeline and
   a shell prompt. The SVG source lives in `build/` next to the rendered PNG.
 
+- A desktop launcher from `./setup.sh`: the icon is installed into the hicolor
+  theme and a `gitty.desktop` entry lands in the application menu (and on the
+  desktop when the session has one), launching with a new `gitty --any` flag
+  that lets it start from outside a work tree and open the last repositories
+  instead of failing.
+
 ## [0.1.1] - 2026-08-05
 
 ### Added
