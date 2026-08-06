@@ -56,31 +56,58 @@ function nodeKey(node: Node): string {
   return leaves(node).join('+')
 }
 
+/**
+ * The split layout per repository, kept outside React for the same reason the
+ * xterms are: hiding the terminal pane unmounts this component, and a shell
+ * must not die because its pane was toggled away. Sessions end only in
+ * `destroyTerminals`, which the repository tab calls when it closes.
+ */
+const layouts = new Map<string, { tree: Node; focused: string }>()
+
+function layoutFor(root: string): { tree: Node; focused: string } {
+  const existing = layouts.get(root)
+  if (existing) return existing
+  const id = nextId()
+  const fresh = { tree: { kind: 'leaf', id } as Node, focused: id }
+  layouts.set(root, fresh)
+  return fresh
+}
+
+/** End every shell of a repository, and forget its layout. */
+export function destroyTerminals(root: string): void {
+  const layout = layouts.get(root)
+  if (!layout) return
+  layouts.delete(root)
+  leaves(layout.tree).forEach(destroySession)
+}
+
 /** The terminal pane: one shell, or several split across it. */
 export function TerminalsPane({
   root,
   theme,
   fontSize,
-  disabled = false
+  disabled = false,
+  onHide
 }: {
   root: string
   theme: Theme
   fontSize: number
   /** Set on hidden tabs, so their splits stay out of pointer hit testing. */
   disabled?: boolean
+  /** Absent when this is the only pane left on screen. */
+  onHide?: () => void
 }): JSX.Element {
-  // Lazily, so a re-render does not burn ids the layout never uses.
-  const [first] = useState(nextId)
-  const [tree, setTree] = useState<Node>({ kind: 'leaf', id: first })
-  const [focused, setFocused] = useState(first)
+  // Restored from the registry: this component comes and goes with the pane,
+  // the shells do not.
+  const [tree, setTree] = useState<Node>(() => layoutFor(root).tree)
+  const [focused, setFocused] = useState(() => layoutFor(root).focused)
   const ids = leaves(tree)
 
-  // The pane is remounted when the repository changes; its shells go with it.
   const idsRef = useRef(ids)
   idsRef.current = ids
   useEffect(() => {
-    return () => idsRef.current.forEach(destroySession)
-  }, [])
+    layouts.set(root, { tree, focused })
+  }, [root, tree, focused])
 
   const split = (orientation: Orientation): void => {
     const id = nextId()
@@ -147,6 +174,15 @@ export function TerminalsPane({
           Split ↓
         </button>
         <span className="hint">{root}</span>
+        {onHide && (
+          <button
+            className="pane-hide"
+            title={'Hide this pane (Ctrl+4) — the shells keep running, and "Panes" in the title bar brings it back'}
+            onClick={onHide}
+          >
+            ×
+          </button>
+        )}
       </div>
       {root && <div className="term-body" key={nodeKey(tree)}>{render(tree)}</div>}
     </div>

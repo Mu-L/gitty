@@ -97,6 +97,24 @@ screen entirely. And **`disabled={!active}`** on every Group of a hidden tab:
 the library hit-tests the pointer against every registered group, and a
 `display: none` group reports a zero-sized rect.
 
+### Hiding panes
+
+`src/renderer/src/panes.ts` holds the `PaneVisibility` record; `App.tsx` owns it
+(app-wide, like the other view preferences, persisted under `gitty.panes`) and
+`RepoTab` simply does not render a hidden pane's `Panel` — nor the `Separator`
+beside it, nor a whole row when both its panes are gone. Two consequences worth
+keeping. Panel sizes are stored **per Group id**, so the ids carry the visible
+set (`top-fd`, `bottom-lt`); reusing one id for two different child counts
+restores sizes that no longer add up. And the last visible pane renders no hide
+button — an empty window would leave only the title bar's **Panes** menu as the
+way back.
+
+Hiding the terminal pane unmounts `TerminalsPane`, which must not end its
+shells. Its split tree therefore lives in a module-level `Map` keyed by root
+beside the xterm registry, and sessions are destroyed only by
+`destroyTerminals(root)`, which `RepoTab` calls when it unmounts — that is, when
+the repository tab closes.
+
 ### Recent repositories
 
 `src/main/recent.ts` keeps the list in `app.getPath('userData')` — which is why

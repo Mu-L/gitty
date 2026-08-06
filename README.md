@@ -14,7 +14,8 @@ its path, click two commits to diff them.
 └──────────────────────┴──────────────────────┘
 ```
 
-All panes are resizable by dragging the separators.
+All panes are resizable by dragging the separators, and each one hides and comes
+back — see [Hiding panes](#hiding-panes).
 
 ![Gitty 0.1.2](ref/gitty-0.1.2.png)
 
@@ -119,6 +120,22 @@ Starting Gitty from a directory that is not inside a work tree falls back to the
 last repository opened, instead of just complaining.
 
 ## The panes
+
+### Hiding panes
+
+Any pane can be put away and brought back:
+
+- **×** at the right of a pane header hides that pane.
+- **Panes** in the title bar lists all four, with a dot beside the visible ones;
+  clicking one toggles it, and **Show All Panes** restores the four-pane layout.
+- <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> toggle Files, Diff, Commits and
+  Terminal, in that order.
+
+Whatever is left shares out the window, so hiding the commits pane gives the
+diff the full height. The last visible pane has no **×** — an empty window
+would leave nothing to click. Hidden panes are remembered across restarts, and
+the terminal pane is only put away, never closed: its shells keep running and
+come back with their scrollback when it does.
 
 ### Working Tree (top left)
 
@@ -257,6 +274,7 @@ screen instead of an empty pane.
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |
 | <kbd>Ctrl+O</kbd> | Open another repository in a new tab |
 | <kbd>Ctrl+,</kbd> | Settings |
+| <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> | Hide or show Files, Diff, Commits, Terminal |
 
 ## Architecture
 

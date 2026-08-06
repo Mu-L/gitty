@@ -9,6 +9,16 @@ import {
 import { ContextMenu, type MenuItem, type MenuState } from './components/ContextMenu'
 import { SettingsPane, type Theme } from './components/SettingsPane'
 import { RepoTab, type RepoTabHandle } from './RepoTab'
+import {
+  ALL_PANES,
+  PANE_LABELS,
+  PANE_ORDER,
+  loadPanes,
+  paneAccel,
+  visibleCount,
+  type PaneId,
+  type PaneVisibility
+} from './panes'
 import type { DiffView } from './components/DiffPane'
 import type { Branch, RepoStatus } from '../../shared/types'
 
@@ -32,6 +42,7 @@ export default function App(): JSX.Element {
   const [mdOutline, setMdOutline] = useState(
     () => localStorage.getItem('gitty.mdOutline') !== 'off'
   )
+  const [panes, setPanes] = useState<PaneVisibility>(loadPanes)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem('gitty.theme') === 'light' ? 'light' : 'dark')
@@ -173,6 +184,14 @@ export default function App(): JSX.Element {
 
   useEffect(() => window.gitty.repo.onMenuSettings(() => setSettingsOpen(true)), [])
 
+  /* ---------- pane visibility ---------- */
+
+  // The last visible pane cannot be hidden: an empty window would leave the
+  // Panes menu as the only way back, which is easy to miss.
+  const togglePane = useCallback((id: PaneId) => {
+    setPanes((prev) => (prev[id] && visibleCount(prev) < 2 ? prev : { ...prev, [id]: !prev[id] }))
+  }, [])
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       // Settings is app-wide; Escape closes it before any tab's own unwinding.
@@ -184,13 +203,35 @@ export default function App(): JSX.Element {
       } else if ((e.ctrlKey || e.metaKey) && e.key === ',') {
         e.preventDefault()
         setSettingsOpen(true)
+      } else if ((e.ctrlKey || e.metaKey) && !e.altKey && /^[1-4]$/.test(e.key)) {
+        // Ctrl+1..4 toggle the panes in layout order.
+        e.preventDefault()
+        togglePane(PANE_ORDER[Number(e.key) - 1])
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [settingsOpen, pickAndOpen])
+  }, [settingsOpen, pickAndOpen, togglePane])
+
+  const openPanesMenu = (x: number, y: number): void => {
+    const items: MenuItem[] = PANE_ORDER.map((id) => ({
+      label: `${panes[id] ? '●' : ' '} ${PANE_LABELS[id]}`,
+      accel: paneAccel(id),
+      title: panes[id]
+        ? `Hide the ${PANE_LABELS[id].toLowerCase()} pane`
+        : `Show the ${PANE_LABELS[id].toLowerCase()} pane`,
+      action: () => togglePane(id)
+    }))
+    items.push({
+      label: 'Show All Panes',
+      separatorBefore: true,
+      action: () => setPanes({ ...ALL_PANES })
+    })
+    setMenu({ x, y, items })
+  }
 
   const resetSettings = useCallback(() => {
+    setPanes({ ...ALL_PANES })
     setTheme('dark')
     setFontSize(12.5)
     setRowHeight(20)
@@ -218,7 +259,8 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.theme', theme)
     localStorage.setItem('gitty.fontSize', String(fontSize))
     localStorage.setItem('gitty.rowHeight', String(rowHeight))
-  }, [wrap, diffView, wordDiff, mdOutline, theme, fontSize, rowHeight])
+    localStorage.setItem('gitty.panes', JSON.stringify(panes))
+  }, [wrap, diffView, wordDiff, mdOutline, theme, fontSize, rowHeight, panes])
 
   /* ---------- repository menu (recent + open) ---------- */
 
@@ -353,6 +395,15 @@ export default function App(): JSX.Element {
         {error && <span style={{ color: 'var(--red)' }}>{error}</span>}
         <span className="spacer" />
         <button
+          title="Show or hide the panes"
+          onClick={(e) => {
+            const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
+            openPanesMenu(r.left, r.bottom + 2)
+          }}
+        >
+          Panes ▾
+        </button>
+        <button
           onClick={() => {
             setMenu(null)
             setSettingsOpen(true)
@@ -393,6 +444,8 @@ export default function App(): JSX.Element {
                 setWordDiff={setWordDiff}
                 mdOutline={mdOutline}
                 setMdOutline={setMdOutline}
+                panes={panes}
+                onHidePane={togglePane}
                 browsing={browsingByRoot[r] ?? null}
                 settingsOpen={settingsOpen}
                 onStatus={onStatus}

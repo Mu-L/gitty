@@ -23,8 +23,9 @@ import { FileDoc, isMarkdownPath } from './components/FileDoc'
 import { FilesPane, type FileEntry } from './components/FilesPane'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { MarkdownPane } from './components/MarkdownPane'
-import { TerminalsPane } from './components/TerminalsPane'
+import { TerminalsPane, destroyTerminals } from './components/TerminalsPane'
 import type { Theme } from './components/SettingsPane'
+import { paneAccel, visibleCount, type PaneId, type PaneVisibility } from './panes'
 import type {
   Commit,
   CommitFile,
@@ -90,6 +91,10 @@ export interface RepoTabProps {
   setWordDiff: Dispatch<SetStateAction<boolean>>
   mdOutline: boolean
   setMdOutline: Dispatch<SetStateAction<boolean>>
+  /** Which panes are on screen; hidden ones are not rendered at all. */
+  panes: PaneVisibility
+  /** Hide a pane from its own header button. */
+  onHidePane: (id: PaneId) => void
   /** Branch whose history the log shows; null is HEAD, the checked-out one.
    *  Browsing another branch never touches the work tree — the top-left pane
    *  and its diffs still come from disk. */
@@ -127,6 +132,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setWordDiff,
     mdOutline,
     setMdOutline,
+    panes,
+    onHidePane,
     browsing,
     settingsOpen,
     onStatus
@@ -189,6 +196,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   }, [browsing])
 
   useImperativeHandle(ref, () => ({ refresh }), [refresh])
+
+  // Hiding the terminal pane only unmounts it; its shells keep running and are
+  // re-parented when it comes back. They end with the repository tab itself.
+  useEffect(() => () => destroyTerminals(root), [root])
 
   useEffect(() => {
     void refresh()
@@ -639,6 +650,35 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     return `Range ${view.from.slice(0, 8)}..${view.to.slice(0, 8)}`
   }, [view])
 
+  /* ---------- which panes are on screen ---------- */
+
+  // A full-screen diff that is hidden must not come back still full screen.
+  useEffect(() => {
+    if (!panes.diff) setMaximized(false)
+  }, [panes.diff])
+
+  const topRow = panes.files || panes.diff
+  const bottomRow = panes.log || panes.terminal
+  // Panels keep their sizes by position, so a changed set of children needs a
+  // group id of its own — otherwise two visible panes would take up the sizes
+  // stored for three.
+  const rowsKey = `${topRow ? 't' : ''}${bottomRow ? 'b' : ''}`
+  const topKey = `${panes.files ? 'f' : ''}${panes.diff ? 'd' : ''}`
+  const bottomKey = `${panes.log ? 'l' : ''}${panes.terminal ? 't' : ''}`
+  // The last pane standing keeps its close button hidden: there would be no
+  // pane left to hold the layout.
+  const canHide = visibleCount(panes) > 1
+  const hideButton = (id: PaneId): JSX.Element | null =>
+    canHide ? (
+      <button
+        className="pane-hide"
+        title={`Hide this pane (${paneAccel(id)}) — "Panes" in the title bar brings it back`}
+        onClick={() => onHidePane(id)}
+      >
+        ×
+      </button>
+    ) : null
+
   const diffTitle = doc
     ? `${doc.path}${previewing ? ' (preview)' : ''}` +
       (doc.rev ? ` @ ${doc.rev.slice(0, 8)}` : '')
@@ -652,12 +692,14 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       <Group
         orientation="vertical"
         className="grid"
-        id={groupId(root, 'rows')}
+        id={groupId(root, `rows-${rowsKey}`)}
         disabled={!active}
       >
-        <Panel defaultSize="55%" minSize="20%">
-          <Group orientation="horizontal" id={groupId(root, 'top')} disabled={!active}>
-            <Panel defaultSize="38%" minSize="15%">
+        {topRow && (
+        <Panel defaultSize={bottomRow ? '55%' : undefined} minSize="20%">
+          <Group orientation="horizontal" id={groupId(root, `top-${topKey}`)} disabled={!active}>
+            {panes.files && (
+            <Panel defaultSize={panes.diff ? '38%' : undefined} minSize="15%">
               <div className="pane">
                 <div className="pane-header">
                   <span className="title">{filesTitle}</span>
@@ -666,6 +708,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     <button onClick={backToWorkTree}>Back to Work Tree</button>
                   )}
                   <span className="hint">dbl-click views · right-click for more</span>
+                  {hideButton('files')}
                 </div>
                 <div className="pane-body">
                   <FilesPane
@@ -694,7 +737,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                 </div>
               </div>
             </Panel>
-            <Separator className="sep-v" />
+            )}
+            {panes.files && panes.diff && <Separator className="sep-v" />}
+            {panes.diff && (
             <Panel minSize="20%">
               <div className={`pane${maximized ? ' maximized' : ''}`}>
                 <div
@@ -821,6 +866,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   >
                     {maximized ? 'Restore' : 'Full Screen'}
                   </button>
+                  {hideButton('diff')}
                 </div>
                 {/* One strip per open document: the diff, then each opened
                     file. Only shown once there is something to switch to. */}
@@ -893,14 +939,22 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                 )}
               </div>
             </Panel>
+            )}
           </Group>
         </Panel>
+        )}
 
-        <Separator className="sep-h" />
+        {topRow && bottomRow && <Separator className="sep-h" />}
 
+        {bottomRow && (
         <Panel minSize="20%">
-          <Group orientation="horizontal" id={groupId(root, 'bottom')} disabled={!active}>
-            <Panel defaultSize="58%" minSize="20%">
+          <Group
+            orientation="horizontal"
+            id={groupId(root, `bottom-${bottomKey}`)}
+            disabled={!active}
+          >
+            {panes.log && (
+            <Panel defaultSize={panes.terminal ? '58%' : undefined} minSize="20%">
               <div className="pane">
                 <div className="pane-header">
                   <span className="title">Commits</span>
@@ -927,6 +981,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   <span className="hint">
                     ↑↓ move · Enter show · Ctrl+Click compare · Esc work tree
                   </span>
+                  {hideButton('log')}
                 </div>
                 <LogPane
                   commits={commits}
@@ -947,15 +1002,25 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                 />
               </div>
             </Panel>
-            <Separator className="sep-v" />
+            )}
+            {panes.log && panes.terminal && <Separator className="sep-v" />}
+            {panes.terminal && (
             <Panel minSize="15%">
               {/* A repo tab owns its terminal group; the shells are keyed by
                   session id in the main process, so they survive tab switches
-                  and are disposed when this tab unmounts. */}
-              <TerminalsPane root={root} theme={theme} fontSize={fontSize} disabled={!active} />
+                  and hiding this pane, and are disposed when the tab closes. */}
+              <TerminalsPane
+                root={root}
+                theme={theme}
+                fontSize={fontSize}
+                disabled={!active}
+                onHide={canHide ? () => onHidePane('terminal') : undefined}
+              />
             </Panel>
+            )}
           </Group>
         </Panel>
+        )}
       </Group>
 
       <ContextMenu state={menu} onClose={() => setMenu(null)} />

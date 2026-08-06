@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Every pane hides and comes back. Each pane header ends in a **×** that hides
+  it, **Panes** in the title bar lists all four with a dot on the visible ones,
+  and <kbd>Ctrl+1</kbd>…<kbd>Ctrl+4</kbd> toggle them in layout order. The
+  remaining panes share out the space; the last visible pane keeps its **×**
+  hidden, so the window is never empty. What is hidden is remembered across
+  restarts, and hiding the terminal pane leaves its shells running — they come
+  back with their scrollback intact.
+
 ## [0.1.2] - 2026-08-06
 
 ### Added

@@ -239,6 +239,19 @@ button:hover {
   text-overflow: ellipsis;
 }
 
+/* Hides the pane it sits in; last in the header, after the hint. */
+.pane-hide {
+  flex: none;
+  padding: 0 5px;
+  color: var(--fg-faint);
+  line-height: 1;
+}
+
+.pane-hide:hover {
+  color: var(--fg);
+  border-color: var(--border-active);
+}
+
 .pane-body {
   flex: 1;
   min-height: 0;
