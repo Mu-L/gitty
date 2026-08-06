@@ -46,7 +46,7 @@ Two more things I wanted and almost nothing offered: a **markdown preview**, and
 Install the `gitty` command once:
 
 ```bash
-npm install -g gitty-desktop      # once the package is published
+npm install -g gitty-desktop      # installs the gitty command globally
 ```
 
 or, from a checkout, link it into your PATH with:
