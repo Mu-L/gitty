@@ -1,8 +1,19 @@
 {
-  "name": "gitty",
+  "name": "gitty-desktop",
   "version": "0.1.2",
   "description": "A four-pane git history browser",
   "main": "./out/main/index.js",
+  "bin": {
+    "gitty": "./cli.js"
+  },
+  "files": [
+    "out",
+    "build",
+    "cli.js"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "author": "baojie",
   "license": "MIT",
   "scripts": {
@@ -10,23 +21,24 @@
     "start": "electron-vite preview",
     "build": "electron-vite build",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "prepack": "npm run build",
     "postinstall": "electron-rebuild -f -w node-pty"
   },
   "devDependencies": {
-    "@electron/rebuild": "^4.2.0",
     "@types/markdown-it": "^14.1.2",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^5.2.0",
-    "electron": "^43.3.0",
     "electron-vite": "^5.0.0",
     "typescript": "^7.0.2",
     "vite": "^7.3.6"
   },
   "dependencies": {
+    "@electron/rebuild": "^4.2.0",
     "@xterm/addon-fit": "^0.11.0",
     "@xterm/addon-web-links": "^0.12.0",
     "@xterm/xterm": "^6.0.0",
+    "electron": "^43.3.0",
     "highlight.js": "^11.11.1",
     "markdown-it": "^15.0.0",
     "node-pty": "^1.1.0",

@@ -46,14 +46,21 @@ Two more things I wanted and almost nothing offered: a **markdown preview**, and
 Install the `gitty` command once:
 
 ```bash
+npm install -g gitty-desktop      # once the package is published
+```
+
+or, from a checkout, link it into your PATH with:
+
+```bash
 ./setup.sh               # symlink into ~/.local/bin (no sudo)
 ./setup.sh --system      # symlink into /usr/local/bin (needs sudo)
 ```
 
-`setup.sh` also installs a desktop launcher: the icon is added to the hicolor
-theme and a `gitty.desktop` entry appears in the application menu (and on the
-desktop, when the session has one). The icon cache and desktop database are
-refreshed afterwards, so the entry shows up with its icon straight away.
+The `setup.sh` route also installs a desktop launcher: the icon is added to
+the hicolor theme and a `gitty.desktop` entry appears in the application menu
+(and on the desktop, when the session has one). The icon cache and desktop
+database are refreshed afterwards, so the entry shows up with its icon
+straight away.
 
 Then open a repository from anywhere:
 

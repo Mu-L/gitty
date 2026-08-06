@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Gitty installs from npm as `gitty-desktop`: the package ships the built
+  bundle (`out/`), the icon and a `gitty` binary that launches the app in the
+  bundled Electron, so `npm install -g gitty-desktop` needs no checkout. To
+  make that possible, Electron and the `node-pty` ABI rebuild moved from
+  development to runtime dependencies.
+
 ## [0.1.2] - 2026-08-06
 
 ### Added
