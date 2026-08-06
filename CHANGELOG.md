@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-08-06
+
 ### Added
 
 - The diff pane holds several documents at once. A single click still browses
@@ -22,7 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Files in a multi-file diff fold: a triangle on each file heading collapses it
   to its name, and **Collapse All** / **Expand All** in the header does the lot.
   Everything starts expanded, and a new diff arrives expanded.
-
 - Every commit has a local URL: a web server inside the app (127.0.0.1 only)
   renders commits for the system browser. Right-click a commit for **Open in
   Browser** or **Copy Commit URL**; the commits pane's **Open in Browser**
@@ -79,6 +80,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   instead of failing. The icon theme cache is refreshed afterwards, so the
   entry appears with its icon rather than a blank one until the next login.
 
+### Changed
+
+- The diff pane reads as a list of files: the `diff --git a/x b/x` line is
+  replaced by the path itself (`old → new` for a rename) as a full-width
+  heading, files are separated by a blank line, and the hunk header — a line
+  range, not the thing to look at first — is dimmed rather than highlighted.
+- Blob hashes and the `---` / `+++` path lines are folded away, since the
+  heading already names the file. Headers that carry meaning — `new file`,
+  `deleted file`, `rename from` / `to`, `Binary files` — stay.
+- **Show Whole Diff** no longer comes and goes: it stays in the diff header for
+  the work tree, a commit and a range alike, lit while the whole diff is on
+  screen, and it now also appears while viewing a file — returning to the whole
+  diff took two clicks before.
+- README screenshot updated for this release (`ref/gitty-0.1.2.png`).
+
+### Fixed
+
+- A deleted line beginning with `-- ` (rendered as `--- ` in a diff) was
+  mistaken for a file header and vanished from the pane. Header prefixes now
+  only count between `diff --git` and the first hunk.
+
 ## [0.1.1] - 2026-08-05
 
 ### Added
@@ -132,17 +154,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- The diff pane reads as a list of files: the `diff --git a/x b/x` line is
-  replaced by the path itself (`old → new` for a rename) as a full-width
-  heading, files are separated by a blank line, and the hunk header — a line
-  range, not the thing to look at first — is dimmed rather than highlighted.
-- Blob hashes and the `---` / `+++` path lines are folded away, since the
-  heading already names the file. Headers that carry meaning — `new file`,
-  `deleted file`, `rename from` / `to`, `Binary files` — stay.
-- **Show Whole Diff** no longer comes and goes: it stays in the diff header for
-  the work tree, a commit and a range alike, lit while the whole diff is on
-  screen, and it now also appears while viewing a file — returning to the whole
-  diff took two clicks before.
 - `gitty` now detaches from the terminal instead of holding it: it prints the
   pid and returns, the window survives the shell closing, and output goes to
   `${XDG_STATE_HOME:-~/.local/state}/gitty/gitty.log` (trimmed to its last
@@ -166,9 +177,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- A deleted line beginning with `-- ` (rendered as `--- ` in a diff) was
-  mistaken for a file header and vanished from the pane. Header prefixes now
-  only count between `diff --git` and the first hunk.
 - A replaced terminal session (window reload, repository switch) no longer
   writes its exit notice into the terminal that succeeded it.
 - Hovering a diff-pane button showed the header's own tooltip ("Double-click to
@@ -213,6 +221,7 @@ Initial release.
   `chrome-sandbox` cannot keep its root-owned setuid bit inside `node_modules`.
 - README shows a screenshot of the interface (`ref/gitty-0.1.0.png`).
 
-[Unreleased]: https://github.com/baojie/gitty/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/baojie/gitty/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/baojie/gitty/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/baojie/gitty/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/baojie/gitty/releases/tag/v0.1.0

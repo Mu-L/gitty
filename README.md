@@ -16,7 +16,7 @@ its path, click two commits to diff them.
 
 All panes are resizable by dragging the separators.
 
-![Gitty 0.1.1](ref/gitty-0.1.1.png)
+![Gitty 0.1.2](ref/gitty-0.1.2.png)
 
 ## Why another one?
 
@@ -119,8 +119,8 @@ Changed files as a collapsible tree. Two status columns are shown: the staged
 state (green) and the work-tree state (yellow / red); untracked files are `??`.
 
 - **Click** — show the file's diff on the right.
-- **Double-click** — view the whole file on the right, with line numbers and
-  syntax highlighting (a rendered document for markdown).
+- **Double-click** — open the whole file as a document beside the diff, with
+  line numbers and syntax highlighting (a rendered document for markdown).
 - **Right-click** — View File, Open in System App, Reveal in File Manager, Copy
   Relative Path, Copy Absolute Path, Copy File Name.
 - **Click a folder** — collapse or expand it.
@@ -130,9 +130,11 @@ instead; **Back to Work Tree** (or <kbd>Esc</kbd>) returns to the working tree.
 
 ### Diff (top right)
 
-Unified diff with old/new line numbers, hunk headers and add/delete colouring.
-With no file selected it shows everything at once: every uncommitted change in
-the work tree, or every file in the selected commit.
+Unified diff with old/new line numbers, hunk headers and add/delete colouring,
+laid out as a list of files: each path is a full-width heading, the hunk header
+is dimmed — a line range, not the thing to look at first — and a rename reads
+`old → new`. With no file selected it shows everything at once: every
+uncommitted change in the work tree, or every file in the selected commit.
 
 - **Show Whole Diff** — back to that combined diff after picking a file. It
   stays in the header and lights up while the whole diff is what you are
@@ -146,11 +148,21 @@ the work tree, or every file in the selected commit.
 - **Full Screen** — the pane fills the window; <kbd>Esc</kbd>, the **Restore**
   button or a double-click on the header brings the four panes back. The
   terminal below keeps running while it is covered.
-- **View File** — show the file's whole contents instead of its diff, with line
-  numbers and syntax highlighting: from disk in the work tree, at the selected
-  revision elsewhere. Markdown files get **Preview** instead (see below). This
-  lasts until you select another file or commit — the default is always the
-  diff. Snapshots are the exception and always view files, having no diff.
+- **View File / Preview** — open the file as its own document in a strip of
+  tabs beside the diff (double-clicking it in the tree does the same), so a
+  file can be read without losing the diff you were on. The **Diff** tab is
+  always first and a single click in the tree still browses diffs in place;
+  each document remembers the revision it was opened at, closes with its own
+  **×**, and re-reads a work-tree file when the repository changes. Markdown
+  opens rendered, with a toggle back to the source. Snapshots have no diff, so
+  there every file is a document.
+- **File headings** — each heading folds its file: the triangle collapses it
+  to the name, and **Collapse All** / **Expand All** in the header does the
+  lot. **Ctrl+click** a heading opens that file in a new document tab;
+  right-click it for **Open in a New Tab**, **Select in the File List**, the
+  path copies and — in the work tree, where the file on disk is the version
+  shown — **Open in System App** and **Reveal in File Manager**. A rename
+  opens its new path.
 - **Right-click** — Copy Selection, Copy Whole Diff, and the same toggles.
 
 Settings are remembered between runs. Rows render in chunks of 1500 and extend
@@ -233,6 +245,7 @@ screen instead of an empty pane.
 | --- | --- |
 | <kbd>Enter</kbd> | Show the selected commit |
 | <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Mark a second commit and diff the pair |
+| <kbd>Ctrl+Click</kbd> on a file heading | Open that file in a new document tab |
 | <kbd>Esc</kbd> | Back to the working tree |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |
 | <kbd>Ctrl+O</kbd> | Open another repository in a new tab |
