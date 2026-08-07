@@ -34,6 +34,13 @@ install_desktop_entry() {
   # The launcher path may hold spaces; the desktop spec quotes Exec arguments.
   local launcher
   launcher="$(readlink -f "$LAUNCHER")"
+  # StartupWMClass is what ties a running window back to this entry, and so to
+  # this icon, in the window list and the dock. It has to say "electron":
+  # an Electron app that is run rather than packaged reports that as its
+  # WM_CLASS (its Wayland app_id) no matter what — app.setName, --class,
+  # --name, --wm-class-class, CHROME_DESKTOP and renaming the binary all leave
+  # it alone. The cost is that another unpackaged Electron app would borrow
+  # Gitty's icon; packaging Gitty into its own executable is the only real fix.
   cat > "$apps_dir/gitty.desktop" <<EOF
 [Desktop Entry]
 Type=Application
@@ -41,6 +48,7 @@ Name=Gitty
 Comment=Git history browser
 Exec="$launcher" --any
 Icon=gitty
+StartupWMClass=electron
 Terminal=false
 Categories=Development;
 EOF

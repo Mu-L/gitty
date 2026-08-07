@@ -24,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The running window shows Gitty's icon in the window list and the dock instead
+  of a generic placeholder. The desktop entry now carries
+  `StartupWMClass=electron`: an unpackaged Electron app reports `electron` as
+  its window class (its Wayland `app_id`) whatever `app.setName`, `--class`,
+  `CHROME_DESKTOP` or a renamed binary say, so that is the name the entry has to
+  match. Re-run `./setup.sh` and restart Gitty to pick it up.
 - The work tree pane no longer gets stuck listing changes that are already
   committed. A burst of file-system events could start several refreshes at
   once, and a slow earlier `git status` landing after a newer one put its stale

@@ -251,6 +251,13 @@ work tree pane (and the title bar's count) listing changes already committed.
   that most examples and model priors show. Sizes are strings like `"55%"`.
 - **TypeScript 7** removed `baseUrl`; path aliases must be relative.
 - **vite must stay on 7.x** — electron-vite 5 peers on `^5 || ^6 || ^7`.
+- **An unpackaged Electron app's window class is always `electron`.** Which is
+  why `setup.sh` writes `StartupWMClass=electron` into the desktop entry: that
+  string is what the window list and the dock match a window against to find
+  its icon. `app.setName`, `--class`, `--name`, `--wm-class-class`,
+  `CHROME_DESKTOP` and renaming the binary (symlink or hard link) were all
+  measured and all leave `WM_CLASS` — the Wayland `app_id` — alone. Only
+  packaging Gitty into its own executable would change it.
 - **An application menu must exist.** Without one Chromium binds no edit
   accelerators at all and Ctrl+C on selected diff text silently does nothing.
   The menu bar itself is hidden (`autoHideMenuBar`).

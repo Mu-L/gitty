@@ -63,6 +63,13 @@ the hicolor theme and a `gitty.desktop` entry appears in the application menu
 database are refreshed afterwards, so the entry shows up with its icon
 straight away.
 
+The entry also carries `StartupWMClass=electron`, which is what gives the
+running window its icon in the window list and the dock. An Electron app that
+is run rather than packaged reports `electron` as its window class whatever the
+application calls itself, so that is the name the entry has to match — with the
+side effect that another unpackaged Electron app on the same session would
+borrow Gitty's icon.
+
 Then open a repository from anywhere:
 
 ```bash
