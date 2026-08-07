@@ -6,7 +6,7 @@
  * not to a repository.
  */
 import type { TooltipLine } from './components/Tooltip'
-import { msg } from './messages'
+import type { RendererMessages } from '../../shared/messages'
 
 export type PaneId = 'files' | 'diff' | 'log' | 'terminal'
 
@@ -15,11 +15,14 @@ export type PaneVisibility = Record<PaneId, boolean>
 /** Layout order — top-left, top-right, bottom-left, bottom-right. */
 export const PANE_ORDER: PaneId[] = ['files', 'diff', 'log', 'terminal']
 
-export const PANE_LABELS: Record<PaneId, string> = {
-  files: msg.paneChrome.paneLabelFiles,
-  diff: msg.paneChrome.paneLabelDiff,
-  log: msg.log.commits,
-  terminal: msg.terminal.title
+/** Pane labels drawn from the current message table. */
+export function paneLabels(msg: RendererMessages): Record<PaneId, string> {
+  return {
+    files: msg.paneChrome.paneLabelFiles,
+    diff: msg.paneChrome.paneLabelDiff,
+    log: msg.log.commits,
+    terminal: msg.terminal.title
+  }
 }
 
 export const ALL_PANES: PaneVisibility = { files: true, diff: true, log: true, terminal: true }
@@ -36,7 +39,7 @@ export function paneFullAccel(id: PaneId): string {
 
 /** The uniform controls every pane shares — hide and full screen — as
  *  structured tooltip lines. Each pane's own interactions go above them. */
-export function paneControls(id: PaneId): TooltipLine[] {
+export function paneControls(id: PaneId, msg: RendererMessages): TooltipLine[] {
   return [
     { key: paneAccel(id), desc: msg.paneChrome.hidesThisPane },
     { key: paneFullAccel(id), desc: msg.paneChrome.fillsTheWindow },

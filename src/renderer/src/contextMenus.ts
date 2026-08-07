@@ -4,7 +4,7 @@ import type { MenuItem, MenuState } from './components/ContextMenu'
 import type { DiffView } from './components/DiffPane'
 import { isMarkdownPath } from './paths'
 import type { FileEntry } from './components/FilesPane'
-import { msg } from './messages'
+import type { RendererMessages } from '../../shared/messages'
 
 /**
  * What a repository session can show: the work tree, one commit, a range, or
@@ -23,6 +23,7 @@ export type View =
  * their inputs rather than closures over the whole tab.
  */
 export interface ContextMenuDeps {
+  msg: RendererMessages
   root: string
   view: View
   /** Whether a file document is open beside the diff. */
@@ -59,6 +60,7 @@ export function createContextMenus(deps: ContextMenuDeps): {
   commitMenu: (c: Commit, at: MenuState) => void
 } {
   const {
+    msg,
     root,
     view,
     viewingFile,

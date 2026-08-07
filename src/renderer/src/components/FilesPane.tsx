@@ -1,5 +1,5 @@
 import { useMemo, useState, type JSX } from 'react'
-import { msg } from "../messages"
+import { useMsg } from '../locale'
 import type { MenuState } from './ContextMenu'
 
 export interface FileEntry {
@@ -82,6 +82,7 @@ export function FilesPane({
   onMenu: (entry: FileEntry, state: MenuState) => void
   emptyText: string
 }): JSX.Element {
+  const { msg } = useMsg()
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const rows = useMemo(() => buildRows(entries, collapsed), [entries, collapsed])
 

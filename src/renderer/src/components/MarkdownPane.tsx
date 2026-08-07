@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from 'react'
 import MarkdownIt from 'markdown-it'
 import { hljs } from '../highlight'
-import { msg } from '../messages'
+import { useMsg } from '../locale'
 import type { MenuState } from './ContextMenu'
 
 /** `html: false` keeps raw HTML in the source inert — no sanitiser needed. */
@@ -189,6 +189,7 @@ export function MarkdownPane({
   wrap: boolean
   onMenu: (state: MenuState) => void
 }): JSX.Element {
+  const { msg } = useMsg()
   const [images, setImages] = useState<Map<string, string | null>>(new Map())
   const { html, headings, refs } = useMemo(() => render(source, images), [source, images])
   const bodyRef = useRef<HTMLDivElement>(null)

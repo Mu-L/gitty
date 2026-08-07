@@ -1,7 +1,7 @@
 import { useEffect, useRef, type JSX } from 'react'
 import type { Commit } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
-import { msg } from '../messages'
+import { useMsg } from '../locale'
 
 const DAY = 86_400_000
 
@@ -37,6 +37,7 @@ export function LogPane({
   onMenu: (commit: Commit, state: MenuState) => void
   onScrollEnd: () => void
 }): JSX.Element {
+  const { msg } = useMsg()
   const listRef = useRef<HTMLDivElement>(null)
   // The work-tree row sits above the log and takes part in keyboard navigation.
   const hashes = [WORKTREE_ROW, ...commits.map((c) => c.hash)]

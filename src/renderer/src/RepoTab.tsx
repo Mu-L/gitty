@@ -21,7 +21,7 @@ import {
   type DiffView
 } from './components/DiffPane'
 import { FilesPane, type FileEntry } from './components/FilesPane'
-import { msg } from './messages'
+import { useMsg } from './locale'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { destroyTerminals } from './terminals'
 import { isImagePath, isMarkdownPath } from './paths'
@@ -156,6 +156,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   },
   ref
 ): JSX.Element {
+  const { msg } = useMsg()
   const [status, setStatus] = useState<RepoStatus | null>(null)
   const [commits, setCommits] = useState<Commit[]>([])
   const [view, setView] = useState<View>({ mode: 'worktree' })
@@ -541,6 +542,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   /* ---------- context menus ---------- */
 
   const { diffMenu, diffFileMenu, fileMenu, commitMenu } = createContextMenus({
+    msg,
     root,
     view,
     viewingFile,
@@ -667,7 +669,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     lines={[
                       { key: 'dbl-click', desc: msg.log.tooltipViews },
                       { key: 'right-click', desc: msg.log.tooltipMore },
-                      ...paneControls('files')
+                      ...paneControls('files', msg)
                     ]}
                   >
                     {filesTitle}
@@ -715,7 +717,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {/* Tooltips live on the individual parts: a title on the
                       header itself would show up under every button that has
                       none of its own. */}
-                  <Tooltip className="title" lines={[{ key: '', desc: diffTitle }, ...paneControls('diff')]}>
+                  <Tooltip className="title" lines={[{ key: '', desc: diffTitle }, ...paneControls('diff', msg)]}>
                     {diffTitle}
                   </Tooltip>
                   <span className="spacer" title={msg.diff.dblClickFullScreen} />
@@ -937,7 +939,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       { key: 'Enter', desc: msg.log.keyShow },
                       { key: 'Ctrl+Click', desc: msg.log.keyCompare },
                       { key: 'Esc', desc: msg.log.keyWorktree },
-                      ...paneControls('log')
+                      ...paneControls('log', msg)
                     ]}
                   >
                     {msg.log.commits}

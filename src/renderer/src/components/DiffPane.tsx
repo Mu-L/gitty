@@ -8,7 +8,8 @@ import {
   type JSX
 } from 'react'
 import type { MenuState } from './ContextMenu'
-import { msg } from '../messages'
+import { useMsg } from '../locale'
+import type { RendererMessages } from '../../../shared/messages'
 
 /** Rows rendered before the first scroll, and added each time the end nears. */
 const CHUNK = 1500
@@ -295,12 +296,14 @@ export function headingPath(name: string): string {
 
 /** Clickable file heading: the anchor of a multi-file diff, and its fold. */
 function FileHeading({
+  msg,
   name,
   collapsed,
   onToggle,
   onOpen,
   onMenu
 }: {
+  msg: RendererMessages
   name: string
   collapsed: boolean
   onToggle: () => void
@@ -344,6 +347,7 @@ export const DiffPane = forwardRef<
   { patch, notice, placeholder, wrap, view, wordDiff, onMenu, onOpenFile, onFileMenu, onCollapseState },
   ref
 ): JSX.Element {
+  const { msg } = useMsg()
   const parsed = useMemo(() => {
     const ls = parsePatch(patch)
     if (!wordDiff) return ls
@@ -442,6 +446,7 @@ export const DiffPane = forwardRef<
             // A file heading spans the full width; gutters would only indent it.
             l.kind === 'file' ? (
               <FileHeading
+                msg={msg}
                 key={i}
                 name={l.text}
                 collapsed={collapsed.has(l.text)}
@@ -470,6 +475,7 @@ export const DiffPane = forwardRef<
             r.full ? (
               r.full.kind === 'file' ? (
                 <FileHeading
+                  msg={msg}
                   key={i}
                   name={r.full.text}
                   collapsed={collapsed.has(r.full.text)}

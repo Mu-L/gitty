@@ -1,4 +1,5 @@
-import { msg } from '../messages'
+import { useMsg } from '../locale'
+import { ALL_LOCALES, type Locale } from '../locale'
 import type { JSX } from 'react'
 import type { DiffView } from './DiffPane'
 
@@ -106,7 +107,10 @@ export function SettingsPane(props: {
   mdOutline: boolean
   setMdOutline: (v: boolean) => void
   onReset: () => void
+  locale: Locale
+  setLocale: (v: Locale) => void
 }): JSX.Element | null {
+  const { msg } = useMsg()
   if (!props.open) return null
 
   return (
@@ -119,16 +123,22 @@ export function SettingsPane(props: {
     >
       <div className="settings">
         <div className="settings-header">
-          <span className="settings-title">Settings</span>
-          <button title="Close" onClick={props.onClose}>
+          <span className="settings-title">{msg.settings.title}</span>
+          <button title={msg.settings.close} onClick={props.onClose}>
             ×
           </button>
         </div>
         <div className="settings-body">
           <div className="settings-group">
-            <h3 className="settings-group-title">Appearance</h3>
+            <h3 className="settings-group-title">{msg.settings.appearance}</h3>
             <Segmented
-              label="Theme"
+              label={msg.settings.language}
+              value={props.locale}
+              options={ALL_LOCALES.map((l) => ({ value: l.code, label: l.label }))}
+              onChange={props.setLocale}
+            />
+            <Segmented
+              label={msg.settings.theme}
               value={props.theme}
               options={[
                 { value: 'dark', label: msg.settings.dark },
@@ -137,7 +147,7 @@ export function SettingsPane(props: {
               onChange={props.setTheme}
             />
             <Slider
-              label="Font size"
+              label={msg.settings.fontSize}
               value={props.fontSize}
               min={11}
               max={16}
@@ -145,7 +155,7 @@ export function SettingsPane(props: {
               onChange={props.setFontSize}
             />
             <Slider
-              label="Row height"
+              label={msg.settings.rowHeight}
               value={props.rowHeight}
               min={18}
               max={26}
@@ -154,9 +164,9 @@ export function SettingsPane(props: {
             />
           </div>
           <div className="settings-group">
-            <h3 className="settings-group-title">View</h3>
+            <h3 className="settings-group-title">{msg.settings.view}</h3>
             <Segmented
-              label="Diff layout"
+              label={msg.settings.diffLayout}
               value={props.diffView}
               options={[
                 { value: 'inline', label: msg.settings.inline },
@@ -164,14 +174,14 @@ export function SettingsPane(props: {
               ]}
               onChange={props.setDiffView}
             />
-            <CheckRow label="Word wrap" checked={props.wrap} onChange={props.setWrap} />
-            <CheckRow label="Word highlight" checked={props.wordDiff} onChange={props.setWordDiff} />
-            <CheckRow label="Markdown outline" checked={props.mdOutline} onChange={props.setMdOutline} />
+            <CheckRow label={msg.settings.wordWrap} checked={props.wrap} onChange={props.setWrap} />
+            <CheckRow label={msg.settings.wordHighlight} checked={props.wordDiff} onChange={props.setWordDiff} />
+            <CheckRow label={msg.settings.markdownOutline} checked={props.mdOutline} onChange={props.setMdOutline} />
           </div>
         </div>
         <div className="settings-footer">
-          <button onClick={props.onReset}>Restore Defaults</button>
-          <button onClick={props.onClose}>Done</button>
+          <button onClick={props.onReset}>{msg.settings.restoreDefaults}</button>
+          <button onClick={props.onClose}>{msg.settings.done}</button>
         </div>
       </div>
     </div>

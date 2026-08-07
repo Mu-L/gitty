@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef, useState, type JSX } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { TerminalPane, type Theme } from './TerminalPane'
-import { msg } from '../messages'
+import { useMsg } from '../locale'
 import { FullButton, HideButton } from './PaneChrome'
 import { paneControls } from '../panes'
 import { Tooltip } from './Tooltip'
@@ -83,6 +83,8 @@ export function TerminalsPane({
   /** Absent when this is the only pane left on screen. */
   onHide?: () => void
 }): JSX.Element {
+  const { msg } = useMsg()
+
   // Restored from the registry: this component comes and goes with the pane,
   // the shells do not.
   const [tree, setTree] = useState<TermNode>(() => layoutFor(root).tree)
@@ -158,7 +160,7 @@ export function TerminalsPane({
         }}
       >
         {onToggleFull && <FullButton full={full} accel="Ctrl+Shift+4" onToggle={onToggleFull} />}
-        <Tooltip className="title" lines={paneControls('terminal')}>
+        <Tooltip className="title" lines={paneControls('terminal', msg)}>
           {msg.terminal.title}
         </Tooltip>
         <span className="spacer" />

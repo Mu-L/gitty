@@ -7,7 +7,7 @@ import { addRecent, clearRecent, listRecent, removeRecent } from './recent'
 import { watchRepo, type RepoWatcher } from './watcher'
 import * as web from './web'
 import type { DiffRequest } from '../shared/types'
-import { msg } from './messages'
+import { msg, setMainLocale } from './messages'
 
 // Fixes the userData directory (~/.config/Gitty) rather than inheriting
 // Electron's default name when running unpackaged.
@@ -179,6 +179,11 @@ function registerIpc(): void {
       dialog.showErrorBox(msg.dialog.notARepo, msg.dialog.notInsideWorkTree(res.filePaths[0]))
       return null
     }
+  })
+
+  ipcMain.on('settings:setLocale', (_e, locale: string) => {
+    setMainLocale(locale)
+    installMenu()
   })
 
   ipcMain.handle('recent:list', () => listRecent())

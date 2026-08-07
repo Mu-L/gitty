@@ -1,5 +1,5 @@
 import { useEffect, useState, type JSX } from 'react'
-import { msg } from "../messages"
+import { useMsg } from '../locale'
 import { CodePane } from './CodePane'
 import { ImagePane } from './ImagePane'
 import { MarkdownPane } from './MarkdownPane'
@@ -36,6 +36,7 @@ export function FileDoc({
   onSource: (text: string | null) => void
   onMenu: (state: MenuState) => void
 }): JSX.Element {
+  const { msg } = useMsg()
   const [source, setSource] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 

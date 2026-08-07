@@ -183,6 +183,7 @@ export interface RendererMessages {
     readonly wordWrap: string
     readonly wordHighlight: string
     readonly markdownOutline: string
+    readonly language: string
     readonly restoreDefaults: string
     readonly done: string
   }

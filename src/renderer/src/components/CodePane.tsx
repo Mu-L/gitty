@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { highlightLines, languageFor } from '../highlight'
 import type { MenuState } from './ContextMenu'
-import { msg } from '../messages'
+import { useMsg } from '../locale'
 
 /** Lines rendered before the first scroll, and added each time the end nears. */
 const CHUNK = 1500
@@ -22,6 +22,7 @@ export function CodePane({
   wrap: boolean
   onMenu: (state: MenuState) => void
 }): JSX.Element {
+  const { msg } = useMsg()
   const language = useMemo(() => languageFor(path), [path])
   const lines = useMemo(() => highlightLines(source, language), [source, language])
   const hostRef = useRef<HTMLDivElement>(null)

@@ -96,6 +96,11 @@ const api = {
   clipboard: {
     write: (text: string): Promise<void> => ipcRenderer.invoke('clipboard:write', text)
   },
+  /** Settings that live in the main process. */
+  settings: {
+    /** Switch the application menu and all UI text to `locale`. */
+    setLocale: (locale: string): void => ipcRenderer.send('settings:setLocale', locale)
+  },
   // Several shells can be alive at once — the pane splits — so every call and
   // every event names the session it belongs to.
   terminal: {

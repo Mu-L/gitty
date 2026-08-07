@@ -1,7 +1,7 @@
 import { useEffect, useState, type JSX } from 'react'
 import type { MenuState } from './ContextMenu'
 import { isImagePath } from '../paths'
-import { msg } from '../messages'
+import { useMsg } from '../locale'
 
 function humanBytes(n: number): string {
   if (n < 1024) return `${n} B`
@@ -29,6 +29,7 @@ export function ImagePane({
   reloadKey: number
   onMenu: (state: MenuState) => void
 }): JSX.Element {
+  const { msg } = useMsg()
   const [src, setSrc] = useState<string | null>(null)
   const [bytes, setBytes] = useState(0)
   const [notice, setNotice] = useState<string | null>(null)

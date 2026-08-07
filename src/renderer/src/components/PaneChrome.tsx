@@ -1,5 +1,5 @@
 import type { JSX } from 'react'
-import { msg } from '../messages'
+import { useMsg } from '../locale'
 
 /**
  * The two controls every pane header carries: full screen on the left, hide on
@@ -17,6 +17,7 @@ export function FullButton({
   accel: string
   onToggle: () => void
 }): JSX.Element {
+  const { msg } = useMsg()
   return (
     <button
       className={`pane-full${full ? ' on' : ''}`}
@@ -42,6 +43,7 @@ export function HideButton({
   note?: string
   onHide: () => void
 }): JSX.Element {
+  const { msg } = useMsg()
   return (
     <button
       className="pane-hide"

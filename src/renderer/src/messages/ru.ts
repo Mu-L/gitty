@@ -1,6 +1,6 @@
 import type { RendererMessages } from '../../../shared/messages'
 
-export const en: RendererMessages = {
+export const ru: RendererMessages = {
   app: {
     title: 'Gitty',
     settings: 'Settings',

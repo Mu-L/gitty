@@ -18,7 +18,7 @@ import type { RepoTabHandle } from './RepoTab'
 const RepoTab = lazy(() => import('./RepoTab').then((m) => ({ default: m.RepoTab })))
 import {
   ALL_PANES,
-  PANE_LABELS,
+  paneLabels,
   PANE_ORDER,
   loadPanes,
   paneAccel,
@@ -28,9 +28,13 @@ import {
 } from './panes'
 import type { DiffView } from './components/DiffPane'
 import type { Branch, RepoStatus } from '../../shared/types'
-import { msg } from './messages'
+import { LocaleProvider, loadLocale, type Locale } from './locale'
+import { ALL_LOCALES } from './locale'
+import { getMessages } from './messages'
 
 export default function App(): JSX.Element {
+  const [locale, setLocale] = useState<Locale>(loadLocale)
+  const msg = getMessages(locale)
   const [roots, setRoots] = useState<string[]>([])
   const [active, setActive] = useState<string | null>(null)
   const [statusByRoot, setStatusByRoot] = useState<Record<string, RepoStatus>>({})
@@ -223,11 +227,11 @@ export default function App(): JSX.Element {
 
   const openPanesMenu = (x: number, y: number): void => {
     const items: MenuItem[] = PANE_ORDER.map((id) => ({
-      label: `${panes[id] ? '●' : ' '} ${PANE_LABELS[id]}`,
+      label: `${panes[id] ? '●' : ' '} ${paneLabels(msg)[id]}`,
       accel: paneAccel(id),
       title: panes[id]
-        ? msg.paneChrome.hidePaneMenu(PANE_LABELS[id])
-        : msg.paneChrome.showPane(PANE_LABELS[id]),
+        ? msg.paneChrome.hidePaneMenu(paneLabels(msg)[id])
+        : msg.paneChrome.showPane(paneLabels(msg)[id]),
       action: () => togglePane(id)
     }))
     items.push({
@@ -240,6 +244,7 @@ export default function App(): JSX.Element {
 
   const resetSettings = useCallback(() => {
     setPanes({ ...ALL_PANES })
+    setLocale('en')
     setTheme('dark')
     setFontSize(12.5)
     setRowHeight(20)
@@ -269,6 +274,12 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.rowHeight', String(rowHeight))
     localStorage.setItem('gitty.panes', JSON.stringify(panes))
   }, [wrap, diffView, wordDiff, mdOutline, theme, fontSize, rowHeight, panes])
+
+  // Persist locale and tell the main process.
+  useEffect(() => {
+    localStorage.setItem('gitty.locale', locale)
+    window.gitty.settings.setLocale(locale)
+  }, [locale])
 
   /* ---------- repository menu (recent + open) ---------- */
 
@@ -361,6 +372,7 @@ export default function App(): JSX.Element {
   }
 
   return (
+    <LocaleProvider locale={locale} setLocale={setLocale}>
     <div className="app" onContextMenu={(e) => e.preventDefault()}>
       <div className="titlebar">
         {appIcon && (
@@ -524,8 +536,11 @@ export default function App(): JSX.Element {
         mdOutline={mdOutline}
         setMdOutline={setMdOutline}
         onReset={resetSettings}
+        locale={locale}
+        setLocale={setLocale}
       />
     </div>
+    </LocaleProvider>
   )
 }
 
@@ -534,11 +549,12 @@ function ago(iso: string): string {
   const then = new Date(iso).getTime()
   if (Number.isNaN(then)) return ''
   const days = Math.floor((Date.now() - then) / 86_400_000)
-  if (days < 1) return msg.time.today
-  if (days === 1) return msg.time.yesterday
-  if (days < 30) return msg.time.daysAgo(days)
-  if (days < 365) return msg.time.monthsAgo(days)
-  return msg.time.yearsAgo(days)
+  const m = getMessages(loadLocale())
+  if (days < 1) return m.time.today
+  if (days === 1) return m.time.yesterday
+  if (days < 30) return m.time.daysAgo(days)
+  if (days < 365) return m.time.monthsAgo(days)
+  return m.time.yearsAgo(days)
 }
 
 /** Home-relative directory of a path, for the recent-repository menu. */
