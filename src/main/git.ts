@@ -12,6 +12,7 @@ import type {
   DiffResult,
   FileStatusCode,
   GitOpResult,
+  ImageFileContent,
   RepoStatus,
   SnapshotFileContent,
   WorkingFile
@@ -356,6 +357,81 @@ export async function readWorkingFile(
   if (stat.size > MAX_PATCH_BYTES) return { content: '', binary: true }
   const content = await fs.promises.readFile(abs, 'utf8')
   return content.includes('\0') ? { content: '', binary: true } : { content, binary: false }
+}
+
+/**
+ * Images travel to the renderer as base64 inside a data: URL, which costs a
+ * third more than the file — hence a limit of its own, larger than the diff
+ * one (photographs in a repository are routinely past 2 MB) but still bounded.
+ */
+const MAX_IMAGE_BYTES = 12 * 1024 * 1024
+
+/** Extensions a `<img>` can render. Anything else stays a binary file. */
+const IMAGE_MIME: Record<string, string> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.bmp': 'image/bmp',
+  '.ico': 'image/x-icon',
+  '.avif': 'image/avif',
+  // SVG is text, but showing its markup is not what "preview" means for it.
+  '.svg': 'image/svg+xml'
+}
+
+export function imageMime(filePath: string): string | null {
+  return IMAGE_MIME[path.extname(filePath).toLowerCase()] ?? null
+}
+
+/** `git show` returning raw bytes — a file's contents are not always text. */
+async function gitBytes(cwd: string, args: string[]): Promise<Buffer> {
+  const { stdout } = await exec('git', args, {
+    cwd,
+    maxBuffer: 64 * 1024 * 1024,
+    windowsHide: true,
+    encoding: 'buffer',
+    env: { ...process.env, GIT_OPTIONAL_LOCKS: '0', LC_ALL: 'C' }
+  })
+  return stdout as unknown as Buffer
+}
+
+/**
+ * One image's bytes as a data: URL — from the work tree when `rev` is null,
+ * from that revision otherwise.
+ */
+export async function readImageFile(
+  root: string,
+  rev: string | null,
+  filePath: string
+): Promise<ImageFileContent> {
+  const mime = imageMime(filePath)
+  if (!mime) return { dataUrl: null, notice: 'Not an image.', bytes: 0 }
+
+  let buf: Buffer
+  if (rev === null) {
+    const abs = path.resolve(root, filePath)
+    // Never read outside the repository, whatever the renderer asks for.
+    if (abs !== root && !abs.startsWith(root + path.sep)) {
+      throw new Error('path escapes the repository')
+    }
+    const stat = await fs.promises.stat(abs)
+    if (stat.size > MAX_IMAGE_BYTES) {
+      return { dataUrl: null, notice: 'Image too large to preview.', bytes: stat.size }
+    }
+    buf = await fs.promises.readFile(abs)
+  } else {
+    buf = await gitBytes(root, ['show', `${rev}:${filePath}`])
+    if (buf.length > MAX_IMAGE_BYTES) {
+      return { dataUrl: null, notice: 'Image too large to preview.', bytes: buf.length }
+    }
+  }
+
+  return {
+    dataUrl: `data:${mime};base64,${buf.toString('base64')}`,
+    notice: null,
+    bytes: buf.length
+  }
 }
 
 /** Full file list of a commit — the tree as it was at that moment. */

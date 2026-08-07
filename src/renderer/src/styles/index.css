@@ -1611,3 +1611,80 @@ button:disabled:hover {
 .doc-close:hover {
   color: var(--red);
 }
+
+/* ---------- image preview ---------- */
+
+.image-host {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+/* The stage centres a fitted image but must not shrink a full-size one below
+   its own width, or scrolling it sideways would have nothing to scroll. */
+.image-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 12px;
+  /* A checkerboard, so transparent regions read as transparent rather than as
+     whatever the current theme paints behind them. */
+  background-color: var(--bg-code);
+  background-image:
+    linear-gradient(45deg, var(--bg-hover) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--bg-hover) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--bg-hover) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--bg-hover) 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
+
+.image-stage img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: zoom-in;
+  image-rendering: auto;
+}
+
+.image-stage.actual {
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow: auto;
+}
+
+.image-stage.actual img {
+  max-width: none;
+  max-height: none;
+  cursor: zoom-out;
+}
+
+.image-caption {
+  flex: none;
+  padding: 4px 10px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-faint);
+  font-size: 11px;
+  text-align: center;
+}
+
+/* Images in a rendered document, and the placeholder for one the repository
+   does not have at this revision. */
+.md-body img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+.md-body img.md-img-missing {
+  width: auto;
+  min-width: 120px;
+  height: 40px;
+  padding: 0 8px;
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  background: var(--bg-code);
+  color: var(--fg-faint);
+  font-size: 11px;
+}

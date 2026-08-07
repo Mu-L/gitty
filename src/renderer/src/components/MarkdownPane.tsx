@@ -22,6 +22,83 @@ const md = new MarkdownIt({
   }
 })
 
+/**
+ * An image in a document points at a path in the repository, which the renderer
+ * cannot fetch — a relative URL would resolve against the bundle, not the work
+ * tree. The bytes are read over the API and fed back in here, so the browser
+ * never requests a URL that cannot exist. Until they arrive (and for one that
+ * cannot be read) the src is a blank pixel.
+ *
+ * The substitution has to happen while rendering rather than on the rendered
+ * DOM: React owns that subtree through `dangerouslySetInnerHTML` and rewrites
+ * it wholesale, discarding anything patched in behind its back.
+ */
+const BLANK_PIXEL =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+
+/**
+ * What `render` passes to (and collects from) the image rule below.
+ * markdown-it types `env` as an index signature, hence the cast at each use.
+ */
+interface ImageEnv {
+  [key: string | symbol]: unknown
+  /** Every repository-relative src the document mentions, in reading order. */
+  refs: Set<string>
+  /** Bytes already fetched: src → data URL, or null when it could not be read. */
+  loaded: Map<string, string | null>
+}
+
+md.renderer.rules.image = (tokens, idx, options, rawEnv, self) => {
+  const env = rawEnv as unknown as ImageEnv
+  const token = tokens[idx]
+  const alt = token.attrIndex('alt')
+  if (alt >= 0 && token.attrs) {
+    token.attrs[alt][1] = self.renderInlineAsText(token.children ?? [], options, env as never)
+  }
+  const src = String(token.attrGet('src') ?? '')
+  // Web images load themselves; only repository paths need fetching.
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(src)) {
+    env.refs.add(src)
+    const data = env.loaded.get(src)
+    token.attrSet('src', data ?? BLANK_PIXEL)
+    // Distinguish "not there" from "not fetched yet": only a resolved-to-null
+    // entry is a real miss, and it is the one that gets the placeholder box.
+    if (data === null) token.attrSet('class', 'md-img-missing')
+  }
+  return self.renderToken(tokens, idx, options)
+}
+
+/** Images fetched per document, so a gallery cannot spawn git processes forever. */
+const MAX_INLINE_IMAGES = 100
+
+/**
+ * A document-relative link resolved to a repository-relative path, or null when
+ * it escapes the repository (or is empty). A leading `/` means the repository
+ * root, as it does on the forges people write these files for.
+ */
+function resolveInRepo(docPath: string, src: string): string | null {
+  let clean: string
+  try {
+    clean = decodeURIComponent(src.split('#')[0].split('?')[0])
+  } catch {
+    clean = src.split('#')[0].split('?')[0]
+  }
+  if (!clean) return null
+  const base = docPath.split('/').slice(0, -1)
+  const parts = clean.startsWith('/') ? clean.slice(1).split('/') : [...base, ...clean.split('/')]
+  const out: string[] = []
+  for (const p of parts) {
+    if (p === '' || p === '.') continue
+    if (p === '..') {
+      if (out.length === 0) return null
+      out.pop()
+      continue
+    }
+    out.push(p)
+  }
+  return out.length > 0 ? out.join('/') : null
+}
+
 export interface Heading {
   id: string
   level: number
@@ -57,11 +134,15 @@ function renderFrontMatter(yaml: string): string {
   return `<div class="md-frontmatter"><pre><code>${inner}</code></pre></div>`
 }
 
-/** Render markdown and collect its heading structure in one pass. */
-function render(source: string): { html: string; headings: Heading[] } {
+/** Render markdown, collecting its headings and its image references. */
+function render(
+  source: string,
+  loaded: Map<string, string | null>
+): { html: string; headings: Heading[]; refs: string[] } {
   const fm = FRONT_MATTER.exec(source)
   const body = fm ? source.slice(fm[0].length) : source
-  const tokens = md.parse(body, {})
+  const env: ImageEnv = { refs: new Set(), loaded }
+  const tokens = md.parse(body, env as never)
   const headings: Heading[] = []
   const slug = slugger()
 
@@ -75,13 +156,20 @@ function render(source: string): { html: string; headings: Heading[] } {
     headings.push({ id, level: Number(t.tag.slice(1)), text })
   }
 
-  const html = md.renderer.render(tokens, md.options, {})
-  return { html: fm ? renderFrontMatter(fm[1]) + html : html, headings }
+  const html = md.renderer.render(tokens, md.options, env as never)
+  return {
+    html: fm ? renderFrontMatter(fm[1]) + html : html,
+    headings,
+    refs: [...env.refs]
+  }
 }
 
 export function MarkdownPane({
   source,
   docKey,
+  root,
+  docPath,
+  rev,
   outline,
   wrap,
   onMenu
@@ -89,13 +177,19 @@ export function MarkdownPane({
   source: string
   /** Identifies the document, not its text; changes only on opening another. */
   docKey: string
+  root: string
+  /** The document's own path, which its images are written relative to. */
+  docPath: string
+  /** Revision the document was opened at; null for the work tree. */
+  rev: string | null
   /** Show the heading outline beside the document. */
   outline: boolean
   /** Wrap fenced code blocks and tables instead of scrolling them sideways. */
   wrap: boolean
   onMenu: (state: MenuState) => void
 }): JSX.Element {
-  const { html, headings } = useMemo(() => render(source), [source])
+  const [images, setImages] = useState<Map<string, string | null>>(new Map())
+  const { html, headings, refs } = useMemo(() => render(source, images), [source, images])
   const bodyRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState<string | null>(null)
 
@@ -108,6 +202,9 @@ export function MarkdownPane({
     scrollTop.current = 0
     if (bodyRef.current) bodyRef.current.scrollTop = 0
     setActive(headings[0]?.id ?? null)
+    // Images are keyed by the src as written, which means different files in
+    // different documents — and different bytes at different revisions.
+    setImages(new Map())
     // headings belong to this source, and source changes with docKey.
   }, [docKey])
 
@@ -119,6 +216,43 @@ export function MarkdownPane({
     const el = bodyRef.current
     if (el && el.scrollTop !== scrollTop.current) el.scrollTop = scrollTop.current
   }, [html])
+
+  // Fetch the document's images, then hand them all to one re-render. One
+  // request at a time — a page of screenshots would otherwise start a git
+  // process per image at once — and one `setImages`, so a long gallery does not
+  // re-render the document once per picture.
+  const refsKey = refs.join('\n')
+  useEffect(() => {
+    const wanted = refsKey ? refsKey.split('\n') : []
+    if (wanted.length === 0) return
+    // Every ref already answered for: nothing to do, and re-running would loop.
+    if (wanted.every((r) => images.has(r))) return
+
+    let cancelled = false
+    void (async () => {
+      const next = new Map<string, string | null>()
+      for (const raw of wanted.slice(0, MAX_INLINE_IMAGES)) {
+        const rel = resolveInRepo(docPath, raw)
+        if (!rel) {
+          next.set(raw, null)
+          continue
+        }
+        try {
+          const r = await window.gitty.git.readImage(root, rev, rel)
+          next.set(raw, r.dataUrl)
+        } catch {
+          // Not in the repository at this revision; the placeholder says so.
+          next.set(raw, null)
+        }
+      }
+      // Anything past the cap stays a blank pixel rather than a broken one.
+      for (const raw of wanted.slice(MAX_INLINE_IMAGES)) next.set(raw, null)
+      if (!cancelled) setImages(next)
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [refsKey, images, root, docPath, rev])
 
   // Highlight the outline entry for the heading currently at the top.
   useEffect(() => {

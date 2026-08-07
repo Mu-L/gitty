@@ -113,6 +113,20 @@ export interface SnapshotFileContent {
   binary: boolean
 }
 
+/**
+ * One image file, inlined for the preview. A data: URL rather than a path
+ * because the renderer cannot read the disk, and a revision's bytes were never
+ * on it in the first place.
+ */
+export interface ImageFileContent {
+  /** null when the image is too large to inline or cannot be read. */
+  dataUrl: string | null
+  /** Why there is no image, when there is none. */
+  notice: string | null
+  /** Size of the file on disk, for the caption. */
+  bytes: number
+}
+
 /** One shell's exit, delivered alongside the session id it came from. */
 export interface PtyExit {
   exitCode: number

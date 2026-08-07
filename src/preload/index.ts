@@ -8,6 +8,7 @@ import type {
   DiffRequest,
   DiffResult,
   GitOpResult,
+  ImageFileContent,
   PtyExit,
   RepoChanged,
   RepoStatus,
@@ -72,7 +73,9 @@ const api = {
     snapshotOpen: (root: string, hash: string, filePath: string): Promise<string | null> =>
       ipcRenderer.invoke('git:snapshotOpen', root, hash, filePath),
     readWorking: (root: string, filePath: string): Promise<SnapshotFileContent> =>
-      ipcRenderer.invoke('git:readWorking', root, filePath)
+      ipcRenderer.invoke('git:readWorking', root, filePath),
+    readImage: (root: string, rev: string | null, filePath: string): Promise<ImageFileContent> =>
+      ipcRenderer.invoke('git:readImage', root, rev, filePath)
   },
   file: {
     open: (abs: string): Promise<string | null> => ipcRenderer.invoke('file:open', abs),

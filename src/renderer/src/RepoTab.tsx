@@ -20,6 +20,7 @@ import {
   type DiffView
 } from './components/DiffPane'
 import { FileDoc, isMarkdownPath } from './components/FileDoc'
+import { isImagePath } from './components/ImagePane'
 import { FilesPane, type FileEntry } from './components/FilesPane'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { MarkdownPane } from './components/MarkdownPane'
@@ -895,11 +896,17 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       title={
                         isMarkdownPath(selectedFile)
                           ? 'Open this markdown file rendered, beside the diff'
-                          : 'Open the whole file beside the diff'
+                          : isImagePath(selectedFile)
+                            ? 'Show this image beside the diff'
+                            : 'Open the whole file beside the diff'
                       }
                       onClick={() => openFileDoc(selectedFile)}
                     >
-                      {isMarkdownPath(selectedFile) ? 'Preview' : 'View File'}
+                      {isMarkdownPath(selectedFile)
+                        ? 'Preview'
+                        : isImagePath(selectedFile)
+                          ? 'View Image'
+                          : 'View File'}
                     </button>
                   )}
                   {previewing && doc && (

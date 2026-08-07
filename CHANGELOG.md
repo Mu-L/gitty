@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Image files get a real preview instead of a text dump. `.png`, `.jpg`,
+  `.jpeg`, `.gif`, `.webp`, `.bmp`, `.ico`, `.avif` and `.svg` open with
+  **View Image** — fitted to the pane, a click for actual size, and a caption
+  of dimensions and bytes — from the work tree or from any revision. Images
+  inside a markdown preview are fetched and inlined the same way, so a
+  document shows its figures without the renderer needing disk access.
+
 ### Changed
 
 - The pane-title tooltips now spell out the double-click gesture: hovering any

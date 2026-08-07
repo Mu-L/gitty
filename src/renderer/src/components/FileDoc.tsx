@@ -1,5 +1,6 @@
 import { useEffect, useState, type JSX } from 'react'
 import { CodePane } from './CodePane'
+import { ImagePane, isImagePath } from './ImagePane'
 import { MarkdownPane } from './MarkdownPane'
 import type { MenuState } from './ContextMenu'
 
@@ -40,7 +41,11 @@ export function FileDoc({
   const [source, setSource] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  const image = isImagePath(path)
+
   useEffect(() => {
+    // An image is never read as text: `readWorking` would only call it binary.
+    if (image) return
     let cancelled = false
     void (async () => {
       try {
@@ -60,9 +65,14 @@ export function FileDoc({
       cancelled = true
     }
     // A file read from a revision never changes; only work-tree files reload.
-  }, [root, path, rev, rev === null ? reloadKey : 0])
+  }, [image, root, path, rev, rev === null ? reloadKey : 0])
 
-  useEffect(() => onSource(source), [source, onSource])
+  // An image has no text to copy from the context menu.
+  useEffect(() => onSource(image ? null : source), [image, source, onSource])
+
+  if (image) {
+    return <ImagePane root={root} path={path} rev={rev} reloadKey={reloadKey} onMenu={onMenu} />
+  }
 
   if (source === null) {
     return (
@@ -81,6 +91,9 @@ export function FileDoc({
     <MarkdownPane
       source={source}
       docKey={docKey}
+      root={root}
+      docPath={path}
+      rev={rev}
       outline={outline}
       wrap={wrap}
       onMenu={onMenu}
