@@ -705,6 +705,15 @@ button:disabled:hover {
   color: var(--fg-dim);
 }
 
+/* In a whole-file diff the current heading stays pinned at the top of the
+   pane while scrolling, until the next heading scrolls up and pushes it away.
+   The z-index keeps later content from drawing over the pinned bar. */
+.diff.multi .dl-file {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
 .diff-lines > .dl-file:first-child,
 .diff-split > .dl-file:first-child {
   margin-top: 0;

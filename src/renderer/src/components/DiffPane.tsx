@@ -418,7 +418,11 @@ export const DiffPane = forwardRef<
     )
   }
 
-  const cls = `pane-body diff${wrap ? ' wrap' : ''} ${view}`
+  // A multi-file diff scrolls past several file headings; each one sticks to
+  // the top of the pane until the next heading pushes it away. Single-file
+  // diffs don't need it — nothing would ever push the heading off.
+  const multi = fileNames.length > 1
+  const cls = `pane-body diff${wrap ? ' wrap' : ''} ${view}${multi ? ' multi' : ''}`
 
   return (
     <div

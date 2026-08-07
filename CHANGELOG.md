@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   hidden, so the window is never empty. What is hidden is remembered across
   restarts, and hiding the terminal pane leaves its shells running — they come
   back with their scrollback intact.
+- The file heading stays in view while scrolling a whole-file diff. Once the
+  heading you are reading under scrolls past the top of the pane, it pins itself
+  to the top until the next file's heading scrolls up and pushes it away, so the
+  name of the file the lines belong to is never more than one glance up. A
+  single-file diff is unaffected — nothing would ever push its heading off.
 - Every pane goes full screen, not just the diff. **⤢** at the left of each pane
   header fills the window with that pane; **⤡**, <kbd>Esc</kbd>, a double-click
   on the header or <kbd>Ctrl+Shift+1</kbd>…<kbd>Ctrl+Shift+4</kbd> restores the
