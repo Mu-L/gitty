@@ -515,7 +515,7 @@ button:disabled:hover {
 /* Fixed widths keep the subject column aligned across rows. */
 .commit-author {
   flex: none;
-  width: 110px;
+  width: 72px;
   color: var(--cyan);
   overflow: hidden;
   text-overflow: ellipsis;
