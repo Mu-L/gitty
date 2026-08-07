@@ -249,46 +249,59 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     let cancelled = false
 
     const run = async (): Promise<void> => {
+      let entries: FileEntry[] = []
+      // The revision each file lives at; null means the work tree on disk.
+      let rev: string | null = null
+
       if (view.mode === 'worktree') {
-        const files = (status?.files ?? []).map<FileEntry>((f) => ({
+        rev = null
+        entries = (status?.files ?? []).map<FileEntry>((f) => ({
           path: f.path,
           absPath: f.absPath,
           marks: statusMarks(f),
           deleted: f.worktree === 'D' || f.index === 'D',
           origPath: f.origPath
         }))
-        if (!cancelled) setViewFiles(files)
-        return
-      }
-      // Snapshot mode: the whole tree at that commit, read-only.
-      if (view.mode === 'snapshot') {
+      } else if (view.mode === 'snapshot') {
+        // Snapshot mode: the whole tree at that commit, read-only.
+        rev = view.hash
         const paths = await window.gitty.git.snapshotFiles(root, view.hash)
         if (cancelled) return
-        setViewFiles(
-          paths.map<FileEntry>((p) => ({
-            path: p,
-            // Virtual path — no file on disk; fileMenu/onOpen branch on this prefix.
-            absPath: `gitty:snapshot:${view.hash}:${p}`,
-            marks: [],
-            deleted: false
-          }))
-        )
-        return
-      }
-      const files =
-        view.mode === 'commit'
-          ? (await window.gitty.git.commitDetail(root, view.hash)).files
-          : await window.gitty.git.rangeFiles(root, view.from, view.to)
-      if (cancelled) return
-      setViewFiles(
-        files.map<FileEntry>((f) => ({
+        entries = paths.map<FileEntry>((p) => ({
+          path: p,
+          // Virtual path — no file on disk; fileMenu/onOpen branch on this prefix.
+          absPath: `gitty:snapshot:${view.hash}:${p}`,
+          marks: [],
+          deleted: false
+        }))
+      } else {
+        rev = view.mode === 'commit' ? view.hash : view.to
+        const files =
+          view.mode === 'commit'
+            ? (await window.gitty.git.commitDetail(root, view.hash)).files
+            : await window.gitty.git.rangeFiles(root, view.from, view.to)
+        if (cancelled) return
+        entries = files.map<FileEntry>((f) => ({
           path: f.path,
           absPath: f.absPath,
           marks: commitMarks(f),
           deleted: f.status === 'D',
           origPath: f.origPath
         }))
-      )
+      }
+
+      // Fetch line counts in one batch so the tree shows them right away.
+      if (!cancelled && entries.length > 0) {
+        const pairs = entries.map((e) => ({ rev, filePath: e.path }))
+        const counts = await window.gitty.git.fileLines(root, pairs)
+        if (!cancelled) {
+          for (let i = 0; i < entries.length; i++) {
+            entries[i] = { ...entries[i], lines: counts[i] }
+          }
+        }
+      }
+
+      if (!cancelled) setViewFiles(entries)
     }
 
     void run()

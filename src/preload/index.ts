@@ -75,7 +75,12 @@ const api = {
     readWorking: (root: string, filePath: string): Promise<SnapshotFileContent> =>
       ipcRenderer.invoke('git:readWorking', root, filePath),
     readImage: (root: string, rev: string | null, filePath: string): Promise<ImageFileContent> =>
-      ipcRenderer.invoke('git:readImage', root, rev, filePath)
+      ipcRenderer.invoke('git:readImage', root, rev, filePath),
+    /** Count lines for a batch of files; returns counts in the same order. */
+    fileLines: (
+      root: string,
+      pairs: Array<{ rev: string | null; filePath: string }>
+    ): Promise<Array<number | null>> => ipcRenderer.invoke('git:fileLines', root, pairs)
   },
   file: {
     open: (abs: string): Promise<string | null> => ipcRenderer.invoke('file:open', abs),

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Every file in the tree now shows its line count beside the name (e.g.
+  "142 lines"), counted from disk for the work tree and from the revision
+  wherever else. Binary files, deleted files and files larger than 8 MB are
+  skipped and show no count.
 - Images are shown, not reported as binary. Opening a `.png`, `.jpg`, `.gif`,
   `.webp`, `.bmp`, `.ico`, `.avif` or `.svg` — from the file tree, the header
   button or a snapshot — gives the picture itself, fitted to the pane over a
@@ -26,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- A repository tab's tooltip now says when that repository has uncommitted
+  changes, so the yellow dot beside its name does not have to be guessed at.
 - The window opens faster: the renderer bundle is split, so the app shell and
   the four panes no longer wait on the libraries only some of them need. The
   terminal (xterm), opened files and markdown previews (highlight.js,

@@ -245,6 +245,12 @@ function registerIpc(): void {
     git.readImageFile(root, rev, filePath)
   )
 
+  ipcMain.handle(
+    'git:fileLines',
+    (_e, root: string, pairs: Array<{ rev: string | null; filePath: string }>) =>
+      git.countFileLines(root, pairs)
+  )
+
   ipcMain.handle('file:openExternal', (_e, url: string) => {
     // Only ever hand real web links to the system browser.
     if (/^https?:\/\//i.test(url)) void shell.openExternal(url)

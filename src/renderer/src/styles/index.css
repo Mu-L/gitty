@@ -456,6 +456,14 @@ button:disabled:hover {
   color: var(--fg-dim);
 }
 
+.file-lines {
+  color: var(--fg-dim);
+  font-size: 0.9em;
+  margin-left: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 /* ---------- commit log ---------- */
 
 .commit-row {

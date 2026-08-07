@@ -23,6 +23,9 @@ const exec = promisify(execFile)
 /** Diffs larger than this are not sent to the renderer; it would just lock up the pane. */
 const MAX_PATCH_BYTES = 2 * 1024 * 1024
 
+/** How many bytes to read when counting lines; skip files larger than this. */
+const MAX_LINE_COUNT_BYTES = 8 * 1024 * 1024
+
 /** Untracked files inlined into the whole-work-tree diff before giving up. */
 const MAX_UNTRACKED_IN_DIFF = 50
 
@@ -518,4 +521,56 @@ export function push(root: string, branch?: string): Promise<GitOpResult> {
  */
 export function pull(root: string): Promise<GitOpResult> {
   return remoteOp(root, ['pull', '--ff-only'])
+}
+
+/** Count the number of newlines in a buffer. The last line is counted even when
+ *  it doesn't end with a newline — a non-empty file always has >=1 line. */
+function countNewlines(buf: Buffer): number {
+  let n = 0
+  for (let i = 0; i < buf.length; i++) {
+    if (buf[i] === 0x0a) n++
+  }
+  // A non-empty file whose last byte is not a newline has one trailing line.
+  if (buf.length > 0 && buf[buf.length - 1] !== 0x0a) n++
+  return n
+}
+
+/**
+ * Count lines in working-tree and committed files in one batch. Each pair names
+ * a revision (null for the work tree) and a repo-relative path. Returns line
+ * counts in the same order; null for any file that could not be read.
+ */
+export async function countFileLines(
+  root: string,
+  pairs: Array<{ rev: string | null; filePath: string }>
+): Promise<Array<number | null>> {
+  return Promise.all(
+    pairs.map(async ({ rev, filePath }) => {
+      try {
+        if (rev === null) {
+          const abs = path.resolve(root, filePath)
+          if (abs !== root && !abs.startsWith(root + path.sep)) return null
+          const stat = await fs.promises.stat(abs)
+          if (stat.size > MAX_LINE_COUNT_BYTES) return null
+          const buf = await fs.promises.readFile(abs)
+          if (buf.includes(0x00)) return null // binary
+          return countNewlines(buf)
+        }
+        // Committed file via git show, read as a buffer to stay binary-safe.
+        const { stdout } = await exec('git', ['show', `${rev}:${filePath}`], {
+          cwd: root,
+          maxBuffer: MAX_LINE_COUNT_BYTES + 1024 * 1024,
+          windowsHide: true,
+          encoding: 'buffer',
+          env: { ...process.env, GIT_OPTIONAL_LOCKS: '0', LC_ALL: 'C' }
+        })
+        const buf = stdout as unknown as Buffer
+        if (buf.length > MAX_LINE_COUNT_BYTES) return null
+        if (buf.includes(0x00)) return null // binary
+        return countNewlines(buf)
+      } catch {
+        return null
+      }
+    })
+  )
 }

@@ -9,6 +9,8 @@ export interface FileEntry {
   deleted: boolean
   /** Present for renames: the previous path. */
   origPath?: string
+  /** Number of lines, when counted. */
+  lines?: number | null
 }
 
 interface TreeRow {
@@ -126,6 +128,9 @@ export function FilesPane({
               </span>
             ))}
             <span className={`file-name${row.entry!.deleted ? ' deleted' : ''}`}>{row.name}</span>
+            {row.entry!.lines != null && (
+              <span className="file-lines">{row.entry!.lines} lines</span>
+            )}
           </div>
         )
       )}

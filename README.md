@@ -124,8 +124,13 @@ the pragmatic choice for a local tool that only reads your own repositories.
 
 ## Multiple repositories
 
-A tab bar along the bottom holds every open repository — its basename, a dot
-when the working tree has uncommitted changes, and a **×** to close it. **+**
+A tab bar along the bottom holds every open repository — its basename, a yellow
+dot when the working tree has uncommitted changes, and a **×** to close it. The
+dot counts anything `git status` reports, untracked files included, and it earns
+its place on the tabs you are *not* looking at: the active repository already
+says `N changed` in the title bar, while a background tab is hidden entirely, so
+the dot is the only sign that there is work left there. Hovering a tab names the
+repository and says so in words. **+**
 (and **Ctrl+O**) opens another repository into a new tab; the title bar always
 shows the active one. Each tab keeps its own panes and terminal, so a commit you
 are reading and a shell you left running stay exactly where they were when you

@@ -477,12 +477,14 @@ export default function App(): JSX.Element {
           <div
             className={`tab${r === active ? ' active' : ''}`}
             key={r}
-            title={r}
+            title={statusByRoot[r]?.files.length ? `${r} — uncommitted changes` : r}
             onClick={() => setActive(r)}
           >
             <span className="tab-name">{r.split('/').pop() || r}</span>
             {statusByRoot[r]?.files.length ? (
-              <span className="tab-dirty" title="Uncommitted changes" />
+              // No title of its own: hovering the dot would otherwise replace
+              // the tab's tooltip with a version that drops the path.
+              <span className="tab-dirty" />
             ) : null}
             <button
               className="tab-close"
