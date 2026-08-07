@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Push** and **Pull** in the commits pane header, acting on the checked-out
+  branch. **Push** carries the count of unpushed commits (**Push 3**) and greys
+  out when there is nothing to send; on a branch that tracks nothing it
+  publishes to `origin` and sets the upstream. **Pull** fast-forwards from the
+  upstream and greys out when there is none. Git's own output appears above the
+  log, clicked away when read — failures stay until dismissed. Neither can
+  answer a credential prompt (there is no terminal behind them), so one that
+  needs a password fails with git's message instead of hanging, and the
+  terminal pane is where it gets finished.
+
 - Every pane hides and comes back. Each pane header ends in a **×** that hides
   it, **Panes** in the title bar lists all four with a dot on the visible ones,
   and <kbd>Ctrl+1</kbd>…<kbd>Ctrl+4</kbd> toggle them in layout order. The

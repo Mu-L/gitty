@@ -73,6 +73,15 @@ rename records carry an extra NUL field, which is why those loops advance the
 index by hand. Diffs above 2 MB are truncated with a notice rather than sent
 whole. Whatever `git` is on `PATH` is what the app shows.
 
+`push` / `pull` go through `remoteOp`, which is deliberately non-interactive:
+`GIT_TERMINAL_PROMPT=0`, empty `GIT_ASKPASS` / `SSH_ASKPASS`, `ssh -o
+BatchMode=yes` and a two-minute timeout. There is no terminal behind an
+`execFile`, so a credential or passphrase prompt would block forever with
+nowhere to appear. For the same reason it returns `{ ok, output }` rather than
+throwing — the pane shows git's own words, and anything needing an answer is
+finished in the terminal pane. `pull` is `--ff-only`: a merge that needs a
+decision or an editor is not something a button should start.
+
 ### Multiple repositories, tabs
 
 `App.tsx` is a thin tab manager: the list of open roots, which is active, the
