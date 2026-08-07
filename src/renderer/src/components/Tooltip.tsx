@@ -1,19 +1,24 @@
 import { useState, type JSX, type ReactNode } from 'react'
 
+/** One row in the tooltip. An empty key renders plain text (no colour). */
+export interface TooltipLine {
+  key: string
+  desc?: string
+}
+
 /**
- * A styled replacement for the native `title` attribute. The browser's tooltip
- * is drawn by the OS in a small fixed face, so it cannot match the app's own
- * font; this renders the same text as CSS instead. `className` is applied to
- * the wrapper, which stands in for the element it wraps — the pane titles pass
- * "title" and keep their flex sizing and ellipsis. Multi-line text (separated
- * by \n) is shown below the element.
+ * A styled replacement for the native `title` attribute. The browser's
+ * tooltip is drawn by the OS in a small fixed face, so it cannot match the
+ * app's own font.  `className` is applied to the wrapper, which stands in
+ * for the element it wraps — the pane titles pass "title" and keep their
+ * flex sizing and ellipsis.
  */
 export function Tooltip({
-  text,
+  lines,
   className = '',
   children
 }: {
-  text: string
+  lines: TooltipLine[]
   className?: string
   children: ReactNode
 }): JSX.Element {
@@ -25,7 +30,17 @@ export function Tooltip({
       onMouseLeave={() => setOpen(false)}
     >
       <span className="tooltip-inner">{children}</span>
-      {open && <span className="tooltip">{text}</span>}
+      {open && (
+        <span className="tooltip">
+          {lines.map((l, i) => (
+            <span key={i}>
+              {l.key ? <span className="tooltip-key">{l.key}</span> : l.desc}
+              {l.key && l.desc}
+              {i < lines.length - 1 && '\n'}
+            </span>
+          ))}
+        </span>
+      )}
     </span>
   )
 }

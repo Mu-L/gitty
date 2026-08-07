@@ -809,7 +809,11 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {fullButton('files')}
                   <Tooltip
                     className="title"
-                    text={`dbl-click views\nright-click for more\n${paneControls('files')}`}
+                    lines={[
+                      { key: 'dbl-click', desc: ' views' },
+                      { key: 'right-click', desc: ' for more' },
+                      ...paneControls('files')
+                    ]}
                   >
                     {filesTitle}
                   </Tooltip>
@@ -856,7 +860,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {/* Tooltips live on the individual parts: a title on the
                       header itself would show up under every button that has
                       none of its own. */}
-                  <Tooltip className="title" text={`${diffTitle}\n\n${paneControls('diff')}`}>
+                  <Tooltip className="title" lines={[{ key: '', desc: diffTitle }, ...paneControls('diff')]}>
                     {diffTitle}
                   </Tooltip>
                   <span className="spacer" title="Double-click to toggle full screen" />
@@ -1056,7 +1060,13 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {fullButton('log')}
                   <Tooltip
                     className="title"
-                    text={`↑↓ move\nEnter show\nCtrl+Click compare\nEsc work tree\n${paneControls('log')}`}
+                    lines={[
+                      { key: '↑↓', desc: ' move' },
+                      { key: 'Enter', desc: ' show' },
+                      { key: 'Ctrl+Click', desc: ' compare' },
+                      { key: 'Esc', desc: ' work tree' },
+                      ...paneControls('log')
+                    ]}
                   >
                     Commits
                   </Tooltip>

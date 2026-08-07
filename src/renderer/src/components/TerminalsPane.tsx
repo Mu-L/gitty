@@ -180,7 +180,7 @@ export function TerminalsPane({
         }}
       >
         {onToggleFull && <FullButton full={full} accel="Ctrl+Shift+4" onToggle={onToggleFull} />}
-        <Tooltip className="title" text={paneControls('terminal')}>
+        <Tooltip className="title" lines={paneControls('terminal')}>
           Terminal
         </Tooltip>
         <span className="spacer" />

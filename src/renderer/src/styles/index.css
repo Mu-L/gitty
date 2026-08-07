@@ -293,6 +293,10 @@ button:disabled:hover {
   pointer-events: none;
 }
 
+.tooltip-key {
+  color: var(--blue);
+}
+
 /* Fills the window with the pane it sits in; first in the header, before the
    title, so the four buttons line up down the left edge of the window. */
 .pane-full {

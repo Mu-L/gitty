@@ -5,6 +5,8 @@
  * is where a hidden pane is brought back, and that bar belongs to the window,
  * not to a repository.
  */
+import type { TooltipLine } from './components/Tooltip'
+
 export type PaneId = 'files' | 'diff' | 'log' | 'terminal'
 
 export type PaneVisibility = Record<PaneId, boolean>
@@ -31,11 +33,13 @@ export function paneFullAccel(id: PaneId): string {
   return `Ctrl+Shift+${PANE_ORDER.indexOf(id) + 1}`
 }
 
-/** The part of a pane's title tooltip that is the same for every pane: the
- *  keys that hide it and that fill the window with it, one per line.
- *  Pane-specific interactions are added above it by the pane's own header. */
-export function paneControls(id: PaneId): string {
-  return `${paneAccel(id)} hides this pane\n${paneFullAccel(id)} fills the window`
+/** The uniform controls every pane shares — hide and full screen — as
+ *  structured tooltip lines. Each pane's own interactions go above them. */
+export function paneControls(id: PaneId): TooltipLine[] {
+  return [
+    { key: paneAccel(id), desc: ' hides this pane' },
+    { key: paneFullAccel(id), desc: ' fills the window' }
+  ]
 }
 
 export function visibleCount(panes: PaneVisibility): number {
