@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The window opens faster: the renderer bundle is split, so the app shell and
+  the four panes no longer wait on the libraries only some of them need. The
+  terminal (xterm), opened files and markdown previews (highlight.js,
+  markdown-it) load as their own chunks only when they first appear, instead of
+  gating the first paint.
 - The pane-title tooltips now spell out the double-click gesture: hovering any
   of the four pane titles shows **Double-click the title toggles full screen**
   under its shortcut, so the mouse gesture is discoverable without a docs hunt.

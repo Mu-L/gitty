@@ -129,8 +129,8 @@ button — an empty window would leave only the title bar's **Panes** menu as th
 way back.
 
 Hiding the terminal pane unmounts `TerminalsPane`, which must not end its
-shells. Its split tree therefore lives in a module-level `Map` keyed by root
-beside the xterm registry, and sessions are destroyed only by
+shells. Its split tree therefore lives beside the xterm registry in
+`terminals.ts`, keyed by root, and sessions are destroyed only by
 `destroyTerminals(root)`, which `RepoTab` calls when it unmounts — that is, when
 the repository tab closes.
 
@@ -229,6 +229,22 @@ Full screen is a `position: fixed` class on the pane rather than a different
 tree, deliberately: unmounting the layout would dispose the terminal's pty and
 kill whatever is running in it.
 
+### Lazy loading
+
+The renderer is four chunks so the window paints before the heavy libraries are
+parsed: `App` → `RepoTab` → `{ FileDoc, TerminalsPane }`, each boundary a
+`React.lazy` inside a `Suspense`. highlight.js and markdown-it may be imported
+only from the `FileDoc` subtree, xterm only from `TerminalsPane` — a static
+import from a warm chunk drags the library back into the main bundle, which is
+how the original 1.6 MB bundle was born (dead `CodePane` / `MarkdownPane`
+imports in `RepoTab`, and `contextMenus` reaching into `FileDoc` for
+`isMarkdownPath`). Two leaf modules keep that graph honest: `paths.ts` holds the
+path predicates with no imports, and `terminals.ts` holds the session and
+split-layout registries importing xterm **only as `import type`**, so `RepoTab`
+can call `destroyTerminals` synchronously when a tab closes without loading the
+xterm chunk. The full rulebook — chunk layout, the invariant, how to add a heavy
+dependency — is `ref/spec/lazy-loading.md`.
+
 ### Terminal
 
 The pane splits, so ptys are kept in a `Map` keyed by a session id the renderer
@@ -241,10 +257,11 @@ them are gone with the old renderer.
 its area between children, and splitting the same way twice extends the branch
 instead of nesting. Changing the set of children remounts its `Group` so the
 panels share out evenly again, which is only affordable because **the xterm
-instances live outside React** — a module-level registry in `TerminalPane.tsx`
-owns the DOM node and the terminal, and the component merely re-parents that
-node. Unmounting a real xterm would take the running shell with it, and every
-split moves terminals between panels. Sessions therefore end only in
+instances live outside React** — the `sessions` registry in `terminals.ts` owns
+the DOM node and the terminal (created by `ensureSession` in `TerminalPane.tsx`),
+and the component merely re-parents that node. Unmounting a real xterm would
+take the running shell with it, and every split moves terminals between panels.
+Sessions therefore end only in
 `destroySession`: **Close**, a shell that exited, or the tab's `TerminalsPane`
 unmounting (closing the repository tab).
 

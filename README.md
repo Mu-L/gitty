@@ -358,6 +358,11 @@ Git is driven through `execFile('git', …)` with `--porcelain=v2 -z` /
 library is bundled; whatever `git` is on `PATH` is what you see. The renderer
 runs with `contextIsolation` and no node integration.
 
+The renderer is split into lazy-loaded chunks so the window paints before
+xterm, highlight.js and markdown-it are parsed. The split — the four chunks,
+the rules for keeping heavy libraries out of warm ones, and how to add a new
+one — is specified in [ref/spec/lazy-loading.md](ref/spec/lazy-loading.md).
+
 ## Licence
 
 MIT
