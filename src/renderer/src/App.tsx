@@ -87,7 +87,7 @@ export default function App(): JSX.Element {
     await window.gitty.repo.watch(resolved)
     setRecent(await window.gitty.repo.remember(resolved))
     return true
-  }, [])
+  }, [msg])
 
   /** Replace the active tab's repository, keeping its position in the bar. */
   const openInActiveTab = useCallback(
@@ -128,7 +128,7 @@ export default function App(): JSX.Element {
       }
       return true
     },
-    [active, roots]
+    [msg, active, roots]
   )
 
   const closeTab = useCallback(

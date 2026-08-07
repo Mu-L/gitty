@@ -64,7 +64,7 @@ export function FileDoc({
       cancelled = true
     }
     // A file read from a revision never changes; only work-tree files reload.
-  }, [image, root, path, rev, rev === null ? reloadKey : 0])
+  }, [image, root, path, rev, rev === null ? reloadKey : 0, msg])
 
   // An image has no text to copy from the context menu.
   useEffect(() => onSource(image ? null : source), [image, source, onSource])

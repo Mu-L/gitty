@@ -370,7 +370,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         if (seq === diffSeq.current) setDiff({ patch: '', title: msg.diff.errorTitle, notice: String(e) })
       }
     },
-    [root]
+    [root, msg]
   )
 
   /** Bumps the sequence too, so a load already in flight cannot undo it. */
@@ -576,7 +576,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     if (view.mode === 'commit') return msg.files.commitTitle(view.short, view.subject)
     if (view.mode === 'snapshot') return msg.files.snapshotTitle(view.short, view.subject)
     return msg.files.rangeTitle(view.from, view.to)
-  }, [view])
+  }, [view, msg])
 
   /* ---------- which panes are on screen ---------- */
 
