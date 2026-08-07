@@ -17,7 +17,31 @@ its path, click two commits to diff them.
 All panes are resizable by dragging the separators, and each one hides and comes
 back — see [Hiding panes](#hiding-panes).
 
-![Gitty 0.1.2](ref/gitty-0.1.2.png)
+Uncommon in other git browsers:
+
+- **A real shell docked to the history.** Not a git-calling widget — a genuine
+  login shell (`$SHELL`) rooted at the repository, in the same window as the
+  diff. Most git browsers leave the terminal outside, so checking a hunch means
+  alt-tabbing. Here it is right there, and every other pane refreshes as the
+  repository changes.
+- **Two commits at once.** Click one, then <kbd>Ctrl+click</kbd> / <kbd>Shift+click</kbd> a
+  second, and diff the pair in place — most browsers only diff a commit against
+  its parent or a tree you pick in a dialog.
+- **Browse any branch without checking it out.** Pick a branch and its whole
+  history is there to read; the work tree, the diffs and the terminals stay
+  exactly where git left them. Nothing in the working directory moves.
+- **Markdown preview built in.** Selecting a `.md` change renders the document —
+  syntax-highlighted code, an outline that tracks your scroll — at the revision
+  you are on, not just the working copy.
+- **A whole diff with every file's heading pinned.** With nothing selected you
+  see every change at once, and the file heading you are reading stays glued to
+  the top of the pane until the next file's heading pushes it away.
+- **Text selection and copy that just works** — no mouse mode, no register, no
+  keyboard gymnastics; select and copy anything anywhere in the window.
+- **Every pane resizable, hidable, or full screen** — a four-pane layout that
+  shrinks to just the diff, or just the log, and comes back.**
+
+![Gitty 0.1.3](ref/gitty-0.1.3.png)
 
 ## Why another one?
 

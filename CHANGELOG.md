@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-08-07
+
 ### Added
 
 - **Push** and **Pull** in the commits pane header, acting on the checked-out
@@ -36,6 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on the header or <kbd>Ctrl+Shift+1</kbd>…<kbd>Ctrl+Shift+4</kbd> restores the
   layout. The diff's **Full Screen** / **Restore** button is gone, its corner
   button replacing it.
+- Hovering a pane title shows its shortcuts. The browser's `title` tooltip is
+  drawn by the OS in a fixed face and cannot match the app, so each pane header
+  now carries a styled tooltip that spells the pane's own gestures — the keys
+  that hide it and fill the window — with the key labels colour-coded so the
+  shortcut reads at a glance.
 
 ### Fixed
 
@@ -58,6 +65,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   file list back on screen — while the diff pane, which re-runs git for every
   render, showed the real state. Replies that a newer refresh has overtaken are
   now discarded, for the diff pane as well.
+
+### Changed
+
+- README screenshot updated for this release (`ref/gitty-0.1.3.png`).
 
 ## [0.1.2] - 2026-08-06
 

@@ -1,6 +1,6 @@
 {
   "name": "gitty-desktop",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A four-pane git history browser",
   "main": "./out/main/index.js",
   "bin": {
