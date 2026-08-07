@@ -4,6 +4,7 @@ import type { MenuItem, MenuState } from './components/ContextMenu'
 import type { DiffView } from './components/DiffPane'
 import { isMarkdownPath } from './paths'
 import type { FileEntry } from './components/FilesPane'
+import { msg } from './messages'
 
 /**
  * What a repository session can show: the work tree, one commit, a range, or
@@ -89,59 +90,59 @@ export function createContextMenus(deps: ContextMenuDeps): {
     const items: MenuItem[] = []
     if (selection) {
       items.push({
-        label: 'Copy Selection',
-        accel: 'Ctrl+C',
+        label: msg.contextMenu.copySelection,
+        accel: msg.contextMenu.copySelectionAccel,
         action: () => void window.gitty.clipboard.write(selection)
       })
     }
     if (viewingFile) {
       items.push({
-        label: previewing ? 'Copy Markdown Source' : 'Copy File Contents',
+        label: previewing ? msg.contextMenu.copyMarkdownSource : msg.contextMenu.copyFileContents,
         separatorBefore: items.length > 0,
         action: () => void window.gitty.clipboard.write(docSource ?? '')
       })
       items.push({
-        label: wrap ? 'Disable Word Wrap' : 'Enable Word Wrap',
+        label: wrap ? msg.contextMenu.disableWordWrap : msg.contextMenu.enableWordWrap,
         separatorBefore: true,
         action: () => setWrap((w) => !w)
       })
       if (previewing) {
         items.push({
-          label: mdOutline ? 'Hide Outline' : 'Show Outline',
+          label: mdOutline ? msg.contextMenu.hideOutline : msg.contextMenu.showOutline,
           action: () => setMdOutline((o) => !o)
         })
       }
       // A snapshot has no diff to go back to.
       if (view.mode !== 'snapshot') {
         items.push({
-          label: 'Show Diff Instead',
+          label: msg.contextMenu.showDiffInstead,
           action: () => setActiveDoc(null)
         })
       }
     } else {
       items.push({
-        label: 'Copy Whole Diff',
+        label: msg.contextMenu.copyWholeDiff,
         separatorBefore: items.length > 0,
         action: () => void window.gitty.clipboard.write(diff?.patch ?? '')
       })
       if (selectedFile) {
         items.push({
-          label: isMarkdownPath(selectedFile) ? 'Preview Markdown' : 'View File',
+          label: isMarkdownPath(selectedFile) ? msg.contextMenu.previewMarkdown : msg.contextMenu.viewFile,
           separatorBefore: true,
           action: () => openFileDoc(selectedFile)
         })
       }
       items.push({
-        label: wrap ? 'Disable Word Wrap' : 'Enable Word Wrap',
+        label: wrap ? msg.contextMenu.disableWordWrap : msg.contextMenu.enableWordWrap,
         separatorBefore: !selectedFile,
         action: () => setWrap((w) => !w)
       })
       items.push({
-        label: wordDiff ? 'Disable Word Highlight' : 'Enable Word Highlight',
+        label: wordDiff ? msg.contextMenu.disableWordHighlight : msg.contextMenu.enableWordHighlight,
         action: () => setWordDiff((w) => !w)
       })
       items.push({
-        label: diffView === 'inline' ? 'Side-by-Side View' : 'Inline View',
+        label: diffView === 'inline' ? msg.contextMenu.sideBySideView : msg.contextMenu.inlineView,
         action: () => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))
       })
     }
@@ -157,32 +158,32 @@ export function createContextMenus(deps: ContextMenuDeps): {
       ...at,
       items: [
         {
-          label: `Open ${name} in a New Tab`,
-          accel: 'Ctrl+click',
+          label: msg.contextMenu.openInNewTab(name),
+          accel: msg.contextMenu.openInNewTabAccel,
           action: () => openFileDoc(path)
         },
         {
-          label: 'Select in the File List',
+          label: msg.contextMenu.selectInFileList,
           action: () => setSelectedFile(path)
         },
         {
-          label: 'Copy Relative Path',
+          label: msg.contextMenu.copyRelativePath,
           separatorBefore: true,
           action: () => void window.gitty.clipboard.write(path)
         },
-        { label: 'Copy Absolute Path', action: () => void window.gitty.clipboard.write(absPath) },
-        { label: 'Copy File Name', action: () => void window.gitty.clipboard.write(name) },
+        { label: msg.contextMenu.copyAbsolutePath, action: () => void window.gitty.clipboard.write(absPath) },
+        { label: msg.contextMenu.copyFileName, action: () => void window.gitty.clipboard.write(name) },
         // Only meaningful for the file as it is on disk right now.
         ...(rev
           ? []
           : [
               {
-                label: 'Open in System App',
+                label: msg.contextMenu.openInSystemApp,
                 separatorBefore: true,
                 action: () => void window.gitty.file.open(absPath)
               },
               {
-                label: 'Reveal in File Manager',
+                label: msg.contextMenu.revealInFileManager,
                 action: () => void window.gitty.file.reveal(absPath)
               }
             ])
@@ -197,8 +198,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
     const snapshot = entry.absPath.startsWith('gitty:snapshot:')
     const items: MenuItem[] = [
       {
-        label: 'View File',
-        accel: 'Double click',
+        label: msg.contextMenu.viewFile,
+        accel: msg.contextMenu.viewFileAccel,
         action: () => {
           setSelectedFile(entry.path)
           openFileDoc(entry.path)
@@ -207,23 +208,23 @@ export function createContextMenus(deps: ContextMenuDeps): {
     ]
     if (snapshot && view.mode === 'snapshot') {
       items.push({
-        label: 'Open in System App',
+        label: msg.contextMenu.openInSystemApp,
         action: () => void window.gitty.git.snapshotOpen(root, view.hash, rel)
       })
     } else {
       items.push(
-        { label: 'Open in System App', action: () => void window.gitty.file.open(entry.absPath) },
-        { label: 'Reveal in File Manager', action: () => void window.gitty.file.reveal(entry.absPath) }
+        { label: msg.contextMenu.openInSystemApp, action: () => void window.gitty.file.open(entry.absPath) },
+        { label: msg.contextMenu.revealInFileManager, action: () => void window.gitty.file.reveal(entry.absPath) }
       )
     }
     items.push({
-      label: 'Copy Relative Path',
+      label: msg.contextMenu.copyRelativePath,
       separatorBefore: items.length > 0,
       action: () => void window.gitty.clipboard.write(rel)
     })
-    items.push({ label: 'Copy Absolute Path', action: () => void window.gitty.clipboard.write(entry.absPath) })
+    items.push({ label: msg.contextMenu.copyAbsolutePath, action: () => void window.gitty.clipboard.write(entry.absPath) })
     items.push({
-      label: 'Copy File Name',
+      label: msg.contextMenu.copyFileName,
       action: () => void window.gitty.clipboard.write(rel.split('/').pop() ?? rel)
     })
     setMenu({ ...at, items })
@@ -244,30 +245,30 @@ export function createContextMenus(deps: ContextMenuDeps): {
       })
     }
     const items: MenuItem[] = [
-      { label: 'Show Commit Diff', accel: 'Enter', action: () => showCommit(c) },
+      { label: msg.contextMenu.showCommitDiff, accel: msg.contextMenu.showCommitDiffAccel, action: () => showCommit(c) },
       {
-        label: 'Copy Commit Hash',
+        label: msg.contextMenu.copyCommitHash,
         separatorBefore: true,
         action: () => void window.gitty.clipboard.write(c.hash)
       },
-      { label: 'Copy Short Hash', action: () => void window.gitty.clipboard.write(c.short) },
-      { label: 'Copy Subject', action: () => void window.gitty.clipboard.write(c.subject) },
+      { label: msg.contextMenu.copyShortHash, action: () => void window.gitty.clipboard.write(c.short) },
+      { label: msg.contextMenu.copySubject, action: () => void window.gitty.clipboard.write(c.subject) },
       {
-        label: 'Open in Browser',
+        label: msg.contextMenu.openInBrowser,
         separatorBefore: true,
         action: openInBrowser
       },
-      { label: 'Copy Commit URL', action: copyUrl },
+      { label: msg.contextMenu.copyCommitUrl, action: copyUrl },
       {
-        label: 'Browse Snapshot',
+        label: msg.contextMenu.browseSnapshot,
         separatorBefore: true,
         action: () => showSnapshot(c)
       }
     ]
     if (selectedCommit && selectedCommit !== c.hash) {
       items.push({
-        label: 'Diff Against Selected',
-        accel: 'Ctrl+Click',
+        label: msg.contextMenu.diffAgainstSelected,
+        accel: msg.contextMenu.diffAgainstAccel,
         separatorBefore: true,
         action: () => onSelectCommit(c.hash, true)
       })

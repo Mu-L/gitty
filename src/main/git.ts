@@ -17,6 +17,7 @@ import type {
   SnapshotFileContent,
   WorkingFile
 } from '../shared/types'
+import { msg } from './messages'
 
 const exec = promisify(execFile)
 
@@ -262,7 +263,7 @@ function clip(patch: string, title: string): DiffResult {
     return {
       patch: patch.slice(0, MAX_PATCH_BYTES),
       title,
-      notice: 'Diff truncated — larger than 2 MB.'
+      notice: msg.git.diffTruncated
     }
   }
   return { patch, title }
@@ -296,10 +297,10 @@ export async function diff(root: string, req: DiffRequest): Promise<DiffResult> 
         ]).catch((e: { stdout?: string }) => e.stdout ?? '')
         if (one) parts.push(one)
       }
-      const result = clip(parts.filter(Boolean).join(''), 'Working tree')
+      const result = clip(parts.filter(Boolean).join(''), msg.git.workingTree)
       const omitted = untracked.length - shown.length
       if (omitted > 0) {
-        result.notice = [result.notice, `${omitted} more untracked files not shown.`]
+        result.notice = [result.notice, msg.git.untrackedOmitted(omitted)]
           .filter(Boolean)
           .join(' ')
       }
@@ -315,13 +316,16 @@ export async function diff(root: string, req: DiffRequest): Promise<DiffResult> 
         '/dev/null',
         req.path
       ]).catch((e: { stdout?: string }) => e.stdout ?? '')
-      return clip(patch, `${req.path} (untracked)`)
+      return clip(patch, `${req.path} (${msg.git.untrackedLabel})`)
     }
     const args = ['diff', ...common]
     if (req.side === 'index') args.push('--cached')
     args.push('--', req.path)
     const patch = await git(root, args)
-    return clip(patch, `${req.path} (${req.side === 'index' ? 'staged' : 'unstaged'})`)
+    return clip(
+      patch,
+      `${req.path} (${req.side === 'index' ? msg.git.stagedLabel : msg.git.unstagedLabel})`
+    )
   }
 
   if (req.kind === 'commit') {
@@ -354,7 +358,7 @@ export async function readWorkingFile(
   const abs = path.resolve(root, filePath)
   // Never read outside the repository, whatever the renderer asks for.
   if (abs !== root && !abs.startsWith(root + path.sep)) {
-    throw new Error('path escapes the repository')
+    throw new Error(msg.git.pathEscapesRepo)
   }
   const stat = await fs.promises.stat(abs)
   if (stat.size > MAX_PATCH_BYTES) return { content: '', binary: true }
@@ -409,18 +413,18 @@ export async function readImageFile(
   filePath: string
 ): Promise<ImageFileContent> {
   const mime = imageMime(filePath)
-  if (!mime) return { dataUrl: null, notice: 'Not an image.', bytes: 0 }
+  if (!mime) return { dataUrl: null, notice: msg.git.notAnImage, bytes: 0 }
 
   let buf: Buffer
   if (rev === null) {
     const abs = path.resolve(root, filePath)
     // Never read outside the repository, whatever the renderer asks for.
     if (abs !== root && !abs.startsWith(root + path.sep)) {
-      throw new Error('path escapes the repository')
+      throw new Error(msg.git.pathEscapesRepo)
     }
     const stat = await fs.promises.stat(abs)
     if (stat.size > MAX_IMAGE_BYTES) {
-      return { dataUrl: null, notice: 'Image too large to preview.', bytes: stat.size }
+      return { dataUrl: null, notice: msg.git.imageTooLarge, bytes: stat.size }
     }
     buf = await fs.promises.readFile(abs)
   } else {
@@ -502,11 +506,11 @@ async function remoteOp(root: string, args: string[]): Promise<GitOpResult> {
       timeout: 120_000,
       env
     })
-    return { ok: true, output: `${stdout}\n${stderr}`.trim() || 'Done.' }
+    return { ok: true, output: `${stdout}\n${stderr}`.trim() || msg.git.done }
   } catch (e) {
     const err = e as { stdout?: string; stderr?: string; message?: string }
     const said = `${err.stdout ?? ''}\n${err.stderr ?? ''}`.trim()
-    return { ok: false, output: said || err.message || 'git failed' }
+    return { ok: false, output: said || err.message || msg.git.gitFailed }
   }
 }
 

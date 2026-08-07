@@ -3,6 +3,7 @@ import { Terminal, type ITheme } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { focusSession, sessions, type Session } from '../terminals'
+import { msg } from '../messages'
 
 export type Theme = 'dark' | 'light'
 
@@ -36,7 +37,7 @@ window.gitty.terminal.onData((id, data) => sessions.get(id)?.term.write(data))
 window.gitty.terminal.onExit((id, { exitCode }) => {
   const s = sessions.get(id)
   if (!s) return
-  s.term.writeln(`\r\n\x1b[90m[shell exited with code ${exitCode}]\x1b[0m`)
+  s.term.writeln(`\r\n\x1b[90m${msg.terminal.shellExited(exitCode)}\x1b[0m`)
   s.onExit?.()
 })
 
@@ -141,7 +142,7 @@ export function TerminalPane({
       {canClose && (
         <button
           className="term-close"
-          title="Close this terminal"
+          title={msg.terminal.closeTerminal}
           // The button floats over the shell; a click on it must not also
           // focus the terminal underneath.
           onClick={(e) => {

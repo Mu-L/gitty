@@ -1,0 +1,240 @@
+import type { RendererMessages } from '../../../shared/messages'
+
+export const en: RendererMessages = {
+  app: {
+    title: 'Gitty',
+    settings: 'Settings',
+    openRepository: 'Open Repository',
+    refresh: 'Refresh',
+    panes: 'Panes',
+    noRepo: 'no repository',
+    noReposOpen: 'No repositories open.',
+    recentlyOpened: 'Recently opened repositories',
+    showHidePanes: 'Show or hide the panes',
+    changesCount: (n: number) => `${n} changed`,
+    notInWorkTree: (path: string) =>
+      `${path} is not inside a git work tree.`,
+    notInWorkTreeHint: (path: string) =>
+      `${path} is not inside a git work tree. Use "Open Repository".`
+  },
+  tab: {
+    uncommittedChanges: (path: string) => `${path} — uncommitted changes`,
+    closeRepository: 'Close repository',
+    openAnotherRepo: 'Open another repository'
+  },
+  recent: {
+    noOtherRepos: 'No other repositories yet',
+    openRepoEllipsis: 'Open Repository…',
+    clearRecent: 'Clear Recent',
+    tooltip:
+      '\n\nClick to open in a new tab\nCtrl+click to open in this tab\nRight-click to remove from the list',
+    accelOpen: 'Ctrl+O'
+  },
+  branch: {
+    noBranchesYet: 'No branches yet',
+    backTo: (branch: string) => `Back to ${branch}`,
+    browseHint: "Browse another branch's history (nothing is checked out)",
+    headLabel: 'HEAD'
+  },
+  files: {
+    workingTreeTitle: 'Working Tree',
+    commitTitle: (short: string, subject: string) =>
+      `Commit ${short} — ${subject}`,
+    snapshotTitle: (short: string, subject: string) =>
+      `Snapshot ${short} — ${subject}`,
+    rangeTitle: (from: string, to: string) =>
+      `Range ${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    backToWorkTree: 'Back to Work Tree',
+    emptyWorktree: 'Working tree clean.',
+    emptySnapshot: 'No files in this snapshot.',
+    emptyDiff: 'No files in this diff.',
+    lines: (n: number) => `${n} lines`
+  },
+  diff: {
+    titleFallback: 'Diff',
+    errorTitle: 'error',
+    emptyWorktree: 'Working tree clean.',
+    emptySnapshot: 'Select a file to view it at this commit.',
+    emptyDiff: 'No textual changes.',
+    showWholeDiff: 'Show Whole Diff',
+    allShown: 'Every uncommitted change is shown',
+    allCommitShown: 'Every file in this commit is shown',
+    widenWorktree: 'Widen the diff back to every uncommitted change',
+    widenCommit: 'Widen the diff back to every file in this commit',
+    preview: 'Preview',
+    viewImage: 'View Image',
+    viewFile: 'View File',
+    previewTitle: 'Open this markdown file rendered, beside the diff',
+    viewImageTitle: 'Show this image beside the diff',
+    viewFileTitle: 'Open the whole file beside the diff',
+    markdownSourceTitle: 'Show the markdown source instead',
+    renderMarkdownTitle: 'Render this markdown file',
+    expandAll: 'Expand All',
+    collapseAll: 'Collapse All',
+    expandAllTitle: 'Expand every file',
+    collapseAllTitle: 'Collapse every file to its name',
+    wrap: 'Wrap',
+    wrapLong: 'Wrap long lines',
+    wrapCode: 'Wrap code blocks and tables',
+    outline: 'Outline',
+    showOutline: 'Show the heading outline',
+    inline: 'Inline',
+    sideBySide: 'Side-by-Side',
+    switchView: 'Switch between inline and side-by-side',
+    docTabDiff: 'Diff',
+    docTabDiffTitle: 'The diff',
+    docTabClose: 'Close',
+    dblClickFullScreen: 'Double-click to toggle full screen',
+    fileHeadingTooltip: (collapsed: boolean) =>
+      `\n\nClick to ${collapsed ? 'expand' : 'collapse'}\nCtrl+click to open it in a new tab\nRight-click for more`,
+    loadMoreLines: (n: number) => `${n} more lines — scroll or click to load`
+  },
+  log: {
+    commits: 'Commits',
+    worktreeRow: 'Working Tree ',
+    worktreeRowTitle: 'Uncommitted changes in the working tree',
+    worktreeClean: '(clean)',
+    worktreeUncommitted: (n: number) => `(${n} uncommitted)`,
+    noCommitsYet: 'No commits yet.',
+    browsingAnother: 'Browsing another branch',
+    comparing2: 'comparing 2 commits',
+    openInBrowser: 'Open in Browser',
+    openRepoCommitsTitle: "Open this repository's commits in the browser",
+    clickToDismiss: 'Click to dismiss',
+    now: 'now',
+    placeholder: '—',
+    keyMove: ' move',
+    keyShow: ' show',
+    keyCompare: ' compare',
+    keyWorktree: ' work tree',
+    tooltipViews: ' views',
+    tooltipMore: ' for more'
+  },
+  pushPull: {
+    push: 'Push',
+    pull: 'Pull',
+    pushing: 'Pushing…',
+    pulling: 'Pulling…',
+    pushCount: (n: number) => `Push ${n}`,
+    pullCount: (n: number) => `Pull ${n}`,
+    publishTitle: (branch: string) =>
+      `Publish ${branch} to origin and track it`,
+    pushAhead: (ahead: number, branch: string, upstream: string) =>
+      `Push ${ahead} commit${ahead === 1 ? '' : 's'} to ${upstream}`,
+    nothingToPush: (branch: string, upstream: string) =>
+      `Nothing to push — ${branch} matches ${upstream}`,
+    pullNoUpstream: (branch: string) =>
+      `${branch} tracks no branch — nothing to pull from`,
+    pullBehind: (branch: string, upstream: string, behind: number) =>
+      `Fast-forward ${branch} to ${upstream} (${behind} behind)`,
+    pullFastForward: (branch: string, upstream: string) =>
+      `Fetch and fast-forward ${branch} from ${upstream}`
+  },
+  settings: {
+    title: 'Settings',
+    close: 'Close',
+    appearance: 'Appearance',
+    view: 'View',
+    theme: 'Theme',
+    dark: 'Dark',
+    light: 'Light',
+    fontSize: 'Font size',
+    rowHeight: 'Row height',
+    diffLayout: 'Diff layout',
+    inline: 'Inline',
+    sideBySide: 'Side-by-Side',
+    wordWrap: 'Word wrap',
+    wordHighlight: 'Word highlight',
+    markdownOutline: 'Markdown outline',
+    restoreDefaults: 'Restore Defaults',
+    done: 'Done'
+  },
+  contextMenu: {
+    copySelection: 'Copy Selection',
+    copySelectionAccel: 'Ctrl+C',
+    copyMarkdownSource: 'Copy Markdown Source',
+    copyFileContents: 'Copy File Contents',
+    copyWholeDiff: 'Copy Whole Diff',
+    enableWordWrap: 'Enable Word Wrap',
+    disableWordWrap: 'Disable Word Wrap',
+    enableWordHighlight: 'Enable Word Highlight',
+    disableWordHighlight: 'Disable Word Highlight',
+    showOutline: 'Show Outline',
+    hideOutline: 'Hide Outline',
+    showDiffInstead: 'Show Diff Instead',
+    inlineView: 'Inline View',
+    sideBySideView: 'Side-by-Side View',
+    previewMarkdown: 'Preview Markdown',
+    viewFile: 'View File',
+    openInNewTab: (name: string) => `Open ${name} in a New Tab`,
+    openInNewTabAccel: 'Ctrl+click',
+    selectInFileList: 'Select in the File List',
+    copyRelativePath: 'Copy Relative Path',
+    copyAbsolutePath: 'Copy Absolute Path',
+    copyFileName: 'Copy File Name',
+    openInSystemApp: 'Open in System App',
+    revealInFileManager: 'Reveal in File Manager',
+    viewFileAccel: 'Double click',
+    showCommitDiff: 'Show Commit Diff',
+    showCommitDiffAccel: 'Enter',
+    copyCommitHash: 'Copy Commit Hash',
+    copyShortHash: 'Copy Short Hash',
+    copySubject: 'Copy Subject',
+    openInBrowser: 'Open in Browser',
+    copyCommitUrl: 'Copy Commit URL',
+    browseSnapshot: 'Browse Snapshot',
+    diffAgainstSelected: 'Diff Against Selected',
+    diffAgainstAccel: 'Ctrl+Click'
+  },
+  paneChrome: {
+    paneLabelFiles: 'Files',
+    paneLabelDiff: 'Diff',
+    paneLabelLog: 'Commits',
+    paneLabelTerminal: 'Terminal',
+    restoreLayout: (fullAccel: string) =>
+      `Restore the layout (Esc, ${fullAccel}, or double-click the header)`,
+    fillWindow: (fullAccel: string) =>
+      `Fill the window (${fullAccel}, or double-click the header)`,
+    hidePane: (accel: string) =>
+      `Hide this pane (${accel}) — "Panes" in the title bar brings it back`,
+    hidePaneTerminal: (accel: string) =>
+      `Hide this pane (${accel}) — "Panes" in the title bar brings it back — the shells keep running`,
+    panesMenuNote:
+      ' — the shells keep running',
+    showPane: (label: string) => `Show the ${label.toLowerCase()} pane`,
+    hidePaneMenu: (label: string) => `Hide the ${label.toLowerCase()} pane`,
+    showAllPanes: 'Show All Panes',
+    hidesThisPane: ' hides this pane',
+    fillsTheWindow: ' fills the window',
+    dblClickToggles: 'Double-click the title toggles full screen'
+  },
+  terminal: {
+    title: 'Terminal',
+    starting: 'Starting…',
+    shellExited: (exitCode: number) =>
+      `[shell exited with code ${exitCode}]`,
+    closeTerminal: 'Close this terminal',
+    splitRight: 'Split →',
+    splitRightTitle: 'Split the focused terminal to the right',
+    splitDown: 'Split ↓',
+    splitDownTitle: 'Split the focused terminal downwards',
+    shellsKeepRunning: ' — the shells keep running'
+  },
+  common: {
+    close: 'Close',
+    loading: 'Loading…',
+    binaryOrOversized: 'Binary or oversized file.'
+  },
+  time: {
+    today: 'today',
+    yesterday: 'yesterday',
+    daysAgo: (n: number) => `${n}d ago`,
+    monthsAgo: (n: number) => `${Math.floor(n / 30)}mo ago`,
+    yearsAgo: (n: number) => `${Math.floor(n / 365)}y ago`
+  },
+  image: {
+    loading: 'Loading…',
+    clickToFit: 'Click to fit',
+    clickForActualSize: 'Click for actual size'
+  }
+}

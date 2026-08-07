@@ -1,4 +1,5 @@
 import type { JSX } from 'react'
+import { msg } from '../messages'
 
 /**
  * The two controls every pane header carries: full screen on the left, hide on
@@ -21,8 +22,8 @@ export function FullButton({
       className={`pane-full${full ? ' on' : ''}`}
       title={
         full
-          ? `Restore the layout (Esc, ${accel}, or double-click the header)`
-          : `Fill the window (${accel}, or double-click the header)`
+          ? msg.paneChrome.restoreLayout(accel)
+          : msg.paneChrome.fillWindow(accel)
       }
       onClick={onToggle}
     >
@@ -44,7 +45,7 @@ export function HideButton({
   return (
     <button
       className="pane-hide"
-      title={`Hide this pane (${accel}) — "Panes" in the title bar brings it back${note ?? ''}`}
+      title={note ? msg.paneChrome.hidePaneTerminal(accel) : msg.paneChrome.hidePane(accel)}
       onClick={onHide}
     >
       ×

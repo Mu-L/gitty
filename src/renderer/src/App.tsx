@@ -28,6 +28,7 @@ import {
 } from './panes'
 import type { DiffView } from './components/DiffPane'
 import type { Branch, RepoStatus } from '../../shared/types'
+import { msg } from './messages'
 
 export default function App(): JSX.Element {
   const [roots, setRoots] = useState<string[]>([])
@@ -73,7 +74,7 @@ export default function App(): JSX.Element {
   const openTab = useCallback(async (candidate: string): Promise<boolean> => {
     const resolved = await window.gitty.repo.resolve(candidate)
     if (!resolved) {
-      setError(`${candidate} is not inside a git work tree. Use "Open Repository".`)
+      setError(msg.app.notInWorkTreeHint(candidate))
       return false
     }
     setError(null)
@@ -89,7 +90,7 @@ export default function App(): JSX.Element {
     async (candidate: string): Promise<boolean> => {
       const resolved = await window.gitty.repo.resolve(candidate)
       if (!resolved) {
-        setError(`${candidate} is not inside a git work tree.`)
+        setError(msg.app.notInWorkTree(candidate))
         return false
       }
       setError(null)
@@ -225,12 +226,12 @@ export default function App(): JSX.Element {
       label: `${panes[id] ? '●' : ' '} ${PANE_LABELS[id]}`,
       accel: paneAccel(id),
       title: panes[id]
-        ? `Hide the ${PANE_LABELS[id].toLowerCase()} pane`
-        : `Show the ${PANE_LABELS[id].toLowerCase()} pane`,
+        ? msg.paneChrome.hidePaneMenu(PANE_LABELS[id])
+        : msg.paneChrome.showPane(PANE_LABELS[id]),
       action: () => togglePane(id)
     }))
     items.push({
-      label: 'Show All Panes',
+      label: msg.paneChrome.showAllPanes,
       separatorBefore: true,
       action: () => setPanes({ ...ALL_PANES })
     })
@@ -277,7 +278,7 @@ export default function App(): JSX.Element {
     const items: MenuItem[] = others.map((p) => ({
       label: p.split('/').pop() || p,
       accel: shortenPath(p),
-      title: `${p}\n\nClick to open in a new tab\nCtrl+click to open in this tab\nRight-click to remove from the list`,
+      title: `${p}${msg.recent.tooltip}`,
       action: (mods) => void (mods?.ctrl ? openInActiveTab(p) : openTab(p)),
       auxAction: () => void openInActiveTab(p),
       altAction: () =>
@@ -287,17 +288,17 @@ export default function App(): JSX.Element {
         })
     }))
     if (items.length === 0) {
-      items.push({ label: 'No other repositories yet', action: () => {} })
+      items.push({ label: msg.recent.noOtherRepos, action: () => {} })
     }
     items.push({
-      label: 'Open Repository…',
-      accel: 'Ctrl+O',
+      label: msg.recent.openRepoEllipsis,
+      accel: msg.recent.accelOpen,
       separatorBefore: true,
       action: () => pickAndOpen()
     })
     if (others.length > 0) {
       items.push({
-        label: 'Clear Recent',
+        label: msg.recent.clearRecent,
         action: () => {
           void window.gitty.repo.forgetAll()
           setRecent(active ? [active] : [])
@@ -336,7 +337,7 @@ export default function App(): JSX.Element {
 
     const entry = (b: Branch): MenuItem => ({
       label: `${b.name === showing ? '●' : ' '} ${b.name}`,
-      accel: b.head ? 'HEAD' : ago(b.date),
+      accel: b.head ? msg.branch.headLabel : ago(b.date),
       title: b.subject,
       action: () => browse(root, b.head ? null : b.name)
     })
@@ -347,11 +348,11 @@ export default function App(): JSX.Element {
     locals.sort((a, b) => Number(b.head) - Number(a.head))
 
     const items: MenuItem[] = locals.map(entry)
-    if (items.length === 0) items.push({ label: 'No branches yet', action: () => {} })
+    if (items.length === 0) items.push({ label: msg.branch.noBranchesYet, action: () => {} })
     remotes.forEach((b, i) => items.push({ ...entry(b), separatorBefore: i === 0 }))
     if (browsingByRoot[root]) {
       items.push({
-        label: `Back to ${activeStatus?.branch ?? 'HEAD'}`,
+        label: msg.branch.backTo(activeStatus?.branch ?? msg.branch.headLabel),
         separatorBefore: true,
         action: () => browse(root, null)
       })
@@ -363,25 +364,25 @@ export default function App(): JSX.Element {
     <div className="app" onContextMenu={(e) => e.preventDefault()}>
       <div className="titlebar">
         {appIcon && (
-          <img className="titlebar-icon" src={appIcon} alt="Gitty" draggable={false} />
+          <img className="titlebar-icon" src={appIcon} alt={msg.app.title} draggable={false} />
         )}
-        <strong>Gitty</strong>
+        <strong>{msg.app.title}</strong>
         <button
           className="repo-button"
-          title="Recently opened repositories"
+          title={msg.app.recentlyOpened}
           onClick={(e) => {
             const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
             openRecentMenu(r.left, r.bottom + 2)
           }}
         >
-          <span className="repo">{active ?? 'no repository'}</span>
+          <span className="repo">{active ?? msg.app.noRepo}</span>
           <span className="caret">▾</span>
         </button>
         {activeStatus && (
           <>
             <button
               className="repo-button branch-button"
-              title="Browse another branch's history (nothing is checked out)"
+              title={msg.branch.browseHint}
               onClick={(e) => {
                 const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
                 void openBranchMenu(r.left, r.bottom + 2)
@@ -396,19 +397,19 @@ export default function App(): JSX.Element {
                 {activeStatus.upstream} ↑{activeStatus.ahead} ↓{activeStatus.behind}
               </span>
             )}
-            <span className="tracking">{activeStatus.files.length} changed</span>
+            <span className="tracking">{msg.app.changesCount(activeStatus.files.length)}</span>
           </>
         )}
         {error && <span style={{ color: 'var(--red)' }}>{error}</span>}
         <span className="spacer" />
         <button
-          title="Show or hide the panes"
+          title={msg.app.showHidePanes}
           onClick={(e) => {
             const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
             openPanesMenu(r.left, r.bottom + 2)
           }}
         >
-          Panes ▾
+          {msg.app.panes} ▾
         </button>
         <button
           onClick={() => {
@@ -416,16 +417,16 @@ export default function App(): JSX.Element {
             setSettingsOpen(true)
           }}
         >
-          Settings
+          {msg.app.settings}
         </button>
-        <button onClick={() => pickAndOpen()}>Open Repository</button>
-        <button onClick={refreshActive}>Refresh</button>
+        <button onClick={() => pickAndOpen()}>{msg.app.openRepository}</button>
+        <button onClick={refreshActive}>{msg.app.refresh}</button>
       </div>
 
       {roots.length === 0 ? (
         <div className="tab-empty">
-          <p>No repositories open.</p>
-          <button onClick={() => pickAndOpen()}>Open Repository</button>
+          <p>{msg.app.noReposOpen}</p>
+          <button onClick={() => pickAndOpen()}>{msg.app.openRepository}</button>
         </div>
       ) : (
         <div className="tab-content">
@@ -439,7 +440,7 @@ export default function App(): JSX.Element {
                 fallback={
                   <div className="repo-tab">
                     <div className="pane">
-                      <div className="empty">Loading…</div>
+                      <div className="empty">{msg.common.loading}</div>
                     </div>
                   </div>
                 }
@@ -477,7 +478,7 @@ export default function App(): JSX.Element {
           <div
             className={`tab${r === active ? ' active' : ''}`}
             key={r}
-            title={statusByRoot[r]?.files.length ? `${r} — uncommitted changes` : r}
+            title={statusByRoot[r]?.files.length ? msg.tab.uncommittedChanges(r) : r}
             onClick={() => setActive(r)}
           >
             <span className="tab-name">{r.split('/').pop() || r}</span>
@@ -488,7 +489,7 @@ export default function App(): JSX.Element {
             ) : null}
             <button
               className="tab-close"
-              title="Close repository"
+              title={msg.tab.closeRepository}
               onClick={(e) => {
                 // Closing a tab must not also switch to it.
                 e.stopPropagation()
@@ -499,7 +500,7 @@ export default function App(): JSX.Element {
             </button>
           </div>
         ))}
-        <button className="tab-add" title="Open another repository" onClick={() => pickAndOpen()}>
+        <button className="tab-add" title={msg.tab.openAnotherRepo} onClick={() => pickAndOpen()}>
           +
         </button>
       </div>
@@ -533,11 +534,11 @@ function ago(iso: string): string {
   const then = new Date(iso).getTime()
   if (Number.isNaN(then)) return ''
   const days = Math.floor((Date.now() - then) / 86_400_000)
-  if (days < 1) return 'today'
-  if (days === 1) return 'yesterday'
-  if (days < 30) return `${days}d ago`
-  if (days < 365) return `${Math.floor(days / 30)}mo ago`
-  return `${Math.floor(days / 365)}y ago`
+  if (days < 1) return msg.time.today
+  if (days === 1) return msg.time.yesterday
+  if (days < 30) return msg.time.daysAgo(days)
+  if (days < 365) return msg.time.monthsAgo(days)
+  return msg.time.yearsAgo(days)
 }
 
 /** Home-relative directory of a path, for the recent-repository menu. */

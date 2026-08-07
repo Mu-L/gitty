@@ -8,6 +8,7 @@ import {
   type JSX
 } from 'react'
 import type { MenuState } from './ContextMenu'
+import { msg } from '../messages'
 
 /** Rows rendered before the first scroll, and added each time the end nears. */
 const CHUNK = 1500
@@ -315,7 +316,7 @@ function FileHeading({
         e.stopPropagation()
         onMenu({ x: e.clientX, y: e.clientY, items: [] })
       }}
-      title={`${name}\n\nClick to ${collapsed ? 'expand' : 'collapse'}\nCtrl+click to open it in a new tab\nRight-click for more`}
+      title={`${name}${msg.diff.fileHeadingTooltip(collapsed)}`}
     >
       <span className="twisty">{collapsed ? '▶' : '▼'}</span>
       <span className="diff-text">{name}</span>
@@ -511,7 +512,7 @@ export const DiffPane = forwardRef<
 
       {shown < total && (
         <div className="diff-more" onClick={() => setShown((n) => n + CHUNK)}>
-          {total - shown} more lines — scroll or click to load
+          {msg.diff.loadMoreLines(total - shown)}
         </div>
       )}
     </div>

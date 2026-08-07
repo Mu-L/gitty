@@ -1,3 +1,4 @@
+import { msg } from '../messages'
 import type { JSX } from 'react'
 import type { DiffView } from './DiffPane'
 
@@ -130,8 +131,8 @@ export function SettingsPane(props: {
               label="Theme"
               value={props.theme}
               options={[
-                { value: 'dark', label: 'Dark' },
-                { value: 'light', label: 'Light' }
+                { value: 'dark', label: msg.settings.dark },
+                { value: 'light', label: msg.settings.light }
               ]}
               onChange={props.setTheme}
             />
@@ -158,8 +159,8 @@ export function SettingsPane(props: {
               label="Diff layout"
               value={props.diffView}
               options={[
-                { value: 'inline', label: 'Inline' },
-                { value: 'split', label: 'Side-by-Side' }
+                { value: 'inline', label: msg.settings.inline },
+                { value: 'split', label: msg.settings.sideBySide }
               ]}
               onChange={props.setDiffView}
             />

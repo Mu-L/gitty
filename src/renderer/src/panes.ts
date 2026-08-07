@@ -6,6 +6,7 @@
  * not to a repository.
  */
 import type { TooltipLine } from './components/Tooltip'
+import { msg } from './messages'
 
 export type PaneId = 'files' | 'diff' | 'log' | 'terminal'
 
@@ -15,10 +16,10 @@ export type PaneVisibility = Record<PaneId, boolean>
 export const PANE_ORDER: PaneId[] = ['files', 'diff', 'log', 'terminal']
 
 export const PANE_LABELS: Record<PaneId, string> = {
-  files: 'Files',
-  diff: 'Diff',
-  log: 'Commits',
-  terminal: 'Terminal'
+  files: msg.paneChrome.paneLabelFiles,
+  diff: msg.paneChrome.paneLabelDiff,
+  log: msg.log.commits,
+  terminal: msg.terminal.title
 }
 
 export const ALL_PANES: PaneVisibility = { files: true, diff: true, log: true, terminal: true }
@@ -37,11 +38,11 @@ export function paneFullAccel(id: PaneId): string {
  *  structured tooltip lines. Each pane's own interactions go above them. */
 export function paneControls(id: PaneId): TooltipLine[] {
   return [
-    { key: paneAccel(id), desc: ' hides this pane' },
-    { key: paneFullAccel(id), desc: ' fills the window' },
+    { key: paneAccel(id), desc: msg.paneChrome.hidesThisPane },
+    { key: paneFullAccel(id), desc: msg.paneChrome.fillsTheWindow },
     // Double-clicking the title does the same as Ctrl+Shift+N; a mouse
     // gesture has no key to highlight, so the line renders as plain text.
-    { key: '', desc: 'Double-click the title toggles full screen' }
+    { key: '', desc: msg.paneChrome.dblClickToggles }
   ]
 }
 

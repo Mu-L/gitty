@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { highlightLines, languageFor } from '../highlight'
 import type { MenuState } from './ContextMenu'
+import { msg } from '../messages'
 
 /** Lines rendered before the first scroll, and added each time the end nears. */
 const CHUNK = 1500
@@ -75,7 +76,7 @@ export function CodePane({
       ))}
       {shown < lines.length && (
         <div className="diff-more" onClick={() => setShown((n) => n + CHUNK)}>
-          {lines.length - shown} more lines — scroll or click to load
+          {msg.diff.loadMoreLines(lines.length - shown)}
         </div>
       )}
     </div>

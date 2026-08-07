@@ -21,6 +21,7 @@ import {
   type DiffView
 } from './components/DiffPane'
 import { FilesPane, type FileEntry } from './components/FilesPane'
+import { msg } from './messages'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { destroyTerminals } from './terminals'
 import { isImagePath, isMarkdownPath } from './paths'
@@ -365,7 +366,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         const d = await window.gitty.git.diff(root, req)
         if (seq === diffSeq.current) setDiff(d)
       } catch (e) {
-        if (seq === diffSeq.current) setDiff({ patch: '', title: 'error', notice: String(e) })
+        if (seq === diffSeq.current) setDiff({ patch: '', title: msg.diff.errorTitle, notice: String(e) })
       }
     },
     [root]
@@ -569,10 +570,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   /* ---------- headers ---------- */
 
   const filesTitle = useMemo(() => {
-    if (view.mode === 'worktree') return 'Working Tree'
-    if (view.mode === 'commit') return `Commit ${view.short} — ${view.subject}`
-    if (view.mode === 'snapshot') return `Snapshot ${view.short} — ${view.subject}`
-    return `Range ${view.from.slice(0, 8)}..${view.to.slice(0, 8)}`
+    if (view.mode === 'worktree') return msg.files.workingTreeTitle
+    if (view.mode === 'commit') return msg.files.commitTitle(view.short, view.subject)
+    if (view.mode === 'snapshot') return msg.files.snapshotTitle(view.short, view.subject)
+    return msg.files.rangeTitle(view.from, view.to)
   }, [view])
 
   /* ---------- which panes are on screen ---------- */
@@ -623,24 +624,24 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const canPush = status !== null && (upstream === null ? true : ahead > 0)
   const canPull = upstream !== null
   const pushTitle = !status
-    ? 'Push'
+    ? msg.pushPull.push
     : upstream === null
-      ? `Publish ${status.branch} to origin and track it`
+      ? msg.pushPull.publishTitle(status.branch)
       : ahead > 0
-        ? `Push ${ahead} commit${ahead === 1 ? '' : 's'} to ${upstream}`
-        : `Nothing to push — ${status.branch} matches ${upstream}`
+        ? msg.pushPull.pushAhead(ahead, status.branch, upstream)
+        : msg.pushPull.nothingToPush(status.branch, upstream)
   const pullTitle = !status
-    ? 'Pull'
+    ? msg.pushPull.pull
     : upstream === null
-      ? `${status.branch} tracks no branch — nothing to pull from`
+      ? msg.pushPull.pullNoUpstream(status.branch)
       : behind > 0
-        ? `Fast-forward ${status.branch} to ${upstream} (${behind} behind)`
-        : `Fetch and fast-forward ${status.branch} from ${upstream}`
+        ? msg.pushPull.pullBehind(status.branch, upstream, behind)
+        : msg.pushPull.pullFastForward(status.branch, upstream)
 
   const diffTitle = doc
     ? `${doc.path}${previewing ? ' (preview)' : ''}` +
       (doc.rev ? ` @ ${doc.rev.slice(0, 8)}` : '')
-    : (diff?.title ?? 'Diff')
+    : (diff?.title ?? msg.diff.titleFallback)
 
   return (
     <div className="repo-tab" onContextMenu={(e) => e.preventDefault()}>
@@ -664,8 +665,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   <Tooltip
                     className="title"
                     lines={[
-                      { key: 'dbl-click', desc: ' views' },
-                      { key: 'right-click', desc: ' for more' },
+                      { key: 'dbl-click', desc: msg.log.tooltipViews },
+                      { key: 'right-click', desc: msg.log.tooltipMore },
                       ...paneControls('files')
                     ]}
                   >
@@ -695,10 +696,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     onMenu={fileMenu}
                     emptyText={
                       view.mode === 'worktree'
-                        ? 'Working tree clean.'
+                        ? msg.diff.emptyWorktree
                         : view.mode === 'snapshot'
-                          ? 'No files in this snapshot.'
-                          : 'No files in this diff.'
+                          ? msg.files.emptySnapshot
+                          : msg.files.emptyDiff
                     }
                   />
                 </div>
@@ -717,7 +718,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   <Tooltip className="title" lines={[{ key: '', desc: diffTitle }, ...paneControls('diff')]}>
                     {diffTitle}
                   </Tooltip>
-                  <span className="spacer" title="Double-click to toggle full screen" />
+                  <span className="spacer" title={msg.diff.dblClickFullScreen} />
                   {/* Only commit and range diffs have a "whole" to widen back
                       to; a snapshot is always one file at a time. */}
                   {/* Always present for a commit or a range, lit when the
@@ -729,11 +730,11 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       title={
                         selectedFile
                           ? view.mode === 'worktree'
-                            ? 'Widen the diff back to every uncommitted change'
-                            : 'Widen the diff back to every file in this commit'
+                            ? msg.diff.widenWorktree
+                            : msg.diff.widenCommit
                           : view.mode === 'worktree'
-                            ? 'Every uncommitted change is shown'
-                            : 'Every file in this commit is shown'
+                            ? msg.diff.allShown
+                            : msg.diff.allCommitShown
                       }
                       onClick={() => {
                         setActiveDoc(null)
@@ -748,18 +749,18 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       className="toggle"
                       title={
                         isMarkdownPath(selectedFile)
-                          ? 'Open this markdown file rendered, beside the diff'
+                          ? msg.diff.previewTitle
                           : isImagePath(selectedFile)
-                            ? 'Show this image beside the diff'
-                            : 'Open the whole file beside the diff'
+                            ? msg.diff.viewImageTitle
+                            : msg.diff.viewFileTitle
                       }
                       onClick={() => openFileDoc(selectedFile)}
                     >
                       {isMarkdownPath(selectedFile)
-                        ? 'Preview'
+                        ? msg.diff.preview
                         : isImagePath(selectedFile)
-                          ? 'View Image'
-                          : 'View File'}
+                          ? msg.diff.viewImage
+                          : msg.diff.viewFile}
                     </button>
                   )}
                   {previewing && doc && (
@@ -793,19 +794,19 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       className="toggle"
                       title={
                         collapseState.allCollapsed
-                          ? 'Expand every file'
-                          : 'Collapse every file to its name'
+                          ? msg.diff.expandAllTitle
+                          : msg.diff.collapseAllTitle
                       }
                       onClick={() => diffRef.current?.toggleAll()}
                     >
-                      {collapseState.allCollapsed ? 'Expand All' : 'Collapse All'}
+                      {collapseState.allCollapsed ? msg.diff.expandAll : msg.diff.collapseAll}
                     </button>
                   )}
                   {/* An image has no lines to wrap. */}
                   {!(doc && isImagePath(doc.path)) && (
                     <button
                       className={`toggle${wrap ? ' on' : ''}`}
-                      title={previewing ? 'Wrap code blocks and tables' : 'Wrap long lines'}
+                      title={previewing ? msg.diff.wrapCode : msg.diff.wrapLong}
                       onClick={() => setWrap((w) => !w)}
                     >
                       Wrap
@@ -826,7 +827,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       title="Switch between inline and side-by-side"
                       onClick={() => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))}
                     >
-                      {diffView === 'inline' ? 'Inline' : 'Side-by-Side'}
+                      {diffView === 'inline' ? msg.diff.inline : msg.diff.sideBySide}
                     </button>
                   )}
                   {hideButton('diff')}
@@ -901,10 +902,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     onMenu={diffMenu}
                     placeholder={
                       view.mode === 'worktree'
-                        ? 'Working tree clean.'
+                        ? msg.diff.emptyWorktree
                         : view.mode === 'snapshot'
-                          ? 'Select a file to view it at this commit.'
-                          : 'No textual changes.'
+                          ? msg.diff.emptySnapshot
+                          : msg.diff.emptyDiff
                     }
                   />
                 )}
@@ -932,14 +933,14 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   <Tooltip
                     className="title"
                     lines={[
-                      { key: '↑↓', desc: ' move' },
-                      { key: 'Enter', desc: ' show' },
-                      { key: 'Ctrl+Click', desc: ' compare' },
-                      { key: 'Esc', desc: ' work tree' },
+                      { key: '↑↓', desc: msg.log.keyMove },
+                      { key: 'Enter', desc: msg.log.keyShow },
+                      { key: 'Ctrl+Click', desc: msg.log.keyCompare },
+                      { key: 'Esc', desc: msg.log.keyWorktree },
                       ...paneControls('log')
                     ]}
                   >
-                    Commits
+                    {msg.log.commits}
                   </Tooltip>
                   {/* Only worth saying when it is not the checked-out branch;
                       otherwise the title bar already says it. */}
@@ -956,7 +957,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     title={pushTitle}
                     onClick={() => void runRemote('push')}
                   >
-                    {remoteOp === 'push' ? 'Pushing…' : ahead > 0 ? `Push ${ahead}` : 'Push'}
+                    {remoteOp === 'push' ? msg.pushPull.pushing : ahead > 0 ? msg.pushPull.pushCount(ahead) : msg.pushPull.push}
                   </button>
                   <button
                     className="toggle"
@@ -964,11 +965,11 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     title={pullTitle}
                     onClick={() => void runRemote('pull')}
                   >
-                    {remoteOp === 'pull' ? 'Pulling…' : behind > 0 ? `Pull ${behind}` : 'Pull'}
+                    {remoteOp === 'pull' ? msg.pushPull.pulling : behind > 0 ? msg.pushPull.pullCount(behind) : msg.pushPull.pull}
                   </button>
                   <button
                     className="toggle"
-                    title="Open this repository's commits in the browser"
+                    title={msg.log.openRepoCommitsTitle}
                     onClick={() => {
                       void window.gitty.web.repoUrl(root).then((url) => {
                         if (url) void window.gitty.file.openExternal(url)
@@ -1025,10 +1026,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                 fallback={
                   <div className="pane">
                     <div className="pane-header">
-                      <span className="title">Terminal</span>
+                      <span className="title">{msg.terminal.title}</span>
                     </div>
                     <div className="term-body">
-                      <div className="empty">Starting…</div>
+                      <div className="empty">{msg.terminal.starting}</div>
                     </div>
                   </div>
                 }

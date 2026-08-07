@@ -1,6 +1,7 @@
 import { useEffect, useState, type JSX } from 'react'
 import type { MenuState } from './ContextMenu'
 import { isImagePath } from '../paths'
+import { msg } from '../messages'
 
 function humanBytes(n: number): string {
   if (n < 1024) return `${n} B`
@@ -68,14 +69,14 @@ export function ImagePane({
       }}
     >
       {src === null ? (
-        <div className="empty">{notice ?? 'Loading…'}</div>
+        <div className="empty">{notice ?? msg.image.loading}</div>
       ) : (
         <>
           <div className={`image-stage${actual ? ' actual' : ''}`}>
             <img
               src={src}
               alt={path}
-              title={actual ? 'Click to fit' : 'Click for actual size'}
+              title={actual ? msg.image.clickToFit : msg.image.clickForActualSize}
               onClick={() => setActual((a) => !a)}
               onLoad={(e) =>
                 setSize({

@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState, type JSX } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { TerminalPane, type Theme } from './TerminalPane'
+import { msg } from '../messages'
 import { FullButton, HideButton } from './PaneChrome'
 import { paneControls } from '../panes'
 import { Tooltip } from './Tooltip'
@@ -158,18 +159,18 @@ export function TerminalsPane({
       >
         {onToggleFull && <FullButton full={full} accel="Ctrl+Shift+4" onToggle={onToggleFull} />}
         <Tooltip className="title" lines={paneControls('terminal')}>
-          Terminal
+          {msg.terminal.title}
         </Tooltip>
         <span className="spacer" />
-        <button title="Split the focused terminal to the right" onClick={() => split('horizontal')}>
-          Split →
+        <button title={msg.terminal.splitRightTitle} onClick={() => split('horizontal')}>
+          {msg.terminal.splitRight}
         </button>
-        <button title="Split the focused terminal downwards" onClick={() => split('vertical')}>
-          Split ↓
+        <button title={msg.terminal.splitDownTitle} onClick={() => split('vertical')}>
+          {msg.terminal.splitDown}
         </button>
         <span className="hint">{root}</span>
         {onHide && (
-          <HideButton accel="Ctrl+4" note=" — the shells keep running" onHide={onHide} />
+          <HideButton accel="Ctrl+4" note={msg.terminal.shellsKeepRunning} onHide={onHide} />
         )}
       </div>
       {root && <div className="term-body" key={nodeKey(tree)}>{render(tree)}</div>}

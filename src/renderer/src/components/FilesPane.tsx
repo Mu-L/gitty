@@ -1,4 +1,5 @@
 import { useMemo, useState, type JSX } from 'react'
+import { msg } from "../messages"
 import type { MenuState } from './ContextMenu'
 
 export interface FileEntry {
@@ -129,7 +130,7 @@ export function FilesPane({
             ))}
             <span className={`file-name${row.entry!.deleted ? ' deleted' : ''}`}>{row.name}</span>
             {row.entry!.lines != null && (
-              <span className="file-lines">{row.entry!.lines} lines</span>
+              <span className="file-lines">{msg.files.lines(row.entry!.lines)}</span>
             )}
           </div>
         )

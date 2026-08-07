@@ -7,6 +7,7 @@ import { addRecent, clearRecent, listRecent, removeRecent } from './recent'
 import { watchRepo, type RepoWatcher } from './watcher'
 import * as web from './web'
 import type { DiffRequest } from '../shared/types'
+import { msg } from './messages'
 
 // Fixes the userData directory (~/.config/Gitty) rather than inheriting
 // Electron's default name when running unpackaged.
@@ -61,15 +62,15 @@ function installMenu(): void {
     Menu.buildFromTemplate([
       ...(isMac ? [{ role: 'appMenu' as const }] : []),
       {
-        label: 'File',
+        label: msg.menu.file,
         submenu: [
           {
-            label: 'Open Repository…',
+            label: msg.menu.openRepo,
             accelerator: 'CmdOrCtrl+O',
             click: () => win?.webContents.send('menu:open-repo')
           },
           {
-            label: 'Settings…',
+            label: msg.menu.settings,
             accelerator: 'CmdOrCtrl+,',
             click: () => win?.webContents.send('menu:open-settings')
           },
@@ -79,7 +80,7 @@ function installMenu(): void {
       },
       { role: 'editMenu' as const },
       {
-        label: 'View',
+        label: msg.menu.view,
         submenu: [
           { role: 'reload' as const },
           { role: 'toggleDevTools' as const },
@@ -106,7 +107,7 @@ function createWindow(): void {
     minHeight: 600,
     show: false,
     backgroundColor: '#12141a',
-    title: 'Gitty',
+    title: msg.window.title,
     autoHideMenuBar: true,
     ...(fs.existsSync(icon) ? { icon } : {}),
     webPreferences: {
@@ -168,14 +169,14 @@ function registerIpc(): void {
   ipcMain.handle('repo:pick', async () => {
     if (!win) return null
     const res = await dialog.showOpenDialog(win, {
-      title: 'Open Repository',
+      title: msg.dialog.openRepoTitle,
       properties: ['openDirectory']
     })
     if (res.canceled || res.filePaths.length === 0) return null
     try {
       return await git.resolveRepo(res.filePaths[0])
     } catch {
-      dialog.showErrorBox('Not a repository', `${res.filePaths[0]} is not inside a git work tree.`)
+      dialog.showErrorBox(msg.dialog.notARepo, msg.dialog.notInsideWorkTree(res.filePaths[0]))
       return null
     }
   })

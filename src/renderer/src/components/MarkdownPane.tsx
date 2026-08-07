@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from 'react'
 import MarkdownIt from 'markdown-it'
 import { hljs } from '../highlight'
+import { msg } from '../messages'
 import type { MenuState } from './ContextMenu'
 
 /** `html: false` keeps raw HTML in the source inert — no sanitiser needed. */
@@ -288,7 +289,7 @@ export function MarkdownPane({
     }}>
       {outline && headings.length > 0 && (
         <nav className="md-outline">
-          <div className="md-outline-title">Outline</div>
+          <div className="md-outline-title">{msg.diff.outline}</div>
           {headings.map((h) => (
             <div
               key={h.id}

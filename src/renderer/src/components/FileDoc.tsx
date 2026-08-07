@@ -1,4 +1,5 @@
 import { useEffect, useState, type JSX } from 'react'
+import { msg } from "../messages"
 import { CodePane } from './CodePane'
 import { ImagePane } from './ImagePane'
 import { MarkdownPane } from './MarkdownPane'
@@ -51,7 +52,7 @@ export function FileDoc({
           : await window.gitty.git.readWorking(root, path)
         if (cancelled) return
         setSource(r.binary ? null : r.content)
-        setError(r.binary ? 'Binary or oversized file.' : null)
+        setError(r.binary ? msg.common.binaryOrOversized : null)
       } catch (e) {
         if (cancelled) return
         setSource(null)
@@ -74,7 +75,7 @@ export function FileDoc({
   if (source === null) {
     return (
       <div className="pane-body">
-        <div className="empty">{error ?? 'Loading…'}</div>
+        <div className="empty">{error ?? msg.common.loading}</div>
       </div>
     )
   }

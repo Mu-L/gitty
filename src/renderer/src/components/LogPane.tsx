@@ -1,6 +1,7 @@
 import { useEffect, useRef, type JSX } from 'react'
 import type { Commit } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
+import { msg } from '../messages'
 
 const DAY = 86_400_000
 
@@ -100,7 +101,7 @@ export function LogPane({
         <span className="commit-subject">
           Working Tree{' '}
           <span className="dim">
-            {changedCount === 0 ? '(clean)' : `(${changedCount} uncommitted)`}
+            {changedCount === 0 ? msg.log.worktreeClean : msg.log.worktreeUncommitted(changedCount)}
           </span>
         </span>
       </div>
