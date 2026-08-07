@@ -26,6 +26,7 @@ import { MarkdownPane } from './components/MarkdownPane'
 import { TerminalsPane, destroyTerminals } from './components/TerminalsPane'
 import { FullButton, HideButton } from './components/PaneChrome'
 import type { Theme } from './components/SettingsPane'
+import { Tooltip } from './components/Tooltip'
 import {
   PANE_ORDER,
   paneAccel,
@@ -173,6 +174,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     allCollapsed: false
   })
   const [tick, setTick] = useState(0)
+  // The push or pull in flight, and what the last one said.
+  const [remoteOp, setRemoteOp] = useState<'push' | 'pull' | null>(null)
+  const [remoteMsg, setRemoteMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const loadingMore = useRef(false)
   const exhausted = useRef(false)
 
@@ -486,6 +490,35 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     }
   }, [root, browsing, commits.length])
 
+  /* ---------- push and pull ---------- */
+
+  const runRemote = useCallback(
+    async (op: 'push' | 'pull') => {
+      setRemoteOp(op)
+      setRemoteMsg(null)
+      try {
+        const res =
+          op === 'push'
+            ? // A branch with no upstream has to name one; otherwise git knows.
+              await window.gitty.git.push(root, status?.upstream ? null : status?.branch ?? null)
+            : await window.gitty.git.pull(root)
+        setRemoteMsg({ ok: res.ok, text: res.output })
+      } finally {
+        setRemoteOp(null)
+        void refresh()
+      }
+    },
+    [root, status, refresh]
+  )
+
+  // Success has been read by the time it matters; a failure stays until it is
+  // dismissed, since it is the only place git's own words appear.
+  useEffect(() => {
+    if (!remoteMsg?.ok) return
+    const t = setTimeout(() => setRemoteMsg(null), 5000)
+    return () => clearTimeout(t)
+  }, [remoteMsg])
+
   /* ---------- context menus ---------- */
 
   const diffMenu = (at: MenuState): void => {
@@ -726,6 +759,30 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   const paneClass = (id: PaneId): string => `pane${full === id ? ' maximized' : ''}`
 
+  /* ---------- push / pull state, from the checked-out branch ---------- */
+
+  const ahead = status?.ahead ?? 0
+  const behind = status?.behind ?? 0
+  const upstream = status?.upstream ?? null
+  // With an upstream git has counted what is unpushed; without one, the branch
+  // has never been published, so there is always something to send.
+  const canPush = status !== null && (upstream === null ? true : ahead > 0)
+  const canPull = upstream !== null
+  const pushTitle = !status
+    ? 'Push'
+    : upstream === null
+      ? `Publish ${status.branch} to origin and track it`
+      : ahead > 0
+        ? `Push ${ahead} commit${ahead === 1 ? '' : 's'} to ${upstream}`
+        : `Nothing to push — ${status.branch} matches ${upstream}`
+  const pullTitle = !status
+    ? 'Pull'
+    : upstream === null
+      ? `${status.branch} tracks no branch — nothing to pull from`
+      : behind > 0
+        ? `Fast-forward ${status.branch} to ${upstream} (${behind} behind)`
+        : `Fetch and fast-forward ${status.branch} from ${upstream}`
+
   const diffTitle = doc
     ? `${doc.path}${previewing ? ' (preview)' : ''}` +
       (doc.rev ? ` @ ${doc.rev.slice(0, 8)}` : '')
@@ -750,12 +807,12 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
               <div className={paneClass('files')}>
                 <div className="pane-header" onDoubleClick={headerDoubleClick('files')}>
                   {fullButton('files')}
-                  <span
+                  <Tooltip
                     className="title"
-                    title={`dbl-click views · right-click for more\n${paneControls('files')}`}
+                    text={`dbl-click views\nright-click for more\n${paneControls('files')}`}
                   >
                     {filesTitle}
-                  </span>
+                  </Tooltip>
                   <span className="spacer" />
                   {view.mode !== 'worktree' && (
                     <button onClick={backToWorkTree}>Back to Work Tree</button>
@@ -799,9 +856,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {/* Tooltips live on the individual parts: a title on the
                       header itself would show up under every button that has
                       none of its own. */}
-                  <span className="title" title={`${diffTitle}\n\n${paneControls('diff')}`}>
+                  <Tooltip className="title" text={`${diffTitle}\n\n${paneControls('diff')}`}>
                     {diffTitle}
-                  </span>
+                  </Tooltip>
                   <span className="spacer" title="Double-click to toggle full screen" />
                   {/* Only commit and range diffs have a "whole" to widen back
                       to; a snapshot is always one file at a time. */}
@@ -997,12 +1054,12 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
               <div className={paneClass('log')}>
                 <div className="pane-header" onDoubleClick={headerDoubleClick('log')}>
                   {fullButton('log')}
-                  <span
+                  <Tooltip
                     className="title"
-                    title={`↑↓ move · Enter show · Ctrl+Click compare · Esc work tree\n${paneControls('log')}`}
+                    text={`↑↓ move\nEnter show\nCtrl+Click compare\nEsc work tree\n${paneControls('log')}`}
                   >
                     Commits
-                  </span>
+                  </Tooltip>
                   {/* Only worth saying when it is not the checked-out branch;
                       otherwise the title bar already says it. */}
                   {browsing && (
@@ -1010,6 +1067,24 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       ⎇ {browsing}
                     </span>
                   )}
+                  {/* Both act on the checked-out branch, whichever branch the
+                      log is pointed at — nothing here checks anything out. */}
+                  <button
+                    className="toggle"
+                    disabled={!canPush || remoteOp !== null}
+                    title={pushTitle}
+                    onClick={() => void runRemote('push')}
+                  >
+                    {remoteOp === 'push' ? 'Pushing…' : ahead > 0 ? `Push ${ahead}` : 'Push'}
+                  </button>
+                  <button
+                    className="toggle"
+                    disabled={!canPull || remoteOp !== null}
+                    title={pullTitle}
+                    onClick={() => void runRemote('pull')}
+                  >
+                    {remoteOp === 'pull' ? 'Pulling…' : behind > 0 ? `Pull ${behind}` : 'Pull'}
+                  </button>
                   <button
                     className="toggle"
                     title="Open this repository's commits in the browser"
@@ -1025,6 +1100,18 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {compareCommit && <span className="badge">comparing 2 commits</span>}
                   {hideButton('log')}
                 </div>
+                {/* What git said. Failures stay until dismissed: a push that
+                    needs a password or a pull that cannot fast-forward is
+                    finished by hand in the terminal pane. */}
+                {remoteMsg && (
+                  <div
+                    className={`remote-msg${remoteMsg.ok ? '' : ' error'}`}
+                    title="Click to dismiss"
+                    onClick={() => setRemoteMsg(null)}
+                  >
+                    {remoteMsg.text}
+                  </div>
+                )}
                 <LogPane
                   commits={commits}
                   selected={selectedCommit}

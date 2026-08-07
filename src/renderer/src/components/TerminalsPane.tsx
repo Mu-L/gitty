@@ -3,6 +3,7 @@ import { Group, Panel, Separator } from 'react-resizable-panels'
 import { TerminalPane, destroySession, focusSession, type Theme } from './TerminalPane'
 import { FullButton, HideButton } from './PaneChrome'
 import { paneControls } from '../panes'
+import { Tooltip } from './Tooltip'
 
 type Orientation = 'horizontal' | 'vertical'
 
@@ -179,9 +180,9 @@ export function TerminalsPane({
         }}
       >
         {onToggleFull && <FullButton full={full} accel="Ctrl+Shift+4" onToggle={onToggleFull} />}
-        <span className="title" title={paneControls('terminal')}>
+        <Tooltip className="title" text={paneControls('terminal')}>
           Terminal
-        </span>
+        </Tooltip>
         <span className="spacer" />
         <button title="Split the focused terminal to the right" onClick={() => split('horizontal')}>
           Split →

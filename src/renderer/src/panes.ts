@@ -32,10 +32,10 @@ export function paneFullAccel(id: PaneId): string {
 }
 
 /** The part of a pane's title tooltip that is the same for every pane: the
- *  keys that hide it and that fill the window with it. Pane-specific
- *  interactions are added beside it by the pane's own header. */
+ *  keys that hide it and that fill the window with it, one per line.
+ *  Pane-specific interactions are added above it by the pane's own header. */
 export function paneControls(id: PaneId): string {
-  return `${paneAccel(id)} hides this pane · ${paneFullAccel(id)} fills the window`
+  return `${paneAccel(id)} hides this pane\n${paneFullAccel(id)} fills the window`
 }
 
 export function visibleCount(panes: PaneVisibility): number {
