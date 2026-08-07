@@ -239,6 +239,25 @@ button:hover {
   text-overflow: ellipsis;
 }
 
+/* Fills the window with the pane it sits in; first in the header, before the
+   title, so the four buttons line up down the left edge of the window. */
+.pane-full {
+  flex: none;
+  padding: 0 4px;
+  color: var(--fg-faint);
+  line-height: 1;
+}
+
+.pane-full:hover {
+  color: var(--fg);
+  border-color: var(--border-active);
+}
+
+.pane-full.on {
+  color: var(--fg);
+  border-color: var(--border-active);
+}
+
 /* Hides the pane it sits in; last in the header, after the hint. */
 .pane-hide {
   flex: none;

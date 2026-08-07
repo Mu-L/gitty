@@ -97,6 +97,16 @@ screen entirely. And **`disabled={!active}`** on every Group of a hidden tab:
 the library hit-tests the pointer against every registered group, and a
 `display: none` group reports a zero-sized rect.
 
+### Full screen and hiding panes
+
+Full screen is one `PaneId | null` per `RepoTab` and a `position: fixed` class
+on that pane, deliberately: unmounting the layout would dispose the terminal's
+pty and kill whatever is running in it. `components/PaneChrome.tsx` holds the
+two header buttons both `RepoTab` and `TerminalsPane` render, so the icons and
+wording cannot drift between the terminal's own header and the other three.
+`Ctrl+Shift+1..4` is read off `e.code`: with Shift down the key itself is
+punctuation.
+
 ### Hiding panes
 
 `src/renderer/src/panes.ts` holds the `PaneVisibility` record; `App.tsx` owns it
@@ -225,6 +235,14 @@ keeps one watcher per open repository in a `Map`; closing a tab (`repo:close`)
 stops that root's watcher. Each `RepoTab` reloads status and log only for its own
 root. Watching is best-effort; the manual refresh path must keep working if it
 fails.
+
+The debounce narrows the burst but does not serialise anything: a refresh and
+the next event can both be waiting on `git`, and the replies come back in
+whatever order git finishes. Both `refresh` and `loadDiff` therefore stamp each
+call with a sequence number and drop a reply that a newer call has overtaken.
+Without it the panes disagree — the diff pane re-runs git for every render and
+so always shows the truth, while a stale `git status` landing last leaves the
+work tree pane (and the title bar's count) listing changes already committed.
 
 ## Gotchas
 

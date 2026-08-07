@@ -16,6 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   hidden, so the window is never empty. What is hidden is remembered across
   restarts, and hiding the terminal pane leaves its shells running — they come
   back with their scrollback intact.
+- Every pane goes full screen, not just the diff. **⤢** at the left of each pane
+  header fills the window with that pane; **⤡**, <kbd>Esc</kbd>, a double-click
+  on the header or <kbd>Ctrl+Shift+1</kbd>…<kbd>Ctrl+Shift+4</kbd> restores the
+  layout. The diff's **Full Screen** / **Restore** button is gone, its corner
+  button replacing it.
+
+### Fixed
+
+- The work tree pane no longer gets stuck listing changes that are already
+  committed. A burst of file-system events could start several refreshes at
+  once, and a slow earlier `git status` landing after a newer one put its stale
+  file list back on screen — while the diff pane, which re-runs git for every
+  render, showed the real state. Replies that a newer refresh has overtaken are
+  now discarded, for the diff pane as well.
 
 ## [0.1.2] - 2026-08-06
 

@@ -121,11 +121,19 @@ last repository opened, instead of just complaining.
 
 ## The panes
 
-### Hiding panes
+### Full screen and hiding
 
-Any pane can be put away and brought back:
+Every pane header carries the same two controls: **⤢** at its left fills the
+window with that pane, and **×** at its right hides it.
 
-- **×** at the right of a pane header hides that pane.
+Full screen covers everything else, including the title and tab bars, and the
+panes underneath keep working — the terminal goes on running while it is
+covered. **⤡** in the same corner, <kbd>Esc</kbd>, a double-click on the
+header, or <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> restores the
+layout. Only one pane is full screen at a time.
+
+Hiding is the other direction — any pane can be put away and brought back:
+
 - **Panes** in the title bar lists all four, with a dot beside the visible ones;
   clicking one toggles it, and **Show All Panes** restores the four-pane layout.
 - <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> toggle Files, Diff, Commits and
@@ -169,9 +177,6 @@ uncommitted change in the work tree, or every file in the selected commit.
 - **Inline / Side-by-Side** — one column with `+`/`-` markers, or old and new
   next to each other, where a run of deletions is zipped with the additions that
   follow it. Wrapped halves stay aligned.
-- **Full Screen** — the pane fills the window; <kbd>Esc</kbd>, the **Restore**
-  button or a double-click on the header brings the four panes back. The
-  terminal below keeps running while it is covered.
 - **View File / Preview** — open the file as its own document in a strip of
   tabs beside the diff (double-clicking it in the tree does the same), so a
   file can be read without losing the diff you were on. The **Diff** tab is
@@ -275,6 +280,7 @@ screen instead of an empty pane.
 | <kbd>Ctrl+O</kbd> | Open another repository in a new tab |
 | <kbd>Ctrl+,</kbd> | Settings |
 | <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> | Hide or show Files, Diff, Commits, Terminal |
+| <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> | Fill the window with that pane |
 
 ## Architecture
 

@@ -26,6 +26,18 @@ export function paneAccel(id: PaneId): string {
   return `Ctrl+${PANE_ORDER.indexOf(id) + 1}`
 }
 
+/** Full screen is per repository tab, so RepoTab handles this one. */
+export function paneFullAccel(id: PaneId): string {
+  return `Ctrl+Shift+${PANE_ORDER.indexOf(id) + 1}`
+}
+
+/** The part of a pane's title tooltip that is the same for every pane: the
+ *  keys that hide it and that fill the window with it. Pane-specific
+ *  interactions are added beside it by the pane's own header. */
+export function paneControls(id: PaneId): string {
+  return `${paneAccel(id)} hides this pane · ${paneFullAccel(id)} fills the window`
+}
+
 export function visibleCount(panes: PaneVisibility): number {
   return PANE_ORDER.filter((id) => panes[id]).length
 }

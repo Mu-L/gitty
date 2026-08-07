@@ -24,8 +24,17 @@ import { FilesPane, type FileEntry } from './components/FilesPane'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { MarkdownPane } from './components/MarkdownPane'
 import { TerminalsPane, destroyTerminals } from './components/TerminalsPane'
+import { FullButton, HideButton } from './components/PaneChrome'
 import type { Theme } from './components/SettingsPane'
-import { paneAccel, visibleCount, type PaneId, type PaneVisibility } from './panes'
+import {
+  PANE_ORDER,
+  paneAccel,
+  paneControls,
+  paneFullAccel,
+  visibleCount,
+  type PaneId,
+  type PaneVisibility
+} from './panes'
 import type {
   Commit,
   CommitFile,
@@ -154,7 +163,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // read. Snapshots have no diff, so there the first document is a file.
   const [docs, setDocs] = useState<FileDocState[]>([])
   const [activeDoc, setActiveDoc] = useState<string | null>(null)
-  const [maximized, setMaximized] = useState(false)
+  // The pane filling the window, if any. One at a time, and per tab: another
+  // repository's layout is none of its business.
+  const [full, setFull] = useState<PaneId | null>(null)
   const [docSource, setDocSource] = useState<string | null>(null)
   const diffRef = useRef<DiffPaneHandle>(null)
   const [collapseState, setCollapseState] = useState<CollapseState>({
@@ -165,11 +176,20 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const loadingMore = useRef(false)
   const exhausted = useRef(false)
 
+  // The watcher can fire again — and a manual refresh can land — while `git
+  // status` is still running, so replies come back out of order. Without this
+  // guard a slow earlier call overwrites a newer one and the file list keeps
+  // showing changes that are already committed, while the diff pane (which
+  // re-runs git every time) shows the truth.
+  const refreshSeq = useRef(0)
+
   const refresh = useCallback(async () => {
+    const seq = ++refreshSeq.current
     const [st, log] = await Promise.all([
       window.gitty.git.status(root),
       window.gitty.git.log(root, PAGE, 0, browsing)
     ])
+    if (seq !== refreshSeq.current) return
     setStatus(st)
     onStatus(st)
     setCommits((prev) => (prev.length > PAGE ? mergeLog(prev, log) : log))
@@ -312,16 +332,28 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   /* ---------- diff loading ---------- */
 
+  // Same ordering hazard as `refresh`: clicking through files faster than git
+  // answers would otherwise leave the previous file's patch on screen.
+  const diffSeq = useRef(0)
+
   const loadDiff = useCallback(
     async (req: DiffRequest) => {
+      const seq = ++diffSeq.current
       try {
-        setDiff(await window.gitty.git.diff(root, req))
+        const d = await window.gitty.git.diff(root, req)
+        if (seq === diffSeq.current) setDiff(d)
       } catch (e) {
-        setDiff({ patch: '', title: 'error', notice: String(e) })
+        if (seq === diffSeq.current) setDiff({ patch: '', title: 'error', notice: String(e) })
       }
     },
     [root]
   )
+
+  /** Bumps the sequence too, so a load already in flight cannot undo it. */
+  const clearDiff = useCallback(() => {
+    diffSeq.current++
+    setDiff(null)
+  }, [])
 
   // Whenever the view, the selected file or the repo state changes, reload the diff.
   useEffect(() => {
@@ -333,7 +365,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       }
       const f = status?.files.find((x) => x.path === selectedFile)
       if (!f) {
-        setDiff(null)
+        clearDiff()
         return
       }
       void loadDiff({
@@ -353,9 +385,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       })
     } else {
       // Snapshot has no diff; the file view renders its contents instead.
-      setDiff(null)
+      clearDiff()
     }
-  }, [view, selectedFile, status, tick, loadDiff])
+  }, [view, selectedFile, status, tick, loadDiff, clearDiff])
 
   /* ---------- commit interactions ---------- */
 
@@ -425,16 +457,22 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       // Escape unwinds one level at a time: settings, full screen, then view.
       if (e.key === 'Escape') {
         if (settingsOpen) return
-        if (maximized) setMaximized(false)
+        if (full) setFull(null)
         else backToWorkTree()
       } else if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key === 'r')) {
         e.preventDefault()
         void refresh()
+      } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && /^Digit[1-4]$/.test(e.code)) {
+        // Ctrl+Shift+1..4 fill the window with that pane. Read from the code:
+        // with Shift down the key itself is a punctuation mark.
+        e.preventDefault()
+        const id = PANE_ORDER[Number(e.code.slice(-1)) - 1]
+        if (panes[id]) setFull((f) => (f === id ? null : id))
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [active, settingsOpen, maximized, backToWorkTree, refresh])
+  }, [active, settingsOpen, full, panes, backToWorkTree, refresh])
 
   const loadMore = useCallback(async () => {
     if (loadingMore.current || exhausted.current) return
@@ -652,10 +690,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   /* ---------- which panes are on screen ---------- */
 
-  // A full-screen diff that is hidden must not come back still full screen.
+  // A pane hidden while full screen must not come back still filling the window.
   useEffect(() => {
-    if (!panes.diff) setMaximized(false)
-  }, [panes.diff])
+    setFull((f) => (f && !panes[f] ? null : f))
+  }, [panes])
 
   const topRow = panes.files || panes.diff
   const bottomRow = panes.log || panes.terminal
@@ -669,15 +707,24 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // pane left to hold the layout.
   const canHide = visibleCount(panes) > 1
   const hideButton = (id: PaneId): JSX.Element | null =>
-    canHide ? (
-      <button
-        className="pane-hide"
-        title={`Hide this pane (${paneAccel(id)}) — "Panes" in the title bar brings it back`}
-        onClick={() => onHidePane(id)}
-      >
-        ×
-      </button>
-    ) : null
+    canHide ? <HideButton accel={paneAccel(id)} onHide={() => onHidePane(id)} /> : null
+
+  const toggleFull = (id: PaneId): void => setFull((f) => (f === id ? null : id))
+
+  const fullButton = (id: PaneId): JSX.Element => (
+    <FullButton full={full === id} accel={paneFullAccel(id)} onToggle={() => toggleFull(id)} />
+  )
+
+  /** Double-clicking a header is the other way in and out of full screen. */
+  const headerDoubleClick =
+    (id: PaneId) =>
+    (e: { target: EventTarget | null }): void => {
+      // Buttons in the header have their own meaning.
+      if ((e.target as HTMLElement).closest('button')) return
+      toggleFull(id)
+    }
+
+  const paneClass = (id: PaneId): string => `pane${full === id ? ' maximized' : ''}`
 
   const diffTitle = doc
     ? `${doc.path}${previewing ? ' (preview)' : ''}` +
@@ -700,14 +747,19 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
           <Group orientation="horizontal" id={groupId(root, `top-${topKey}`)} disabled={!active}>
             {panes.files && (
             <Panel defaultSize={panes.diff ? '38%' : undefined} minSize="15%">
-              <div className="pane">
-                <div className="pane-header">
-                  <span className="title">{filesTitle}</span>
+              <div className={paneClass('files')}>
+                <div className="pane-header" onDoubleClick={headerDoubleClick('files')}>
+                  {fullButton('files')}
+                  <span
+                    className="title"
+                    title={`dbl-click views · right-click for more\n${paneControls('files')}`}
+                  >
+                    {filesTitle}
+                  </span>
                   <span className="spacer" />
                   {view.mode !== 'worktree' && (
                     <button onClick={backToWorkTree}>Back to Work Tree</button>
                   )}
-                  <span className="hint">dbl-click views · right-click for more</span>
                   {hideButton('files')}
                 </div>
                 <div className="pane-body">
@@ -741,19 +793,13 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
             {panes.files && panes.diff && <Separator className="sep-v" />}
             {panes.diff && (
             <Panel minSize="20%">
-              <div className={`pane${maximized ? ' maximized' : ''}`}>
-                <div
-                  className="pane-header"
-                  onDoubleClick={(e) => {
-                    // Buttons in the header have their own meaning.
-                    if ((e.target as HTMLElement).closest('button')) return
-                    setMaximized((m) => !m)
-                  }}
-                >
+              <div className={paneClass('diff')}>
+                <div className="pane-header" onDoubleClick={headerDoubleClick('diff')}>
+                  {fullButton('diff')}
                   {/* Tooltips live on the individual parts: a title on the
                       header itself would show up under every button that has
                       none of its own. */}
-                  <span className="title" title={diffTitle}>
+                  <span className="title" title={`${diffTitle}\n\n${paneControls('diff')}`}>
                     {diffTitle}
                   </span>
                   <span className="spacer" title="Double-click to toggle full screen" />
@@ -859,13 +905,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       {diffView === 'inline' ? 'Inline' : 'Side-by-Side'}
                     </button>
                   )}
-                  <button
-                    className={`toggle${maximized ? ' on' : ''}`}
-                    title={maximized ? 'Restore the four-pane layout (Esc)' : 'Fill the window'}
-                    onClick={() => setMaximized((m) => !m)}
-                  >
-                    {maximized ? 'Restore' : 'Full Screen'}
-                  </button>
                   {hideButton('diff')}
                 </div>
                 {/* One strip per open document: the diff, then each opened
@@ -955,9 +994,15 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
           >
             {panes.log && (
             <Panel defaultSize={panes.terminal ? '58%' : undefined} minSize="20%">
-              <div className="pane">
-                <div className="pane-header">
-                  <span className="title">Commits</span>
+              <div className={paneClass('log')}>
+                <div className="pane-header" onDoubleClick={headerDoubleClick('log')}>
+                  {fullButton('log')}
+                  <span
+                    className="title"
+                    title={`↑↓ move · Enter show · Ctrl+Click compare · Esc work tree\n${paneControls('log')}`}
+                  >
+                    Commits
+                  </span>
                   {/* Only worth saying when it is not the checked-out branch;
                       otherwise the title bar already says it. */}
                   {browsing && (
@@ -978,9 +1023,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   </button>
                   <span className="spacer" />
                   {compareCommit && <span className="badge">comparing 2 commits</span>}
-                  <span className="hint">
-                    ↑↓ move · Enter show · Ctrl+Click compare · Esc work tree
-                  </span>
                   {hideButton('log')}
                 </div>
                 <LogPane
@@ -1014,6 +1056,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                 theme={theme}
                 fontSize={fontSize}
                 disabled={!active}
+                full={full === 'terminal'}
+                onToggleFull={() => toggleFull('terminal')}
                 onHide={canHide ? () => onHidePane('terminal') : undefined}
               />
             </Panel>

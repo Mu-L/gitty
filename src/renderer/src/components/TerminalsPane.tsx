@@ -1,6 +1,8 @@
 import { Fragment, useEffect, useRef, useState, type JSX } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { TerminalPane, destroySession, focusSession, type Theme } from './TerminalPane'
+import { FullButton, HideButton } from './PaneChrome'
+import { paneControls } from '../panes'
 
 type Orientation = 'horizontal' | 'vertical'
 
@@ -87,6 +89,8 @@ export function TerminalsPane({
   theme,
   fontSize,
   disabled = false,
+  full = false,
+  onToggleFull,
   onHide
 }: {
   root: string
@@ -94,6 +98,9 @@ export function TerminalsPane({
   fontSize: number
   /** Set on hidden tabs, so their splits stay out of pointer hit testing. */
   disabled?: boolean
+  /** This pane is filling the window. */
+  full?: boolean
+  onToggleFull?: () => void
   /** Absent when this is the only pane left on screen. */
   onHide?: () => void
 }): JSX.Element {
@@ -163,9 +170,18 @@ export function TerminalsPane({
   }
 
   return (
-    <div className="pane">
-      <div className="pane-header">
-        <span className="title">Terminal</span>
+    <div className={`pane${full ? ' maximized' : ''}`}>
+      <div
+        className="pane-header"
+        onDoubleClick={(e) => {
+          if ((e.target as HTMLElement).closest('button')) return
+          onToggleFull?.()
+        }}
+      >
+        {onToggleFull && <FullButton full={full} accel="Ctrl+Shift+4" onToggle={onToggleFull} />}
+        <span className="title" title={paneControls('terminal')}>
+          Terminal
+        </span>
         <span className="spacer" />
         <button title="Split the focused terminal to the right" onClick={() => split('horizontal')}>
           Split →
@@ -175,13 +191,7 @@ export function TerminalsPane({
         </button>
         <span className="hint">{root}</span>
         {onHide && (
-          <button
-            className="pane-hide"
-            title={'Hide this pane (Ctrl+4) — the shells keep running, and "Panes" in the title bar brings it back'}
-            onClick={onHide}
-          >
-            ×
-          </button>
+          <HideButton accel="Ctrl+4" note=" — the shells keep running" onHide={onHide} />
         )}
       </div>
       {root && <div className="term-body" key={nodeKey(tree)}>{render(tree)}</div>}
