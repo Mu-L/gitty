@@ -11,6 +11,7 @@ import type {
   DiffRequest,
   DiffResult,
   FileStatusCode,
+  GitOpResult,
   RepoStatus,
   SnapshotFileContent,
   WorkingFile
@@ -392,4 +393,53 @@ export async function snapshotWriteTemp(
   const tmp = path.join(os.tmpdir(), name)
   await fs.promises.writeFile(tmp, content)
   return tmp
+}
+
+/**
+ * Run a git command that talks to a remote.
+ *
+ * There is no terminal behind these: a credential or passphrase prompt would
+ * block forever with nowhere to appear, so prompting is turned off and the
+ * command is given a deadline. Anything that genuinely needs to be answered
+ * belongs in the terminal pane, which is why failures come back as text rather
+ * than as a thrown error — the pane shows git's own words.
+ */
+async function remoteOp(root: string, args: string[]): Promise<GitOpResult> {
+  const env = {
+    ...process.env,
+    GIT_OPTIONAL_LOCKS: '0',
+    LC_ALL: 'C',
+    GIT_TERMINAL_PROMPT: '0',
+    GIT_ASKPASS: '',
+    SSH_ASKPASS: '',
+    // An agent still answers; only the interactive prompt is refused.
+    GIT_SSH_COMMAND: 'ssh -o BatchMode=yes'
+  }
+  try {
+    const { stdout, stderr } = await exec('git', args, {
+      cwd: root,
+      maxBuffer: 8 * 1024 * 1024,
+      windowsHide: true,
+      timeout: 120_000,
+      env
+    })
+    return { ok: true, output: `${stdout}\n${stderr}`.trim() || 'Done.' }
+  } catch (e) {
+    const err = e as { stdout?: string; stderr?: string; message?: string }
+    const said = `${err.stdout ?? ''}\n${err.stderr ?? ''}`.trim()
+    return { ok: false, output: said || err.message || 'git failed' }
+  }
+}
+
+/** Push the checked-out branch. `branch` is set only when it has no upstream. */
+export function push(root: string, branch?: string): Promise<GitOpResult> {
+  return remoteOp(root, branch ? ['push', '--set-upstream', 'origin', branch] : ['push'])
+}
+
+/**
+ * Pull, fast-forward only: a merge that cannot be resolved without a decision
+ * (or an editor) is not something a button should start.
+ */
+export function pull(root: string): Promise<GitOpResult> {
+  return remoteOp(root, ['pull', '--ff-only'])
 }

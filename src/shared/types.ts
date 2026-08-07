@@ -26,6 +26,13 @@ export interface RepoStatus {
   files: WorkingFile[]
 }
 
+/** Outcome of a git command that talks to a remote (push, pull). */
+export interface GitOpResult {
+  ok: boolean
+  /** What git said, stdout and stderr together — it reports progress on stderr. */
+  output: string
+}
+
 /** A ref the commit log can be pointed at, local or remote-tracking. */
 export interface Branch {
   /** Short name: "main", "origin/main". */

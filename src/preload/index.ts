@@ -7,6 +7,7 @@ import type {
   CommitFile,
   DiffRequest,
   DiffResult,
+  GitOpResult,
   PtyExit,
   RepoChanged,
   RepoStatus,
@@ -54,6 +55,10 @@ const api = {
     log: (root: string, limit: number, skip = 0, ref: string | null = null): Promise<Commit[]> =>
       ipcRenderer.invoke('git:log', root, limit, skip, ref),
     branches: (root: string): Promise<Branch[]> => ipcRenderer.invoke('git:branches', root),
+    /** Push the checked-out branch; `branch` is named only to set an upstream. */
+    push: (root: string, branch: string | null = null): Promise<GitOpResult> =>
+      ipcRenderer.invoke('git:push', root, branch),
+    pull: (root: string): Promise<GitOpResult> => ipcRenderer.invoke('git:pull', root),
     commitDetail: (root: string, hash: string): Promise<CommitDetail> =>
       ipcRenderer.invoke('git:commitDetail', root, hash),
     rangeFiles: (root: string, from: string, to: string): Promise<CommitFile[]> =>

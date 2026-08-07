@@ -215,6 +215,10 @@ function registerIpc(): void {
       git.log(root, limit, skip, ref)
   )
   ipcMain.handle('git:branches', (_e, root: string) => git.branches(root))
+  ipcMain.handle('git:push', (_e, root: string, branch: string | null) =>
+    git.push(root, branch ?? undefined)
+  )
+  ipcMain.handle('git:pull', (_e, root: string) => git.pull(root))
   ipcMain.handle('git:commitDetail', (_e, root: string, hash: string) =>
     git.commitDetail(root, hash)
   )
