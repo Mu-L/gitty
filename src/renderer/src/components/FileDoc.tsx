@@ -1,12 +1,9 @@
 import { useEffect, useState, type JSX } from 'react'
 import { CodePane } from './CodePane'
-import { ImagePane, isImagePath } from './ImagePane'
+import { ImagePane } from './ImagePane'
 import { MarkdownPane } from './MarkdownPane'
+import { isImagePath, isMarkdownPath } from '../paths'
 import type { MenuState } from './ContextMenu'
-
-export function isMarkdownPath(path: string): boolean {
-  return /\.(md|markdown|mdown|mkd)$/i.test(path)
-}
 
 /**
  * One file opened for reading, at whatever revision it was opened from: the

@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import type { Commit, DiffResult } from '../../shared/types'
 import type { MenuItem, MenuState } from './components/ContextMenu'
 import type { DiffView } from './components/DiffPane'
-import { isMarkdownPath } from './components/FileDoc'
+import { isMarkdownPath } from './paths'
 import type { FileEntry } from './components/FilesPane'
 
 /**

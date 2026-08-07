@@ -1,4 +1,6 @@
 import {
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -8,7 +10,12 @@ import {
 } from 'react'
 import { ContextMenu, type MenuItem, type MenuState } from './components/ContextMenu'
 import { SettingsPane, type Theme } from './components/SettingsPane'
-import { RepoTab, type RepoTabHandle } from './RepoTab'
+import type { RepoTabHandle } from './RepoTab'
+
+// The whole tab content is its own chunk, so the app shell — title bar, tab
+// bar, empty state — paints before any pane code has loaded. The heavy panes
+// inside it (terminal, opened files) are lazy again, one level down.
+const RepoTab = lazy(() => import('./RepoTab').then((m) => ({ default: m.RepoTab })))
 import {
   ALL_PANES,
   PANE_LABELS,
@@ -428,28 +435,38 @@ export default function App(): JSX.Element {
               key={r}
               style={r === active ? undefined : { display: 'none' }}
             >
-              <RepoTab
-                ref={(el) => {
-                  tabRefs.current[r] = el
-                }}
-                root={r}
-                active={r === active}
-                theme={theme}
-                fontSize={fontSize}
-                wrap={wrap}
-                setWrap={setWrap}
-                diffView={diffView}
-                setDiffView={setDiffView}
-                wordDiff={wordDiff}
-                setWordDiff={setWordDiff}
-                mdOutline={mdOutline}
-                setMdOutline={setMdOutline}
-                panes={panes}
-                onHidePane={togglePane}
-                browsing={browsingByRoot[r] ?? null}
-                settingsOpen={settingsOpen}
-                onStatus={onStatus}
-              />
+              <Suspense
+                fallback={
+                  <div className="repo-tab">
+                    <div className="pane">
+                      <div className="empty">Loading…</div>
+                    </div>
+                  </div>
+                }
+              >
+                <RepoTab
+                  ref={(el) => {
+                    tabRefs.current[r] = el
+                  }}
+                  root={r}
+                  active={r === active}
+                  theme={theme}
+                  fontSize={fontSize}
+                  wrap={wrap}
+                  setWrap={setWrap}
+                  diffView={diffView}
+                  setDiffView={setDiffView}
+                  wordDiff={wordDiff}
+                  setWordDiff={setWordDiff}
+                  mdOutline={mdOutline}
+                  setMdOutline={setMdOutline}
+                  panes={panes}
+                  onHidePane={togglePane}
+                  browsing={browsingByRoot[r] ?? null}
+                  settingsOpen={settingsOpen}
+                  onStatus={onStatus}
+                />
+              </Suspense>
             </div>
           ))}
         </div>

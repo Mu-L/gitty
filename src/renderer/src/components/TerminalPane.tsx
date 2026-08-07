@@ -2,6 +2,7 @@ import { useEffect, useRef, type JSX } from 'react'
 import { Terminal, type ITheme } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
+import { focusSession, sessions, type Session } from '../terminals'
 
 export type Theme = 'dark' | 'light'
 
@@ -28,30 +29,9 @@ function readTheme(): ITheme {
   }
 }
 
-interface Session {
-  /** The element xterm was opened on; React moves it, never rebuilds it. */
-  host: HTMLDivElement
-  term: Terminal
-  fit: FitAddon
-  onExit?: () => void
-  onFocus?: () => void
-}
-
-/**
- * Live terminals, keyed by session id.
- *
- * Splitting reshapes the panel tree, and React unmounts whatever sat where a
- * split now sits. A terminal cannot survive that: disposing the xterm and
- * starting over would take the running shell with it. So the DOM node and the
- * xterm instance live here, outside React, and the component only parents the
- * node — moving it between panels leaves the terminal and its scrollback
- * untouched. Sessions end only when the pane is closed or the repository
- * changes, which is where `destroySession` is called.
- */
-const sessions = new Map<string, Session>()
-
 // One pair of IPC listeners for every session; the main process tags each
-// message with the id it came from.
+// message with the id it came from. Sessions are only ever created here (in
+// `ensureSession`), so by the time one exists the listeners are in place.
 window.gitty.terminal.onData((id, data) => sessions.get(id)?.term.write(data))
 window.gitty.terminal.onExit((id, { exitCode }) => {
   const s = sessions.get(id)
@@ -98,21 +78,6 @@ function ensureSession(id: string, root: string, fontSize: number): Session {
   new ResizeObserver(() => fitSession(s, id)).observe(host)
   void window.gitty.terminal.start(id, root, term.cols || 80, term.rows || 24)
   return s
-}
-
-/** End a session for good: the shell, the xterm and its DOM. */
-export function destroySession(id: string): void {
-  const s = sessions.get(id)
-  if (!s) return
-  sessions.delete(id)
-  window.gitty.terminal.close(id)
-  s.term.dispose()
-  s.host.remove()
-}
-
-/** Give a session keyboard focus, if it still exists. */
-export function focusSession(id: string): void {
-  sessions.get(id)?.term.focus()
 }
 
 /** One interactive shell rooted at the repository; one leaf of the split. */

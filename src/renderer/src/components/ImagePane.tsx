@@ -1,12 +1,6 @@
 import { useEffect, useState, type JSX } from 'react'
 import type { MenuState } from './ContextMenu'
-
-/** Extensions the image preview claims; must match `IMAGE_MIME` in main/git.ts. */
-const IMAGE_EXT = /\.(png|jpe?g|gif|webp|bmp|ico|avif|svg)$/i
-
-export function isImagePath(path: string): boolean {
-  return IMAGE_EXT.test(path)
-}
+import { isImagePath } from '../paths'
 
 function humanBytes(n: number): string {
   if (n < 1024) return `${n} B`

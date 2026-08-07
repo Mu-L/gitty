@@ -1,9 +1,18 @@
 import { Fragment, useEffect, useRef, useState, type JSX } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
-import { TerminalPane, destroySession, focusSession, type Theme } from './TerminalPane'
+import { TerminalPane, type Theme } from './TerminalPane'
 import { FullButton, HideButton } from './PaneChrome'
 import { paneControls } from '../panes'
 import { Tooltip } from './Tooltip'
+import {
+  destroySession,
+  focusSession,
+  layouts,
+  layoutFor,
+  leaves,
+  nextTermId,
+  type TermNode
+} from '../terminals'
 
 type Orientation = 'horizontal' | 'vertical'
 
@@ -11,18 +20,11 @@ type Orientation = 'horizontal' | 'vertical'
  * The split layout: a leaf is one shell, a branch divides its area between
  * its children. Splitting the same way twice extends the branch rather than
  * nesting another one, so three side-by-side terminals share one set of
- * separators and resize against each other.
+ * separators and resize against each other. `TermNode`, the tree type, lives
+ * in `../terminals` so `RepoTab` can destroy a repository's shells without
+ * loading the xterm chunk.
  */
-type Node = { kind: 'leaf'; id: string } | { kind: 'split'; orientation: Orientation; children: Node[] }
-
-let counter = 0
-const nextId = (): string => `term${++counter}`
-
-function leaves(node: Node): string[] {
-  return node.kind === 'leaf' ? [node.id] : node.children.flatMap(leaves)
-}
-
-function splitAt(node: Node, target: string, orientation: Orientation, id: string): Node {
+function splitAt(node: TermNode, target: string, orientation: Orientation, id: string): TermNode {
   if (node.kind === 'leaf') {
     return node.id === target
       ? { kind: 'split', orientation, children: [node, { kind: 'leaf', id }] }
@@ -40,11 +42,11 @@ function splitAt(node: Node, target: string, orientation: Orientation, id: strin
 }
 
 /** Drop a leaf; a branch left with one child collapses into it. */
-function removeAt(node: Node, target: string): Node | null {
+function removeAt(node: TermNode, target: string): TermNode | null {
   if (node.kind === 'leaf') return node.id === target ? null : node
   const children = node.children
     .map((c) => removeAt(c, target))
-    .filter((c): c is Node => c !== null)
+    .filter((c): c is TermNode => c !== null)
   if (children.length === 0) return null
   if (children.length === 1) return children[0]
   return { ...node, children }
@@ -55,33 +57,8 @@ function removeAt(node: Node, target: string): Node | null {
  * remount the group to be shared out evenly again. That is free here: the
  * terminals themselves live outside React.
  */
-function nodeKey(node: Node): string {
+function nodeKey(node: TermNode): string {
   return leaves(node).join('+')
-}
-
-/**
- * The split layout per repository, kept outside React for the same reason the
- * xterms are: hiding the terminal pane unmounts this component, and a shell
- * must not die because its pane was toggled away. Sessions end only in
- * `destroyTerminals`, which the repository tab calls when it closes.
- */
-const layouts = new Map<string, { tree: Node; focused: string }>()
-
-function layoutFor(root: string): { tree: Node; focused: string } {
-  const existing = layouts.get(root)
-  if (existing) return existing
-  const id = nextId()
-  const fresh = { tree: { kind: 'leaf', id } as Node, focused: id }
-  layouts.set(root, fresh)
-  return fresh
-}
-
-/** End every shell of a repository, and forget its layout. */
-export function destroyTerminals(root: string): void {
-  const layout = layouts.get(root)
-  if (!layout) return
-  layouts.delete(root)
-  leaves(layout.tree).forEach(destroySession)
 }
 
 /** The terminal pane: one shell, or several split across it. */
@@ -107,7 +84,7 @@ export function TerminalsPane({
 }): JSX.Element {
   // Restored from the registry: this component comes and goes with the pane,
   // the shells do not.
-  const [tree, setTree] = useState<Node>(() => layoutFor(root).tree)
+  const [tree, setTree] = useState<TermNode>(() => layoutFor(root).tree)
   const [focused, setFocused] = useState(() => layoutFor(root).focused)
   const ids = leaves(tree)
 
@@ -118,7 +95,7 @@ export function TerminalsPane({
   }, [root, tree, focused])
 
   const split = (orientation: Orientation): void => {
-    const id = nextId()
+    const id = nextTermId()
     setTree((t) => splitAt(t, focused, orientation, id))
     setFocused(id)
   }
@@ -136,7 +113,7 @@ export function TerminalsPane({
   // Focus follows the split, and a click inside a terminal reports back here.
   useEffect(() => focusSession(focused), [focused])
 
-  const render = (node: Node): JSX.Element => {
+  const render = (node: TermNode): JSX.Element => {
     if (node.kind === 'leaf') {
       return (
         <TerminalPane

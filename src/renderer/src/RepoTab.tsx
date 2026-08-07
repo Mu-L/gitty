@@ -1,5 +1,7 @@
 import {
   forwardRef,
+  lazy,
+  Suspense,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -12,19 +14,16 @@ import {
 } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { ContextMenu, type MenuState } from './components/ContextMenu'
-import { CodePane } from './components/CodePane'
 import {
   DiffPane,
   type CollapseState,
   type DiffPaneHandle,
   type DiffView
 } from './components/DiffPane'
-import { FileDoc, isMarkdownPath } from './components/FileDoc'
-import { isImagePath } from './components/ImagePane'
 import { FilesPane, type FileEntry } from './components/FilesPane'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
-import { MarkdownPane } from './components/MarkdownPane'
-import { TerminalsPane, destroyTerminals } from './components/TerminalsPane'
+import { destroyTerminals } from './terminals'
+import { isImagePath, isMarkdownPath } from './paths'
 import { FullButton, HideButton } from './components/PaneChrome'
 import type { Theme } from './components/SettingsPane'
 import { Tooltip } from './components/Tooltip'
@@ -46,6 +45,16 @@ import type {
   RepoStatus,
   WorkingFile
 } from '../../shared/types'
+
+// The two panes that pull in whole libraries are loaded on demand: opening a
+// file costs highlight.js + markdown-it (plus the code and markdown viewers),
+// and showing the terminal costs xterm. Neither should gate the first paint of
+// the tab. The session/layout registries those chunks need live in terminals.ts,
+// which stays in the main bundle.
+const FileDoc = lazy(() => import('./components/FileDoc').then((m) => ({ default: m.FileDoc })))
+const TerminalsPane = lazy(() =>
+  import('./components/TerminalsPane').then((m) => ({ default: m.TerminalsPane }))
+)
 
 const PAGE = 300
 
@@ -845,18 +854,26 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   </div>
                 )}
                 {doc ? (
-                  <FileDoc
-                    key={doc.id}
-                    root={root}
-                    path={doc.path}
-                    rev={doc.rev}
-                    preview={doc.preview}
-                    wrap={wrap}
-                    outline={mdOutline}
-                    reloadKey={tick}
-                    onSource={setDocSource}
-                    onMenu={diffMenu}
-                  />
+                  <Suspense
+                    fallback={
+                      <div className="pane-body">
+                        <div className="empty">Loading…</div>
+                      </div>
+                    }
+                  >
+                    <FileDoc
+                      key={doc.id}
+                      root={root}
+                      path={doc.path}
+                      rev={doc.rev}
+                      preview={doc.preview}
+                      wrap={wrap}
+                      outline={mdOutline}
+                      reloadKey={tick}
+                      onSource={setDocSource}
+                      onMenu={diffMenu}
+                    />
+                  </Suspense>
                 ) : (
                   <DiffPane
                     ref={diffRef}
@@ -988,16 +1005,31 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
             <Panel minSize="15%">
               {/* A repo tab owns its terminal group; the shells are keyed by
                   session id in the main process, so they survive tab switches
-                  and hiding this pane, and are disposed when the tab closes. */}
-              <TerminalsPane
-                root={root}
-                theme={theme}
-                fontSize={fontSize}
-                disabled={!active}
-                full={full === 'terminal'}
-                onToggleFull={() => toggleFull('terminal')}
-                onHide={canHide ? () => onHidePane('terminal') : undefined}
-              />
+                  and hiding this pane, and are disposed when the tab closes.
+                  The pane itself is a lazy chunk (xterm); the placeholder keeps
+                  the split from collapsing while it loads. */}
+              <Suspense
+                fallback={
+                  <div className="pane">
+                    <div className="pane-header">
+                      <span className="title">Terminal</span>
+                    </div>
+                    <div className="term-body">
+                      <div className="empty">Starting…</div>
+                    </div>
+                  </div>
+                }
+              >
+                <TerminalsPane
+                  root={root}
+                  theme={theme}
+                  fontSize={fontSize}
+                  disabled={!active}
+                  full={full === 'terminal'}
+                  onToggleFull={() => toggleFull('terminal')}
+                  onHide={canHide ? () => onHidePane('terminal') : undefined}
+                />
+              </Suspense>
             </Panel>
             )}
           </Group>
