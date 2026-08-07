@@ -28,6 +28,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   not announce you to whatever host it points at. Selecting an image also
   renames the header's **View File** to **View Image**.
 
+- A **Language** setting in the Settings dialog switches the interface without
+  restarting: the panes, the menus, the dialogs and the application menu's own
+  labels all change together. Nine languages are listed — English, 简体中文,
+  日本語, 한국어, Français, Deutsch, Español, Русский and Português — of which
+  English and 简体中文 are translated; the other seven are in place but still
+  read English until their tables are filled in.
+
 ### Changed
 
 - A repository tab's tooltip now says when that repository has uncommitted
