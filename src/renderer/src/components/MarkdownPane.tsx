@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from 'react'
 import MarkdownIt from 'markdown-it'
 import { hljs } from '../highlight'
 import type { MenuState } from './ContextMenu'
@@ -81,11 +81,14 @@ function render(source: string): { html: string; headings: Heading[] } {
 
 export function MarkdownPane({
   source,
+  docKey,
   outline,
   wrap,
   onMenu
 }: {
   source: string
+  /** Identifies the document, not its text; changes only on opening another. */
+  docKey: string
   /** Show the heading outline beside the document. */
   outline: boolean
   /** Wrap fenced code blocks and tables instead of scrolling them sideways. */
@@ -96,16 +99,34 @@ export function MarkdownPane({
   const bodyRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState<string | null>(null)
 
-  useEffect(() => {
+  const scrollTop = useRef(0)
+
+  // Going back to the top belongs to opening a document, not to its text
+  // changing underneath: a work-tree file is re-read on every repository
+  // change, and a reader halfway down a long document stays there.
+  useLayoutEffect(() => {
+    scrollTop.current = 0
     if (bodyRef.current) bodyRef.current.scrollTop = 0
     setActive(headings[0]?.id ?? null)
-  }, [source, headings])
+    // headings belong to this source, and source changes with docKey.
+  }, [docKey])
+
+  // Replacing the body's HTML resets its scroll — and a shorter document
+  // clamps it — so put the reader back where they were. Runs after the reset
+  // above, which has already zeroed the remembered position when the document
+  // itself changed.
+  useLayoutEffect(() => {
+    const el = bodyRef.current
+    if (el && el.scrollTop !== scrollTop.current) el.scrollTop = scrollTop.current
+  }, [html])
 
   // Highlight the outline entry for the heading currently at the top.
   useEffect(() => {
     const el = bodyRef.current
-    if (!el || headings.length === 0) return
+    if (!el) return
     const onScroll = (): void => {
+      scrollTop.current = el.scrollTop
+      if (headings.length === 0) return
       let current = headings[0].id
       for (const h of headings) {
         const node = el.querySelector<HTMLElement>(`[id="${CSS.escape(h.id)}"]`)

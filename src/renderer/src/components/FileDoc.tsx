@@ -72,9 +72,20 @@ export function FileDoc({
     )
   }
 
+  // Which document this is, as opposed to what it currently says: a work-tree
+  // file is re-read on every repository change, and the viewers must tell
+  // "the reader opened something else" from "the text underneath them moved".
+  const docKey = `${rev ?? ''}:${path}`
+
   return preview && isMarkdownPath(path) ? (
-    <MarkdownPane source={source} outline={outline} wrap={wrap} onMenu={onMenu} />
+    <MarkdownPane
+      source={source}
+      docKey={docKey}
+      outline={outline}
+      wrap={wrap}
+      onMenu={onMenu}
+    />
   ) : (
-    <CodePane source={source} path={path} wrap={wrap} onMenu={onMenu} />
+    <CodePane source={source} docKey={docKey} path={path} wrap={wrap} onMenu={onMenu} />
   )
 }

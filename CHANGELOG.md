@@ -34,6 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Reading a long file no longer jumps back to the top when the file changes on
+  disk. A markdown preview or a source view is re-read on every repository
+  change, and the scroll reset that belongs to opening another document was
+  firing on the new text as well — editing a file elsewhere while reading it
+  here threw the reader back to line one. The position is kept across a reload
+  now (and with it the lines already loaded in the source view), and only
+  opening a different document rewinds.
 - The running window shows Gitty's icon in the window list and the dock instead
   of a generic placeholder. The desktop entry now carries
   `StartupWMClass=electron`: an unpackaged Electron app reports `electron` as

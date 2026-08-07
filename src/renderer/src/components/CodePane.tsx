@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { highlightLines, languageFor } from '../highlight'
 import type { MenuState } from './ContextMenu'
 
@@ -8,11 +8,14 @@ const CHUNK = 1500
 /** Whole-file viewer with line numbers and syntax highlighting. */
 export function CodePane({
   source,
+  docKey,
   path,
   wrap,
   onMenu
 }: {
   source: string
+  /** Identifies the document, not its text; changes only on opening another. */
+  docKey: string
   /** Used only to pick the language. */
   path: string
   wrap: boolean
@@ -23,15 +26,30 @@ export function CodePane({
   const hostRef = useRef<HTMLDivElement>(null)
   const [shown, setShown] = useState(CHUNK)
 
-  useEffect(() => {
+  const scrollTop = useRef(0)
+
+  // Rewinding to the top belongs to opening a document, not to its text
+  // changing underneath: a work-tree file is re-read on every repository
+  // change, and dropping the loaded chunks would strand the reader too.
+  useLayoutEffect(() => {
+    scrollTop.current = 0
     setShown(CHUNK)
     if (hostRef.current) hostRef.current.scrollTop = 0
-  }, [source, path])
+  }, [docKey])
+
+  // Re-rendering the lines clamps the scroll when the file got shorter; put
+  // the reader back. The reset above has already zeroed the remembered
+  // position when the document itself changed.
+  useLayoutEffect(() => {
+    const el = hostRef.current
+    if (el && el.scrollTop !== scrollTop.current) el.scrollTop = scrollTop.current
+  }, [lines, shown])
 
   useEffect(() => {
     const el = hostRef.current
     if (!el) return
     const onScroll = (): void => {
+      scrollTop.current = el.scrollTop
       if (el.scrollTop + el.clientHeight >= el.scrollHeight - 600) {
         setShown((n) => (n >= lines.length ? n : n + CHUNK))
       }
