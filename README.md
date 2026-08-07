@@ -183,7 +183,8 @@ state (green) and the work-tree state (yellow / red); untracked files are `??`.
 
 - **Click** — show the file's diff on the right.
 - **Double-click** — open the whole file as a document beside the diff, with
-  line numbers and syntax highlighting (a rendered document for markdown).
+  line numbers and syntax highlighting (a rendered document for markdown, the
+  picture itself for an image).
 - **Right-click** — View File, Open in System App, Reveal in File Manager, Copy
   Relative Path, Copy Absolute Path, Copy File Name.
 - **Click a folder** — collapse or expand it.
@@ -250,7 +251,21 @@ glance.
   toggles, and Show Diff Instead.
 
 Raw HTML inside the markdown is not rendered, and links open in the system
-browser rather than inside the app.
+browser rather than inside the app. Images written relative to the document are
+read out of the repository — at the same revision as the document, so an old
+commit shows the screenshots it shipped with. One the repository does not have
+there leaves a dashed placeholder with its alt text. Images from the web are not
+fetched at all: reading a stranger's README should not announce you to whatever
+host it points at.
+
+#### Images
+
+A `.png`, `.jpg`, `.gif`, `.webp`, `.bmp`, `.ico`, `.avif` or `.svg` opens as
+the picture rather than as a report that it is binary — from disk in the work
+tree, from the commit everywhere else. It is fitted to the pane over a
+checkerboard, so transparency reads as transparency; **click** it for actual
+size and scroll around, click again to fit. Its pixel dimensions and size on
+disk sit underneath. Images above 12 MB are not inlined.
 
 ### Commits (bottom left)
 

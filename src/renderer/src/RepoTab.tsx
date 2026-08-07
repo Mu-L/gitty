@@ -779,13 +779,16 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       {collapseState.allCollapsed ? 'Expand All' : 'Collapse All'}
                     </button>
                   )}
-                  <button
-                    className={`toggle${wrap ? ' on' : ''}`}
-                    title={previewing ? 'Wrap code blocks and tables' : 'Wrap long lines'}
-                    onClick={() => setWrap((w) => !w)}
-                  >
-                    Wrap
-                  </button>
+                  {/* An image has no lines to wrap. */}
+                  {!(doc && isImagePath(doc.path)) && (
+                    <button
+                      className={`toggle${wrap ? ' on' : ''}`}
+                      title={previewing ? 'Wrap code blocks and tables' : 'Wrap long lines'}
+                      onClick={() => setWrap((w) => !w)}
+                    >
+                      Wrap
+                    </button>
+                  )}
                   {previewing && (
                     <button
                       className={`toggle${mdOutline ? ' on' : ''}`}

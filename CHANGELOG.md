@@ -9,12 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Image files get a real preview instead of a text dump. `.png`, `.jpg`,
-  `.jpeg`, `.gif`, `.webp`, `.bmp`, `.ico`, `.avif` and `.svg` open with
-  **View Image** — fitted to the pane, a click for actual size, and a caption
-  of dimensions and bytes — from the work tree or from any revision. Images
-  inside a markdown preview are fetched and inlined the same way, so a
-  document shows its figures without the renderer needing disk access.
+- Images are shown, not reported as binary. Opening a `.png`, `.jpg`, `.gif`,
+  `.webp`, `.bmp`, `.ico`, `.avif` or `.svg` — from the file tree, the header
+  button or a snapshot — gives the picture itself, fitted to the pane over a
+  checkerboard so transparency reads as transparency, with its pixel dimensions
+  and size underneath. Click it for actual size and scroll around; click again
+  to fit. The bytes come from disk in the work tree and from the commit
+  everywhere else, so an image can be looked at as it was.
+- Markdown previews show the images they reference. A relative path is resolved
+  against the document and read out of the repository at the document's own
+  revision, so an old commit renders with the screenshots it shipped with; one
+  that is not there at that revision leaves a placeholder carrying its alt text.
+  Images from the web are still not fetched — reading a stranger's README should
+  not announce you to whatever host it points at. Selecting an image also
+  renames the header's **View File** to **View Image**.
 
 ### Changed
 

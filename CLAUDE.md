@@ -212,6 +212,19 @@ sliced off first, since markdown-it would read `---` as a horizontal rule; and
 link clicks are intercepted, because a plain `<a>` navigation would replace the
 whole app window.
 
+Images are the one thing the renderer cannot resolve for itself: a relative
+`src` would be fetched against the bundle, and a revision's bytes were never on
+disk at all. `git.readImageFile` returns them as a data: URL (`ImagePane` for a
+file opened on its own, `MarkdownPane` for the ones inside a document), keyed by
+the same `rev` as the document, so a commit renders with its own screenshots.
+The substitution happens **in the render pass** — the image rule reads a map off
+markdown-it's `env` and re-renders once the fetches land. Patching `src` onto
+the rendered DOM instead is the obvious thing and does not work: React owns that
+subtree through `dangerouslySetInnerHTML` and rewrites it wholesale, silently
+discarding the patch. The CSP is `img-src 'self' data:`, so a `https://` image
+in a document is not fetched — deliberately, since rendering someone else's
+README should not report to their host.
+
 Full screen is a `position: fixed` class on the pane rather than a different
 tree, deliberately: unmounting the layout would dispose the terminal's pty and
 kill whatever is running in it.
