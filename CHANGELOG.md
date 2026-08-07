@@ -32,6 +32,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - A repository tab's tooltip now says when that repository has uncommitted
   changes, so the yellow dot beside its name does not have to be guessed at.
+- The README is available in five more languages — 简体中文, 日本語, Español,
+  Français and Deutsch — under `ref/readme/`, linked from the top of the English
+  one. Each translation is stamped with the date it was made and says plainly
+  that the English README is the official version and the only one kept up to
+  date; where a translation disagrees with it, the English is right.
+- README restructured around the window rather than the panes. The title bar —
+  every button and counter in it — now has a section of its own instead of
+  being split across four unrelated ones, tabs and recent repositories sit under
+  it, and opening a file whole is documented beside the diff rather than inside
+  it. Newly written up: the Settings dialog, snapshots (**Browse Snapshot**),
+  and the **Word highlight** option, none of which the README mentioned.
 - The window opens faster: the renderer bundle is split, so the app shell and
   the four panes no longer wait on the libraries only some of them need. The
   terminal (xterm), opened files and markdown previews (highlight.js,

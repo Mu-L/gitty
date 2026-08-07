@@ -1,5 +1,11 @@
 # Gitty
 
+**English** · [简体中文](ref/readme/README.zh-CN.md) · [日本語](ref/readme/README.ja.md) · [Español](ref/readme/README.es.md) · [Français](ref/readme/README.fr.md) · [Deutsch](ref/readme/README.de.md)
+
+*This English README is the official version and the only one kept up to date.
+The translations are snapshots, each stamped with the date it was made; where
+one disagrees with this file, this file is right.*
+
 A four-pane git history browser for the desktop, in the spirit of `lazygit` but
 with real mouse interaction: double-click to open a file, right-click to copy
 its path, click two commits to diff them.
@@ -15,7 +21,7 @@ its path, click two commits to diff them.
 ```
 
 All panes are resizable by dragging the separators, and each one hides and comes
-back — see [Hiding panes](#hiding-panes).
+back — see [Full screen and hiding](#full-screen-and-hiding).
 
 Uncommon in other git browsers:
 
@@ -39,7 +45,7 @@ Uncommon in other git browsers:
 - **Text selection and copy that just works** — no mouse mode, no register, no
   keyboard gymnastics; select and copy anything anywhere in the window.
 - **Every pane resizable, hidable, or full screen** — a four-pane layout that
-  shrinks to just the diff, or just the log, and comes back.**
+  shrinks to just the diff, or just the log, and comes back.
 
 ![Gitty 0.1.3](ref/gitty-0.1.3.png)
 
@@ -85,14 +91,8 @@ The `setup.sh` route also installs a desktop launcher: the icon is added to
 the hicolor theme and a `gitty.desktop` entry appears in the application menu
 (and on the desktop, when the session has one). The icon cache and desktop
 database are refreshed afterwards, so the entry shows up with its icon
-straight away.
-
-The entry also carries `StartupWMClass=electron`, which is what gives the
-running window its icon in the window list and the dock. An Electron app that
-is run rather than packaged reports `electron` as its window class whatever the
-application calls itself, so that is the name the entry has to match — with the
-side effect that another unpackaged Electron app on the same session would
-borrow Gitty's icon.
+straight away. (On Linux it carries one workaround and the app runs with one
+sandbox flag off — see [Linux desktop integration](#linux-desktop-integration).)
 
 Then open a repository from anywhere:
 
@@ -115,31 +115,60 @@ launcher installs dependencies and rebuilds the bundle when sources changed, so
 the first run may take a moment. `npm run dev`, `npm run build` and `npm start`
 are available directly as well.
 
-### Linux: sandbox
+Starting Gitty from a directory that is not inside a work tree falls back to the
+last repository opened, instead of just complaining.
 
-On Linux the app runs with Chromium's SUID sandbox disabled
-(`ELECTRON_DISABLE_SANDBOX=1`). The usual fix — making `chrome-sandbox` owned by
-root with mode 4755 — cannot survive inside `node_modules`, so disabling it is
-the pragmatic choice for a local tool that only reads your own repositories.
+## The window
 
-## Multiple repositories
+Four panes in the middle, a title bar above them and a tab bar below.
+
+### Title bar
+
+Left to right, it describes the active repository and then acts on it:
+
+- **The repository path** is a button: it opens the
+  [recent repositories](#recent-repositories) menu.
+- **⎇ branch** is a button too — the branch git has checked out, and a menu of
+  every other branch to read. See
+  [browsing another branch](#browsing-another-branch).
+- **`origin/main ↑2 ↓0`** — the upstream of the checked-out branch and how far
+  ahead and behind it is. Absent on a branch that tracks nothing.
+- **`3 changed`** — how many files the work tree has uncommitted, the same count
+  the **Working Tree** row in the commits pane carries.
+- **Panes ▾** — show or hide each of the four; see
+  [Full screen and hiding](#full-screen-and-hiding).
+- **Settings** — the preferences dialog ([Settings](#settings)),
+  also <kbd>Ctrl+,</kbd>.
+- **Open Repository** — a directory picker, opening into a new tab
+  (<kbd>Ctrl+O</kbd>).
+- **Refresh** — re-read status and log by hand (<kbd>F5</kbd> /
+  <kbd>Ctrl+R</kbd>). Gitty watches the repository and refreshes on its own;
+  this is for the times watching cannot see a change.
+
+While you are reading another branch the branch button reads `⎇ main ›
+other-branch`, and errors from the last git command appear in red beside the
+counts.
+
+### Tabs
 
 A tab bar along the bottom holds every open repository — its basename, a yellow
 dot when the working tree has uncommitted changes, and a **×** to close it. The
 dot counts anything `git status` reports, untracked files included, and it earns
 its place on the tabs you are *not* looking at: the active repository already
-says `N changed` in the title bar, while a background tab is hidden entirely, so
+says `3 changed` in the title bar, while a background tab is hidden entirely, so
 the dot is the only sign that there is work left there. Hovering a tab names the
-repository and says so in words. **+**
-(and **Ctrl+O**) opens another repository into a new tab; the title bar always
-shows the active one. Each tab keeps its own panes and terminal, so a commit you
-are reading and a shell you left running stay exactly where they were when you
-switch away and back. Closing the last tab leaves an empty window with a button
-to open the next repository. (Open tabs are not remembered across restarts.)
+repository and says so in words.
 
-## Recent repositories
+**+** (and <kbd>Ctrl+O</kbd>) opens another repository into a new tab; the title
+bar always shows the active one. Each tab keeps its own panes and terminal, so a
+commit you are reading and a shell you left running stay exactly where they were
+when you switch away and back. Closing the last tab leaves an empty window with
+a button to open the next repository. (Open tabs are not remembered across
+restarts.)
 
-The repository name in the title bar is a menu of the repositories opened
+### Recent repositories
+
+The repository path in the title bar is a menu of the repositories opened
 before — basename plus its parent directory — most recent first.
 
 - **Click** — open it in a new tab.
@@ -151,11 +180,6 @@ before — basename plus its parent directory — most recent first.
 **Open Repository…** and **Clear Recent** sit below. The list lives in
 `~/.config/Gitty/recent-repos.json`, holds twelve entries, and skips any that
 have since been moved or deleted.
-
-Starting Gitty from a directory that is not inside a work tree falls back to the
-last repository opened, instead of just complaining.
-
-## The panes
 
 ### Full screen and hiding
 
@@ -181,10 +205,15 @@ would leave nothing to click. Hidden panes are remembered across restarts, and
 the terminal pane is only put away, never closed: its shells keep running and
 come back with their scrollback when it does.
 
+## The panes
+
 ### Working Tree (top left)
 
-Changed files as a collapsible tree. Two status columns are shown: the staged
-state (green) and the work-tree state (yellow / red); untracked files are `??`.
+Changed files as a collapsible tree, each with its line count beside the name.
+Two status columns are shown: the staged state (green) and the work-tree state
+(yellow / red); untracked files are `??`. The count is read from disk in the
+work tree and from the revision everywhere else; binary files, deleted files and
+anything above 8 MB simply show none.
 
 - **Click** — show the file's diff on the right.
 - **Double-click** — open the whole file as a document beside the diff, with
@@ -196,6 +225,8 @@ state (green) and the work-tree state (yellow / red); untracked files are `??`.
 
 When a commit or a commit range is selected, this pane lists that commit's files
 instead; **Back to Work Tree** (or <kbd>Esc</kbd>) returns to the working tree.
+In a [snapshot](#snapshots) it lists the entire tree at that commit, not just
+what changed.
 
 ### Diff (top right)
 
@@ -214,14 +245,6 @@ uncommitted change in the work tree, or every file in the selected commit.
 - **Inline / Side-by-Side** — one column with `+`/`-` markers, or old and new
   next to each other, where a run of deletions is zipped with the additions that
   follow it. Wrapped halves stay aligned.
-- **View File / Preview** — open the file as its own document in a strip of
-  tabs beside the diff (double-clicking it in the tree does the same), so a
-  file can be read without losing the diff you were on. The **Diff** tab is
-  always first and a single click in the tree still browses diffs in place;
-  each document remembers the revision it was opened at, closes with its own
-  **×**, and re-reads a work-tree file when the repository changes. Markdown
-  opens rendered, with a toggle back to the source. Snapshots have no diff, so
-  there every file is a document.
 - **File headings** — each heading folds its file: the triangle collapses it
   to the name, and **Collapse All** / **Expand All** in the header does the
   lot. **Ctrl+click** a heading opens that file in a new document tab;
@@ -231,9 +254,43 @@ uncommitted change in the work tree, or every file in the selected commit.
   opens its new path.
 - **Right-click** — Copy Selection, Copy Whole Diff, and the same toggles.
 
+Changed words inside a changed line are highlighted where that reads better than
+the whole line at once; it is **Word highlight** in [Settings](#settings).
+
 Settings are remembered between runs. Rows render in chunks of 1500 and extend
 as you scroll, so large commits stay responsive; diffs above 2 MB are truncated
 with a notice.
+
+### Viewing files
+
+A diff is what the pane shows by default, but any file can be opened whole:
+**double-click** it in the tree, use **View File** / **Preview** in the header,
+**Ctrl+click** a file heading in the diff, or take it from either context menu.
+
+The file opens as its own document in a strip of tabs beside the diff, rather
+than over it, so a file can be read without losing the diff you were on. The
+**Diff** tab is always first and a single click in the tree still browses diffs
+in place. Each document remembers the revision it was opened at, closes with its
+own **×**, and re-reads a work-tree file when the repository changes. Source
+files get line numbers and syntax highlighting; markdown opens
+[rendered](#markdown-preview), with a toggle back to the source; an image opens
+as [the picture](#images).
+
+Which revision you get follows the pane: the file on disk in the work tree, the
+file as it was at the selected commit everywhere else. Opening a document is an
+action rather than a mode — selecting another file or another commit puts the
+diff back — so the pane is never stuck showing files when you wanted changes.
+
+#### Snapshots
+
+Right-click a commit and choose **Browse Snapshot** to read the repository as it
+was at that commit: the top-left pane lists the *entire* tree rather than the
+files that commit touched, and picking any file opens it at that revision. A
+snapshot has no diff to show, so every file there is a document.
+
+The files in a snapshot never existed on disk at that revision, which is why
+**Open in System App** hands over a temporary copy of it and **Reveal in File
+Manager** is not offered. **Back to Work Tree** (or <kbd>Esc</kbd>) leaves.
 
 #### Markdown preview
 
@@ -278,21 +335,14 @@ The log of the current branch, loaded 300 at a time and extended as you scroll.
 The first row is the **Working Tree** — the uncommitted changes, with a count of
 changed files; selecting it brings the top panes back to the work tree.
 
-The branch in the title bar opens a menu of every local and remote-tracking
-branch, newest commit first, and picking one shows that branch's history
-instead. It is a read-only look: gitty runs no `checkout`, so the work tree,
-its diffs and the terminals stay exactly where git left them. While you are
-looking at another branch the title bar reads `⎇ main › other-branch` and the
-commit pane says which branch it is listing; **Back to <branch>** returns.
-Each tab browses on its own.
-
 - **Click** or <kbd>Enter</kbd> — show that commit: its files fill the top-left
   pane and its full diff the top-right one.
 - **Ctrl+Click** (<kbd>Cmd</kbd> on macOS), <kbd>Shift+Click</kbd> or
   <kbd>Space</kbd> — pick a second commit and diff the two, oldest first.
 - **↑ ↓ / j k / PgUp / PgDn / Home / End** — move the cursor.
 - **Right-click** — show the diff, copy the hash, the short hash or the subject,
-  or diff against the currently selected commit.
+  [browse the snapshot](#snapshots), or diff against the currently selected
+  commit.
 - **Right-click → Open in Browser** — render this commit in the system browser;
   **Copy Commit URL** copies the link. A web server inside the app (listening on
   `127.0.0.1` only, for your own browser) serves every open repository as a
@@ -301,6 +351,18 @@ Each tab browses on its own.
   click away. The URLs work while the repository is open.
 - Selecting a file in the top-left pane narrows the diff to that file;
   **Show Whole Diff** widens it back out.
+
+#### Browsing another branch
+
+The branch in the title bar opens a menu of every local and remote-tracking
+branch, newest commit first, and picking one shows that branch's history
+instead. It is a read-only look: gitty runs no `checkout`, so the work tree,
+its diffs and the terminals stay exactly where git left them. While you are
+looking at another branch the title bar reads `⎇ main › other-branch` and the
+commit pane says which branch it is listing; **Back to <branch>** returns.
+Each tab browses on its own.
+
+#### Push and Pull
 
 **Push** and **Pull** sit in the header, and both act on the checked-out branch
 whichever branch the log is pointed at. **Push** counts what is unpushed —
@@ -331,6 +393,26 @@ resize against each other.
 **Close** ends the focused shell; leaving a shell with `exit` closes its split
 by itself. The last terminal always stays: exiting it leaves the notice on
 screen instead of an empty pane.
+
+## Settings
+
+**Settings** in the title bar, or <kbd>Ctrl+,</kbd>. Everything here applies to
+every tab and is remembered across restarts; **Restore Defaults** puts it all
+back.
+
+| | |
+| --- | --- |
+| **Theme** | Dark or Light. |
+| **Font size** | 11 – 16, in half points. Applies to every pane, the terminal included. |
+| **Row height** | 18 – 26 pixels — the line height every list is built on, the file tree, the log and the diff. Tighter fits more on screen, looser reads easier. |
+| **Diff layout** | Inline or Side-by-Side, the same toggle the diff header carries. |
+| **Word wrap** | Wrap long lines instead of scrolling sideways. |
+| **Word highlight** | Mark the words that changed inside a changed line, not just the line. |
+| **Markdown outline** | Show the outline beside a rendered document. |
+
+**Word wrap**, **Diff layout** and **Markdown outline** are the same toggles the
+diff header carries, so changing one in either place changes both. **Word
+highlight** lives here only.
 
 ## Keyboard shortcuts
 
@@ -367,6 +449,20 @@ The renderer is split into lazy-loaded chunks so the window paints before
 xterm, highlight.js and markdown-it are parsed. The split — the four chunks,
 the rules for keeping heavy libraries out of warm ones, and how to add a new
 one — is specified in [ref/spec/lazy-loading.md](ref/spec/lazy-loading.md).
+
+### Linux desktop integration
+
+The desktop entry carries `StartupWMClass=electron`, which is what gives the
+running window its icon in the window list and the dock. An Electron app that
+is run rather than packaged reports `electron` as its window class whatever the
+application calls itself, so that is the name the entry has to match — with the
+side effect that another unpackaged Electron app on the same session would
+borrow Gitty's icon.
+
+The app also runs with Chromium's SUID sandbox disabled
+(`ELECTRON_DISABLE_SANDBOX=1`). The usual fix — making `chrome-sandbox` owned by
+root with mode 4755 — cannot survive inside `node_modules`, so disabling it is
+the pragmatic choice for a local tool that only reads your own repositories.
 
 ## Licence
 
