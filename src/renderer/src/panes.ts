@@ -38,7 +38,10 @@ export function paneFullAccel(id: PaneId): string {
 export function paneControls(id: PaneId): TooltipLine[] {
   return [
     { key: paneAccel(id), desc: ' hides this pane' },
-    { key: paneFullAccel(id), desc: ' fills the window' }
+    { key: paneFullAccel(id), desc: ' fills the window' },
+    // Double-clicking the title does the same as Ctrl+Shift+N; a mouse
+    // gesture has no key to highlight, so the line renders as plain text.
+    { key: '', desc: 'Double-click the title toggles full screen' }
   ]
 }
 

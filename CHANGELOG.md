@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The pane-title tooltips now spell out the double-click gesture: hovering any
+  of the four pane titles shows **Double-click the title toggles full screen**
+  under its shortcut, so the mouse gesture is discoverable without a docs hunt.
+
 ## [0.1.3] - 2026-08-07
 
 ### Added
