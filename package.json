@@ -9,7 +9,8 @@
   "files": [
     "out",
     "build",
-    "cli.js"
+    "cli.js",
+    "ref/gitty-0.1.3.png"
   ],
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
