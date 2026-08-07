@@ -1,0 +1,506 @@
+# Gitty
+
+[English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Español](README.es.md) · **Français** · [Deutsch](README.de.md)
+
+> **Traduit le 2026-08-07.**
+> Le [README en anglais](../../README.md) est la version officielle et la seule
+> tenue à jour. Ce document en est un instantané ; en cas de divergence, c'est
+> l'anglais qui fait foi. L'interface est en anglais, donc les noms de boutons et
+> d'entrées de menu sont laissés tels quels.
+
+Un navigateur d'historique git pour le bureau, à quatre volets, dans l'esprit de
+`lazygit` mais avec une vraie interaction à la souris : double-clic pour ouvrir
+un fichier, clic droit pour copier son chemin, deux commits cliqués pour les
+comparer.
+
+```
+┌──────────────────────┬──────────────────────┐
+│ Working Tree         │ Diff                 │
+│ (or a commit's files)│ (unified, coloured)  │
+├──────────────────────┼──────────────────────┤
+│ Commits              │ Terminal             │
+│ (log, ↑↓, Enter)     │ (a real shell)       │
+└──────────────────────┴──────────────────────┘
+```
+
+Tous les volets se redimensionnent en tirant les séparateurs, et chacun se cache
+puis revient — voir [Plein écran et masquage](#full-screen-and-hiding).
+
+Rare chez les autres navigateurs git :
+
+- **Un vrai shell amarré à l'historique.** Pas un widget qui appelle git, mais un
+  véritable shell de connexion (`$SHELL`) enraciné dans le dépôt, dans la même
+  fenêtre que le diff. La plupart des navigateurs git laissent le terminal
+  dehors, si bien que vérifier une intuition oblige à changer de fenêtre. Ici il
+  est là, et tous les autres volets se rafraîchissent à mesure que le dépôt
+  change.
+- **Deux commits à la fois.** Cliquez-en un, puis <kbd>Ctrl+clic</kbd> /
+  <kbd>Maj+clic</kbd> sur un second, et comparez la paire sur place — la plupart
+  des navigateurs ne comparent un commit qu'à son parent ou à un arbre choisi
+  dans une boîte de dialogue.
+- **Parcourir n'importe quelle branche sans la sortir.** Choisissez une branche
+  et tout son historique est là à lire ; l'arbre de travail, les diffs et les
+  terminaux restent exactement où git les a laissés. Rien ne bouge dans le
+  répertoire de travail.
+- **Aperçu Markdown intégré.** Sélectionner une modification `.md` rend le
+  document — code coloré, plan qui suit votre défilement — à la révision où vous
+  êtes, et pas seulement dans la copie de travail.
+- **Un diff entier avec le titre de chaque fichier épinglé.** Sans rien de
+  sélectionné vous voyez toutes les modifications d'un coup, et l'en-tête du
+  fichier que vous lisez reste collé en haut du volet jusqu'à ce que celui du
+  fichier suivant le pousse dehors.
+- **Sélection et copie de texte qui marchent, tout simplement** — pas de mode
+  souris, pas de registre, pas de gymnastique au clavier ; sélectionnez et copiez
+  n'importe quoi, n'importe où dans la fenêtre.
+- **Chaque volet redimensionnable, masquable ou en plein écran** — une
+  disposition à quatre volets qui se réduit au seul diff, ou au seul journal, et
+  revient.
+
+![Gitty 0.1.3](../../ref/gitty-0.1.3.png)
+
+## Pourquoi un de plus ? <a id="why-another-one"></a>
+
+Parce que chaque outil vers lequel je me suis tourné se trompait sur un point :
+
+- **Les IDE** — trop lourds et trop lents. (Croyez-moi, j'ai essayé tous ceux que
+  j'ai pu trouver.)
+- **lazygit, grv** — d'excellents outils, mais hostiles à la souris et à la
+  sélection de texte.
+- **gitui** — je veux la liste des commits et le diff à l'écran en même temps.
+- **SmartGit, GitKraken** — Java, lourds, datés, et ils veulent votre argent.
+- **gitg** et consorts — là encore, pas de liste de commits et de diff côte à
+  côte.
+- **tig** — que des diffs, aucun arbre de fichiers à parcourir.
+- **gitk** — moche !
+
+Deux autres choses que je voulais et que presque personne n'offrait : un **aperçu
+Markdown**, et un **copier-coller qui marche** partout dans la fenêtre.
+
+## Prérequis <a id="requirements"></a>
+
+- Node.js 20 ou plus récent
+- `git` dans le `PATH`
+- Linux, macOS ou Windows avec une session de bureau
+
+## Lancement <a id="running"></a>
+
+Installez la commande `gitty` une fois :
+
+```bash
+npm install -g gitty-desktop      # installs the gitty command globally
+```
+
+ou, depuis une copie du dépôt, liez-la dans votre PATH avec :
+
+```bash
+./setup.sh               # symlink into ~/.local/bin (no sudo)
+./setup.sh --system      # symlink into /usr/local/bin (needs sudo)
+```
+
+La voie `setup.sh` installe aussi un lanceur de bureau : l'icône est ajoutée au
+thème hicolor et une entrée `gitty.desktop` apparaît dans le menu des
+applications (et sur le bureau, quand la session en a un). Le cache d'icônes et
+la base de données de bureau sont ensuite rafraîchis, de sorte que l'entrée
+apparaît tout de suite avec son icône. (Sous Linux elle porte un contournement et
+l'application tourne avec un interrupteur de bac à sable désactivé — voir
+[Intégration au bureau Linux](#linux-desktop-integration).)
+
+Puis ouvrez un dépôt depuis n'importe où :
+
+```bash
+gitty                    # open the repository in the current directory
+gitty /path/to/repo      # open another repository
+gitty --fg               # keep it attached to the terminal (Ctrl+C quits)
+gitty --dev              # hot-reloading development mode
+gitty --any              # start even outside a work tree (what the desktop
+                         # entry uses), falling back to the last repositories
+```
+
+Gitty se détache du terminal et affiche son pid, si bien que le shell reste
+utilisable et que le fermer n'emporte pas la fenêtre. La sortie va dans
+`${XDG_STATE_HOME:-~/.local/state}/gitty/gitty.log`, ramené à son dernier
+mégaoctet dès qu'il dépasse 4 Mo.
+
+`./run.sh` est le même script et fonctionne à l'identique sans le lien
+symbolique. Le lanceur installe les dépendances et reconstruit le bundle quand
+les sources ont changé, donc le premier lancement peut prendre un moment.
+`npm run dev`, `npm run build` et `npm start` sont également disponibles
+directement.
+
+Démarrer Gitty depuis un répertoire qui n'est pas dans un arbre de travail se
+rabat sur le dernier dépôt ouvert, au lieu de se contenter de râler.
+
+## La fenêtre <a id="the-window"></a>
+
+Quatre volets au milieu, une barre de titre au-dessus et une barre d'onglets en
+dessous.
+
+### Barre de titre <a id="title-bar"></a>
+
+De gauche à droite, elle décrit le dépôt actif puis agit dessus :
+
+- **Le chemin du dépôt** est un bouton : il ouvre le menu des
+  [dépôts récents](#recent-repositories).
+- **⎇ branche** est un bouton aussi — la branche que git a sortie, et un menu de
+  toutes les autres à lire. Voir
+  [parcourir une autre branche](#browsing-another-branch).
+- **`origin/main ↑2 ↓0`** — l'amont de la branche courante et de combien elle est
+  en avance ou en retard. Absent sur une branche qui ne suit rien.
+- **`3 changed`** — combien de fichiers l'arbre de travail a de non validés, le
+  même compte que porte la ligne **Working Tree** du volet des commits.
+- **Panes ▾** — afficher ou masquer chacun des quatre ; voir
+  [Plein écran et masquage](#full-screen-and-hiding).
+- **Settings** — la boîte de dialogue des préférences ([Réglages](#settings)),
+  également par <kbd>Ctrl+,</kbd>.
+- **Open Repository** — un sélecteur de répertoire, ouvrant dans un nouvel onglet
+  (<kbd>Ctrl+O</kbd>).
+- **Refresh** — relire l'état et le journal à la main (<kbd>F5</kbd> /
+  <kbd>Ctrl+R</kbd>). Gitty surveille le dépôt et se rafraîchit tout seul ; ceci
+  est pour les fois où la surveillance ne voit pas un changement.
+
+Pendant que vous lisez une autre branche, le bouton de branche affiche
+`⎇ main › other-branch`, et les erreurs de la dernière commande git apparaissent
+en rouge à côté des compteurs.
+
+### Onglets <a id="tabs"></a>
+
+Une barre d'onglets en bas contient chaque dépôt ouvert — son nom de base, un
+point jaune quand l'arbre de travail a des modifications non validées, et une
+**×** pour le fermer. Le point compte tout ce que rapporte `git status`, fichiers
+non suivis compris, et il gagne sa place sur les onglets que vous ne regardez
+*pas* : le dépôt actif affiche déjà `3 changed` dans la barre de titre, alors
+qu'un onglet en arrière-plan est entièrement caché ; le point est donc le seul
+signe qu'il reste du travail là-bas. Survoler un onglet nomme le dépôt et le dit
+en toutes lettres.
+
+**+** (et <kbd>Ctrl+O</kbd>) ouvre un autre dépôt dans un nouvel onglet ; la
+barre de titre montre toujours l'actif. Chaque onglet garde ses propres volets et
+son terminal, si bien qu'un commit que vous lisez et un shell que vous avez
+laissé tourner restent exactement là où ils étaient quand vous partez et
+revenez. Fermer le dernier onglet laisse une fenêtre vide avec un bouton pour
+ouvrir le dépôt suivant. (Les onglets ouverts ne sont pas retenus d'un lancement
+à l'autre.)
+
+### Dépôts récents <a id="recent-repositories"></a>
+
+Le chemin du dépôt dans la barre de titre est un menu des dépôts ouverts
+auparavant — nom de base plus répertoire parent — le plus récent en premier.
+
+- **Clic** — l'ouvrir dans un nouvel onglet.
+- **Ctrl/Cmd+clic** ou **clic milieu** — l'ouvrir dans l'onglet courant, en
+  remplaçant le dépôt qui s'y trouve et en gardant la place de l'onglet dans la
+  barre.
+- **Clic droit** — retirer l'entrée de la liste. Le menu reste ouvert, on peut
+  donc en effacer plusieurs de suite.
+
+**Open Repository…** et **Clear Recent** se trouvent en dessous. La liste vit
+dans `~/.config/Gitty/recent-repos.json`, contient douze entrées et saute celles
+qui ont depuis été déplacées ou supprimées.
+
+### Plein écran et masquage <a id="full-screen-and-hiding"></a>
+
+L'en-tête de chaque volet porte les deux mêmes contrôles : **⤢** à sa gauche
+remplit la fenêtre avec ce volet, et **×** à sa droite le masque.
+
+Le plein écran couvre tout le reste, barres de titre et d'onglets comprises, et
+les volets en dessous continuent de fonctionner — le terminal tourne toujours
+pendant qu'il est couvert. **⤡** dans le même coin, <kbd>Échap</kbd>, un
+double-clic sur l'en-tête, ou <kbd>Ctrl+Maj+1</kbd> … <kbd>Ctrl+Maj+4</kbd>
+restaurent la disposition. Un seul volet est en plein écran à la fois.
+
+Le masquage est l'autre direction — n'importe quel volet peut être rangé puis
+rappelé :
+
+- **Panes** dans la barre de titre liste les quatre, avec un point à côté des
+  visibles ; cliquer l'un le bascule, et **Show All Panes** restaure la
+  disposition à quatre volets.
+- <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> basculent Files, Diff, Commits et
+  Terminal, dans cet ordre.
+
+Ce qui reste se partage la fenêtre, donc masquer le volet des commits donne au
+diff toute la hauteur. Le dernier volet visible n'a pas de **×** — une fenêtre
+vide ne laisserait rien à cliquer. Les volets masqués sont retenus d'un lancement
+à l'autre, et le volet du terminal est seulement rangé, jamais fermé : ses shells
+continuent de tourner et reviennent avec leur historique de défilement.
+
+## Les volets <a id="the-panes"></a>
+
+### Working Tree (en haut à gauche) <a id="working-tree-top-left"></a>
+
+Les fichiers modifiés en arbre repliable, chacun avec son nombre de lignes à côté
+du nom. Deux colonnes d'état sont affichées : l'état de l'index (vert) et celui
+de l'arbre de travail (jaune / rouge) ; les fichiers non suivis sont `??`. Le
+compte est lu sur le disque dans l'arbre de travail et dans la révision partout
+ailleurs ; les fichiers binaires, les fichiers supprimés et tout ce qui dépasse
+8 Mo n'en affichent simplement aucun.
+
+- **Clic** — afficher le diff du fichier à droite.
+- **Double-clic** — ouvrir le fichier entier comme document à côté du diff, avec
+  numéros de ligne et coloration syntaxique (un document rendu pour markdown,
+  l'image elle-même pour une image).
+- **Clic droit** — View File, Open in System App, Reveal in File Manager, Copy
+  Relative Path, Copy Absolute Path, Copy File Name.
+- **Clic sur un dossier** — le replier ou le déplier.
+
+Quand un commit ou une plage de commits est sélectionné, ce volet liste les
+fichiers de ce commit ; **Back to Work Tree** (ou <kbd>Échap</kbd>) revient à
+l'arbre de travail. Dans un [instantané](#snapshots), il liste l'arbre entier à ce
+commit, pas seulement ce qui a changé.
+
+### Diff (en haut à droite) <a id="diff-top-right"></a>
+
+Diff unifié avec anciens et nouveaux numéros de ligne, en-têtes de hunk et
+couleurs d'ajout/suppression, disposé comme une liste de fichiers : chaque chemin
+est un titre pleine largeur, l'en-tête de hunk est atténué — c'est une plage de
+lignes, pas la chose à regarder en premier — et un renommage se lit
+`old → new`. Sans fichier sélectionné, il montre tout d'un coup : chaque
+modification non validée de l'arbre de travail, ou chaque fichier du commit
+sélectionné.
+
+- **Show Whole Diff** — revenir à ce diff combiné après avoir choisi un fichier.
+  Il reste dans l'en-tête et s'allume tant que c'est le diff entier que vous
+  regardez. La version arbre de travail couvre ensemble les modifications
+  indexées et non indexées et intègre les fichiers non suivis (jusqu'à 50, puis
+  un avis), que `git diff` seul laisse de côté.
+- **Wrap** — retour à la ligne au lieu du défilement horizontal. Actif par
+  défaut.
+- **Inline / Side-by-Side** — une colonne avec des marques `+`/`-`, ou l'ancien
+  et le nouveau côte à côte, où une série de suppressions est appariée aux ajouts
+  qui la suivent. Les moitiés repliées restent alignées.
+- **Titres de fichier** — chaque titre replie son fichier : le triangle le réduit
+  au nom, et **Collapse All** / **Expand All** dans l'en-tête s'occupent de tout.
+  **Ctrl+clic** sur un titre ouvre ce fichier dans un nouvel onglet de document ;
+  au clic droit viennent **Open in a New Tab**, **Select in the File List**, les
+  copies de chemin et — dans l'arbre de travail, où le fichier sur le disque est
+  la version affichée — **Open in System App** et **Reveal in File Manager**. Un
+  renommage ouvre son nouveau chemin.
+- **Clic droit** — Copy Selection, Copy Whole Diff, et les mêmes bascules.
+
+Les mots modifiés à l'intérieur d'une ligne modifiée sont mis en évidence quand
+cela se lit mieux que la ligne entière ; c'est **Word highlight** dans les
+[Réglages](#settings).
+
+Les réglages sont retenus d'une exécution à l'autre. Les lignes sont rendues par
+blocs de 1500 et s'étendent au défilement, donc les gros commits restent réactifs ;
+les diffs de plus de 2 Mo sont tronqués avec un avis.
+
+### Voir des fichiers entiers <a id="viewing-files"></a>
+
+Un diff est ce que le volet affiche par défaut, mais n'importe quel fichier peut
+être ouvert en entier : **double-cliquez**-le dans l'arbre, utilisez
+**View File** / **Preview** dans l'en-tête, **Ctrl+cliquez** un titre de fichier
+dans le diff, ou prenez-le dans l'un des deux menus contextuels.
+
+Le fichier s'ouvre comme document à part dans une bande d'onglets *à côté* du
+diff plutôt que par-dessus, de sorte qu'on peut le lire sans perdre le diff où
+l'on était. L'onglet **Diff** est toujours premier et un simple clic dans l'arbre
+continue de parcourir les diffs sur place. Chaque document retient la révision à
+laquelle il a été ouvert, se ferme avec sa propre **×**, et relit un fichier de
+l'arbre de travail quand le dépôt change. Les fichiers source reçoivent numéros
+de ligne et coloration syntaxique ; le markdown s'ouvre [rendu](#markdown-preview),
+avec une bascule vers la source ; une image s'ouvre comme [l'image](#images).
+
+La révision obtenue suit le volet : le fichier sur le disque dans l'arbre de
+travail, le fichier tel qu'il était au commit sélectionné partout ailleurs. Ouvrir
+un document est une action et non un mode — sélectionner un autre fichier ou un
+autre commit remet le diff — si bien que le volet ne reste jamais coincé sur des
+fichiers quand vous vouliez des modifications.
+
+#### Instantanés <a id="snapshots"></a>
+
+Faites un clic droit sur un commit et choisissez **Browse Snapshot** pour lire le
+dépôt tel qu'il était à ce commit : le volet en haut à gauche liste l'arbre
+*entier* plutôt que les fichiers que ce commit a touchés, et n'importe quel
+fichier s'ouvre à cette révision. Un instantané n'a pas de diff à montrer, donc
+là-bas chaque fichier est un document.
+
+Les fichiers d'un instantané n'ont jamais existé sur le disque à cette révision,
+c'est pourquoi **Open in System App** en remet une copie temporaire et que
+**Reveal in File Manager** n'est pas proposé. **Back to Work Tree** (ou
+<kbd>Échap</kbd>) en sort.
+
+#### Aperçu Markdown <a id="markdown-preview"></a>
+
+Sélectionner un fichier `.md` ajoute un bouton **Preview** — désactivé par
+défaut, ainsi un diff reste un diff jusqu'à ce que vous le demandiez. Il rend le
+fichier dans son ensemble : la version sur le disque dans l'arbre de travail, la
+version au commit sélectionné partout ailleurs.
+
+Les blocs de code délimités sont colorés quand ils nomment un langage, le front
+matter YAML est extrait et montré comme son propre bloc coloré, et les niveaux de
+titre, les marques de liste, les liens et le code en ligne sont codés par couleur
+pour que la structure se lise d'un coup d'œil.
+
+- **Wrap** — la même bascule que pour le diff, active par défaut. La prose passe
+  toujours à la ligne ; dans un aperçu, ceci décide si les blocs de code, les
+  tableaux larges et les longues chaînes en ligne y passent aussi, au lieu de
+  défiler latéralement.
+- **Outline** — la structure des titres à côté du document, indentée par niveau,
+  suivant le titre auquel vous avez défilé. Cliquez une entrée pour y sauter.
+- **Clic droit** — Copy Selection, Copy Markdown Source, les bascules de retour à
+  la ligne et de plan, et Show Diff Instead.
+
+Le HTML brut dans le markdown n'est pas rendu, et les liens s'ouvrent dans le
+navigateur du système plutôt que dans l'application. Les images écrites en
+relatif par rapport au document sont lues dans le dépôt — à la même révision que
+le document, donc un vieux commit montre les captures avec lesquelles il est
+sorti. Une que le dépôt n'a pas à cet endroit laisse un cadre pointillé portant
+son texte alternatif. Les images du web ne sont pas récupérées du tout : lire le
+README d'un inconnu ne devrait pas vous annoncer à l'hôte vers lequel il pointe.
+
+#### Images <a id="images"></a>
+
+Un `.png`, `.jpg`, `.gif`, `.webp`, `.bmp`, `.ico`, `.avif` ou `.svg` s'ouvre
+comme l'image plutôt que comme un constat qu'il est binaire — depuis le disque
+dans l'arbre de travail, depuis le commit partout ailleurs. Elle est ajustée au
+volet sur un damier, pour que la transparence se lise comme de la transparence ;
+**cliquez** dessus pour la taille réelle et le défilement, cliquez encore pour
+l'ajuster. Ses dimensions en pixels et sa taille sur le disque sont en dessous.
+Les images de plus de 12 Mo ne sont pas intégrées.
+
+### Commits (en bas à gauche) <a id="commits-bottom-left"></a>
+
+Le journal de la branche courante, chargé par 300 et étendu au défilement. La
+première ligne est **Working Tree** — les modifications non validées, avec un
+compte de fichiers modifiés ; la sélectionner ramène les volets du haut à l'arbre
+de travail.
+
+- **Clic** ou <kbd>Entrée</kbd> — montrer ce commit : ses fichiers remplissent le
+  volet en haut à gauche et son diff complet celui en haut à droite.
+- **Ctrl+clic** (<kbd>Cmd</kbd> sur macOS), <kbd>Maj+clic</kbd> ou
+  <kbd>Espace</kbd> — choisir un second commit et comparer les deux, le plus
+  ancien d'abord.
+- **↑ ↓ / j k / PgUp / PgDn / Home / End** — déplacer le curseur.
+- **Clic droit** — montrer le diff, copier le hash, le hash court ou le sujet,
+  [parcourir l'instantané](#snapshots), ou comparer au commit sélectionné.
+- **Clic droit → Open in Browser** — rendre ce commit dans le navigateur du
+  système ; **Copy Commit URL** copie le lien. Un serveur web à l'intérieur de
+  l'application (à l'écoute sur `127.0.0.1` seulement, pour votre propre
+  navigateur) sert chaque dépôt ouvert comme une liste de commits parcourable — le
+  bouton **Open in Browser** du volet des commits y atterrit — avec les
+  métadonnées, les fichiers et le diff de chaque commit, et les diffs par fichier
+  à un clic. Les URL fonctionnent tant que le dépôt est ouvert.
+- Sélectionner un fichier dans le volet en haut à gauche restreint le diff à ce
+  fichier ; **Show Whole Diff** le rélargit.
+
+#### Parcourir une autre branche <a id="browsing-another-branch"></a>
+
+La branche dans la barre de titre ouvre un menu de toutes les branches locales et
+de suivi distant, la plus récemment commitée d'abord, et en choisir une affiche
+l'historique de cette branche. C'est un regard en lecture seule : gitty ne lance
+aucun `checkout`, donc l'arbre de travail, ses diffs et les terminaux restent
+exactement où git les a laissés. Pendant que vous regardez une autre branche, la
+barre de titre se lit `⎇ main › other-branch` et le volet des commits dit quelle
+branche il liste ; **Back to \<branch\>** revient. Chaque onglet parcourt de son
+côté.
+
+#### Push et Pull <a id="push-and-pull"></a>
+
+**Push** et **Pull** sont dans l'en-tête, et tous deux agissent sur la branche
+sortie, quelle que soit celle que le journal affiche. **Push** compte ce qui n'est
+pas poussé — **Push 3** — et se grise quand il n'y a rien à envoyer ; sur une
+branche qui ne suit rien, il publie la branche sur `origin` et règle l'amont.
+**Pull** avance en fast-forward depuis l'amont, et est grisé quand il n'y a pas
+d'amont d'où tirer. Ce que git dit apparaît au-dessus du journal — cliquez pour
+l'écarter ; les échecs restent jusqu'à ce que vous le fassiez.
+
+Ni l'un ni l'autre ne peut répondre à une invite : il n'y a pas de terminal
+derrière eux, donc un push qui veut un mot de passe ou une phrase secrète échoue
+avec le message de git plutôt que de rester bloqué, et un pull qui ne peut pas
+avancer le dit. Les deux se terminent ensuite à la main dans le volet du
+terminal, qui est juste là.
+
+### Terminal (en bas à droite) <a id="terminal-bottom-right"></a>
+
+Un vrai shell de connexion interactif (`$SHELL`) enraciné dans le dépôt, si bien
+que toute commande git peut être lancée directement. Les autres volets se
+rafraîchissent automatiquement quand le dépôt change sur le disque.
+
+Le volet se divise en autant de shells que vous voulez : **Split →** en place un
+nouveau à côté du terminal actif, **Split ↓** en dessous, et les séparateurs
+entre eux se tirent comme ceux de tout autre volet. Cliquer un terminal lui donne
+le focus — celui qui est encadré est là où atterrissent la prochaine division ou
+**Close**. Diviser deux fois dans le même sens allonge la rangée ou la colonne au
+lieu d'imbriquer, si bien que trois terminaux côte à côte se redimensionnent les
+uns contre les autres.
+
+**Close** termine le shell actif ; quitter un shell par `exit` ferme sa division
+tout seul. Le dernier terminal reste toujours : en sortir laisse l'avis à l'écran
+au lieu d'un volet vide.
+
+## Réglages <a id="settings"></a>
+
+**Settings** dans la barre de titre, ou <kbd>Ctrl+,</kbd>. Tout ici s'applique à
+tous les onglets et est retenu d'un lancement à l'autre ; **Restore Defaults**
+remet tout en place.
+
+| | |
+| --- | --- |
+| **Theme** | Dark ou Light. |
+| **Font size** | 11 – 16, par demi-points. S'applique à tous les volets, terminal compris. |
+| **Row height** | 18 – 26 pixels — la hauteur de ligne sur laquelle chaque liste est bâtie : l'arbre des fichiers, le journal et le diff. Plus serré fait tenir davantage à l'écran, plus aéré se lit mieux. |
+| **Diff layout** | Inline ou Side-by-Side, la même bascule que porte l'en-tête du diff. |
+| **Word wrap** | Retour à la ligne au lieu du défilement horizontal. |
+| **Word highlight** | Marquer les mots qui ont changé dans une ligne modifiée, pas seulement la ligne. |
+| **Markdown outline** | Afficher le plan à côté d'un document rendu. |
+
+**Word wrap**, **Diff layout** et **Markdown outline** sont les mêmes bascules
+que celles de l'en-tête du diff : en changer une d'un côté la change des deux.
+**Word highlight** n'existe qu'ici.
+
+## Raccourcis clavier <a id="keyboard-shortcuts"></a>
+
+| Touche | Action |
+| --- | --- |
+| <kbd>Enter</kbd> | Montrer le commit sélectionné |
+| <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Marquer un second commit et comparer la paire |
+| <kbd>Ctrl+Click</kbd> sur un titre de fichier | Ouvrir ce fichier dans un nouvel onglet de document |
+| <kbd>Esc</kbd> | Retour à l'arbre de travail |
+| <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Rafraîchir l'état et le journal |
+| <kbd>Ctrl+O</kbd> | Ouvrir un autre dépôt dans un nouvel onglet |
+| <kbd>Ctrl+,</kbd> | Réglages |
+| <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> | Masquer ou afficher Files, Diff, Commits, Terminal |
+| <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> | Remplir la fenêtre avec ce volet |
+
+## Architecture <a id="architecture"></a>
+
+```
+src/main       Electron main process — git commands, ptys, fs watchers,
+               the recent-repository store, IPC
+src/preload    contextBridge API exposed to the renderer as window.gitty
+src/renderer   React UI — App.tsx manages tabs, RepoTab.tsx owns one
+               repository's four panes
+src/shared     Types shared by both sides
+build          Application icon (SVG source and rendered PNG)
+```
+
+git est piloté par `execFile('git', …)` avec l'analyse de `--porcelain=v2 -z` /
+`--name-status -z`, si bien que les chemins avec espaces et les renommages
+survivent. Aucune bibliothèque git n'est embarquée ; le `git` du `PATH` est ce
+que vous voyez. Le renderer tourne avec `contextIsolation` et sans intégration
+node.
+
+Le renderer est découpé en morceaux chargés à la demande pour que la fenêtre se
+peigne avant que xterm, highlight.js et markdown-it ne soient analysés. Ce
+découpage — les quatre morceaux, les règles pour tenir les bibliothèques lourdes
+hors des morceaux chauds, et comment en ajouter une — est spécifié dans
+[ref/spec/lazy-loading.md](../../ref/spec/lazy-loading.md).
+
+### Intégration au bureau Linux <a id="linux-desktop-integration"></a>
+
+L'entrée de bureau porte `StartupWMClass=electron`, et c'est elle qui donne à la
+fenêtre en cours son icône dans la liste des fenêtres et le dock. Une application
+Electron qui est lancée plutôt qu'empaquetée rapporte `electron` comme classe de
+fenêtre quel que soit le nom qu'elle se donne, c'est donc ce nom que l'entrée doit
+faire correspondre — avec l'effet de bord qu'une autre application Electron non
+empaquetée sur la même session emprunterait l'icône de Gitty.
+
+L'application tourne aussi avec le bac à sable SUID de Chromium désactivé
+(`ELECTRON_DISABLE_SANDBOX=1`). Le correctif habituel — faire appartenir
+`chrome-sandbox` à root en mode 4755 — ne survit pas dans `node_modules`, donc le
+désactiver est le choix pragmatique pour un outil local qui ne lit que vos
+propres dépôts.
+
+## Licence <a id="licence"></a>
+
+MIT

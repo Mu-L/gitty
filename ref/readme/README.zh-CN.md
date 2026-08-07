@@ -1,0 +1,395 @@
+# Gitty
+
+[English](../../README.md) · **简体中文** · [日本語](README.ja.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
+
+> **翻译于 2026-08-07。**
+> [英文 README](../../README.md) 是官方版本，也是唯一持续更新的版本。本文是那一
+> 刻的快照，两者不一致时以英文版为准。界面本身全是英文，所以下文中的按钮名、菜单
+> 项一律保留原文。
+
+一个桌面端的四窗格 git 历史浏览器，气质接近 `lazygit`，但真正为鼠标而设计：双击
+打开文件，右键复制路径，点两个提交就能比较它们。
+
+```
+┌──────────────────────┬──────────────────────┐
+│ Working Tree         │ Diff                 │
+│ (or a commit's files)│ (unified, coloured)  │
+├──────────────────────┼──────────────────────┤
+│ Commits              │ Terminal             │
+│ (log, ↑↓, Enter)     │ (a real shell)       │
+└──────────────────────┴──────────────────────┘
+```
+
+所有窗格都能拖动分隔条调整大小，每一个都可以收起再唤回——见
+[全屏与隐藏](#full-screen-and-hiding)。
+
+其他 git 浏览器少见的地方：
+
+- **一个真正的 shell 就停靠在历史旁边。** 不是调用 git 的小部件，而是一个以仓库为
+  根的真正登录 shell（`$SHELL`），和 diff 处在同一个窗口里。多数 git 浏览器把终端
+  留在外面，于是验证一个念头就得来回切窗口。这里它就在手边，而且仓库一变，其余每
+  个窗格都会刷新。
+- **一次看两个提交。** 点一个，再 <kbd>Ctrl+click</kbd> / <kbd>Shift+click</kbd>
+  第二个，当场比较这一对——多数浏览器只能把提交和它的父提交比，或者在对话框里挑一
+  棵树。
+- **不检出就能浏览任意分支。** 选一个分支，它的整段历史就摆在那里等你读；工作区、
+  diff 和终端全都保持 git 留下的样子。工作目录里没有任何东西被动过。
+- **内置 Markdown 预览。** 选中一处 `.md` 改动就渲染出文档——代码有语法高亮，大纲
+  跟着滚动——而且是你当前所处版本的文档，不只是工作区副本。
+- **整段 diff，每个文件的标题都会吸顶。** 什么都不选时你看到的是全部改动，而你正在
+  读的那个文件标题会粘在窗格顶端，直到下一个文件的标题把它顶走。
+- **文本选择和复制就是能用**——没有 mouse mode，没有寄存器，不需要键盘杂技；窗口里
+  任何地方，选中就能复制。
+- **每个窗格都可缩放、可隐藏、可全屏**——一套四窗格布局，能缩到只剩 diff、或只剩
+  日志，也能再回来。
+
+![Gitty 0.1.3](../../ref/gitty-0.1.3.png)
+
+## 为什么又造一个？ <a id="why-another-one"></a>
+
+因为我伸手够到的每个工具都有一处不对：
+
+- **各类 IDE** —— 太重、太慢。（信我，能找到的我都试过。）
+- **lazygit、grv** —— 出色的工具，但对鼠标和文本选择不友好。
+- **gitui** —— 我想让提交列表和 diff 同时在屏幕上。
+- **SmartGit、GitKraken** —— Java，笨重，样式过时，还要收钱。
+- **gitg** 之流 —— 同样没有提交列表与 diff 并排。
+- **tig** —— 只有 diff，没有文件树可翻。
+- **gitk** —— 丑！
+
+还有两件我想要而几乎没人提供的：**Markdown 预览**，以及在窗口任何地方**都能正常
+用的复制粘贴**。
+
+## 环境要求 <a id="requirements"></a>
+
+- Node.js 20 或更新版本
+- `PATH` 上有 `git`
+- Linux、macOS 或 Windows，且有桌面会话
+
+## 运行 <a id="running"></a>
+
+安装一次 `gitty` 命令：
+
+```bash
+npm install -g gitty-desktop      # installs the gitty command globally
+```
+
+或者，从检出的源码把它链接进 PATH：
+
+```bash
+./setup.sh               # symlink into ~/.local/bin (no sudo)
+./setup.sh --system      # symlink into /usr/local/bin (needs sudo)
+```
+
+走 `setup.sh` 这条路还会装一个桌面启动器：图标加进 hicolor 主题，应用菜单里出现一
+个 `gitty.desktop` 条目（会话有桌面时，桌面上也有）。之后图标缓存和 desktop 数据库
+会被刷新，所以条目连同图标会立刻出现。（在 Linux 上它带一个变通设置，且应用关掉了
+一个沙箱开关——见 [Linux 桌面集成](#linux-desktop-integration)。）
+
+然后在任何地方打开一个仓库：
+
+```bash
+gitty                    # open the repository in the current directory
+gitty /path/to/repo      # open another repository
+gitty --fg               # keep it attached to the terminal (Ctrl+C quits)
+gitty --dev              # hot-reloading development mode
+gitty --any              # start even outside a work tree (what the desktop
+                         # entry uses), falling back to the last repositories
+```
+
+Gitty 会从终端脱离并打印自己的 pid，所以 shell 依然可用，关掉它也不会带走窗口。输
+出写到 `${XDG_STATE_HOME:-~/.local/state}/gitty/gitty.log`，超过 4 MB 后会被截到
+最后 1 MB。
+
+`./run.sh` 是同一个脚本，不做符号链接也一样能用。启动器会在源码有改动时安装依赖并
+重建 bundle，所以第一次运行可能要等一会儿。`npm run dev`、`npm run build` 和
+`npm start` 也可以直接用。
+
+从不在工作区里的目录启动 Gitty 时，它会回退到上次打开的仓库，而不是只抱怨一句。
+
+## 窗口 <a id="the-window"></a>
+
+中间四个窗格，上方一条标题栏，下方一条标签栏。
+
+### 标题栏 <a id="title-bar"></a>
+
+从左到右，它先描述当前仓库，再对它动手：
+
+- **仓库路径**是一个按钮：点开
+  [最近仓库](#recent-repositories)菜单。
+- **⎇ 分支**也是按钮——显示 git 当前检出的分支，并给出其余分支的菜单供你阅读。见
+  [浏览另一个分支](#browsing-another-branch)。
+- **`origin/main ↑2 ↓0`** —— 当前检出分支的上游，以及领先、落后多少。分支没有跟踪
+  目标时不显示。
+- **`3 changed`** —— 工作区有多少个文件未提交，和提交窗格里 **Working Tree** 那行
+  带的计数是同一个数。
+- **Panes ▾** —— 显示或隐藏这四个窗格；见[全屏与隐藏](#full-screen-and-hiding)。
+- **Settings** —— 首选项对话框（[设置](#settings)），也可按 <kbd>Ctrl+,</kbd>。
+- **Open Repository** —— 目录选择器，在新标签页里打开（<kbd>Ctrl+O</kbd>）。
+- **Refresh** —— 手动重新读取状态和日志（<kbd>F5</kbd> / <kbd>Ctrl+R</kbd>）。
+  Gitty 会监视仓库并自动刷新；这个按钮留给监视看不见的情况。
+
+当你在读另一个分支时，分支按钮显示为 `⎇ main › other-branch`；上一条 git 命令的
+错误会以红字出现在计数旁边。
+
+### 标签页 <a id="tabs"></a>
+
+底部的标签栏容纳每一个打开的仓库——它的目录名、工作区有未提交改动时的一个黄点，以
+及关闭用的 **×**。这个点统计 `git status` 报告的一切，包含未跟踪文件；而它真正的价
+值在你*没有*在看的那些标签页上：当前仓库的标题栏已经写着 `3 changed`，而后台标签页
+是完全隐藏的，于是这个点是「那边还有活儿没干完」的唯一信号。把鼠标停在标签上，会显
+示仓库路径并用文字说明这一点。
+
+**+**（以及 <kbd>Ctrl+O</kbd>）把另一个仓库开进新标签页；标题栏永远显示当前那个。每
+个标签页各自保有自己的窗格和终端，所以你正在读的提交、以及你留着跑的 shell，在你切
+走再切回来时还在原处。关掉最后一个标签页会留下一个空窗口和一个打开下一个仓库的按
+钮。（打开的标签页不会跨重启记住。）
+
+### 最近仓库 <a id="recent-repositories"></a>
+
+标题栏里的仓库路径是一个菜单，列出之前打开过的仓库——目录名加上它的父目录——最近的
+在前。
+
+- **点击** —— 在新标签页打开。
+- **Ctrl/Cmd+点击**或**中键点击** —— 在当前标签页打开，替换掉那里的仓库，并保持标
+  签在栏中的位置。
+- **右键** —— 把该条目从列表移除。菜单会留着不关，所以可以连着清好几条。
+
+**Open Repository…** 和 **Clear Recent** 在下方。列表存在
+`~/.config/Gitty/recent-repos.json`，保留十二条，并跳过那些已被移走或删除的。
+
+### 全屏与隐藏 <a id="full-screen-and-hiding"></a>
+
+每个窗格的标题栏都带着同样两个控件：左端的 **⤢** 让该窗格铺满窗口，右端的 **×** 把
+它藏起来。
+
+全屏会盖住其余一切，标题栏和标签栏也不例外，而底下的窗格照常工作——终端在被盖住期
+间仍在运行。同一角上的 **⤡**、<kbd>Esc</kbd>、在标题上双击，或者
+<kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd>，都能恢复布局。同一时刻只有一个
+窗格能全屏。
+
+隐藏是另一个方向——任何窗格都能收起来再唤回：
+
+- 标题栏里的 **Panes** 列出四个窗格，可见的那些旁边有个点；点一下切换，
+  **Show All Panes** 恢复四窗格布局。
+- <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> 依次切换 Files、Diff、Commits 和 Terminal。
+
+剩下的窗格会分掉整个窗口，所以隐藏提交窗格就把整个高度让给了 diff。最后一个可见窗
+格没有 **×**——空窗口会让人无处可点。隐藏状态跨重启记住，而终端窗格只是被收起、从不
+关闭：它的 shell 继续运行，回来时连滚动缓冲一起带回。
+
+## 各个窗格 <a id="the-panes"></a>
+
+### Working Tree（左上） <a id="working-tree-top-left"></a>
+
+改动过的文件，呈可折叠的树，每个文件名旁边带着行数。显示两列状态：暂存区状态（绿
+色）和工作区状态（黄 / 红）；未跟踪文件是 `??`。行数在工作区从磁盘读取，其他情况从
+对应版本读取；二进制文件、已删除的文件，以及超过 8 MB 的文件不显示行数。
+
+- **点击** —— 在右边显示该文件的 diff。
+- **双击** —— 把整个文件作为文档开在 diff 旁边，带行号和语法高亮（Markdown 是渲染
+  后的文档，图片则是图片本身）。
+- **右键** —— View File、Open in System App、Reveal in File Manager、Copy Relative
+  Path、Copy Absolute Path、Copy File Name。
+- **点击文件夹** —— 折叠或展开。
+
+选中一个提交或一段提交区间时，这个窗格改为列出那个提交涉及的文件；
+**Back to Work Tree**（或 <kbd>Esc</kbd>）回到工作区。在[快照](#snapshots)里，它列
+出的是那个提交处的整棵树，而不只是改动过的部分。
+
+### Diff（右上） <a id="diff-top-right"></a>
+
+统一格式 diff，带新旧行号、hunk 头和增删着色，按文件列表排布：每个路径是一条通栏标
+题，hunk 头是暗的——那是行号范围，不是该先看的东西——重命名显示为 `old → new`。没有
+选中文件时，它一次显示全部：工作区里每一处未提交改动，或者选中提交里的每个文件。
+
+- **Show Whole Diff** —— 挑过某个文件之后，回到那份合并的 diff。它常驻在标题栏里，
+  当屏幕上正是整段 diff 时会亮起。工作区版本同时涵盖已暂存和未暂存的改动，并内联未
+  跟踪文件（最多 50 个，之后给一条提示），这些是单靠 `git diff` 看不到的。
+- **Wrap** —— 长行折行，而不是横向滚动。默认开。
+- **Inline / Side-by-Side** —— 单栏加 `+`/`-` 标记，或者新旧并排；并排时一连串删除
+  行会和紧随其后的新增行配对。折行后的两半仍保持对齐。
+- **文件标题** —— 每条标题都能折叠它的文件：三角形把它收成只剩文件名，标题栏里的
+  **Collapse All** / **Expand All** 一次搞定全部。**Ctrl+点击**标题会把那个文件开进
+  新文档标签；右键它可以得到 **Open in a New Tab**、**Select in the File List**、各
+  种路径复制，以及——在工作区里，也就是磁盘上的文件正是所显示版本时——
+  **Open in System App** 和 **Reveal in File Manager**。重命名打开的是新路径。
+- **右键** —— Copy Selection、Copy Whole Diff，以及同样那些开关。
+
+当逐词比整行更好读时，改动行内变化的词会被高亮；它是[设置](#settings)里的
+**Word highlight**。
+
+设置在多次运行之间记住。行以 1500 为一块渲染并随滚动延伸，所以大提交也不卡；超过
+2 MB 的 diff 会被截断并给出提示。
+
+### 查看整个文件 <a id="viewing-files"></a>
+
+窗格默认显示的是 diff，但任何文件都能整个打开：在树里**双击**它，用标题栏的
+**View File** / **Preview**，在 diff 里 **Ctrl+点击**文件标题，或者从两个右键菜单里
+取用。
+
+文件会作为独立文档开在 diff *旁边*的一条标签里，而不是盖在它上面，所以读文件不必丢
+掉你正看的 diff。**Diff** 标签永远排第一，而在树里单击仍然是就地浏览 diff。每个文档
+记住自己被打开时的版本，用自己的 **×** 关闭，并在仓库变化时重新读取工作区文件。源码
+文件带行号和语法高亮；Markdown 打开时是[渲染好的](#markdown-preview)，可切回源码；
+图片则作为[图片本身](#images)打开。
+
+拿到哪个版本取决于窗格所处的位置：工作区里是磁盘上的文件，其余情况是所选提交处的那
+个版本。打开文档是一个动作而非一种模式——选择另一个文件或另一个提交就会把 diff 放回
+来——所以窗格绝不会在你想看改动时卡在文件上。
+
+#### 快照 <a id="snapshots"></a>
+
+右键一个提交，选 **Browse Snapshot**，就能按那个提交当时的样子阅读整个仓库：左上窗
+格列出*整棵*树，而不是该提交碰过的文件，随便挑一个文件都会以那个版本打开。快照没有
+diff 可显示，所以那里每个文件都是文档。
+
+快照里的文件在那个版本从未存在于磁盘上，因此 **Open in System App** 交出去的是它的
+一份临时副本，而 **Reveal in File Manager** 干脆不提供。
+**Back to Work Tree**（或 <kbd>Esc</kbd>）离开快照。
+
+#### Markdown 预览 <a id="markdown-preview"></a>
+
+选中 `.md` 文件会多出一个 **Preview** 按钮——默认关闭，所以在你开口之前 diff 仍然是
+diff。它把文件作为整体渲染：工作区里是磁盘上的版本，其余情况是所选提交处的版本。
+
+围栏代码块在注明语言时会有语法高亮，YAML front matter 被单独摘出、作为自己的高亮块
+显示，而标题层级、列表标记、链接和行内代码都有配色，让结构一眼可辨。
+
+- **Wrap** —— 和 diff 那个是同一个开关，默认开。散文永远折行；在预览里，这个开关决
+  定围栏代码块、宽表格和长的行内字符串是否也折行，而不是横向滚动。
+- **Outline** —— 文档旁边的标题结构，按层级缩进，跟随你滚动到的标题。点一条即可跳
+  转。
+- **右键** —— Copy Selection、Copy Markdown Source、折行与大纲开关，以及
+  Show Diff Instead。
+
+Markdown 里的原始 HTML 不会被渲染，链接在系统浏览器里打开而不是应用内。相对于文档写
+的图片路径会从仓库里读出来——版本与文档相同，所以旧提交显示的是它当时随附的截图。仓
+库在那个版本没有的图片，留下一个带 alt 文本的虚线占位框。网络上的图片根本不会去
+取：读别人的 README 不该向对方的主机报到。
+
+#### 图片 <a id="images"></a>
+
+`.png`、`.jpg`、`.gif`、`.webp`、`.bmp`、`.ico`、`.avif` 或 `.svg` 打开时是图片本
+身，而不是一句「这是二进制文件」——工作区里从磁盘取，其余情况从提交里取。它被适配到
+窗格大小，衬在棋盘格上，所以透明就看得出是透明；**点击**它切到原始尺寸并可滚动查
+看，再点一次回到适配。像素尺寸和磁盘占用写在下方。超过 12 MB 的图片不内联。
+
+### Commits（左下） <a id="commits-bottom-left"></a>
+
+当前分支的日志，一次加载 300 条并随滚动延伸。第一行是 **Working Tree** —— 未提交的
+改动，带改动文件数；选中它会把上方两个窗格带回工作区。
+
+- **点击**或 <kbd>Enter</kbd> —— 显示那个提交：它的文件填满左上窗格，它的完整 diff
+  填满右上窗格。
+- **Ctrl+点击**（macOS 上是 <kbd>Cmd</kbd>）、<kbd>Shift+点击</kbd> 或
+  <kbd>Space</kbd> —— 选第二个提交并比较两者，旧的在前。
+- **↑ ↓ / j k / PgUp / PgDn / Home / End** —— 移动光标。
+- **右键** —— 显示 diff，复制哈希、短哈希或标题，[浏览快照](#snapshots)，或者与当
+  前选中的提交比较。
+- **右键 → Open in Browser** —— 在系统浏览器里渲染这个提交；**Copy Commit URL** 复
+  制链接。应用内部有一个 web 服务器（只监听 `127.0.0.1`，只服务你自己的浏览器），把
+  每个打开的仓库作为可浏览的提交列表提供出去——提交窗格的 **Open in Browser** 按钮就
+  落在那里——每个提交有自己的元数据、文件列表和 diff，单个文件的 diff 也只差一次点
+  击。这些 URL 在仓库保持打开期间有效。
+- 在左上窗格选中一个文件会把 diff 收窄到那个文件；**Show Whole Diff** 再把它放回
+  去。
+
+#### 浏览另一个分支 <a id="browsing-another-branch"></a>
+
+标题栏里的分支会打开一个菜单，列出每个本地分支和远程跟踪分支，最新提交的在前，选一
+个就改为显示那个分支的历史。这是只读的一瞥：gitty 不跑 `checkout`，所以工作区、它的
+diff 和终端全都停在 git 留下的地方。你在看另一个分支时，标题栏读作
+`⎇ main › other-branch`，提交窗格会说明自己正在列哪个分支；**Back to \<branch\>**
+返回。每个标签页各自浏览各自的。
+
+#### Push 与 Pull <a id="push-and-pull"></a>
+
+**Push** 和 **Pull** 位于标题栏，无论日志指向哪个分支，两者都作用于已检出的那个分
+支。**Push** 会数出还没推的提交数——**Push 3**——没有东西可推时变灰；在一个没有跟踪目
+标的分支上，它会把该分支发布到 `origin` 并设置上游。**Pull** 从上游做快进，没有上游
+可拉时变灰。git 说了什么就显示在日志上方——点一下消掉；失败的会一直留到你消掉为止。
+
+两者都无法回答提示：它们背后没有终端，所以一次要密码或口令的 push 会带着 git 自己的
+消息失败，而不是挂在那里；无法快进的 pull 也会照实说。之后这两件事都在终端窗格里手
+动收尾——它就在旁边。
+
+### Terminal（右下） <a id="terminal-bottom-right"></a>
+
+一个真正的交互式登录 shell（`$SHELL`），根在仓库目录，所以任何 git 命令都能直接跑。
+仓库在磁盘上变化时，其余窗格自动刷新。
+
+这个窗格能分裂成任意多个 shell：**Split →** 在聚焦的终端旁边放一个新的，
+**Split ↓** 放在它下面，它们之间的分隔条和其他窗格一样可拖动。点一个终端即聚焦
+它——带轮廓的那个就是下一次分裂或 **Close** 落点。朝同一方向连分两次会延长这一行或
+这一列，而不是嵌套，所以三个并排的终端是彼此互调大小的。
+
+**Close** 结束聚焦的那个 shell；用 `exit` 离开一个 shell 也会自行关掉它那一格。最后
+一个终端始终留着：退出它只会在屏幕上留下提示，而不是一个空窗格。
+
+## 设置 <a id="settings"></a>
+
+标题栏里的 **Settings**，或 <kbd>Ctrl+,</kbd>。这里的一切对每个标签页都生效，并跨重
+启记住；**Restore Defaults** 把它们全部还原。
+
+| | |
+| --- | --- |
+| **Theme** | Dark 或 Light。 |
+| **Font size** | 11 – 16，以半磅为步长。作用于每个窗格，终端也算在内。 |
+| **Row height** | 18 – 26 像素——所有列表赖以构建的行高，文件树、日志和 diff 都在内。紧一点屏幕装得下更多，松一点更好读。 |
+| **Diff layout** | Inline 或 Side-by-Side，和 diff 标题栏里那个开关是同一个。 |
+| **Word wrap** | 长行折行，而不是横向滚动。 |
+| **Word highlight** | 标出改动行内部变化的词，而不只是整行。 |
+| **Markdown outline** | 在渲染好的文档旁显示大纲。 |
+
+**Word wrap**、**Diff layout** 和 **Markdown outline** 与 diff 标题栏上的开关是同一
+批，在哪边改，另一边跟着变。**Word highlight** 只在这里有。
+
+## 键盘快捷键 <a id="keyboard-shortcuts"></a>
+
+| 按键 | 动作 |
+| --- | --- |
+| <kbd>Enter</kbd> | 显示选中的提交 |
+| <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | 标记第二个提交并比较这一对 |
+| <kbd>Ctrl+Click</kbd> 于文件标题 | 把那个文件开进新文档标签 |
+| <kbd>Esc</kbd> | 回到工作区 |
+| <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | 刷新状态和日志 |
+| <kbd>Ctrl+O</kbd> | 在新标签页打开另一个仓库 |
+| <kbd>Ctrl+,</kbd> | 设置 |
+| <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> | 隐藏或显示 Files、Diff、Commits、Terminal |
+| <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> | 让那个窗格铺满窗口 |
+
+## 架构 <a id="architecture"></a>
+
+```
+src/main       Electron main process — git commands, ptys, fs watchers,
+               the recent-repository store, IPC
+src/preload    contextBridge API exposed to the renderer as window.gitty
+src/renderer   React UI — App.tsx manages tabs, RepoTab.tsx owns one
+               repository's four panes
+src/shared     Types shared by both sides
+build          Application icon (SVG source and rendered PNG)
+```
+
+git 通过 `execFile('git', …)` 驱动，解析 `--porcelain=v2 -z` /`--name-status -z`，
+所以带空格的路径和重命名都能完好通过。不打包任何 git 库；`PATH` 上的 `git` 是什么，
+你看到的就是什么。渲染进程带着 `contextIsolation` 运行，且没有 node 集成。
+
+渲染进程被切成若干按需加载的 chunk，好让窗口在 xterm、highlight.js 和 markdown-it
+被解析之前就画出来。这套切分——四个 chunk、把重库挡在热 chunk 之外的规则，以及如何
+新增一个——规定在 [ref/spec/lazy-loading.md](../../ref/spec/lazy-loading.md)。
+
+### Linux 桌面集成 <a id="linux-desktop-integration"></a>
+
+桌面条目带着 `StartupWMClass=electron`，正是它让运行中的窗口在窗口列表和 dock 里显
+示自己的图标。以「运行」而非「打包」方式启动的 Electron 应用，无论应用自称什么，都
+把 `electron` 报告为自己的窗口类，所以条目只能匹配这个名字——副作用是同一会话里另一
+个未打包的 Electron 应用会借走 Gitty 的图标。
+
+应用还关掉了 Chromium 的 SUID 沙箱运行（`ELECTRON_DISABLE_SANDBOX=1`）。通常的办法
+——把 `chrome-sandbox` 改为 root 所有、权限 4755——在 `node_modules` 里存活不下来，所
+以对一个只读你自己仓库的本地工具而言，关掉它是务实的选择。
+
+## 许可 <a id="licence"></a>
+
+MIT
