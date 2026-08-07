@@ -8,9 +8,33 @@ Gitty is an Electron desktop git history browser with four panes: working tree
 (top left), diff (top right), commit log (bottom left) and an interactive shell
 (bottom right). See README.md for the user-facing behaviour of each pane.
 
-**Everything user-visible is English** — the interface, README, CHANGELOG and
-commit messages. Conversation with the user may be in another language, but
-nothing that lands in the repository is.
+### Language
+
+Two rules, and the line between them is *shipped UI* versus *the repository*.
+
+**The interface is translatable.** Every user-visible string goes through the
+message tables (see [Messages and i18n](#messages-and-i18n)) — never a literal in
+JSX or a dialog call. English (`en`) is the source table: it is what gets written
+first, and what every other language is translated from.
+
+**Everything else is English, always.** Documentation, code comments, the
+CHANGELOG, commit messages, `ref/spec/*`, this file. Conversation with the user
+may be in another language, but nothing that lands in the repository is — except
+the two things below, which are translations of English originals rather than
+work authored in another language.
+
+`ref/readme/README.<lang>.md` holds README translations (zh-CN, ja, es, fr, de).
+They are **snapshots, not a second source of truth** — each carries the date it
+was translated and a line saying the English README is the official version and
+the only one kept current. Do not update a translation as part of changing
+behaviour; the English README is what has to stay right. They live under `ref/`
+rather than `docs/`, which GitHub Pages would claim. Because translated headings
+would produce unpredictable anchors, each section carries an explicit
+`<a id="…">` with the English slug, so the cross-links match the English file's.
+
+Message tables other than `en` are the same kind of thing — translations that
+follow, never lead. A new string is added to `en` and to the interface in the
+same change; the other tables catch up afterwards.
 
 ## Commands
 
@@ -63,6 +87,36 @@ Three processes with a hard boundary between them:
 Adding a capability means touching all three: an `ipcMain.handle` in
 `src/main/index.ts`, a method in `src/preload/index.ts`, and a type in
 `src/shared/types.ts`.
+
+### Messages and i18n
+
+Every user-visible string comes from a message table. `src/shared/messages.ts`
+declares the shape — `MainMessages` and `RendererMessages` — and each side ships
+its own table against it: `src/main/messages.ts` (menus, dialogs, and the strings
+git output is wrapped in) and `src/renderer/src/messages/` (everything on
+screen), whose `index.ts` re-exports the active table as `msg`.
+
+The two sides are split because they need different things and load at different
+times, not because the boundary is doctrinal — main's table covers what exists
+before any window does, and the renderer's is part of the renderer bundle.
+
+**There is no runtime interpolation and no lookup by key.** A leaf is either a
+string or an arrow function taking typed parameters and returning one, so
+`msg.app.changesCount(3)` is an ordinary call the compiler checks: a missing key,
+a typo, or a wrong argument type is a typecheck error rather than a `??? key`
+rendered to the user at runtime. That is the whole reason the tables are typed
+objects and not JSON. It also means a plural or a word order that a language
+needs differently is expressible — the function body is code, not a template.
+
+Adding a string means adding it to the interface in `src/shared/messages.ts` and
+to `en`; `npm run typecheck` then names every table that is missing it. Do not
+reach for a literal because a string is "obviously not going to be translated" —
+the tables are also where the wording of the whole UI can be read at once.
+
+Only `en` exists today, and `messages/index.ts` exports it unconditionally.
+Adding a language is a new table beside `en.ts` plus a choice in that file;
+until a language selector exists, keep the export a single line so it stays
+obvious that nothing is picking one yet.
 
 ### Git access
 
