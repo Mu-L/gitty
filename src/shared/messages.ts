@@ -162,6 +162,8 @@ export interface RendererMessages {
     readonly keyShow: string
     readonly keyCompare: string
     readonly keyWorktree: string
+    /** Tooltip for the button that folds the commit-message body away. */
+    readonly messageToggle: (collapsed: boolean) => string
     /** The suffix "views" paired with "dbl-click" key in FilesPane tooltip. */
     readonly tooltipViews: string
     readonly tooltipMore: string

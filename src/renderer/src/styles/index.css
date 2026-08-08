@@ -1862,6 +1862,7 @@ button:disabled:hover {
 
 .commit-info-meta {
   display: flex;
+  align-items: center;
   gap: 10px;
   margin-top: 2px;
   font-size: 11px;
@@ -1873,6 +1874,25 @@ button:disabled:hover {
 
 .commit-info-date {
   color: var(--fg-faint);
+}
+
+/* The collapse toggle pushes to the right end of the meta row; .spacer only
+   exists in the title bar and pane headers, so it gets its own flex push. */
+.commit-info-toggle {
+  flex: none;
+  margin-left: auto;
+  padding: 0 4px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: none;
+  color: var(--fg-faint);
+  cursor: pointer;
+  line-height: 1.6;
+}
+
+.commit-info-toggle:hover {
+  background: var(--bg-hover);
+  color: var(--fg);
 }
 
 .commit-info-body {

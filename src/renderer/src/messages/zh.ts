@@ -114,7 +114,9 @@ export const zh: RendererMessages = {
     keyCompare: ' 比较',
     keyWorktree: ' 工作树',
     tooltipViews: ' 查看',
-    tooltipMore: ' 更多'
+    tooltipMore: ' 更多',
+    messageToggle: (collapsed: boolean) =>
+      collapsed ? '显示完整提交信息' : '收起完整提交信息'
   },
   pushPull: {
     push: '推送',

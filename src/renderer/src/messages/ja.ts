@@ -114,7 +114,9 @@ export const ja: RendererMessages = {
     keyCompare: ' 比較',
     keyWorktree: ' ワークツリー',
     tooltipViews: ' 表示',
-    tooltipMore: ' その他'
+    tooltipMore: ' その他',
+    messageToggle: (collapsed: boolean) =>
+      collapsed ? '完全なコミットメッセージを表示' : '完全なコミットメッセージを隠す'
   },
   pushPull: {
     push: 'プッシュ',

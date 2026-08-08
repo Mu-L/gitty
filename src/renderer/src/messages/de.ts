@@ -115,7 +115,11 @@ export const de: RendererMessages = {
     keyCompare: ' vergleichen',
     keyWorktree: ' Arbeitsverzeichnis',
     tooltipViews: ' Ansichten',
-    tooltipMore: ' für mehr'
+    tooltipMore: ' für mehr',
+    messageToggle: (collapsed: boolean) =>
+      collapsed
+        ? 'Vollständige Commit-Nachricht anzeigen'
+        : 'Vollständige Commit-Nachricht ausblenden'
   },
   pushPull: {
     push: 'Push',

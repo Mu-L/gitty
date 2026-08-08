@@ -114,7 +114,9 @@ export const ko: RendererMessages = {
     keyCompare: ' 비교',
     keyWorktree: ' 작업 트리',
     tooltipViews: ' 보기',
-    tooltipMore: ' 더 보기'
+    tooltipMore: ' 더 보기',
+    messageToggle: (collapsed: boolean) =>
+      collapsed ? '전체 커밋 메시지 표시' : '전체 커밋 메시지 숨기기'
   },
   pushPull: {
     push: '푸시',

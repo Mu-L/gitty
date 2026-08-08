@@ -132,7 +132,11 @@ export const ru: RendererMessages = {
     keyCompare: ' сравнить',
     keyWorktree: ' рабочее дерево',
     tooltipViews: ' виды',
-    tooltipMore: ' ещё'
+    tooltipMore: ' ещё',
+    messageToggle: (collapsed: boolean) =>
+      collapsed
+        ? 'Показать полное сообщение коммита'
+        : 'Скрыть полное сообщение коммита'
   },
   pushPull: {
     push: 'Push',

@@ -116,7 +116,11 @@ export const pt: RendererMessages = {
     keyCompare: ' comparar',
     keyWorktree: ' árvore de trabalho',
     tooltipViews: ' vistas',
-    tooltipMore: ' para mais'
+    tooltipMore: ' para mais',
+    messageToggle: (collapsed: boolean) =>
+      collapsed
+        ? 'Mostrar a mensagem completa do commit'
+        : 'Ocultar a mensagem completa do commit'
   },
   pushPull: {
     push: 'Push',
