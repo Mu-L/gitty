@@ -5,6 +5,7 @@ import type {
   Commit,
   CommitDetail,
   CommitFile,
+  CommitMeta,
   DiffRequest,
   DiffResult,
   GitOpResult,
@@ -53,8 +54,12 @@ const api = {
   git: {
     status: (root: string): Promise<RepoStatus> => ipcRenderer.invoke('git:status', root),
     /** `ref` points the log at another branch; null or omitted means HEAD. */
-    log: (root: string, limit: number, skip = 0, ref: string | null = null): Promise<Commit[]> =>
-      ipcRenderer.invoke('git:log', root, limit, skip, ref),
+    log: (
+      root: string,
+      limit: number,
+      skip = 0,
+      ref: string | null = null
+    ): Promise<Commit[]> => ipcRenderer.invoke('git:log', root, limit, skip, ref),
     branches: (root: string): Promise<Branch[]> => ipcRenderer.invoke('git:branches', root),
     /** Push the checked-out branch; `branch` is named only to set an upstream. */
     push: (root: string, branch: string | null = null): Promise<GitOpResult> =>
@@ -62,6 +67,8 @@ const api = {
     pull: (root: string): Promise<GitOpResult> => ipcRenderer.invoke('git:pull', root),
     commitDetail: (root: string, hash: string): Promise<CommitDetail> =>
       ipcRenderer.invoke('git:commitDetail', root, hash),
+    commitMeta: (root: string, hash: string): Promise<CommitMeta> =>
+      ipcRenderer.invoke('git:commitMeta', root, hash),
     rangeFiles: (root: string, from: string, to: string): Promise<CommitFile[]> =>
       ipcRenderer.invoke('git:rangeFiles', root, from, to),
     diff: (root: string, req: DiffRequest): Promise<DiffResult> =>

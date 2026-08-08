@@ -228,6 +228,9 @@ function registerIpc(): void {
   ipcMain.handle('git:commitDetail', (_e, root: string, hash: string) =>
     git.commitDetail(root, hash)
   )
+  ipcMain.handle('git:commitMeta', (_e, root: string, hash: string) =>
+    git.commitMeta(root, hash)
+  )
   ipcMain.handle('git:rangeFiles', (_e, root: string, from: string, to: string) =>
     git.rangeFiles(root, from, to)
   )

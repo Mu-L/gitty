@@ -21,6 +21,7 @@ import {
   type DiffView
 } from './components/DiffPane'
 import { FilesPane, type FileEntry } from './components/FilesPane'
+import { CommitInfo } from './components/CommitInfo'
 import { useMsg } from './locale'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { destroyTerminals } from './terminals'
@@ -41,6 +42,7 @@ import {
 import type {
   Commit,
   CommitFile,
+  CommitMeta,
   DiffRequest,
   DiffResult,
   RepoStatus,
@@ -161,6 +163,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const [commits, setCommits] = useState<Commit[]>([])
   const [view, setView] = useState<View>({ mode: 'worktree' })
   const [viewFiles, setViewFiles] = useState<FileEntry[]>([])
+  // The commit being read, shown above its file list; null outside commit and
+  // snapshot mode.
+  const [commitMeta, setCommitMeta] = useState<CommitMeta | null>(null)
   const [selectedFile, setSelectedFile] = useState<string | null>(null)
   const [diff, setDiff] = useState<DiffResult | null>(null)
   const [selectedCommit, setSelectedCommit] = useState<string | null>(WORKTREE_ROW)
@@ -254,6 +259,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       let entries: FileEntry[] = []
       // The revision each file lives at; null means the work tree on disk.
       let rev: string | null = null
+      // Clear the previous view's message before loading this one's.
+      setCommitMeta(null)
 
       if (view.mode === 'worktree') {
         rev = null
@@ -267,8 +274,12 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       } else if (view.mode === 'snapshot') {
         // Snapshot mode: the whole tree at that commit, read-only.
         rev = view.hash
-        const paths = await window.gitty.git.snapshotFiles(root, view.hash)
+        const [paths, meta] = await Promise.all([
+          window.gitty.git.snapshotFiles(root, view.hash),
+          window.gitty.git.commitMeta(root, view.hash)
+        ])
         if (cancelled) return
+        setCommitMeta(meta)
         entries = paths.map<FileEntry>((p) => ({
           path: p,
           // Virtual path — no file on disk; fileMenu/onOpen branch on this prefix.
@@ -277,19 +288,36 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
           deleted: false
         }))
       } else {
-        rev = view.mode === 'commit' ? view.hash : view.to
-        const files =
-          view.mode === 'commit'
-            ? (await window.gitty.git.commitDetail(root, view.hash)).files
-            : await window.gitty.git.rangeFiles(root, view.from, view.to)
-        if (cancelled) return
-        entries = files.map<FileEntry>((f) => ({
-          path: f.path,
-          absPath: f.absPath,
-          marks: commitMarks(f),
-          deleted: f.status === 'D',
-          origPath: f.origPath
-        }))
+        if (view.mode === 'commit') {
+          rev = view.hash
+          const detail = await window.gitty.git.commitDetail(root, view.hash)
+          if (cancelled) return
+          setCommitMeta({
+            author: detail.commit.author,
+            email: detail.commit.email,
+            date: detail.commit.date,
+            subject: detail.commit.subject,
+            body: detail.body
+          })
+          entries = detail.files.map<FileEntry>((f) => ({
+            path: f.path,
+            absPath: f.absPath,
+            marks: commitMarks(f),
+            deleted: f.status === 'D',
+            origPath: f.origPath
+          }))
+        } else {
+          rev = view.to
+          const files = await window.gitty.git.rangeFiles(root, view.from, view.to)
+          if (cancelled) return
+          entries = files.map<FileEntry>((f) => ({
+            path: f.path,
+            absPath: f.absPath,
+            marks: commitMarks(f),
+            deleted: f.status === 'D',
+            origPath: f.origPath
+          }))
+        }
       }
 
       // Fetch line counts in one batch so the tree shows them right away.
@@ -681,6 +709,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {hideButton('files')}
                 </div>
                 <div className="pane-body">
+                  {commitMeta && <CommitInfo meta={commitMeta} />}
                   <FilesPane
                     entries={viewFiles}
                     selected={selectedFile}

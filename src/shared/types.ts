@@ -70,6 +70,15 @@ export interface CommitDetail {
   files: CommitFile[]
 }
 
+/** A commit's author, date and full message — for showing a commit, not its files. */
+export interface CommitMeta {
+  author: string
+  email: string
+  date: string
+  subject: string
+  body: string
+}
+
 /** Which side of the index a working-tree diff should be read from. */
 export type DiffSide = 'worktree' | 'index'
 

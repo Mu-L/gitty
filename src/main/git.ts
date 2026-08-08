@@ -8,6 +8,7 @@ import type {
   Commit,
   CommitDetail,
   CommitFile,
+  CommitMeta,
   DiffRequest,
   DiffResult,
   GitOpResult,
@@ -129,6 +130,14 @@ export async function commitDetail(root: string, hash: string): Promise<CommitDe
     nameStatus(root, ['show', '--name-status', '-z', '--format=', hash])
   ])
   return { commit: meta, body, files: files.map((f) => ({ ...f, absPath: path.join(root, f.path) })) }
+}
+
+/** A commit's author, date and full message, without touching its files. */
+export async function commitMeta(root: string, hash: string): Promise<CommitMeta> {
+  const fmt = ['%an', '%ae', '%aI', '%s', '%b'].join(US) + RS
+  const raw = await git(root, ['show', '-s', `--format=${fmt}`, hash])
+  const [author, email, date, subject, ...bodyParts] = raw.trimEnd().split(US)
+  return { author, email, date, subject, body: bodyParts.join(US).trimEnd() }
 }
 
 async function one(root: string, hash: string): Promise<Commit> {

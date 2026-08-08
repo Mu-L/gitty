@@ -1696,3 +1696,44 @@ button:disabled:hover {
   color: var(--fg-faint);
   font-size: 11px;
 }
+
+/* The commit a repository is showing, above its file list. */
+.commit-info {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  user-select: text;
+}
+
+.commit-info-subject {
+  font-weight: 600;
+  color: var(--fg-strong);
+  overflow-wrap: anywhere;
+}
+
+.commit-info-meta {
+  display: flex;
+  gap: 10px;
+  margin-top: 2px;
+  font-size: 11px;
+}
+
+.commit-info-author {
+  color: var(--fg-dim);
+}
+
+.commit-info-date {
+  color: var(--fg-faint);
+}
+
+.commit-info-body {
+  margin: 6px 0 0;
+  /* A long message must not push the file list off screen; it scrolls within
+     itself, like a push or pull report does. */
+  max-height: 30vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg);
+}
