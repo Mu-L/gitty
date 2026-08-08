@@ -659,7 +659,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   /* ---------- context menus ---------- */
 
-  const { diffMenu, diffFileMenu, fileMenu, commitMenu } = createContextMenus({
+  const { diffMenu, diffFileMenu, fileMenu, commitMenu, worktreeMenu } = createContextMenus({
     msg,
     root,
     view,
@@ -1132,6 +1132,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   filter={filter}
                   onFilter={setFilter}
                   onSelect={onSelectCommit}
+                  onWorktreeMenu={worktreeMenu}
                   onEnter={(hash) => {
                     if (hash === WORKTREE_ROW) {
                       backToWorkTree()

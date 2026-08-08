@@ -232,7 +232,8 @@ export const ru: RendererMessages = {
     diffAgainstSelected: 'Сравнить с выбранным коммитом',
     diffAgainstAccel: 'Ctrl+щелчок',
     blameFile: 'Blame',
-    fileHistory: 'История файла'
+    fileHistory: 'История файла',
+    revealRepoFolder: 'Показать папку репозитория'
   },
   paneChrome: {
     paneLabelFiles: 'Файлы',

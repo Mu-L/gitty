@@ -62,6 +62,7 @@ export function createContextMenus(deps: ContextMenuDeps): {
   diffFileMenu: (path: string, at: MenuState) => void
   fileMenu: (entry: FileEntry, at: MenuState) => void
   commitMenu: (c: Commit, at: MenuState) => void
+  worktreeMenu: (at: MenuState) => void
 } {
   const {
     msg,
@@ -294,5 +295,17 @@ export function createContextMenus(deps: ContextMenuDeps): {
     setMenu({ ...at, items })
   }
 
-  return { diffMenu, diffFileMenu, fileMenu, commitMenu }
+  const worktreeMenu = (at: MenuState): void => {
+    setMenu({
+      ...at,
+      items: [
+        {
+          label: msg.contextMenu.revealRepoFolder,
+          action: () => void window.gitty.file.reveal(root)
+        }
+      ]
+    })
+  }
+
+  return { diffMenu, diffFileMenu, fileMenu, commitMenu, worktreeMenu }
 }

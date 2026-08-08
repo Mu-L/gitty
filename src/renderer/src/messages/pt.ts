@@ -216,7 +216,8 @@ export const pt: RendererMessages = {
     diffAgainstSelected: 'Comparar com o commit selecionado',
     diffAgainstAccel: 'Ctrl+clique',
     blameFile: 'Blame',
-    fileHistory: 'Histórico do arquivo'
+    fileHistory: 'Histórico do arquivo',
+    revealRepoFolder: 'Mostrar pasta do repositório'
   },
   paneChrome: {
     paneLabelFiles: 'Ficheiros',

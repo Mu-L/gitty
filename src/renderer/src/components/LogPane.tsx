@@ -34,6 +34,7 @@ export function LogPane({
   onSelect,
   onEnter,
   onMenu,
+  onWorktreeMenu,
   onScrollEnd
 }: {
   commits: Commit[]
@@ -47,6 +48,7 @@ export function LogPane({
   onSelect: (hash: string, additive: boolean) => void
   onEnter: (hash: string) => void
   onMenu: (commit: Commit, state: MenuState) => void
+  onWorktreeMenu: (state: MenuState) => void
   onScrollEnd: () => void
 }): JSX.Element {
   const { msg } = useMsg()
@@ -125,6 +127,10 @@ export function LogPane({
         <div
           className={`commit-row worktree-row${selected === WORKTREE_ROW ? ' selected' : ''}`}
           onClick={() => onSelect(WORKTREE_ROW, false)}
+          onContextMenu={(e) => {
+            e.preventDefault()
+            onWorktreeMenu({ x: e.clientX, y: e.clientY, items: [] })
+          }}
           title={msg.log.worktreeRowTitle}
         >
           <span className="commit-hash">●</span>

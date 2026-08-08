@@ -212,7 +212,8 @@ export const ko: RendererMessages = {
     diffAgainstSelected: '선택한 커밋과 비교',
     diffAgainstAccel: 'Ctrl+클릭',
     blameFile: 'Blame 파일',
-    fileHistory: '파일 기록'
+    fileHistory: '파일 기록',
+    revealRepoFolder: '저장소 폴더 열기'
   },
   paneChrome: {
     paneLabelFiles: '파일',

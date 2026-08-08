@@ -213,7 +213,8 @@ export const en: RendererMessages = {
     diffAgainstSelected: 'Diff Against Selected',
     diffAgainstAccel: 'Ctrl+Click',
     blameFile: 'Blame File',
-    fileHistory: 'File History'
+    fileHistory: 'File History',
+    revealRepoFolder: 'Reveal Repository Folder'
   },
   paneChrome: {
     paneLabelFiles: 'Files',

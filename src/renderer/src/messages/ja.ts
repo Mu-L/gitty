@@ -212,7 +212,8 @@ export const ja: RendererMessages = {
     diffAgainstSelected: '選択したコミットと比較',
     diffAgainstAccel: 'Ctrl+クリック',
     blameFile: 'Blame ファイル',
-    fileHistory: 'ファイル履歴'
+    fileHistory: 'ファイル履歴',
+    revealRepoFolder: 'リポジトリフォルダを表示'
   },
   paneChrome: {
     paneLabelFiles: 'ファイル',

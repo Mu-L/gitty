@@ -212,7 +212,8 @@ export const zh: RendererMessages = {
     diffAgainstSelected: '与选中提交对比',
     diffAgainstAccel: 'Ctrl+单击',
     blameFile: '追溯文件',
-    fileHistory: '文件历史'
+    fileHistory: '文件历史',
+    revealRepoFolder: '在文件管理器中打开仓库目录'
   },
   paneChrome: {
     paneLabelFiles: '文件',
