@@ -1721,7 +1721,13 @@ button:disabled:hover {
   width: 6.5em;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--yellow);
+  /* Hue is set per-row from the commit SHA; saturation and lightness adapt to
+     the theme so the text stays legible on both dark and light backgrounds. */
+  color: hsl(var(--blame-hue, 0), 55%, 58%);
+}
+
+[data-theme='light'] .blame-sha {
+  color: hsl(var(--blame-hue, 0), 65%, 38%);
 }
 
 .blame-author {

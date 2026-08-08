@@ -4,11 +4,22 @@ import { UNCOMMITTED_SHA } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
 
+/** Hash a string to a stable integer for hue assignment. */
+function hashStr(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) - h + s.charCodeAt(i)) | 0
+  }
+  return Math.abs(h)
+}
+
 /**
  * Whole-file blame, one row per source line: which commit last touched it.
  * Opens as a document beside the diff, so a line and its change stay visible
- * together. A line with no commit yet — all-zero sha — is uncommitted work-tree
- * content and renders as an em dash.
+ * together. Each commit gets a stable colour derived from its SHA so the same
+ * commit is always the same hue, and adjacent commits are easy to tell apart.
+ * A line with no commit yet — all-zero sha — is uncommitted work-tree content
+ * and renders as an em dash in the dim foreground colour.
  */
 export function BlamePane({
   root,
@@ -63,14 +74,22 @@ export function BlamePane({
       {lines.length === 0 ? (
         <div className="empty">{msg.diff.emptyBlame}</div>
       ) : (
-        lines.map((l, i) => (
-          <div className="blame-row" key={i} title={`${l.sha}\n${l.author}\n${l.summary}`}>
-            <span className="blame-num">{i + 1}</span>
-            <span className="blame-sha">{l.sha === UNCOMMITTED_SHA ? '—' : l.sha.slice(0, 8)}</span>
-            <span className="blame-author">{l.author}</span>
-            <span className="blame-text">{l.line}</span>
-          </div>
-        ))
+        lines.map((l, i) => {
+          const hue = l.sha === UNCOMMITTED_SHA ? null : hashStr(l.sha) % 360
+          return (
+            <div
+              className="blame-row"
+              key={i}
+              title={`${l.sha}\n${l.author}\n${l.summary}`}
+              style={hue != null ? { '--blame-hue': hue } as React.CSSProperties : undefined}
+            >
+              <span className="blame-num">{i + 1}</span>
+              <span className="blame-sha">{l.sha === UNCOMMITTED_SHA ? '—' : l.sha.slice(0, 8)}</span>
+              <span className="blame-author">{l.author}</span>
+              <span className="blame-text">{l.line}</span>
+            </div>
+          )
+        })
       )}
     </div>
   )
