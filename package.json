@@ -22,6 +22,7 @@
     "start": "electron-vite preview",
     "build": "electron-vite build",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "test": "vitest run",
     "prepack": "npm run build",
     "postinstall": "electron-rebuild -f -w node-pty"
   },
@@ -32,7 +33,8 @@
     "@vitejs/plugin-react": "^5.2.0",
     "electron-vite": "^5.0.0",
     "typescript": "^7.0.2",
-    "vite": "^7.3.6"
+    "vite": "^7.3.6",
+    "vitest": "^4.1.10"
   },
   "dependencies": {
     "@electron/rebuild": "^4.2.0",

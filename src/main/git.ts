@@ -10,13 +10,19 @@ import type {
   CommitFile,
   DiffRequest,
   DiffResult,
-  FileStatusCode,
   GitOpResult,
   ImageFileContent,
   RepoStatus,
-  SnapshotFileContent,
-  WorkingFile
+  SnapshotFileContent
 } from '../shared/types'
+import {
+  parseBranches,
+  parseLog,
+  parseNameStatus,
+  parseStatus,
+  RS,
+  US
+} from './parse'
 import { msg } from './messages'
 
 const exec = promisify(execFile)
@@ -29,9 +35,6 @@ const MAX_LINE_COUNT_BYTES = 8 * 1024 * 1024
 
 /** Untracked files inlined into the whole-work-tree diff before giving up. */
 const MAX_UNTRACKED_IN_DIFF = 50
-
-const RS = '\x1e' // record separator
-const US = '\x1f' // unit separator
 
 async function git(cwd: string, args: string[]): Promise<string> {
   const { stdout } = await exec('git', args, {
@@ -49,65 +52,6 @@ export async function resolveRepo(cwd: string): Promise<string> {
   return out.trim()
 }
 
-function code(c: string): FileStatusCode {
-  return (['M', 'A', 'D', 'R', 'C', 'U', '?'].includes(c) ? c : ' ') as FileStatusCode
-}
-
-/**
- * Parse `git status --porcelain=v2 -z --branch`. Records are NUL-separated, but
- * rename/copy records ("2 ") carry the original path as one extra NUL field.
- */
-function parseStatus(root: string, raw: string): Omit<RepoStatus, 'root'> {
-  const fields = raw.split('\0')
-  const files: WorkingFile[] = []
-  let branch = 'HEAD'
-  let upstream: string | null = null
-  let ahead = 0
-  let behind = 0
-
-  for (let i = 0; i < fields.length; i++) {
-    const entry = fields[i]
-    if (!entry) continue
-
-    if (entry.startsWith('# branch.head ')) branch = entry.slice(14)
-    else if (entry.startsWith('# branch.upstream ')) upstream = entry.slice(18)
-    else if (entry.startsWith('# branch.ab ')) {
-      const m = /\+(\d+) -(\d+)/.exec(entry)
-      if (m) {
-        ahead = Number(m[1])
-        behind = Number(m[2])
-      }
-    } else if (entry.startsWith('1 ')) {
-      // 1 <XY> <sub> <mH> <mI> <mW> <hH> <hI> <path>
-      const xy = entry.slice(2, 4)
-      files.push(mkFile(root, entry.split(' ').slice(8).join(' '), xy, false))
-    } else if (entry.startsWith('2 ')) {
-      const xy = entry.slice(2, 4)
-      const rel = entry.split(' ').slice(9).join(' ')
-      const orig = fields[++i] ?? ''
-      files.push({ ...mkFile(root, rel, xy, false), origPath: orig })
-    } else if (entry.startsWith('u ')) {
-      const rel = entry.split(' ').slice(10).join(' ')
-      files.push(mkFile(root, rel, 'UU', false))
-    } else if (entry.startsWith('? ')) {
-      files.push(mkFile(root, entry.slice(2), '??', true))
-    }
-  }
-
-  files.sort((a, b) => a.path.localeCompare(b.path))
-  return { branch, upstream, ahead, behind, files }
-}
-
-function mkFile(root: string, rel: string, xy: string, untracked: boolean): WorkingFile {
-  return {
-    path: rel,
-    absPath: path.join(root, rel),
-    index: code(xy[0]),
-    worktree: code(xy[1]),
-    untracked
-  }
-}
-
 export async function status(root: string): Promise<RepoStatus> {
   const raw = await git(root, [
     'status',
@@ -116,7 +60,15 @@ export async function status(root: string): Promise<RepoStatus> {
     '--branch',
     '--untracked-files=all'
   ])
-  return { root, ...parseStatus(root, raw) }
+  const p = parseStatus(raw)
+  return {
+    root,
+    branch: p.branch,
+    upstream: p.upstream,
+    ahead: p.ahead,
+    behind: p.behind,
+    files: p.files.map((f) => ({ ...f, absPath: path.join(root, f.path) }))
+  }
 }
 
 /**
@@ -141,21 +93,7 @@ export async function branches(root: string): Promise<Branch[]> {
   } catch {
     return []
   }
-  return raw
-    .split(RS)
-    .map((r) => r.trim())
-    .filter(Boolean)
-    .map((rec) => rec.split(US))
-    // By full ref name: `refs/remotes/origin/HEAD` shortens to plain "origin",
-    // which says nothing about what it is.
-    .filter(([refname]) => !refname.endsWith('/HEAD'))
-    .map(([refname, name, head, date, subject]) => ({
-      name,
-      remote: refname.startsWith('refs/remotes/'),
-      head: head === '*',
-      subject: subject ?? '',
-      date: date ?? ''
-    }))
+  return parseBranches(raw)
 }
 
 /** `ref` points the log at another branch; undefined means HEAD. */
@@ -180,23 +118,7 @@ export async function log(
   } catch {
     return [] // fresh repo with no commits yet
   }
-  return raw
-    .split(RS)
-    .map((r) => r.replace(/^\n/, ''))
-    .filter((r) => r.trim().length > 0)
-    .map((rec) => {
-      const [hash, short, author, email, date, subject, refs, parents] = rec.split(US)
-      return {
-        hash,
-        short,
-        author,
-        email,
-        date,
-        subject,
-        refs: refs ?? '',
-        parents: (parents ?? '').split(' ').filter(Boolean)
-      }
-    })
+  return parseLog(raw)
 }
 
 /** Files touched by a commit, plus its message body. */
@@ -241,21 +163,7 @@ async function nameStatus(
   args: string[]
 ): Promise<Array<Omit<CommitFile, 'absPath'>>> {
   const raw = await git(root, args)
-  const parts = raw.split('\0').filter((s) => s.length > 0)
-  const out: Array<Omit<CommitFile, 'absPath'>> = []
-  for (let i = 0; i < parts.length; i++) {
-    const st = parts[i]
-    // Status tokens look like "M", "A", "R100"; anything else is a stray line.
-    if (!/^[A-Z]\d*$/.test(st)) continue
-    if (st.startsWith('R') || st.startsWith('C')) {
-      const orig = parts[++i]
-      const dest = parts[++i]
-      out.push({ path: dest, status: code(st[0]), origPath: orig })
-    } else {
-      out.push({ path: parts[++i], status: code(st[0]) })
-    }
-  }
-  return out
+  return parseNameStatus(raw)
 }
 
 function clip(patch: string, title: string): DiffResult {
