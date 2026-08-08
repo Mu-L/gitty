@@ -97,25 +97,70 @@ export async function branches(root: string): Promise<Branch[]> {
   return parseBranches(raw)
 }
 
-/** `ref` points the log at another branch; undefined means HEAD. */
+/**
+ * `ref` points the log at another branch; undefined means HEAD. `filter`, when
+ * set, narrows it to commits whose message or author contains the text — the
+ * subject is part of the message, so typing a few words filters the log.
+ */
 export async function log(
   root: string,
   limit: number,
   skip = 0,
-  ref?: string | null
+  ref?: string | null,
+  filter?: string
 ): Promise<Commit[]> {
   const fmt = ['%H', '%h', '%an', '%ae', '%aI', '%s', '%D', '%P'].join(US) + RS
   let raw: string
   try {
-    raw = await git(root, [
-      'log',
-      `--max-count=${limit}`,
-      `--skip=${skip}`,
-      `--pretty=format:${fmt}`,
-      ...(ref ? [ref] : []),
-      // Nothing after this is a path, so a branch cannot be read as one.
-      '--'
-    ])
+    if (filter) {
+      // A filter is a union of two greps: one over the message, one over the
+      // author. git ANDs --grep with --author, so a single command cannot
+      // express the OR — hence a rev-list pass per side, merged by hash, then
+      // one --no-walk pass (date-ordered) to shape and page the result.
+      const base = ref ? [ref] : []
+      const byMsg = await git(root, [
+        'log',
+        '--format=%H',
+        '--regexp-ignore-case',
+        `--grep=${filter}`,
+        ...base,
+        '--'
+      ]).catch(() => '')
+      const byAuthor = await git(root, [
+        'log',
+        '--format=%H',
+        '--regexp-ignore-case',
+        `--author=${filter}`,
+        ...base,
+        '--'
+      ]).catch(() => '')
+      const union = [
+        ...new Set([
+          ...byMsg.trim().split('\n').filter(Boolean),
+          ...byAuthor.trim().split('\n').filter(Boolean)
+        ])
+      ]
+      const paged = union.slice(skip, skip + limit)
+      if (paged.length === 0) return []
+      raw = await git(root, [
+        'log',
+        '--no-walk',
+        '--date-order',
+        `--pretty=format:${fmt}`,
+        ...paged,
+        '--'
+      ])
+    } else {
+      raw = await git(root, [
+        'log',
+        `--max-count=${limit}`,
+        `--skip=${skip}`,
+        `--pretty=format:${fmt}`,
+        ...(ref ? [ref] : []),
+        // Nothing after this is a path, so a branch cannot be read as one.
+        '--'
+      ])
+    }
   } catch {
     return [] // fresh repo with no commits yet
   }

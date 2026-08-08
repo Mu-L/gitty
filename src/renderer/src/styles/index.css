@@ -362,6 +362,49 @@ button:disabled:hover {
   color: var(--fg-faint);
 }
 
+/* The commit filter is fixed above the log while the list itself scrolls. */
+.log-filter {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  background: var(--bg-header);
+  border-bottom: 1px solid var(--border);
+}
+
+.log-filter input {
+  flex: 1;
+  min-width: 0;
+  padding: 2px 6px;
+  background: var(--bg-pane);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--fg);
+  font-size: 11.5px;
+}
+
+.log-filter input:focus {
+  outline: none;
+  border-color: var(--border-active);
+}
+
+.log-filter-clear {
+  flex: none;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: none;
+  color: var(--fg-faint);
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.log-filter-clear:hover {
+  color: var(--fg);
+  border-color: var(--border-active);
+}
+
 /* resize handles */
 
 .sep-v {

@@ -137,6 +137,12 @@ export interface RendererMessages {
     readonly worktreeClean: string
     readonly worktreeUncommitted: (n: number) => string
     readonly noCommitsYet: string
+    /** Filter box above the commit list. */
+    readonly filterPlaceholder: string
+    /** Shown when a filter matches nothing. */
+    readonly noMatches: string
+    /** Title of the button that clears the filter. */
+    readonly clearFilter: string
     readonly browsingAnother: string
     readonly comparing2: string
     readonly openInBrowser: string

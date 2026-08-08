@@ -113,6 +113,9 @@ export const ru: RendererMessages = {
     worktreeUncommitted: (n: number) =>
       `(${n} ${plural(n, 'изменение', 'изменения', 'изменений')} не закоммичено)`,
     noCommitsYet: 'Коммитов пока нет.',
+    filterPlaceholder: 'Фильтровать коммиты…',
+    noMatches: 'Нет подходящих коммитов',
+    clearFilter: 'Очистить фильтр',
     browsingAnother: 'Просмотр другой ветки',
     comparing2: 'сравнение 2 коммитов',
     openInBrowser: 'Открыть в браузере',

@@ -22,6 +22,8 @@ export function LogPane({
   selected,
   compare,
   changedCount,
+  filter,
+  onFilter,
   onSelect,
   onEnter,
   onMenu,
@@ -32,6 +34,9 @@ export function LogPane({
   compare: string | null
   /** Number of uncommitted changes, shown on the work-tree row. */
   changedCount: number
+  /** The commit filter, narrowed in git (message or author); '' shows all. */
+  filter: string
+  onFilter: (value: string) => void
   onSelect: (hash: string, additive: boolean) => void
   onEnter: (hash: string) => void
   onMenu: (commit: Commit, state: MenuState) => void
@@ -55,9 +60,28 @@ export function LogPane({
   }
 
   return (
-    <div
-      ref={listRef}
-      className="pane-body"
+    <>
+      <div className="log-filter">
+        <input
+          type="text"
+          value={filter}
+          placeholder={msg.log.filterPlaceholder}
+          onChange={(e) => onFilter(e.target.value)}
+          spellCheck={false}
+        />
+        {filter !== '' && (
+          <button
+            className="log-filter-clear"
+            title={msg.log.clearFilter}
+            onClick={() => onFilter('')}
+          >
+            ✕
+          </button>
+        )}
+      </div>
+      <div
+        ref={listRef}
+        className="pane-body"
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'ArrowDown' || e.key === 'j') {
@@ -108,7 +132,9 @@ export function LogPane({
             </span>
           </span>
         </div>
-        {commits.length === 0 && <div className="empty">{msg.log.noCommitsYet}</div>}
+        {commits.length === 0 && (
+          <div className="empty">{filter ? msg.log.noMatches : msg.log.noCommitsYet}</div>
+        )}
       {commits.map((c) => {
         const cls =
           c.hash === selected ? ' selected' : c.hash === compare ? ' compare' : ''
@@ -132,6 +158,7 @@ export function LogPane({
           </div>
         )
       })}
-    </div>
+      </div>
+    </>
   )
 }

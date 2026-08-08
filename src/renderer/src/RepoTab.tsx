@@ -191,6 +191,15 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const [remoteMsg, setRemoteMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const loadingMore = useRef(false)
   const exhausted = useRef(false)
+  // The log filter. `filter` is what the box shows, so typing stays fluid; the
+  // debounced copy is what git sees, so a keystroke per character does not each
+  // fire a git log.
+  const [filter, setFilter] = useState('')
+  const [debouncedFilter, setDebouncedFilter] = useState('')
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedFilter(filter), 250)
+    return () => clearTimeout(t)
+  }, [filter])
 
   // The watcher can fire again — and a manual refresh can land — while `git
   // status` is still running, so replies come back out of order. Without this
@@ -198,19 +207,27 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // showing changes that are already committed, while the diff pane (which
   // re-runs git every time) shows the truth.
   const refreshSeq = useRef(0)
+  // The filter of the last run; a change means old results belong to a
+  // different query and must be swapped for the new ones, never merged.
+  const lastFilter = useRef('')
 
   const refresh = useCallback(async () => {
     const seq = ++refreshSeq.current
     const [st, log] = await Promise.all([
       window.gitty.git.status(root),
-      window.gitty.git.log(root, PAGE, 0, browsing)
+      window.gitty.git.log(root, PAGE, 0, browsing, debouncedFilter)
     ])
     if (seq !== refreshSeq.current) return
     setStatus(st)
     onStatus(st)
-    setCommits((prev) => (prev.length > PAGE ? mergeLog(prev, log) : log))
+    const filterChanged = lastFilter.current !== debouncedFilter
+    lastFilter.current = debouncedFilter
+    if (filterChanged) exhausted.current = false
+    setCommits(
+      filterChanged ? log : (prev) => (prev.length > PAGE ? mergeLog(prev, log) : log)
+    )
     setTick((t) => t + 1)
-  }, [root, browsing, onStatus])
+  }, [root, browsing, onStatus, debouncedFilter])
 
   // Another branch means another history: drop what is loaded rather than
   // merging two logs, and let go of a selection that may not be in it. The
@@ -530,13 +547,19 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     if (loadingMore.current || exhausted.current) return
     loadingMore.current = true
     try {
-      const more = await window.gitty.git.log(root, PAGE, commits.length, browsing)
+      const more = await window.gitty.git.log(
+        root,
+        PAGE,
+        commits.length,
+        browsing,
+        debouncedFilter
+      )
       if (more.length === 0) exhausted.current = true
       else setCommits((prev) => mergeLog(prev, more))
     } finally {
       loadingMore.current = false
     }
-  }, [root, browsing, commits.length])
+  }, [root, browsing, commits.length, debouncedFilter])
 
   /* ---------- push and pull ---------- */
 
@@ -1030,6 +1053,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   selected={selectedCommit}
                   compare={compareCommit}
                   changedCount={status?.files.length ?? 0}
+                  filter={filter}
+                  onFilter={setFilter}
                   onSelect={onSelectCommit}
                   onEnter={(hash) => {
                     if (hash === WORKTREE_ROW) {

@@ -53,13 +53,15 @@ const api = {
   },
   git: {
     status: (root: string): Promise<RepoStatus> => ipcRenderer.invoke('git:status', root),
-    /** `ref` points the log at another branch; null or omitted means HEAD. */
+    /** `ref` points the log at another branch; null or omitted means HEAD.
+     *  `filter` narrows it to matching messages or authors when non-empty. */
     log: (
       root: string,
       limit: number,
       skip = 0,
-      ref: string | null = null
-    ): Promise<Commit[]> => ipcRenderer.invoke('git:log', root, limit, skip, ref),
+      ref: string | null = null,
+      filter = ''
+    ): Promise<Commit[]> => ipcRenderer.invoke('git:log', root, limit, skip, ref, filter),
     branches: (root: string): Promise<Branch[]> => ipcRenderer.invoke('git:branches', root),
     /** Push the checked-out branch; `branch` is named only to set an upstream. */
     push: (root: string, branch: string | null = null): Promise<GitOpResult> =>

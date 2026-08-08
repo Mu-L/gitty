@@ -217,8 +217,8 @@ function registerIpc(): void {
   ipcMain.handle('git:status', (_e, root: string) => git.status(root))
   ipcMain.handle(
     'git:log',
-    (_e, root: string, limit: number, skip: number, ref: string | null) =>
-      git.log(root, limit, skip, ref)
+    (_e, root: string, limit: number, skip: number, ref: string | null, filter: string) =>
+      git.log(root, limit, skip, ref, filter)
   )
   ipcMain.handle('git:branches', (_e, root: string) => git.branches(root))
   ipcMain.handle('git:push', (_e, root: string, branch: string | null) =>
