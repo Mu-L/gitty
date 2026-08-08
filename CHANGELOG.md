@@ -82,6 +82,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Yesterday evening's commits read as times still to come. The commit log shows
+  a bare time for today's rows and a date for everything else, but "everything
+  else" was measured as the last 24 hours: at 3 PM, a commit from 9:45 the
+  previous night was labelled "9:45 PM" with no date, sitting directly under
+  1:43 PM. The cutoff is now the calendar day. The file history pane shares the
+  same stamp and was wrong the same way.
 - The window could stay hidden forever on Wayland. It is created hidden and
   shown at its first paint, but an unmapped window's renderer can hold that
   frame back — and showing the window is what would have released it. Gitty

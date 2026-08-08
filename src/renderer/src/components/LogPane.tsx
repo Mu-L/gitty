@@ -3,17 +3,23 @@ import type { Commit } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
 
-const DAY = 86_400_000
-
 /** Pseudo-hash of the row that stands for the uncommitted work tree. */
 export const WORKTREE_ROW = '__worktree__'
 
-/** Today's rows show a time, anything older shows a date. */
+/**
+ * Today's rows show a time, anything older shows a date. The cutoff is the
+ * calendar day, not the last 24 hours: at 3 PM a "9:45 PM" with no date beside
+ * it would be yesterday evening, which reads as a time still to come.
+ */
 export function stamp(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
-  const fresh = Date.now() - d.getTime() < DAY
-  return fresh
+  const now = new Date()
+  const today =
+    d.getDate() === now.getDate() &&
+    d.getMonth() === now.getMonth() &&
+    d.getFullYear() === now.getFullYear()
+  return today
     ? d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
     : d.toLocaleDateString('en-CA')
 }
