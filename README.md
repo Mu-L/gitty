@@ -71,6 +71,8 @@ Two more things I wanted and almost nothing offered: a **markdown preview**, and
 - Node.js 20 or newer
 - `git` on `PATH`
 - Linux, macOS or Windows with a desktop session
+- Optionally [gource](https://gource.io/) on `PATH`, for
+  [the animation](#gource); nothing changes if it is absent
 
 ## Running
 
@@ -389,6 +391,20 @@ text you type — debounced, with a ✕ to clear — and the list pages the same
   click away. The URLs work while the repository is open.
 - Selecting a file in the top-left pane narrows the diff to that file;
   **Show Whole Diff** widens it back out.
+
+#### Gource
+
+If [gource](https://gource.io/) is on `PATH`, the commits pane grows a
+**Gource** button beside **Open in Browser**: it plays the repository's history
+as an animation — the directory tree growing, files lighting up as each commit
+lands, one author flying between them per name in the log. Gource opens a window
+of its own and keeps running after you close Gitty; the button only waits long
+enough to see that it started, and shows what gource said if it did not.
+
+It is started with a day of history per half second, idle files kept on screen
+and long gaps skipped, which is what makes a real repository readable rather
+than a slow trickle. Nothing is installed for you: where gource is not on
+`PATH`, the button is simply not there.
 
 #### Browsing another branch
 

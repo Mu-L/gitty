@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, shell } from 'electron'
 import * as git from './git'
+import * as gource from './gource'
 import { createTerminal, type TerminalSession } from './pty'
 import { addRecent, clearRecent, listRecent, removeRecent } from './recent'
 import { watchRepo, type RepoWatcher } from './watcher'
@@ -293,6 +294,10 @@ function registerIpc(): void {
   ipcMain.handle('file:reveal', (_e, abs: string) => {
     shell.showItemInFolder(abs)
   })
+
+  // Optional: the button is only rendered where gource is installed.
+  ipcMain.handle('gource:available', () => gource.available())
+  ipcMain.handle('gource:play', (_e, root: string) => gource.play(root))
 
   ipcMain.handle('web:repoUrl', (_e, root: string) => web.repoUrl(root))
   ipcMain.handle('web:commitUrl', (_e, root: string, hash: string) => web.commitUrl(root, hash))

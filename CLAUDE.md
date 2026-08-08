@@ -149,6 +149,20 @@ throwing — the pane shows git's own words, and anything needing an answer is
 finished in the terminal pane. `pull` is `--ff-only`: a merge that needs a
 decision or an editor is not something a button should start.
 
+### Gource
+
+`src/main/gource.ts` is an *optional* companion, and the shape follows from
+that: `available()` walks `PATH` once (the result is cached — PATH does not
+change under a running app) and the commits pane simply does not render the
+button when it comes back false, rather than showing one that fails on click.
+
+`play()` spawns it detached and resolves after a 2.5 s grace period: long
+enough to catch the immediate failures (no display, no OpenGL, an unreadable
+path) and report gource's own stderr through the same strip push and pull use,
+short enough that the button does not feel stuck. If it is still alive when the
+timer fires, its pipes are destroyed and it is `unref`'d — gource draws its own
+window and is meant to outlive Gitty, so nothing is piped through the app.
+
 ### Multiple repositories, tabs
 
 `App.tsx` is a thin tab manager: the list of open roots, which is active, the

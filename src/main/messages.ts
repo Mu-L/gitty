@@ -31,6 +31,10 @@ const en: MainMessages = {
     untrackedLabel: 'untracked',
     stagedLabel: 'staged',
     unstagedLabel: 'unstaged'
+  },
+  gource: {
+    failed: 'gource failed',
+    notInstalled: 'gource is not installed.'
   }
 }
 
@@ -63,6 +67,10 @@ const zh: MainMessages = {
     untrackedLabel: '未跟踪',
     stagedLabel: '已暂存',
     unstagedLabel: '未暂存'
+  },
+  gource: {
+    failed: 'gource 运行失败',
+    notInstalled: 'gource 未安装。'
   }
 }
 
@@ -95,6 +103,10 @@ const ja: MainMessages = {
     untrackedLabel: '未追跡',
     stagedLabel: 'ステージ済み',
     unstagedLabel: '未ステージ'
+  },
+  gource: {
+    failed: 'gource の実行に失敗しました',
+    notInstalled: 'gource がインストールされていません。'
   }
 }
 
@@ -127,6 +139,10 @@ const ko: MainMessages = {
     untrackedLabel: '추적 안 함',
     stagedLabel: '스테이지됨',
     unstagedLabel: '스테이지 안 함'
+  },
+  gource: {
+    failed: 'gource 실행 실패',
+    notInstalled: 'gource가 설치되어 있지 않습니다.'
   }
 }
 
@@ -160,6 +176,10 @@ const fr: MainMessages = {
     untrackedLabel: 'non suivi',
     stagedLabel: 'indexé',
     unstagedLabel: 'non indexé'
+  },
+  gource: {
+    failed: 'échec de gource',
+    notInstalled: 'gource n’est pas installé.'
   }
 }
 
@@ -193,6 +213,10 @@ const de: MainMessages = {
     untrackedLabel: 'nicht verfolgt',
     stagedLabel: 'vorgemerkt',
     unstagedLabel: 'nicht vorgemerkt'
+  },
+  gource: {
+    failed: 'gource fehlgeschlagen',
+    notInstalled: 'gource ist nicht installiert.'
   }
 }
 
@@ -226,6 +250,10 @@ const es: MainMessages = {
     untrackedLabel: 'sin seguimiento',
     stagedLabel: 'preparado',
     unstagedLabel: 'sin preparar'
+  },
+  gource: {
+    failed: 'gource falló',
+    notInstalled: 'gource no está instalado.'
   }
 }
 
@@ -258,6 +286,10 @@ const ru: MainMessages = {
     untrackedLabel: 'не отслеживается',
     stagedLabel: 'проиндексировано',
     unstagedLabel: 'не проиндексировано'
+  },
+  gource: {
+    failed: 'gource завершился с ошибкой',
+    notInstalled: 'gource не установлен.'
   }
 }
 
@@ -291,6 +323,10 @@ const pt: MainMessages = {
     untrackedLabel: 'não seguido',
     stagedLabel: 'preparado',
     unstagedLabel: 'não preparado'
+  },
+  gource: {
+    failed: 'gource falhou',
+    notInstalled: 'gource não está instalado.'
   }
 }
 

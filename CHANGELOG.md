@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Gource**, in the commits pane, where [gource](https://gource.io/) is on
+  `PATH`: an animation of the repository growing, commit by commit. It runs in
+  its own window and outlives Gitty; a day of history per half second, idle
+  files kept on screen and long gaps skipped, so a real history reads as
+  something happening. Where gource is not installed the button is not
+  rendered — nothing is downloaded, suggested or installed on your behalf.
+
 - Browsing history, with **‹** and **›** at the left of the title bar
   (<kbd>Alt+←</kbd> / <kbd>Alt+→</kbd>) and a **▾** listing the places viewed,
   most recent first, with a dot on the current one. A place is the whole of what

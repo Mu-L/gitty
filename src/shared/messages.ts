@@ -39,6 +39,11 @@ export interface MainMessages {
     readonly stagedLabel: string
     readonly unstagedLabel: string
   }
+  /** The optional gource companion; only ever seen when it goes wrong. */
+  readonly gource: {
+    readonly failed: string
+    readonly notInstalled: string
+  }
 }
 
 // ── Renderer process ────────────────────────────────────────────────────────
@@ -173,6 +178,10 @@ export interface RendererMessages {
     readonly comparing2: string
     readonly openInBrowser: string
     readonly openRepoCommitsTitle: string
+    /** The gource button, shown only where gource is installed. */
+    readonly gource: string
+    readonly gourceStarting: string
+    readonly gourceTitle: string
     readonly clickToDismiss: string
     readonly now: string
     readonly placeholder: string

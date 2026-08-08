@@ -103,6 +103,13 @@ const api = {
     reveal: (abs: string): Promise<void> => ipcRenderer.invoke('file:reveal', abs),
     openExternal: (url: string): Promise<void> => ipcRenderer.invoke('file:openExternal', url)
   },
+  /** gource, when it is installed: an animation of the repository's history.
+   *  It draws its own window; `play` resolves once it is up, or with what it
+   *  said if it died on the spot. */
+  gource: {
+    available: (): Promise<boolean> => ipcRenderer.invoke('gource:available'),
+    play: (root: string): Promise<GitOpResult> => ipcRenderer.invoke('gource:play', root)
+  },
   /** The local web server that renders commits for the browser. */
   web: {
     repoUrl: (root: string): Promise<WebUrl> => ipcRenderer.invoke('web:repoUrl', root),

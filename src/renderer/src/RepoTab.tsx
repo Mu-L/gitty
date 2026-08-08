@@ -193,9 +193,14 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     allCollapsed: false
   })
   const [tick, setTick] = useState(0)
-  // The push or pull in flight, and what the last one said.
+  // The push or pull in flight, and what the last external command said —
+  // push, pull or gource; the strip below the header is the one place any of
+  // them gets to speak in its own words.
   const [remoteOp, setRemoteOp] = useState<'push' | 'pull' | null>(null)
   const [remoteMsg, setRemoteMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  // gource is optional: the button exists only where the binary does.
+  const [hasGource, setHasGource] = useState(false)
+  const [gourceStarting, setGourceStarting] = useState(false)
   const loadingMore = useRef(false)
   const exhausted = useRef(false)
   // The log filter. `filter` is what the box shows, so typing stays fluid; the
@@ -662,6 +667,28 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     [root, status, refresh]
   )
 
+  /* ---------- gource ---------- */
+
+  useEffect(() => {
+    void window.gitty.gource.available().then(setHasGource)
+  }, [])
+
+  /**
+   * Start the animation. gource opens a window of its own and outlives the
+   * click, so the button only waits long enough to learn whether it survived
+   * its first seconds — and says nothing at all when it did.
+   */
+  const playGource = useCallback(async () => {
+    setGourceStarting(true)
+    setRemoteMsg(null)
+    try {
+      const res = await window.gitty.gource.play(root)
+      if (res.output) setRemoteMsg({ ok: res.ok, text: res.output })
+    } finally {
+      setGourceStarting(false)
+    }
+  }, [root])
+
   // Success has been read by the time it matters; a failure stays until it is
   // dismissed, since it is the only place git's own words appear.
   useEffect(() => {
@@ -1111,6 +1138,18 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   >
                     {remoteOp === 'pull' ? msg.pushPull.pulling : behind > 0 ? msg.pushPull.pullCount(behind) : msg.pushPull.pull}
                   </button>
+                  {/* Only where gource is installed — an absent companion is
+                      better said by silence than by a dead button. */}
+                  {hasGource && (
+                    <button
+                      className="toggle"
+                      disabled={gourceStarting}
+                      title={msg.log.gourceTitle}
+                      onClick={() => void playGource()}
+                    >
+                      {gourceStarting ? msg.log.gourceStarting : msg.log.gource}
+                    </button>
+                  )}
                   <button
                     className="toggle"
                     title={msg.log.openRepoCommitsTitle}
