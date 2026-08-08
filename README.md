@@ -245,7 +245,11 @@ Changed files as a collapsible tree, each with its line count beside the name.
 Two status columns are shown: the staged state (green) and the work-tree state
 (yellow / red); untracked files are `??`. The count is read from disk in the
 work tree and from the revision everywhere else; binary files, deleted files and
-anything above 8 MB simply show none.
+anything above 8 MB simply show none. After it comes the churn — how many lines
+this change added and removed in that file, `+12 −3`, against HEAD in the work
+tree and against the parent for a commit or a range. A snapshot is a tree rather
+than a change, so it has no churn; nor do binary files or a merge commit, whose
+combined diff attributes nothing.
 
 - **Click** — show the file's diff on the right.
 - **Double-click** — open the whole file as a document beside the diff, with

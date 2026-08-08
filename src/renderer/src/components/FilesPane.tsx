@@ -1,5 +1,6 @@
 import { useMemo, useState, type JSX } from 'react'
 import { useMsg } from '../locale'
+import type { FileChurn } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 
 export interface FileEntry {
@@ -12,6 +13,8 @@ export interface FileEntry {
   origPath?: string
   /** Number of lines, when counted. */
   lines?: number | null
+  /** Lines this change added and removed; absent for binary files and snapshots. */
+  churn?: FileChurn | null
 }
 
 interface TreeRow {
@@ -132,6 +135,16 @@ export function FilesPane({
             <span className={`file-name${row.entry!.deleted ? ' deleted' : ''}`}>{row.name}</span>
             {row.entry!.lines != null && (
               <span className="file-lines">{msg.files.lines(row.entry!.lines)}</span>
+            )}
+            {row.entry!.churn && (
+              <span className="file-churn">
+                {row.entry!.churn!.added > 0 && (
+                  <span className="churn-add">+{row.entry!.churn!.added}</span>
+                )}
+                {row.entry!.churn!.deleted > 0 && (
+                  <span className="churn-del">−{row.entry!.churn!.deleted}</span>
+                )}
+              </span>
             )}
           </div>
         )

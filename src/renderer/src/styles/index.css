@@ -521,6 +521,23 @@ button:disabled:hover {
   flex-shrink: 0;
 }
 
+.file-churn {
+  display: flex;
+  gap: 5px;
+  font-size: 0.9em;
+  margin-left: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.churn-add {
+  color: var(--green);
+}
+
+.churn-del {
+  color: var(--red);
+}
+
 /* ---------- commit log ---------- */
 
 .commit-row {

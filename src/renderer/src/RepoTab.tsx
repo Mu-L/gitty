@@ -47,11 +47,13 @@ import {
   type PaneVisibility
 } from './panes'
 import type {
+  ChurnSpec,
   Commit,
   CommitFile,
   CommitMeta,
   DiffRequest,
   DiffResult,
+  FileChurn,
   RepoStatus,
   WorkingFile
 } from '../../shared/types'
@@ -347,13 +349,28 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         }
       }
 
-      // Fetch line counts in one batch so the tree shows them right away.
+      // Fetch line counts in one batch so the tree shows them right away, and
+      // the churn of the same change beside them. A snapshot is a tree, not a
+      // change, so it has none.
       if (!cancelled && entries.length > 0) {
         const pairs = entries.map((e) => ({ rev, filePath: e.path }))
-        const counts = await window.gitty.git.fileLines(root, pairs)
+        const spec: ChurnSpec | null =
+          view.mode === 'worktree'
+            ? { kind: 'worktree' }
+            : view.mode === 'commit'
+              ? { kind: 'commit', hash: view.hash }
+              : view.mode === 'range'
+                ? { kind: 'range', from: view.from, to: view.to }
+                : null
+        const [counts, churn] = await Promise.all([
+          window.gitty.git.fileLines(root, pairs),
+          spec
+            ? window.gitty.git.fileChurn(root, spec)
+            : Promise.resolve<Record<string, FileChurn>>({})
+        ])
         if (!cancelled) {
           for (let i = 0; i < entries.length; i++) {
-            entries[i] = { ...entries[i], lines: counts[i] }
+            entries[i] = { ...entries[i], lines: counts[i], churn: churn[entries[i].path] ?? null }
           }
         }
       }

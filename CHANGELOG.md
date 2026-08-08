@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Per-file churn in the file tree, after the line count: `+12 −3`, the lines
+  this change added and removed in that file. Measured against HEAD in the work
+  tree and against the parent for a commit or a range. A snapshot is a tree
+  rather than a change and shows none, as do binary files and merge commits.
 - <kbd>Ctrl+Shift+0</kbd> shows all four panes again, so a layout hidden down to
   one pane can be restored without going through the **Panes** menu. The menu
   entry now names the key. Zero belongs with <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd>

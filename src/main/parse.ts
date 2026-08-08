@@ -4,7 +4,7 @@
  * a repository. `git.ts` shells out to git and feeds the results in, joining
  * on the things only it knows (the repository root, `absPath`).
  */
-import { UNCOMMITTED_SHA, type BlameLine, type Branch, type Commit, type FileStatusCode } from '../shared/types'
+import { UNCOMMITTED_SHA, type BlameLine, type Branch, type Commit, type FileChurn, type FileStatusCode } from '../shared/types'
 
 export { UNCOMMITTED_SHA }
 
@@ -108,6 +108,29 @@ export function parseLog(raw: string): Commit[] {
         parents: (parents ?? '').split(' ').filter(Boolean)
       }
     })
+}
+
+/**
+ * Parse `--numstat -z`. A record is `added\tdeleted\tpath\0`, except for a
+ * rename, where the path field is empty and two more NUL fields follow with the
+ * old and the new path. Binary files report `-` for both counts and are
+ * dropped — there are no lines to count.
+ */
+export function parseNumstat(raw: string): Map<string, FileChurn> {
+  const parts = raw.split('\0').filter((s) => s.length > 0)
+  const out = new Map<string, FileChurn>()
+  for (let i = 0; i < parts.length; i++) {
+    // `git show --format=` leaves a blank line before the stats.
+    const fields = parts[i].replace(/^\n+/, '').split('\t')
+    if (fields.length < 3) continue
+    const [addStr, delStr] = fields
+    // The path is either in this field or, for a rename, the two that follow.
+    const inline = fields.slice(2).join('\t')
+    const path = inline.length > 0 ? inline : ((i += 2), parts[i])
+    if (addStr === '-' || delStr === '-' || path == null) continue
+    out.set(path, { added: Number(addStr), deleted: Number(delStr) })
+  }
+  return out
 }
 
 export interface NameStatusEntry {

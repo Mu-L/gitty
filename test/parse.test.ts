@@ -4,6 +4,7 @@ import {
   parseBlame,
   parseLog,
   parseNameStatus,
+  parseNumstat,
   parseStatus,
   UNCOMMITTED_SHA,
   RS,
@@ -112,6 +113,26 @@ describe('parseNameStatus', () => {
   it('skips stray lines that are not status tokens', () => {
     const raw = 'M\0src/a.ts\0garbage\0A\0b.ts\0'
     expect(parseNameStatus(raw).map((e) => e.path)).toEqual(['src/a.ts', 'b.ts'])
+  })
+})
+
+describe('parseNumstat', () => {
+  it('reads counts, renames and paths containing tabs', () => {
+    const raw = '4\t0\tCHANGELOG.md\0' + '1\t1\t\0src/parse.test.ts\0test/parse.test.ts\0' + '2\t1\ta\tb.txt\0'
+    expect([...parseNumstat(raw)]).toEqual([
+      ['CHANGELOG.md', { added: 4, deleted: 0 }],
+      ['test/parse.test.ts', { added: 1, deleted: 1 }],
+      ['a\tb.txt', { added: 2, deleted: 1 }]
+    ])
+  })
+
+  it('drops binary files but keeps reading past a binary rename', () => {
+    const raw = '-\t-\timg.png\0' + '-\t-\t\0old.png\0new.png\0' + '3\t0\ta.ts\0'
+    expect([...parseNumstat(raw).keys()]).toEqual(['a.ts'])
+  })
+
+  it('returns an empty map for a merge commit, which reports nothing', () => {
+    expect(parseNumstat('').size).toBe(0)
   })
 })
 

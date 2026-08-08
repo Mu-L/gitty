@@ -8,8 +8,10 @@ import type {
   Branch,
   Commit,
   CommitDetail,
+  ChurnSpec,
   CommitFile,
   CommitMeta,
+  FileChurn,
   DiffRequest,
   DiffResult,
   GitOpResult,
@@ -22,6 +24,7 @@ import {
   parseBranches,
   parseLog,
   parseNameStatus,
+  parseNumstat,
   parseStatus,
   RS,
   US
@@ -243,6 +246,27 @@ export async function rangeFiles(
 ): Promise<CommitFile[]> {
   const files = await nameStatus(root, ['diff', '--name-status', '-z', `${from}..${to}`])
   return files.map((f) => ({ ...f, absPath: path.join(root, f.path) }))
+}
+
+/**
+ * Lines added and removed per file, for the same change the file list shows.
+ * Keyed by path; a file missing from the map has no countable churn (binary,
+ * or a merge commit, whose combined diff `--numstat` reports nothing for).
+ */
+export async function fileChurn(root: string, spec: ChurnSpec): Promise<Record<string, FileChurn>> {
+  const args =
+    spec.kind === 'commit'
+      ? ['show', '--numstat', '-z', '--format=', spec.hash]
+      : spec.kind === 'range'
+        ? ['diff', '--numstat', '-z', `${spec.from}..${spec.to}`]
+        : // Staged and unstaged together, which is what the work-tree list shows.
+          ['diff', '--numstat', '-z', 'HEAD']
+  try {
+    return Object.fromEntries(parseNumstat(await git(root, args)))
+  } catch {
+    // An empty repository has no HEAD to diff against; churn is simply unknown.
+    return {}
+  }
 }
 
 /** Shared `--name-status -z` reader; rename entries carry two path fields. */

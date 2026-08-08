@@ -64,6 +64,18 @@ export interface CommitFile {
   origPath?: string
 }
 
+/** Lines a change added and removed in one file. Binary files have neither. */
+export interface FileChurn {
+  added: number
+  deleted: number
+}
+
+/** Which change the churn of a file list is measured against. */
+export type ChurnSpec =
+  | { kind: 'worktree' }
+  | { kind: 'commit'; hash: string }
+  | { kind: 'range'; from: string; to: string }
+
 export interface CommitDetail {
   commit: Commit
   body: string

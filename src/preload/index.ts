@@ -3,12 +3,14 @@ import { contextBridge, ipcRenderer } from 'electron'
 import type {
   BlameLine,
   Branch,
+  ChurnSpec,
   Commit,
   CommitDetail,
   CommitFile,
   CommitMeta,
   DiffRequest,
   DiffResult,
+  FileChurn,
   GitOpResult,
   ImageFileContent,
   PtyExit,
@@ -96,7 +98,10 @@ const api = {
     fileLines: (
       root: string,
       pairs: Array<{ rev: string | null; filePath: string }>
-    ): Promise<Array<number | null>> => ipcRenderer.invoke('git:fileLines', root, pairs)
+    ): Promise<Array<number | null>> => ipcRenderer.invoke('git:fileLines', root, pairs),
+    /** Lines added and removed per path, for one commit, range or the work tree. */
+    fileChurn: (root: string, spec: ChurnSpec): Promise<Record<string, FileChurn>> =>
+      ipcRenderer.invoke('git:fileChurn', root, spec)
   },
   file: {
     open: (abs: string): Promise<string | null> => ipcRenderer.invoke('file:open', abs),
