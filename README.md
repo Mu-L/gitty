@@ -47,7 +47,7 @@ Uncommon in other git browsers:
 - **Every pane resizable, hidable, or full screen** — a four-pane layout that
   shrinks to just the diff, or just the log, and comes back.
 
-![Gitty 0.1.3](ref/gitty-0.1.3.png)
+![Gitty 0.1.4](ref/gitty-0.1.4.png)
 
 ## Why another one?
 
@@ -220,7 +220,7 @@ anything above 8 MB simply show none.
   line numbers and syntax highlighting (a rendered document for markdown, the
   picture itself for an image).
 - **Right-click** — View File, Open in System App, Reveal in File Manager, Copy
-  Relative Path, Copy Absolute Path, Copy File Name.
+  Relative Path, Copy Absolute Path, Copy File Name, Blame File, File History.
 - **Click a folder** — collapse or expand it.
 
 When a commit or a commit range is selected, this pane lists that commit's files
@@ -329,14 +329,26 @@ checkerboard, so transparency reads as transparency; **click** it for actual
 size and scroll around, click again to fit. Its pixel dimensions and size on
 disk sit underneath. Images above 12 MB are not inlined.
 
+#### Blame and file history
+
+Right-click any file in the tree and choose **Blame File** or **File History**;
+both open as documents beside the diff. Blame shows one row per source line —
+the commit, its author and the line itself, with an em dash where a line is not
+committed yet — at the revision you are viewing. File History lists every commit
+that touched the file, follows renames, and clicking a commit opens it.
+
 ### Commits (bottom left)
 
 The log of the current branch, loaded 300 at a time and extended as you scroll.
 The first row is the **Working Tree** — the uncommitted changes, with a count of
-changed files; selecting it brings the top panes back to the work tree.
+changed files; selecting it brings the top panes back to the work tree. A filter
+box above the log narrows the list to commits whose message or author contain the
+text you type — debounced, with a ✕ to clear — and the list pages the same way.
 
 - **Click** or <kbd>Enter</kbd> — show that commit: its files fill the top-left
-  pane and its full diff the top-right one.
+  pane and its full diff the top-right one. The commit's subject, author, date
+  and full body appear in a strip above the file list; when the body is long, a
+  ▸ toggle folds it away so the file list keeps the room.
 - **Ctrl+Click** (<kbd>Cmd</kbd> on macOS), <kbd>Shift+Click</kbd> or
   <kbd>Space</kbd> — pick a second commit and diff the two, oldest first.
 - **↑ ↓ / j k / PgUp / PgDn / Home / End** — move the cursor.
@@ -403,6 +415,7 @@ back.
 | | |
 | --- | --- |
 | **Theme** | Dark or Light. |
+| **Language** | English, 简体中文, 日本語, 한국어, Français, Deutsch, Español, Русский or Português — the interface, the menus and the dialogs all change together without restarting. |
 | **Font size** | 11 – 16, in half points. Applies to every pane, the terminal included. |
 | **Row height** | 18 – 26 pixels — the line height every list is built on, the file tree, the log and the diff. Tighter fits more on screen, looser reads easier. |
 | **Diff layout** | Inline or Side-by-Side, the same toggle the diff header carries. |

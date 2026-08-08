@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.4] - 2026-08-08
 
 ### Added
 
@@ -43,7 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Selecting a commit shows its full message. The subject, author, date and the
   whole body sit above the file list whenever a commit or a snapshot is
   selected, so a long commit message no longer has to be guessed at from the
-  one-line log.
+  one-line log. When the message has a body, a ▸ toggle folds it away to the
+  subject and the metadata row, giving the file list the room.
 - Blame and file history, from any file's context menu. **Blame File** opens
   one row per source line — the commit, its author and the line itself, with an
   em dash where a line is not committed yet; **File History** lists every
@@ -79,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The pane-title tooltips now spell out the double-click gesture: hovering any
   of the four pane titles shows **Double-click the title toggles full screen**
   under its shortcut, so the mouse gesture is discoverable without a docs hunt.
+- README screenshot updated for this release (`ref/gitty-0.1.4.png`).
 
 ### Fixed
 
@@ -382,7 +384,9 @@ Initial release.
   `chrome-sandbox` cannot keep its root-owned setuid bit inside `node_modules`.
 - README shows a screenshot of the interface (`ref/gitty-0.1.0.png`).
 
-[Unreleased]: https://github.com/baojie/gitty/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/baojie/gitty/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/baojie/gitty/compare/v0.1.3...v0.1.4
+[0.1.3]: https://github.com/baojie/gitty/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/baojie/gitty/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/baojie/gitty/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/baojie/gitty/releases/tag/v0.1.0
