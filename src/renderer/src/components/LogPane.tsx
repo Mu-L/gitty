@@ -58,55 +58,57 @@ export function LogPane({
     <div
       ref={listRef}
       className="pane-body"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'ArrowDown' || e.key === 'j') {
-          e.preventDefault()
-          move(1)
-        } else if (e.key === 'ArrowUp' || e.key === 'k') {
-          e.preventDefault()
-          move(-1)
-        } else if (e.key === 'PageDown') {
-          e.preventDefault()
-          move(20)
-        } else if (e.key === 'PageUp') {
-          e.preventDefault()
-          move(-20)
-        } else if (e.key === 'Home') {
-          e.preventDefault()
-          move(-commits.length)
-        } else if (e.key === 'End') {
-          e.preventDefault()
-          move(commits.length)
-        } else if (e.key === 'Enter') {
-          e.preventDefault()
-          if (selected) onEnter(selected)
-        } else if (e.key === ' ') {
-          e.preventDefault()
-          if (selected) onSelect(selected, true)
-        }
-      }}
-      onScroll={(e) => {
-        const el = e.currentTarget
-        if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) onScrollEnd()
-      }}
-    >
-      <div
-        className={`commit-row worktree-row${selected === WORKTREE_ROW ? ' selected' : ''}`}
-        onClick={() => onSelect(WORKTREE_ROW, false)}
-        title="Uncommitted changes in the working tree"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowDown' || e.key === 'j') {
+            e.preventDefault()
+            move(1)
+          } else if (e.key === 'ArrowUp' || e.key === 'k') {
+            e.preventDefault()
+            move(-1)
+          } else if (e.key === 'PageDown') {
+            e.preventDefault()
+            move(20)
+          } else if (e.key === 'PageUp') {
+            e.preventDefault()
+            move(-20)
+          } else if (e.key === 'Home') {
+            e.preventDefault()
+            move(-commits.length)
+          } else if (e.key === 'End') {
+            e.preventDefault()
+            move(commits.length)
+          } else if (e.key === 'Enter') {
+            e.preventDefault()
+            if (selected) onEnter(selected)
+          } else if (e.key === ' ') {
+            e.preventDefault()
+            if (selected) onSelect(selected, true)
+          }
+        }}
+        onScroll={(e) => {
+          const el = e.currentTarget
+          if (el.scrollTop + el.clientHeight >= el.scrollHeight - 40) onScrollEnd()
+        }}
       >
-        <span className="commit-hash">●</span>
-        <span className="commit-time">now</span>
-        <span className="commit-author">—</span>
-        <span className="commit-subject">
-          Working Tree{' '}
-          <span className="dim">
-            {changedCount === 0 ? msg.log.worktreeClean : msg.log.worktreeUncommitted(changedCount)}
+        <div
+          className={`commit-row worktree-row${selected === WORKTREE_ROW ? ' selected' : ''}`}
+          onClick={() => onSelect(WORKTREE_ROW, false)}
+          title={msg.log.worktreeRowTitle}
+        >
+          <span className="commit-hash">●</span>
+          <span className="commit-time">{msg.log.now}</span>
+          <span className="commit-author">{msg.log.placeholder}</span>
+          <span className="commit-subject">
+            {msg.log.worktreeRow}
+            <span className="dim">
+              {changedCount === 0
+                ? msg.log.worktreeClean
+                : msg.log.worktreeUncommitted(changedCount)}
+            </span>
           </span>
-        </span>
-      </div>
-      {commits.length === 0 && <div className="empty">No commits yet.</div>}
+        </div>
+        {commits.length === 0 && <div className="empty">{msg.log.noCommitsYet}</div>}
       {commits.map((c) => {
         const cls =
           c.hash === selected ? ' selected' : c.hash === compare ? ' compare' : ''

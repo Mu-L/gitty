@@ -190,8 +190,6 @@ export const en: RendererMessages = {
   paneChrome: {
     paneLabelFiles: 'Files',
     paneLabelDiff: 'Diff',
-    paneLabelLog: 'Commits',
-    paneLabelTerminal: 'Terminal',
     restoreLayout: (fullAccel: string) =>
       `Restore the layout (Esc, ${fullAccel}, or double-click the header)`,
     fillWindow: (fullAccel: string) =>
@@ -200,8 +198,6 @@ export const en: RendererMessages = {
       `Hide this pane (${accel}) — "Panes" in the title bar brings it back`,
     hidePaneTerminal: (accel: string) =>
       `Hide this pane (${accel}) — "Panes" in the title bar brings it back — the shells keep running`,
-    panesMenuNote:
-      ' — the shells keep running',
     showPane: (label: string) => `Show the ${label.toLowerCase()} pane`,
     hidePaneMenu: (label: string) => `Hide the ${label.toLowerCase()} pane`,
     showAllPanes: 'Show All Panes',
@@ -222,7 +218,6 @@ export const en: RendererMessages = {
     shellsKeepRunning: ' — the shells keep running'
   },
   common: {
-    close: 'Close',
     loading: 'Loading…',
     binaryOrOversized: 'Binary or oversized file.'
   },

@@ -189,8 +189,6 @@ export const zh: RendererMessages = {
   paneChrome: {
     paneLabelFiles: '文件',
     paneLabelDiff: '差异',
-    paneLabelLog: '提交',
-    paneLabelTerminal: '终端',
     restoreLayout: (fullAccel: string) =>
       `还原布局（Esc、${fullAccel} 或双击标题栏）`,
     fillWindow: (fullAccel: string) =>
@@ -199,7 +197,6 @@ export const zh: RendererMessages = {
       `隐藏此窗格（${accel}）— 可通过标题栏中的"窗格"菜单恢复`,
     hidePaneTerminal: (accel: string) =>
       `隐藏此窗格（${accel}）— 可通过标题栏中的"窗格"菜单恢复 — Shell 将继续运行`,
-    panesMenuNote: ' — Shell 将继续运行',
     showPane: (label: string) => `显示 ${label} 窗格`,
     hidePaneMenu: (label: string) => `隐藏 ${label} 窗格`,
     showAllPanes: '显示所有窗格',
@@ -220,7 +217,6 @@ export const zh: RendererMessages = {
     shellsKeepRunning: ' — Shell 将继续运行'
   },
   common: {
-    close: '关闭',
     loading: '加载中…',
     binaryOrOversized: '二进制文件或文件过大。'
   },

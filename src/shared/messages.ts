@@ -232,13 +232,10 @@ export interface RendererMessages {
     /** The four pane names used as labels throughout the UI. */
     readonly paneLabelFiles: string
     readonly paneLabelDiff: string
-    readonly paneLabelLog: string
-    readonly paneLabelTerminal: string
     readonly restoreLayout: (fullAccel: string) => string
     readonly fillWindow: (fullAccel: string) => string
     readonly hidePane: (accel: string) => string
     readonly hidePaneTerminal: (accel: string) => string
-    readonly panesMenuNote: string
     /** The Panes menu entries. */
     readonly showPane: (label: string) => string
     readonly hidePaneMenu: (label: string) => string
@@ -260,7 +257,6 @@ export interface RendererMessages {
     readonly shellsKeepRunning: string
   }
   readonly common: {
-    readonly close: string
     readonly loading: string
     readonly binaryOrOversized: string
   }

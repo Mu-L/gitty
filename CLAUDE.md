@@ -113,10 +113,21 @@ to `en`; `npm run typecheck` then names every table that is missing it. Do not
 reach for a literal because a string is "obviously not going to be translated" —
 the tables are also where the wording of the whole UI can be read at once.
 
-Only `en` exists today, and `messages/index.ts` exports it unconditionally.
-Adding a language is a new table beside `en.ts` plus a choice in that file;
-until a language selector exists, keep the export a single line so it stays
-obvious that nothing is picking one yet.
+Nine languages exist — `en`, `zh`, `ja`, `ko`, `fr`, `de`, `es`, `ru`, `pt` —
+and the **Language** setting picks one at runtime. The renderer reads it through
+`locale.ts`, whose `LocaleProvider` / `useMsg()` hand the active table to every
+component; `messages/index.ts` maps a `Locale` onto its table and falls back to
+`en`. The main process cannot use a hook, so `src/main/messages.ts` keeps its
+tables behind a `Proxy` that `setMainLocale()` re-points, and the IPC handler
+rebuilds the application menu so its labels change with the rest.
+
+Because `msg` now changes over the life of a component, it is a **dependency
+like any other**: a `useCallback`, `useMemo` or `useEffect` that reads it must
+list it, or its strings stay on the language they were first rendered in.
+
+Adding a language is a new table beside `en.ts`, a `Locale` in `locale.ts`, an
+entry in `messages/index.ts`, and a `MainMessages` table in `src/main/messages.ts`
+— miss the last one and the menus quietly stay English.
 
 ### Git access
 
@@ -365,5 +376,10 @@ work tree pane (and the title bar's count) listing changes already committed.
 - Keep `CHANGELOG.md` current (Keep a Changelog format). Released versions are
   tagged `vX.Y.Z` with a matching GitHub release; put new work under
   `## [Unreleased]`, not into a published section.
+- Files under `ref/` — specs and any other standalone documents — are named
+  with a date prefix: `YYYY-MM-DD-<name>.md`, so they sort by the day they were
+  written and each carries its date in its name. The README translations are the
+  exception: their filenames are globbed by README.md as `README.<lang>.md` and
+  they already record their translation date inside.
 - Comments explain why, not what — the existing ones mark git format quirks and
   layout constraints that are not obvious from the code.

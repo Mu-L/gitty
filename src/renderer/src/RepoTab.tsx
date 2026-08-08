@@ -676,7 +676,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   </Tooltip>
                   <span className="spacer" />
                   {view.mode !== 'worktree' && (
-                    <button onClick={backToWorkTree}>Back to Work Tree</button>
+                    <button onClick={backToWorkTree}>{msg.files.backToWorkTree}</button>
                   )}
                   {hideButton('files')}
                 </div>
@@ -698,7 +698,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     onMenu={fileMenu}
                     emptyText={
                       view.mode === 'worktree'
-                        ? msg.diff.emptyWorktree
+                        ? msg.files.emptyWorktree
                         : view.mode === 'snapshot'
                           ? msg.files.emptySnapshot
                           : msg.files.emptyDiff
@@ -743,7 +743,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                         setSelectedFile(null)
                       }}
                     >
-                      Show Whole Diff
+                      {msg.diff.showWholeDiff}
                     </button>
                   )}
                   {selectedFile && view.mode !== 'snapshot' && !viewingFile && (
@@ -768,27 +768,27 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {previewing && doc && (
                     <button
                       className="toggle on"
-                      title="Show the markdown source instead"
+                      title={msg.diff.markdownSourceTitle}
                       onClick={() =>
                         setDocs((prev) =>
                           prev.map((d) => (d.id === doc.id ? { ...d, preview: false } : d))
                         )
                       }
                     >
-                      Preview
+                      {msg.diff.preview}
                     </button>
                   )}
                   {viewingFile && doc && !previewing && isMarkdownPath(doc.path) && (
                     <button
                       className="toggle"
-                      title="Render this markdown file"
+                      title={msg.diff.renderMarkdownTitle}
                       onClick={() =>
                         setDocs((prev) =>
                           prev.map((d) => (d.id === doc.id ? { ...d, preview: true } : d))
                         )
                       }
                     >
-                      Preview
+                      {msg.diff.preview}
                     </button>
                   )}
                   {!viewingFile && collapseState.files > 1 && (
@@ -811,22 +811,22 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       title={previewing ? msg.diff.wrapCode : msg.diff.wrapLong}
                       onClick={() => setWrap((w) => !w)}
                     >
-                      Wrap
+                      {msg.diff.wrap}
                     </button>
                   )}
                   {previewing && (
                     <button
                       className={`toggle${mdOutline ? ' on' : ''}`}
-                      title="Show the heading outline"
+                      title={msg.diff.showOutline}
                       onClick={() => setMdOutline((o) => !o)}
                     >
-                      Outline
+                      {msg.diff.outline}
                     </button>
                   )}
                   {!viewingFile && (
                     <button
                       className="toggle"
-                      title="Switch between inline and side-by-side"
+                      title={msg.diff.switchView}
                       onClick={() => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))}
                     >
                       {diffView === 'inline' ? msg.diff.inline : msg.diff.sideBySide}
@@ -842,9 +842,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       <div
                         className={`doc-tab${activeDoc === null ? ' active' : ''}`}
                         onClick={() => setActiveDoc(null)}
-                        title="The diff"
+                        title={msg.diff.docTabDiffTitle}
                       >
-                        Diff
+                        {msg.diff.docTabDiff}
                       </div>
                     )}
                     {docs.map((d) => (
@@ -857,7 +857,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                         <span className="doc-name">{d.path.split('/').pop()}</span>
                         <span
                           className="doc-close"
-                          title="Close"
+                          title={msg.diff.docTabClose}
                           onClick={(e) => {
                             e.stopPropagation()
                             closeDoc(d.id)
@@ -947,7 +947,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {/* Only worth saying when it is not the checked-out branch;
                       otherwise the title bar already says it. */}
                   {browsing && (
-                    <span className="badge branch-badge" title="Browsing another branch">
+                    <span className="badge branch-badge" title={msg.log.browsingAnother}>
                       ⎇ {browsing}
                     </span>
                   )}
@@ -978,10 +978,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       })
                     }}
                   >
-                    Open in Browser
+                    {msg.log.openInBrowser}
                   </button>
                   <span className="spacer" />
-                  {compareCommit && <span className="badge">comparing 2 commits</span>}
+                  {compareCommit && <span className="badge">{msg.log.comparing2}</span>}
                   {hideButton('log')}
                 </div>
                 {/* What git said. Failures stay until dismissed: a push that
@@ -990,7 +990,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                 {remoteMsg && (
                   <div
                     className={`remote-msg${remoteMsg.ok ? '' : ' error'}`}
-                    title="Click to dismiss"
+                    title={msg.log.clickToDismiss}
                     onClick={() => setRemoteMsg(null)}
                   >
                     {remoteMsg.text}

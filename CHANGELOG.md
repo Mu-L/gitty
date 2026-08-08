@@ -31,9 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A **Language** setting in the Settings dialog switches the interface without
   restarting: the panes, the menus, the dialogs and the application menu's own
   labels all change together. Nine languages are listed — English, 简体中文,
-  日本語, 한국어, Français, Deutsch, Español, Русский and Português — of which
-  English and 简体中文 are translated; the other seven are in place but still
-  read English until their tables are filled in.
+  日本語, 한국어, Français, Deutsch, Español, Русский and Português, all of them
+  translated in full — the interface, the application menu and the notices git's
+  output is wrapped in. English remains the source the others are translated
+  from.
 
 ### Changed
 
@@ -58,6 +59,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The pane-title tooltips now spell out the double-click gesture: hovering any
   of the four pane titles shows **Double-click the title toggles full screen**
   under its shortcut, so the mouse gesture is discoverable without a docs hunt.
+
+### Fixed
+
+- Around twenty strings never followed the language setting, because they were
+  still written into the components rather than read from a message table —
+  **Show Whole Diff**, **Wrap**, **Outline**, **Preview**, **Open in Browser**,
+  the document tabs, the work-tree row of the commit log and a dozen tooltips.
+  They now come from the tables like everything else.
 
 ## [0.1.3] - 2026-08-07
 
