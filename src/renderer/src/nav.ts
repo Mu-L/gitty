@@ -1,0 +1,107 @@
+/**
+ * The browsing history of one repository session: the places the user has
+ * looked at, and where in that list they currently are.
+ *
+ * A "place" is everything the two top panes are derived from — the `View`, the
+ * file selected inside it, and the document opened beside the diff. That is
+ * why `FileDocState` lives here rather than in `RepoTab`: the history is what
+ * has to reconstruct one, so the shape belongs with it.
+ *
+ * The module is deliberately a leaf: pure data and pure functions, imported by
+ * both `RepoTab` (which records) and `App` (which draws the buttons and the
+ * menu), and importing nothing that would drag a chunk along.
+ */
+import type { View } from './contextMenus'
+import type { RendererMessages } from '../../shared/messages'
+
+/** A file opened in the diff pane, beside (not instead of) the diff. */
+export interface FileDocState {
+  /** What this document shows: the file, whole-file blame, or its history. */
+  kind: 'file' | 'blame' | 'history'
+  /** Kind + revision + path; opening the same document twice reuses it. */
+  id: string
+  path: string
+  /** Revision to read at; null is the work tree. */
+  rev: string | null
+  /** Markdown documents open rendered, with a toggle back to the source. */
+  preview: boolean
+}
+
+/** One entry in the history: a view, a selection within it, and a document. */
+export interface NavPlace {
+  view: View
+  selectedFile: string | null
+  /** The document that was on screen, or null for the diff itself. */
+  doc: FileDocState | null
+}
+
+export interface NavHistory {
+  /** Oldest first, so `index + 1 …` is what "forward" walks. */
+  places: NavPlace[]
+  index: number
+}
+
+/** How far back the list is kept. Older places fall off the front. */
+export const NAV_LIMIT = 50
+
+export const NAV_HOME: NavPlace = { view: { mode: 'worktree' }, selectedFile: null, doc: null }
+
+export function newNavHistory(): NavHistory {
+  return { places: [NAV_HOME], index: 0 }
+}
+
+function sameView(a: View, b: View): boolean {
+  if (a.mode !== b.mode) return false
+  if (a.mode === 'commit' || a.mode === 'snapshot') return a.hash === (b as typeof a).hash
+  if (a.mode === 'range') return a.from === (b as typeof a).from && a.to === (b as typeof a).to
+  return true
+}
+
+/**
+ * Whether two places are the same stop. The document is compared by id — which
+ * already carries its kind, revision and path — so toggling a markdown preview
+ * or re-rendering is not a move.
+ */
+export function samePlace(a: NavPlace, b: NavPlace): boolean {
+  return (
+    sameView(a.view, b.view) &&
+    a.selectedFile === b.selectedFile &&
+    (a.doc?.id ?? null) === (b.doc?.id ?? null)
+  )
+}
+
+/**
+ * Record a place. Going somewhere new after stepping back drops the forward
+ * entries, exactly as a browser does; arriving where we already are is not a
+ * move and leaves the history untouched (returning the same object, so the
+ * caller's state does not change identity either).
+ */
+export function pushPlace(h: NavHistory, p: NavPlace): NavHistory {
+  const current = h.places[h.index]
+  if (current && samePlace(current, p)) return h
+  const places = [...h.places.slice(0, h.index + 1), p]
+  const over = places.length - NAV_LIMIT
+  return over > 0
+    ? { places: places.slice(over), index: NAV_LIMIT - 1 }
+    : { places, index: places.length - 1 }
+}
+
+/** How a place reads in the history menu and in the back/forward tooltips. */
+export function navLabel(p: NavPlace, msg: RendererMessages): string {
+  const v = p.view
+  // The document wins over the selection: it is the thing that was being read.
+  const path = p.doc?.path ?? p.selectedFile
+  let label: string
+  if (v.mode === 'worktree') {
+    label = path ? msg.nav.worktreeFile(path) : msg.nav.worktree
+  } else if (v.mode === 'commit') {
+    label = path ? msg.nav.commitFile(path, v.short) : msg.nav.commit(v.short, v.subject)
+  } else if (v.mode === 'snapshot') {
+    label = path ? msg.nav.snapshotFile(path, v.short) : msg.nav.snapshot(v.short, v.subject)
+  } else {
+    label = path ? msg.nav.rangeFile(path, v.from, v.to) : msg.nav.range(v.from, v.to)
+  }
+  if (p.doc?.kind === 'blame') return msg.nav.blame(label)
+  if (p.doc?.kind === 'history') return msg.nav.fileHistory(label)
+  return label
+}

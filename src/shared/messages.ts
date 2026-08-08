@@ -71,6 +71,25 @@ export interface RendererMessages {
     readonly tooltip: string
     readonly accelOpen: string
   }
+  /** The back / forward buttons and the browsing-history menu. */
+  readonly nav: {
+    readonly backTitle: string
+    readonly forwardTitle: string
+    readonly historyTitle: string
+    readonly noHistory: string
+    /** A place, as the menu lists it. */
+    readonly worktree: string
+    readonly worktreeFile: (path: string) => string
+    readonly commit: (short: string, subject: string) => string
+    readonly commitFile: (path: string, short: string) => string
+    readonly snapshot: (short: string, subject: string) => string
+    readonly snapshotFile: (path: string, short: string) => string
+    readonly range: (from: string, to: string) => string
+    readonly rangeFile: (path: string, from: string, to: string) => string
+    /** Wrappers for a blame or file-history document. */
+    readonly blame: (label: string) => string
+    readonly fileHistory: (label: string) => string
+  }
   readonly branch: {
     readonly noBranchesYet: string
     readonly backTo: (branch: string) => string
@@ -245,6 +264,8 @@ export interface RendererMessages {
     // file tree — per-file questions, both open a document in the diff pane
     readonly blameFile: string
     readonly fileHistory: string
+    // worktree row in commit log
+    readonly revealRepoFolder: string
   }
   readonly paneChrome: {
     /** The four pane names used as labels throughout the UI. */

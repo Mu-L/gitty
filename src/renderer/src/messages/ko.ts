@@ -29,6 +29,23 @@ export const ko: RendererMessages = {
       '\n\n클릭하면 새 탭에서 열기\nCtrl+클릭하면 이 탭에서 열기\n오른쪽 클릭하면 목록에서 제거',
     accelOpen: 'Ctrl+O'
   },
+  nav: {
+    backTitle: '바로 전에 보던 곳으로 돌아가기(Alt+←)',
+    forwardTitle: '되돌아온 곳으로 앞으로 가기(Alt+→)',
+    historyTitle: '이 저장소에서 본 곳, 최근 순',
+    noHistory: '아직 본 곳이 없습니다',
+    worktree: '작업 트리',
+    worktreeFile: (path: string) => `${path}(작업 트리)`,
+    commit: (short: string, subject: string) => `${short} — ${subject}`,
+    commitFile: (path: string, short: string) => `${path} @ ${short}`,
+    snapshot: (short: string, subject: string) => `${short} — ${subject}(스냅숏)`,
+    snapshotFile: (path: string, short: string) => `${path} @ ${short}(스냅숏)`,
+    range: (from: string, to: string) => `${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    rangeFile: (path: string, from: string, to: string) =>
+      `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    blame: (label: string) => `blame: ${label}`,
+    fileHistory: (label: string) => `기록: ${label}`
+  },
   branch: {
     noBranchesYet: '브랜치가 아직 없습니다',
     backTo: (branch: string) => `${branch}(으)로 돌아가기`,

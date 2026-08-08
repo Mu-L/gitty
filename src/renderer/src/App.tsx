@@ -26,6 +26,7 @@ import {
   type PaneId,
   type PaneVisibility
 } from './panes'
+import { navLabel, type NavHistory } from './nav'
 import type { DiffView } from './components/DiffPane'
 import type { Branch, RepoStatus } from '../../shared/types'
 import { LocaleProvider, loadLocale, type Locale } from './locale'
@@ -41,6 +42,9 @@ export default function App(): JSX.Element {
   // Branch each tab is browsing; absent means its checked-out one. Kept here
   // rather than in RepoTab because the title bar is where it is chosen.
   const [browsingByRoot, setBrowsingByRoot] = useState<Record<string, string>>({})
+  // Each tab's browsing history, reported up so the title bar's back, forward
+  // and history buttons can act on the tab the user is looking at.
+  const [navByRoot, setNavByRoot] = useState<Record<string, NavHistory>>({})
   const tabRefs = useRef<Record<string, RepoTabHandle | null>>({})
 
   // Preferences are app-wide: changing the theme or row height touches every
@@ -125,6 +129,11 @@ export default function App(): JSX.Element {
           delete next[previous]
           return next
         })
+        setNavByRoot((prev) => {
+          const next = { ...prev }
+          delete next[previous]
+          return next
+        })
       }
       return true
     },
@@ -140,6 +149,11 @@ export default function App(): JSX.Element {
         return next
       })
       setBrowsingByRoot((prev) => {
+        const next = { ...prev }
+        delete next[root]
+        return next
+      })
+      setNavByRoot((prev) => {
         const next = { ...prev }
         delete next[root]
         return next
@@ -183,8 +197,40 @@ export default function App(): JSX.Element {
     setStatusByRoot((prev) => ({ ...prev, [st.root]: st }))
   }, [])
 
+  const onNav = useCallback((root: string, h: NavHistory) => {
+    setNavByRoot((prev) => ({ ...prev, [root]: h }))
+  }, [])
+
   const activeStatus = active ? statusByRoot[active] ?? null : null
   const activeBrowsing = active ? browsingByRoot[active] ?? null : null
+
+  /* ---------- browsing history of the active tab ---------- */
+
+  const activeNav = active ? navByRoot[active] ?? null : null
+  const canBack = activeNav !== null && activeNav.index > 0
+  const canForward = activeNav !== null && activeNav.index < activeNav.places.length - 1
+
+  const goBack = useCallback(() => {
+    tabRefs.current[active ?? '']?.back()
+  }, [active])
+  const goForward = useCallback(() => {
+    tabRefs.current[active ?? '']?.forward()
+  }, [active])
+
+  /** The places, most recent first — the order they are remembered in. */
+  const openHistoryMenu = (x: number, y: number): void => {
+    const items: MenuItem[] =
+      activeNav && activeNav.places.length > 1
+        ? activeNav.places
+            .map((p, i) => ({
+              label: `${i === activeNav.index ? '●' : ' '} ${navLabel(p, msg)}`,
+              title: navLabel(p, msg),
+              action: () => tabRefs.current[active ?? '']?.goTo(i)
+            }))
+            .reverse()
+        : [{ label: msg.nav.noHistory, action: () => {} }]
+    setMenu({ x, y, items })
+  }
 
   useEffect(
     () =>
@@ -215,6 +261,14 @@ export default function App(): JSX.Element {
       } else if ((e.ctrlKey || e.metaKey) && e.key === ',') {
         e.preventDefault()
         setSettingsOpen(true)
+      } else if (e.altKey && !e.ctrlKey && !e.metaKey && e.key === 'ArrowLeft') {
+        // The browser convention, and the only keys the panes leave free:
+        // Alt+arrow walks the active tab's browsing history.
+        e.preventDefault()
+        goBack()
+      } else if (e.altKey && !e.ctrlKey && !e.metaKey && e.key === 'ArrowRight') {
+        e.preventDefault()
+        goForward()
       } else if ((e.ctrlKey || e.metaKey) && !e.altKey && /^[1-4]$/.test(e.key)) {
         // Ctrl+1..4 toggle the panes in layout order.
         e.preventDefault()
@@ -223,7 +277,7 @@ export default function App(): JSX.Element {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [settingsOpen, pickAndOpen, togglePane])
+  }, [settingsOpen, pickAndOpen, togglePane, goBack, goForward])
 
   const openPanesMenu = (x: number, y: number): void => {
     const items: MenuItem[] = PANE_ORDER.map((id) => ({
@@ -379,6 +433,46 @@ export default function App(): JSX.Element {
           <img className="titlebar-icon" src={appIcon} alt={msg.app.title} draggable={false} />
         )}
         <strong>{msg.app.title}</strong>
+        {/* Back, forward and the list of places — of the active tab, since the
+            history belongs to a repository session, not to the window. */}
+        {active && (
+          <div className="nav-buttons">
+            <button
+              className="nav-btn"
+              disabled={!canBack}
+              title={
+                canBack && activeNav
+                  ? `${msg.nav.backTitle}\n${navLabel(activeNav.places[activeNav.index - 1], msg)}`
+                  : msg.nav.backTitle
+              }
+              onClick={goBack}
+            >
+              ‹
+            </button>
+            <button
+              className="nav-btn"
+              disabled={!canForward}
+              title={
+                canForward && activeNav
+                  ? `${msg.nav.forwardTitle}\n${navLabel(activeNav.places[activeNav.index + 1], msg)}`
+                  : msg.nav.forwardTitle
+              }
+              onClick={goForward}
+            >
+              ›
+            </button>
+            <button
+              className="nav-btn"
+              title={msg.nav.historyTitle}
+              onClick={(e) => {
+                const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
+                openHistoryMenu(r.left, r.bottom + 2)
+              }}
+            >
+              ▾
+            </button>
+          </div>
+        )}
         <button
           className="repo-button"
           title={msg.app.recentlyOpened}
@@ -478,6 +572,7 @@ export default function App(): JSX.Element {
                   browsing={browsingByRoot[r] ?? null}
                   settingsOpen={settingsOpen}
                   onStatus={onStatus}
+                  onNav={onNav}
                 />
               </Suspense>
             </div>

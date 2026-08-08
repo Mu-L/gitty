@@ -126,6 +126,8 @@ Four panes in the middle, a title bar above them and a tab bar below.
 
 Left to right, it describes the active repository and then acts on it:
 
+- **‹ › ▾** — where you have been in this repository. See
+  [Going back](#going-back).
 - **The repository path** is a button: it opens the
   [recent repositories](#recent-repositories) menu.
 - **⎇ branch** is a button too — the branch git has checked out, and a menu of
@@ -148,6 +150,30 @@ Left to right, it describes the active repository and then acts on it:
 While you are reading another branch the branch button reads `⎇ main ›
 other-branch`, and errors from the last git command appear in red beside the
 counts.
+
+### Going back
+
+Reading history means wandering: a commit, a file inside it, another commit two
+pages down the log, then back to the first one. The three buttons at the left of
+the title bar remember that wandering, the way a browser does.
+
+- **‹** (<kbd>Alt+←</kbd>) returns to the place you were looking at before this
+  one, and **›** (<kbd>Alt+→</kbd>) goes back to the one you stepped away from.
+  Both are greyed out when there is nowhere to go, and hovering either one names
+  the place it would take you to.
+- **▾** lists the places themselves, most recent first, with a dot on the one
+  you are at. Pick any of them to jump straight there.
+
+A *place* is everything the two top panes were showing: the view — the work
+tree, one commit, a range of two, a snapshot — the file selected inside it, and
+the document opened beside the diff. So a stop reads as `Working tree`,
+`7bb7787 — Refresh screenshot batches`, `src/main/git.ts @ 7bb7787` or
+`blame: src/main/git.ts @ 7bb7787`, and returning to it puts the same file back
+on screen at the same revision rather than merely reselecting the commit.
+
+The history belongs to the repository, not to the window: each tab remembers its
+own fifty most recent places, and switching tabs switches which ones the buttons
+walk. It is not kept across restarts.
 
 ### Tabs
 
@@ -435,6 +461,7 @@ highlight** lives here only.
 | <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Mark a second commit and diff the pair |
 | <kbd>Ctrl+Click</kbd> on a file heading | Open that file in a new document tab |
 | <kbd>Esc</kbd> | Back to the working tree |
+| <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Back and forward through the places viewed |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |
 | <kbd>Ctrl+O</kbd> | Open another repository in a new tab |
 | <kbd>Ctrl+,</kbd> | Settings |

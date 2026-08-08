@@ -45,6 +45,23 @@ export const ru: RendererMessages = {
       '\n\nЩелчок — открыть в новой вкладке\nCtrl+щелчок — открыть в этой вкладке\nПравый щелчок — убрать из списка',
     accelOpen: 'Ctrl+O'
   },
+  nav: {
+    backTitle: 'Назад к предыдущему просмотренному месту (Alt+←)',
+    forwardTitle: 'Вперёд, к месту, откуда вернулись (Alt+→)',
+    historyTitle: 'Просмотренные места в этом репозитории, начиная с последнего',
+    noHistory: 'Пока ничего не просмотрено',
+    worktree: 'Рабочее дерево',
+    worktreeFile: (path: string) => `${path} (рабочее дерево)`,
+    commit: (short: string, subject: string) => `${short} — ${subject}`,
+    commitFile: (path: string, short: string) => `${path} @ ${short}`,
+    snapshot: (short: string, subject: string) => `${short} — ${subject} (снимок)`,
+    snapshotFile: (path: string, short: string) => `${path} @ ${short} (снимок)`,
+    range: (from: string, to: string) => `${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    rangeFile: (path: string, from: string, to: string) =>
+      `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    blame: (label: string) => `blame: ${label}`,
+    fileHistory: (label: string) => `история: ${label}`
+  },
   branch: {
     noBranchesYet: 'Веток пока нет',
     backTo: (branch: string) => `Назад к ${branch}`,

@@ -29,6 +29,23 @@ export const zh: RendererMessages = {
       '\n\n单击在新标签页中打开\nCtrl+单击在当前标签页打开\n右键从列表中移除',
     accelOpen: 'Ctrl+O'
   },
+  nav: {
+    backTitle: '返回上一个查看过的位置（Alt+←）',
+    forwardTitle: '前进到刚才退回的位置（Alt+→）',
+    historyTitle: '本仓库中查看过的位置，最近的在最前',
+    noHistory: '还没有查看记录',
+    worktree: '工作区',
+    worktreeFile: (path: string) => `${path}（工作区）`,
+    commit: (short: string, subject: string) => `${short} — ${subject}`,
+    commitFile: (path: string, short: string) => `${path} @ ${short}`,
+    snapshot: (short: string, subject: string) => `${short} — ${subject}（快照）`,
+    snapshotFile: (path: string, short: string) => `${path} @ ${short}（快照）`,
+    range: (from: string, to: string) => `${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    rangeFile: (path: string, from: string, to: string) =>
+      `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    blame: (label: string) => `blame：${label}`,
+    fileHistory: (label: string) => `历史：${label}`
+  },
   branch: {
     noBranchesYet: '暂无分支',
     backTo: (branch: string) => `返回 ${branch}`,

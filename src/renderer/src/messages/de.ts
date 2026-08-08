@@ -30,6 +30,23 @@ export const de: RendererMessages = {
       '\n\nKlicken, um in einem neuen Tab zu öffnen\nStrg+Klick, um in diesem Tab zu öffnen\nRechtsklick, um aus der Liste zu entfernen',
     accelOpen: 'Strg+O'
   },
+  nav: {
+    backTitle: 'Zurück zur zuvor angesehenen Stelle (Alt+←)',
+    forwardTitle: 'Vorwärts zur verlassenen Stelle (Alt+→)',
+    historyTitle: 'In diesem Repository angesehene Stellen, neueste zuerst',
+    noHistory: 'Noch nichts angesehen',
+    worktree: 'Arbeitsverzeichnis',
+    worktreeFile: (path: string) => `${path} (Arbeitsverzeichnis)`,
+    commit: (short: string, subject: string) => `${short} — ${subject}`,
+    commitFile: (path: string, short: string) => `${path} @ ${short}`,
+    snapshot: (short: string, subject: string) => `${short} — ${subject} (Momentaufnahme)`,
+    snapshotFile: (path: string, short: string) => `${path} @ ${short} (Momentaufnahme)`,
+    range: (from: string, to: string) => `${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    rangeFile: (path: string, from: string, to: string) =>
+      `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    blame: (label: string) => `blame: ${label}`,
+    fileHistory: (label: string) => `Verlauf: ${label}`
+  },
   branch: {
     noBranchesYet: 'Noch keine Branches',
     backTo: (branch: string) => `Zurück zu ${branch}`,

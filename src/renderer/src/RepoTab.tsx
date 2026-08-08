@@ -31,6 +31,13 @@ import type { Theme } from './components/SettingsPane'
 import { Tooltip } from './components/Tooltip'
 import { createContextMenus, type View } from './contextMenus'
 import {
+  newNavHistory,
+  pushPlace,
+  type FileDocState,
+  type NavHistory,
+  type NavPlace
+} from './nav'
+import {
   PANE_ORDER,
   paneAccel,
   paneControls,
@@ -61,19 +68,6 @@ const TerminalsPane = lazy(() =>
 
 const PAGE = 300
 
-/** A file opened in the diff pane, beside (not instead of) the diff. */
-interface FileDocState {
-  /** What this document shows: the file, whole-file blame, or its history. */
-  kind: 'file' | 'blame' | 'history'
-  /** Kind + revision + path; opening the same document twice reuses it. */
-  id: string
-  path: string
-  /** Revision to read at; null is the work tree. */
-  rev: string | null
-  /** Markdown documents open rendered, with a toggle back to the source. */
-  preview: boolean
-}
-
 function statusMarks(f: WorkingFile): FileEntry['marks'] {
   if (f.untracked) {
     return [
@@ -93,6 +87,10 @@ function commitMarks(f: CommitFile): FileEntry['marks'] {
 
 export interface RepoTabHandle {
   refresh(): void
+  /** Go to a place in this tab's browsing history, by index into `places`. */
+  goTo(index: number): void
+  back(): void
+  forward(): void
 }
 
 export interface RepoTabProps {
@@ -123,6 +121,8 @@ export interface RepoTabProps {
   settingsOpen: boolean
   /** Report the latest status so the tab bar and title bar can reflect it. */
   onStatus: (status: RepoStatus) => void
+  /** Report the browsing history, which the title bar's buttons act on. */
+  onNav: (root: string, history: NavHistory) => void
 }
 
 /**
@@ -156,7 +156,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     onHidePane,
     browsing,
     settingsOpen,
-    onStatus
+    onStatus,
+    onNav
   },
   ref
 ): JSX.Element {
@@ -182,6 +183,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // repository's layout is none of its business.
   const [full, setFull] = useState<PaneId | null>(null)
   const [docSource, setDocSource] = useState<string | null>(null)
+  // Where this repository has been looked at, and where in that list we are.
+  // Per tab, like the view it records: another repository's history is none of
+  // its business.
+  const [nav, setNav] = useState<NavHistory>(newNavHistory)
   const diffRef = useRef<DiffPaneHandle>(null)
   const [collapseState, setCollapseState] = useState<CollapseState>({
     files: 0,
@@ -249,8 +254,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setDocs([])
     setActiveDoc(null)
   }, [browsing])
-
-  useImperativeHandle(ref, () => ({ refresh }), [refresh])
 
   // Hiding the terminal pane only unmounts it; its shells keep running and are
   // re-parented when it comes back. They end with the repository tab itself.
@@ -407,6 +410,61 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   useEffect(() => {
     if (view.mode === 'snapshot' && selectedFile) openFileDoc(selectedFile)
   }, [view, selectedFile, openFileDoc])
+
+  /* ---------- browsing history ---------- */
+
+  // What the two top panes are showing, as one value the history can hold and
+  // hand back later. Every way of moving around the repository — the log, the
+  // file list, the context menus, Escape — ends up changing one of these three,
+  // so recording them is enough and no navigation path can forget to.
+  const place = useMemo<NavPlace>(() => ({ view, selectedFile, doc }), [view, selectedFile, doc])
+
+  useEffect(() => {
+    setNav((h) => pushPlace(h, place))
+  }, [place])
+
+  useEffect(() => onNav(root, nav), [onNav, root, nav])
+
+  /**
+   * Put a recorded place back on screen. No guard against this being recorded
+   * again is needed: the index moves first, so by the time the effect above
+   * runs, the place it would push is the one already at `nav.index` and
+   * `pushPlace` recognises it as where we are.
+   *
+   * The document list is replaced rather than merged, so going back reproduces
+   * that stop exactly instead of accumulating every file ever opened.
+   */
+  const goTo = useCallback(
+    (index: number) => {
+      const p = nav.places[index]
+      if (!p || index === nav.index) return
+      setNav({ ...nav, index })
+      setView(p.view)
+      setSelectedFile(p.selectedFile)
+      setDocs(p.doc ? [p.doc] : [])
+      setActiveDoc(p.doc?.id ?? null)
+      // Keep the log's highlight in step: a range lit both of its ends.
+      setSelectedCommit(
+        p.view.mode === 'worktree'
+          ? WORKTREE_ROW
+          : p.view.mode === 'range'
+            ? p.view.to
+            : p.view.hash
+      )
+      setCompareCommit(p.view.mode === 'range' ? p.view.from : null)
+    },
+    [nav]
+  )
+
+  const back = useCallback(() => goTo(nav.index - 1), [goTo, nav.index])
+  const forward = useCallback(() => goTo(nav.index + 1), [goTo, nav.index])
+
+  useImperativeHandle(ref, () => ({ refresh, goTo, back, forward }), [
+    refresh,
+    goTo,
+    back,
+    forward
+  ])
 
   /* ---------- diff loading ---------- */
 

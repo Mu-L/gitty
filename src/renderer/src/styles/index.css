@@ -153,6 +153,20 @@ button:disabled:hover {
   flex: none;
 }
 
+/* Back / forward / history: one group, so they read as a single control and
+   never give up their width to a long path or branch name. */
+.titlebar .nav-buttons {
+  display: flex;
+  flex: none;
+  gap: 2px;
+}
+
+.titlebar .nav-btn {
+  padding: 1px 6px;
+  min-width: 20px;
+  text-align: center;
+}
+
 .titlebar .repo {
   color: var(--fg);
   overflow: hidden;

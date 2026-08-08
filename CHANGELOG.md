@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Browsing history, with **‹** and **›** at the left of the title bar
+  (<kbd>Alt+←</kbd> / <kbd>Alt+→</kbd>) and a **▾** listing the places viewed,
+  most recent first, with a dot on the current one. A place is the whole of what
+  the top panes were showing — the view, the file selected in it and the
+  document open beside the diff — so going back to `src/main/git.ts @ 7bb7787`
+  puts that file back on screen at that revision, not merely the commit.
+  Hovering a button names where it leads. Each tab keeps its own fifty most
+  recent places; they are not remembered across restarts.
+
 ## [0.1.4] - 2026-08-08
 
 ### Added

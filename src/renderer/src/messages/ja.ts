@@ -29,6 +29,23 @@ export const ja: RendererMessages = {
       '\n\nクリックで新しいタブに開く\nCtrl+クリックでこのタブに開く\n右クリックで一覧から削除',
     accelOpen: 'Ctrl+O'
   },
+  nav: {
+    backTitle: '直前に見ていた場所に戻る（Alt+←）',
+    forwardTitle: '戻る前の場所へ進む（Alt+→）',
+    historyTitle: 'このリポジトリで見た場所（新しい順）',
+    noHistory: 'まだ何も見ていません',
+    worktree: 'ワークツリー',
+    worktreeFile: (path: string) => `${path}（ワークツリー）`,
+    commit: (short: string, subject: string) => `${short} — ${subject}`,
+    commitFile: (path: string, short: string) => `${path} @ ${short}`,
+    snapshot: (short: string, subject: string) => `${short} — ${subject}（スナップショット）`,
+    snapshotFile: (path: string, short: string) => `${path} @ ${short}（スナップショット）`,
+    range: (from: string, to: string) => `${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    rangeFile: (path: string, from: string, to: string) =>
+      `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    blame: (label: string) => `blame: ${label}`,
+    fileHistory: (label: string) => `履歴: ${label}`
+  },
   branch: {
     noBranchesYet: 'ブランチはまだありません',
     backTo: (branch: string) => `${branch} に戻る`,

@@ -225,6 +225,27 @@ Each `RepoTab` holds a `View` of four modes — `worktree`, `commit`, `range`,
 pseudo-commit (`WORKTREE_ROW`) standing for the work tree; it joins keyboard
 navigation and selecting it returns to `worktree` mode.
 
+### Browsing history
+
+`src/renderer/src/nav.ts` is the leaf module holding a `NavPlace` — a `View`, the
+`selectedFile` within it and the open `FileDocState` — plus the pure
+`pushPlace` / `samePlace` / `navLabel`. `FileDocState` lives there rather than in
+`RepoTab` because the history is what has to reconstruct one.
+
+`RepoTab` records rather than intercepts: one `useMemo` builds the current place
+and one effect pushes it. Every route into a view — the log, the file list, the
+context menus, Escape — already goes through `setView` / `setSelectedFile` /
+`setDocs`, so nothing has to remember to log itself, and a new one cannot forget.
+`goTo` needs no re-entrancy guard for the same reason the recording is cheap:
+it moves the index **first**, so the place the effect would then push is the one
+already sitting at `nav.index` and `pushPlace` returns the history unchanged.
+
+The buttons are in `App.tsx`'s title bar because that is where they belong
+visually, but the history is per repository, so `RepoTab` reports it up through
+`onNav` (exactly like `onStatus`) and `App` drives it back through the
+`RepoTabHandle` — reactive state for the enabled/disabled buttons, an imperative
+call for the move.
+
 ### Browsing another branch
 
 The title bar's branch is a menu (`git for-each-ref` over `refs/heads` and

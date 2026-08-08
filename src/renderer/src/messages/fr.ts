@@ -30,6 +30,23 @@ export const fr: RendererMessages = {
       '\n\nCliquer pour ouvrir dans un nouvel onglet\nCtrl+clic pour ouvrir dans cet onglet\nClic droit pour retirer de la liste',
     accelOpen: 'Ctrl+O'
   },
+  nav: {
+    backTitle: 'Revenir à l’endroit consulté juste avant (Alt+←)',
+    forwardTitle: 'Avancer vers l’endroit quitté (Alt+→)',
+    historyTitle: 'Endroits consultés dans ce dépôt, du plus récent au plus ancien',
+    noHistory: 'Rien de consulté pour l’instant',
+    worktree: 'Copie de travail',
+    worktreeFile: (path: string) => `${path} (copie de travail)`,
+    commit: (short: string, subject: string) => `${short} — ${subject}`,
+    commitFile: (path: string, short: string) => `${path} @ ${short}`,
+    snapshot: (short: string, subject: string) => `${short} — ${subject} (instantané)`,
+    snapshotFile: (path: string, short: string) => `${path} @ ${short} (instantané)`,
+    range: (from: string, to: string) => `${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    rangeFile: (path: string, from: string, to: string) =>
+      `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
+    blame: (label: string) => `blame : ${label}`,
+    fileHistory: (label: string) => `historique : ${label}`
+  },
   branch: {
     noBranchesYet: 'Aucune branche pour l’instant',
     backTo: (branch: string) => `Retour à ${branch}`,
