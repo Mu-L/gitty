@@ -214,7 +214,7 @@ export const en: RendererMessages = {
     diffAgainstAccel: 'Ctrl+Click',
     blameFile: 'Blame File',
     fileHistory: 'File History',
-    revealRepoFolder: 'Reveal Repository Folder'
+    browseWorktree: 'Browse Snapshot'
   },
   paneChrome: {
     paneLabelFiles: 'Files',

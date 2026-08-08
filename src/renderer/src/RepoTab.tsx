@@ -546,6 +546,19 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setView({ mode: 'snapshot', hash: c.hash, short: c.short, subject: c.subject })
   }, [])
 
+  /** Browse the full repository tree at HEAD, like "Browse Snapshot" for the
+   *  current state. The worktree row's context menu offers this. */
+  const browseWorktree = useCallback(() => {
+    const head = commits[0]
+    if (!head) return
+    setCompareCommit(null)
+    setSelectedCommit(head.hash)
+    setSelectedFile(null)
+    setDocs([])
+    setActiveDoc(null)
+    setView({ mode: 'snapshot', hash: head.hash, short: head.short, subject: head.subject })
+  }, [commits])
+
   const backToWorkTree = useCallback(() => {
     setView({ mode: 'worktree' })
     setSelectedCommit(WORKTREE_ROW)
@@ -686,7 +699,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     revForView,
     setSelectedFile,
     setActiveDoc,
-    setMenu
+    setMenu,
+    browseWorktree
   })
 
   /* ---------- headers ---------- */

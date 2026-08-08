@@ -217,7 +217,7 @@ export const pt: RendererMessages = {
     diffAgainstAccel: 'Ctrl+clique',
     blameFile: 'Blame',
     fileHistory: 'Histórico do arquivo',
-    revealRepoFolder: 'Mostrar pasta do repositório'
+    browseWorktree: 'Explorar snapshot'
   },
   paneChrome: {
     paneLabelFiles: 'Ficheiros',

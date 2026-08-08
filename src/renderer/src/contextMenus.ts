@@ -54,6 +54,8 @@ export interface ContextMenuDeps {
   setSelectedFile: Dispatch<SetStateAction<string | null>>
   setActiveDoc: Dispatch<SetStateAction<string | null>>
   setMenu: (state: MenuState) => void
+  /** Show the full repository file tree at HEAD, like "Browse Snapshot" for the current state. */
+  browseWorktree: () => void
 }
 
 /** The four context-menu builders, in one factory so RepoTab calls it once. */
@@ -91,7 +93,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
     revForView,
     setSelectedFile,
     setActiveDoc,
-    setMenu
+    setMenu,
+    browseWorktree
   } = deps
 
   const diffMenu = (at: MenuState): void => {
@@ -300,8 +303,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
       ...at,
       items: [
         {
-          label: msg.contextMenu.revealRepoFolder,
-          action: () => void window.gitty.file.reveal(root)
+          label: msg.contextMenu.browseWorktree,
+          action: browseWorktree
         }
       ]
     })

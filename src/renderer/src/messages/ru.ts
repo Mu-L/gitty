@@ -233,7 +233,7 @@ export const ru: RendererMessages = {
     diffAgainstAccel: 'Ctrl+щелчок',
     blameFile: 'Blame',
     fileHistory: 'История файла',
-    revealRepoFolder: 'Показать папку репозитория'
+    browseWorktree: 'Просмотреть снимок'
   },
   paneChrome: {
     paneLabelFiles: 'Файлы',

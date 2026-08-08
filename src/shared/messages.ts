@@ -265,7 +265,7 @@ export interface RendererMessages {
     readonly blameFile: string
     readonly fileHistory: string
     // worktree row in commit log
-    readonly revealRepoFolder: string
+    readonly browseWorktree: string
   }
   readonly paneChrome: {
     /** The four pane names used as labels throughout the UI. */

@@ -213,7 +213,7 @@ export const ja: RendererMessages = {
     diffAgainstAccel: 'Ctrl+クリック',
     blameFile: 'Blame ファイル',
     fileHistory: 'ファイル履歴',
-    revealRepoFolder: 'リポジトリフォルダを表示'
+    browseWorktree: 'スナップショットを閲覧'
   },
   paneChrome: {
     paneLabelFiles: 'ファイル',
