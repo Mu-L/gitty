@@ -35,6 +35,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   translated in full — the interface, the application menu and the notices git's
   output is wrapped in. English remains the source the others are translated
   from.
+- The commit log filters. A box above it narrows the list to commits whose
+  message or author contains the text, with a ✕ to clear; typing is debounced
+  and the result pages like the unfiltered log. The filter is a union of a
+  message match and an author match — git would AND `--grep` with `--author`,
+  so the two passes are merged by hash and shaped in one date-ordered pass.
+- Selecting a commit shows its full message. The subject, author, date and the
+  whole body sit above the file list whenever a commit or a snapshot is
+  selected, so a long commit message no longer has to be guessed at from the
+  one-line log.
+- Blame and file history, from any file's context menu. **Blame File** opens
+  one row per source line — the commit, its author and the line itself, with an
+  em dash where a line is not committed yet; **File History** lists every
+  commit that touched the file and clicking one opens it. Both open as
+  documents beside the diff, blame the revision being viewed (a commit-mode
+  file blames that commit, a snapshot file the snapshot's tree), and the
+  history follows renames.
+- A vitest suite for the git parsers, the only part of the app that is pure
+  functions over text: the `status`, `log`, `name-status`, branch and blame
+  formats are parsed from fixtures without a repository. `npm test` joins
+  `npm run typecheck` as the automated safety net.
 
 ### Changed
 
