@@ -16,7 +16,7 @@ function fmtDate(iso: string, locale: string): string {
  */
 export function CommitInfo({ meta }: { meta: CommitMeta }): JSX.Element {
   const { msg, locale } = useMsg()
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(true)
   const hasBody = meta.body.length > 0
   return (
     <div className="commit-info">
