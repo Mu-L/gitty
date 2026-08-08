@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- <kbd>Ctrl+Shift+0</kbd> shows all four panes again, so a layout hidden down to
+  one pane can be restored without going through the **Panes** menu. The menu
+  entry now names the key. Zero belongs with <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd>
+  but takes the Shift, since <kbd>Ctrl+0</kbd> is reset-zoom.
 - **Gource**, in the commits pane, where [gource](https://gource.io/) is on
   `PATH`: an animation of the repository growing, commit by commit. It runs in
   its own window and outlives Gitty; a day of history per half second, idle

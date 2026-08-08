@@ -32,6 +32,13 @@ export function paneAccel(id: PaneId): string {
   return `Ctrl+${PANE_ORDER.indexOf(id) + 1}`
 }
 
+/**
+ * Bring every pane back. Zero belongs to this family — one key past the four
+ * that toggle a pane each — but Ctrl+0 is Chromium's reset-zoom, which the View
+ * menu keeps, so it takes the Shift.
+ */
+export const ALL_PANES_ACCEL = 'Ctrl+Shift+0'
+
 /** Full screen is per repository tab, so RepoTab handles this one. */
 export function paneFullAccel(id: PaneId): string {
   return `Ctrl+Shift+${PANE_ORDER.indexOf(id) + 1}`

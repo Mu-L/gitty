@@ -18,6 +18,7 @@ import type { RepoTabHandle } from './RepoTab'
 const RepoTab = lazy(() => import('./RepoTab').then((m) => ({ default: m.RepoTab })))
 import {
   ALL_PANES,
+  ALL_PANES_ACCEL,
   paneLabels,
   PANE_ORDER,
   loadPanes,
@@ -269,6 +270,10 @@ export default function App(): JSX.Element {
       } else if (e.altKey && !e.ctrlKey && !e.metaKey && e.key === 'ArrowRight') {
         e.preventDefault()
         goForward()
+      } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.code === 'Digit0') {
+        // Read from the code: with Shift down the key itself is punctuation.
+        e.preventDefault()
+        setPanes({ ...ALL_PANES })
       } else if ((e.ctrlKey || e.metaKey) && !e.altKey && /^[1-4]$/.test(e.key)) {
         // Ctrl+1..4 toggle the panes in layout order.
         e.preventDefault()
@@ -290,6 +295,7 @@ export default function App(): JSX.Element {
     }))
     items.push({
       label: msg.paneChrome.showAllPanes,
+      accel: ALL_PANES_ACCEL,
       separatorBefore: true,
       action: () => setPanes({ ...ALL_PANES })
     })
@@ -481,7 +487,7 @@ export default function App(): JSX.Element {
             openRecentMenu(r.left, r.bottom + 2)
           }}
         >
-          <span className="repo">{active ?? msg.app.noRepo}</span>
+          <span className="repo">{active ? active.split('/').pop() : msg.app.noRepo}</span>
           <span className="caret">▾</span>
         </button>
         {activeStatus && (

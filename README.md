@@ -226,6 +226,10 @@ Hiding is the other direction — any pane can be put away and brought back:
   clicking one toggles it, and **Show All Panes** restores the four-pane layout.
 - <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> toggle Files, Diff, Commits and
   Terminal, in that order.
+- <kbd>Ctrl+Shift+0</kbd> brings all four back — zero for "all of them", one
+  key past the four that each toggle one. It takes the Shift because
+  <kbd>Ctrl+0</kbd> is the browser engine's reset-zoom, which the View menu
+  keeps.
 
 Whatever is left shares out the window, so hiding the commits pane gives the
 diff the full height. The last visible pane has no **×** — an empty window
@@ -482,6 +486,7 @@ highlight** lives here only.
 | <kbd>Ctrl+O</kbd> | Open another repository in a new tab |
 | <kbd>Ctrl+,</kbd> | Settings |
 | <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> | Hide or show Files, Diff, Commits, Terminal |
+| <kbd>Ctrl+Shift+0</kbd> | Show all four panes again |
 | <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> | Fill the window with that pane |
 
 ## Architecture
