@@ -118,7 +118,18 @@ function createWindow(): void {
     }
   })
 
-  win.on('ready-to-show', () => win?.show())
+  // The window is created hidden and shown at its first paint, so it never
+  // appears empty. Under Wayland that frame can never come: an unmapped
+  // window's renderer keeps its first frame to itself, 'ready-to-show' waits
+  // for exactly that frame, and the window stays hidden for good — showing it
+  // is what unblocks the paint it is waiting for. So the load event arms a
+  // fallback; on a compositor that paints hidden windows the first paint has
+  // long since won the race.
+  const show = (): void => {
+    if (win && !win.isDestroyed() && !win.isVisible()) win.show()
+  }
+  win.on('ready-to-show', show)
+  win.webContents.once('did-finish-load', () => setTimeout(show, 1000))
   // A reload throws away the renderer's terminal ids, so its shells would
   // otherwise linger with nothing able to reach them.
   win.webContents.on('did-start-loading', disposeAllTerminals)

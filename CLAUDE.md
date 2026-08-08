@@ -355,6 +355,12 @@ work tree pane (and the title bar's count) listing changes already committed.
 - **`react-resizable-panels` v4** exports `Group` / `Panel` / `Separator` with
   an `orientation` prop — not the v3 `PanelGroup` / `PanelResizeHandle` names
   that most examples and model priors show. Sizes are strings like `"55%"`.
+- **`ready-to-show` cannot be the only thing that shows the window.** Under
+  Wayland an unmapped window's renderer can withhold its first frame, which is
+  precisely the frame that event waits for, so the app starts and never appears
+  — the DOM is there, the compositor simply submits nothing. `createWindow`
+  therefore arms a fallback off `did-finish-load`; run it under
+  `--ozone-platform=x11` to see the event fire normally again.
 - **TypeScript 7** removed `baseUrl`; path aliases must be relative.
 - **vite must stay on 7.x** — electron-vite 5 peers on `^5 || ^6 || ^7`.
 - **An unpackaged Electron app's window class is always `electron`.** Which is

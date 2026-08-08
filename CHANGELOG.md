@@ -82,6 +82,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The window could stay hidden forever on Wayland. It is created hidden and
+  shown at its first paint, but an unmapped window's renderer can hold that
+  frame back — and showing the window is what would have released it. Gitty
+  appeared to start and then leave nothing on screen. The load event now arms a
+  fallback that shows the window a second later if the first paint has not
+  already done it.
 - Around twenty strings never followed the language setting, because they were
   still written into the components rather than read from a message table —
   **Show Whole Diff**, **Wrap**, **Outline**, **Preview**, **Open in Browser**,
