@@ -1663,6 +1663,113 @@ button:disabled:hover {
   color: var(--red);
 }
 
+/* A non-file document (blame, history) is tagged so its tab is not confused
+   with the file itself. */
+.doc-kind {
+  flex: none;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 10px;
+  line-height: 1.6;
+  background: var(--bg-hover);
+  color: var(--fg-faint);
+  text-transform: uppercase;
+}
+
+/* ---------- blame ---------- */
+
+/* One source line per row: number, short sha (— when uncommitted), author,
+   then the line itself, which wraps. */
+.blame {
+  user-select: text;
+}
+
+.blame-row {
+  display: flex;
+  gap: 10px;
+  padding: 0 10px;
+  line-height: 1.45;
+}
+
+.blame-row:hover {
+  background: var(--bg-hover);
+}
+
+.blame-num {
+  flex: none;
+  width: 3em;
+  text-align: right;
+  color: var(--fg-faint);
+}
+
+.blame-sha {
+  flex: none;
+  width: 6.5em;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--yellow);
+}
+
+.blame-author {
+  flex: none;
+  max-width: 18em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--fg-dim);
+}
+
+.blame-text {
+  flex: 1;
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- file history ---------- */
+
+/* One commit per row, laid out like the commit log; clicking opens it. */
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 10px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.history-row:hover {
+  background: var(--bg-hover);
+}
+
+.history-hash {
+  flex: none;
+  min-width: 9ch;
+  font-family: var(--font-mono);
+  color: var(--yellow);
+}
+
+.history-time {
+  flex: none;
+  width: 78px;
+  color: var(--fg-dim);
+}
+
+.history-author {
+  flex: none;
+  max-width: 18em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--fg-dim);
+}
+
+.history-subject {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ---------- image preview ---------- */
 
 .image-host {

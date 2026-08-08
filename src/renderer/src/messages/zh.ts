@@ -55,6 +55,8 @@ export const zh: RendererMessages = {
     emptyWorktree: '工作树干净。',
     emptySnapshot: '选择一个文件以在此提交中查看。',
     emptyDiff: '无文本变更。',
+    emptyBlame: '没有可追溯的行。',
+    emptyHistory: '此文件还没有历史。',
     showWholeDiff: '显示完整差异',
     allShown: '已显示所有未提交的变更',
     allCommitShown: '已显示此提交中的所有文件',
@@ -83,6 +85,8 @@ export const zh: RendererMessages = {
     docTabDiff: '差异',
     docTabDiffTitle: '差异',
     docTabClose: '关闭',
+    docTabBlame: '追溯',
+    docTabHistory: '历史',
     dblClickFullScreen: '双击切换全屏',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\n单击${collapsed ? '展开' : '折叠'}\nCtrl+单击在新标签页中打开\n右键查看更多`,
@@ -187,7 +191,9 @@ export const zh: RendererMessages = {
     copyCommitUrl: '复制提交 URL',
     browseSnapshot: '浏览快照',
     diffAgainstSelected: '与选中提交对比',
-    diffAgainstAccel: 'Ctrl+单击'
+    diffAgainstAccel: 'Ctrl+单击',
+    blameFile: '追溯文件',
+    fileHistory: '文件历史'
   },
   paneChrome: {
     paneLabelFiles: '文件',

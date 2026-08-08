@@ -96,6 +96,10 @@ export interface RendererMessages {
     readonly emptyWorktree: string
     readonly emptySnapshot: string
     readonly emptyDiff: string
+    /** The empty text shown when blame has no lines to attribute. */
+    readonly emptyBlame: string
+    /** The empty text shown when a file has no commit history. */
+    readonly emptyHistory: string
     readonly showWholeDiff: string
     readonly allShown: string
     readonly allCommitShown: string
@@ -124,6 +128,9 @@ export interface RendererMessages {
     readonly docTabDiff: string
     readonly docTabDiffTitle: string
     readonly docTabClose: string
+    /** Small labels on the doc tabs for blame / file-history documents. */
+    readonly docTabBlame: string
+    readonly docTabHistory: string
     readonly dblClickFullScreen: string
     /** File heading tooltip in a collapsed multi-file diff. */
     readonly fileHeadingTooltip: (collapsed: boolean) => string
@@ -233,6 +240,9 @@ export interface RendererMessages {
     readonly browseSnapshot: string
     readonly diffAgainstSelected: string
     readonly diffAgainstAccel: string
+    // file tree — per-file questions, both open a document in the diff pane
+    readonly blameFile: string
+    readonly fileHistory: string
   }
   readonly paneChrome: {
     /** The four pane names used as labels throughout the UI. */

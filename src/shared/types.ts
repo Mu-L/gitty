@@ -79,6 +79,20 @@ export interface CommitMeta {
   body: string
 }
 
+/** One source line from `git blame --line-porcelain`. */
+export interface BlameLine {
+  /** The commit that wrote the line; all zeros means uncommitted work-tree content. */
+  sha: string
+  author: string
+  /** Unix timestamp of the commit that wrote the line. */
+  time: number
+  summary: string
+  line: string
+}
+
+/** The sha a blame line that is not committed yet carries. */
+export const UNCOMMITTED_SHA = '0'.repeat(40)
+
 /** Which side of the index a working-tree diff should be read from. */
 export type DiffSide = 'worktree' | 'index'
 

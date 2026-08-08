@@ -4,6 +4,7 @@ import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import path from 'node:path'
 import type {
+  BlameLine,
   Branch,
   Commit,
   CommitDetail,
@@ -17,6 +18,7 @@ import type {
   SnapshotFileContent
 } from '../shared/types'
 import {
+  parseBlame,
   parseBranches,
   parseLog,
   parseNameStatus,
@@ -164,6 +166,38 @@ export async function log(
   } catch {
     return [] // fresh repo with no commits yet
   }
+  return parseLog(raw)
+}
+
+/**
+ * Which commit last touched each line of a file. A null `rev` blames the work
+ * tree — lines not committed yet come back with an all-zero sha.
+ */
+export async function blame(
+  root: string,
+  rev: string | null,
+  filePath: string
+): Promise<BlameLine[]> {
+  const args = ['blame', '--line-porcelain']
+  // The `--` keeps the path from being read as a revision when it is empty
+  // or shadows a ref name.
+  if (rev) args.push(rev)
+  args.push('--', filePath)
+  const raw = await git(root, args)
+  return parseBlame(raw)
+}
+
+/** Every commit that touched this file, newest first, following renames. */
+export async function fileHistory(
+  root: string,
+  rev: string | null,
+  filePath: string
+): Promise<Commit[]> {
+  const fmt = ['%H', '%h', '%an', '%ae', '%aI', '%s', '%D', '%P'].join(US) + RS
+  const args = ['log', '--follow', `--pretty=format:${fmt}`]
+  if (rev) args.push(rev)
+  args.push('--', filePath)
+  const raw = await git(root, args)
   return parseLog(raw)
 }
 

@@ -55,6 +55,8 @@ export const ja: RendererMessages = {
     emptyWorktree: 'ワークツリーはクリーンです。',
     emptySnapshot: 'このコミット時点の内容を見るファイルを選択してください。',
     emptyDiff: 'テキストの変更はありません。',
+    emptyBlame: '対象の行がありません。',
+    emptyHistory: 'このファイルには履歴がありません。',
     showWholeDiff: '差分全体を表示',
     allShown: '未コミットの変更をすべて表示しています',
     allCommitShown: 'このコミットのファイルをすべて表示しています',
@@ -83,6 +85,8 @@ export const ja: RendererMessages = {
     docTabDiff: '差分',
     docTabDiffTitle: '差分',
     docTabClose: '閉じる',
+    docTabBlame: 'blame',
+    docTabHistory: '履歴',
     dblClickFullScreen: 'ダブルクリックで全画面を切り替え',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nクリックで${collapsed ? '展開' : '折りたたみ'}\nCtrl+クリックで新しいタブに開く\n右クリックでその他の操作`,
@@ -187,7 +191,9 @@ export const ja: RendererMessages = {
     copyCommitUrl: 'コミットの URL をコピー',
     browseSnapshot: 'スナップショットを見る',
     diffAgainstSelected: '選択したコミットと比較',
-    diffAgainstAccel: 'Ctrl+クリック'
+    diffAgainstAccel: 'Ctrl+クリック',
+    blameFile: 'Blame ファイル',
+    fileHistory: 'ファイル履歴'
   },
   paneChrome: {
     paneLabelFiles: 'ファイル',

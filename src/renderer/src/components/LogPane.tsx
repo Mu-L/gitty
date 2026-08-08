@@ -8,7 +8,8 @@ const DAY = 86_400_000
 /** Pseudo-hash of the row that stands for the uncommitted work tree. */
 export const WORKTREE_ROW = '__worktree__'
 
-function stamp(iso: string): string {
+/** Today's rows show a time, anything older shows a date. */
+export function stamp(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
   const fresh = Date.now() - d.getTime() < DAY

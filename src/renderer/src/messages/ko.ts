@@ -55,6 +55,8 @@ export const ko: RendererMessages = {
     emptyWorktree: '작업 트리가 깨끗합니다.',
     emptySnapshot: '이 커밋 시점의 내용을 볼 파일을 선택하세요.',
     emptyDiff: '텍스트 변경 사항이 없습니다.',
+    emptyBlame: '추적할 줄이 없습니다.',
+    emptyHistory: '이 파일에는 기록이 없습니다.',
     showWholeDiff: '전체 diff 보기',
     allShown: '커밋하지 않은 변경 사항을 모두 표시하고 있습니다',
     allCommitShown: '이 커밋의 파일을 모두 표시하고 있습니다',
@@ -83,6 +85,8 @@ export const ko: RendererMessages = {
     docTabDiff: 'Diff',
     docTabDiffTitle: 'Diff',
     docTabClose: '닫기',
+    docTabBlame: 'blame',
+    docTabHistory: '기록',
     dblClickFullScreen: '더블 클릭하면 전체 화면 전환',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\n클릭하면 ${collapsed ? '펼치기' : '접기'}\nCtrl+클릭하면 새 탭에서 열기\n오른쪽 클릭하면 더 많은 항목`,
@@ -187,7 +191,9 @@ export const ko: RendererMessages = {
     copyCommitUrl: '커밋 URL 복사',
     browseSnapshot: '스냅숏 보기',
     diffAgainstSelected: '선택한 커밋과 비교',
-    diffAgainstAccel: 'Ctrl+클릭'
+    diffAgainstAccel: 'Ctrl+클릭',
+    blameFile: 'Blame 파일',
+    fileHistory: '파일 기록'
   },
   paneChrome: {
     paneLabelFiles: '파일',

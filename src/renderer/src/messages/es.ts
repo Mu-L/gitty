@@ -56,6 +56,8 @@ export const es: RendererMessages = {
     emptyWorktree: 'El árbol de trabajo está limpio.',
     emptySnapshot: 'Selecciona un archivo para verlo en este commit.',
     emptyDiff: 'Sin cambios de texto.',
+    emptyBlame: 'No hay líneas que atribuir.',
+    emptyHistory: 'Este archivo aún no tiene historial.',
     showWholeDiff: 'Mostrar el diff completo',
     allShown: 'Se muestran todos los cambios sin confirmar',
     allCommitShown: 'Se muestran todos los archivos de este commit',
@@ -84,6 +86,8 @@ export const es: RendererMessages = {
     docTabDiff: 'Diff',
     docTabDiffTitle: 'El diff',
     docTabClose: 'Cerrar',
+    docTabBlame: 'blame',
+    docTabHistory: 'historial',
     dblClickFullScreen: 'Doble clic para alternar pantalla completa',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nHaz clic para ${collapsed ? 'expandir' : 'contraer'}\nCtrl+clic para abrir en una pestaña nueva\nClic derecho para más opciones`,
@@ -189,7 +193,9 @@ export const es: RendererMessages = {
     copyCommitUrl: 'Copiar la URL del commit',
     browseSnapshot: 'Explorar instantánea',
     diffAgainstSelected: 'Comparar con el commit seleccionado',
-    diffAgainstAccel: 'Ctrl+clic'
+    diffAgainstAccel: 'Ctrl+clic',
+    blameFile: 'Blame',
+    fileHistory: 'Historial del archivo'
   },
   paneChrome: {
     paneLabelFiles: 'Archivos',

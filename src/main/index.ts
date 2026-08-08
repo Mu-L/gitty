@@ -231,6 +231,16 @@ function registerIpc(): void {
   ipcMain.handle('git:commitMeta', (_e, root: string, hash: string) =>
     git.commitMeta(root, hash)
   )
+  ipcMain.handle(
+    'git:blame',
+    (_e, root: string, rev: string | null, filePath: string) =>
+      git.blame(root, rev, filePath)
+  )
+  ipcMain.handle(
+    'git:fileHistory',
+    (_e, root: string, rev: string | null, filePath: string) =>
+      git.fileHistory(root, rev, filePath)
+  )
   ipcMain.handle('git:rangeFiles', (_e, root: string, from: string, to: string) =>
     git.rangeFiles(root, from, to)
   )

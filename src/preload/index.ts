@@ -1,6 +1,7 @@
 import os from 'node:os'
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
+  BlameLine,
   Branch,
   Commit,
   CommitDetail,
@@ -71,6 +72,12 @@ const api = {
       ipcRenderer.invoke('git:commitDetail', root, hash),
     commitMeta: (root: string, hash: string): Promise<CommitMeta> =>
       ipcRenderer.invoke('git:commitMeta', root, hash),
+    /** Which commit last touched each line. `rev` null blames the work tree. */
+    blame: (root: string, rev: string | null, filePath: string): Promise<BlameLine[]> =>
+      ipcRenderer.invoke('git:blame', root, rev, filePath),
+    /** Every commit that touched this file, newest first, following renames. */
+    fileHistory: (root: string, rev: string | null, filePath: string): Promise<Commit[]> =>
+      ipcRenderer.invoke('git:fileHistory', root, rev, filePath),
     rangeFiles: (root: string, from: string, to: string): Promise<CommitFile[]> =>
       ipcRenderer.invoke('git:rangeFiles', root, from, to),
     diff: (root: string, req: DiffRequest): Promise<DiffResult> =>

@@ -4,7 +4,9 @@
  * a repository. `git.ts` shells out to git and feeds the results in, joining
  * on the things only it knows (the repository root, `absPath`).
  */
-import type { Branch, Commit, FileStatusCode } from '../shared/types'
+import { UNCOMMITTED_SHA, type BlameLine, type Branch, type Commit, type FileStatusCode } from '../shared/types'
+
+export { UNCOMMITTED_SHA }
 
 /** Separators git's machine formats use between fields and records. */
 export const RS = '\x1e' // record separator
@@ -155,19 +157,6 @@ export function parseBranches(raw: string): Branch[] {
       date: date ?? ''
     }))
 }
-
-/** One source line from `git blame --line-porcelain`. */
-export interface BlameLine {
-  sha: string
-  author: string
-  /** Unix timestamp of the commit that wrote the line. */
-  time: number
-  summary: string
-  line: string
-}
-
-/** The sha a line that is not committed yet carries. */
-export const UNCOMMITTED_SHA = '0'.repeat(40)
 
 /**
  * Parse `git blame --line-porcelain`. With `--line-porcelain` every line

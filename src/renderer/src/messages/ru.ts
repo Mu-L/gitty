@@ -71,6 +71,8 @@ export const ru: RendererMessages = {
     emptyWorktree: 'Рабочее дерево чистое.',
     emptySnapshot: 'Выберите файл, чтобы посмотреть его на этом коммите.',
     emptyDiff: 'Текстовых изменений нет.',
+    emptyBlame: 'Нет строк для вины.',
+    emptyHistory: 'У этого файла пока нет истории.',
     showWholeDiff: 'Показать весь diff',
     allShown: 'Показаны все незакоммиченные изменения',
     allCommitShown: 'Показаны все файлы этого коммита',
@@ -99,6 +101,8 @@ export const ru: RendererMessages = {
     docTabDiff: 'Diff',
     docTabDiffTitle: 'Diff',
     docTabClose: 'Закрыть',
+    docTabBlame: 'blame',
+    docTabHistory: 'история',
     dblClickFullScreen: 'Двойной щелчок переключает полноэкранный режим',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nЩелчок — ${collapsed ? 'развернуть' : 'свернуть'}\nCtrl+щелчок — открыть в новой вкладке\nПравый щелчок — ещё действия`,
@@ -205,7 +209,9 @@ export const ru: RendererMessages = {
     copyCommitUrl: 'Копировать URL коммита',
     browseSnapshot: 'Просмотреть снимок',
     diffAgainstSelected: 'Сравнить с выбранным коммитом',
-    diffAgainstAccel: 'Ctrl+щелчок'
+    diffAgainstAccel: 'Ctrl+щелчок',
+    blameFile: 'Blame',
+    fileHistory: 'История файла'
   },
   paneChrome: {
     paneLabelFiles: 'Файлы',

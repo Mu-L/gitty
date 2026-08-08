@@ -63,7 +63,9 @@ const PAGE = 300
 
 /** A file opened in the diff pane, beside (not instead of) the diff. */
 interface FileDocState {
-  /** Revision + path; opening the same file twice reuses its document. */
+  /** What this document shows: the file, whole-file blame, or its history. */
+  kind: 'file' | 'blame' | 'history'
+  /** Kind + revision + path; opening the same document twice reuses it. */
   id: string
   path: string
   /** Revision to read at; null is the work tree. */
@@ -366,19 +368,26 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     return null
   }, [view])
 
-  const openFileDoc = useCallback(
-    (path: string) => {
+  // One document per kind+revision+path; a blame of a file and the file itself
+  // can sit beside each other, and so can two blame views of different revisions.
+  const addDoc = useCallback(
+    (kind: FileDocState['kind'], path: string) => {
       const rev = revForView()
-      const id = `${rev ?? 'work'}:${path}`
+      const prefix = kind === 'file' ? '' : `${kind}:`
+      const id = `${prefix}${rev ?? 'work'}:${path}`
       setDocs((prev) =>
         prev.some((d) => d.id === id)
           ? prev
-          : [...prev, { id, path, rev, preview: isMarkdownPath(path) }]
+          : [...prev, { kind, id, path, rev, preview: kind === 'file' && isMarkdownPath(path) }]
       )
       setActiveDoc(id)
     },
     [revForView]
   )
+
+  const openFileDoc = useCallback((path: string) => addDoc('file', path), [addDoc])
+  const openBlame = useCallback((path: string) => addDoc('blame', path), [addDoc])
+  const openHistory = useCallback((path: string) => addDoc('history', path), [addDoc])
 
   const closeDoc = useCallback((id: string) => {
     setDocs((prev) => {
@@ -611,6 +620,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     selectedFile,
     selectedCommit,
     openFileDoc,
+    openBlame,
+    openHistory,
     showCommit,
     showSnapshot,
     onSelectCommit,
@@ -906,6 +917,11 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                         onClick={() => setActiveDoc(d.id)}
                         title={d.rev ? `${d.path} @ ${d.rev.slice(0, 8)}` : d.path}
                       >
+                        {d.kind !== 'file' && (
+                          <span className="doc-kind">
+                            {d.kind === 'blame' ? msg.diff.docTabBlame : msg.diff.docTabHistory}
+                          </span>
+                        )}
                         <span className="doc-name">{d.path.split('/').pop()}</span>
                         <span
                           className="doc-close"
@@ -934,12 +950,14 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       root={root}
                       path={doc.path}
                       rev={doc.rev}
+                      kind={doc.kind}
                       preview={doc.preview}
                       wrap={wrap}
                       outline={mdOutline}
                       reloadKey={tick}
                       onSource={setDocSource}
                       onMenu={diffMenu}
+                      onOpenCommit={showCommit}
                     />
                   </Suspense>
                 ) : (

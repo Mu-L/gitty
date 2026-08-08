@@ -1,32 +1,42 @@
 import { useEffect, useState, type JSX } from 'react'
 import { useMsg } from '../locale'
+import { BlamePane } from './BlamePane'
 import { CodePane } from './CodePane'
+import { FileHistoryPane } from './FileHistoryPane'
 import { ImagePane } from './ImagePane'
 import { MarkdownPane } from './MarkdownPane'
 import { isImagePath, isMarkdownPath } from '../paths'
 import type { MenuState } from './ContextMenu'
+import type { Commit } from '../../../shared/types'
+
+/** What kind of document a diff-pane tab holds. */
+export type FileDocKind = 'file' | 'blame' | 'history'
 
 /**
- * One file opened for reading, at whatever revision it was opened from: the
- * work tree when `rev` is null, that commit otherwise. Each instance loads its
- * own contents, so several can be open beside a diff at once.
+ * One document in the diff pane. `kind` picks the reader: `file` is a whole
+ * file (work tree when `rev` is null, that commit otherwise), `blame` is
+ * whole-file blame, `history` is the file's commit list. Each instance loads
+ * its own contents, so several can be open beside a diff at once.
  */
 export function FileDoc({
   root,
   path,
   rev,
+  kind = 'file',
   preview,
   wrap,
   outline,
   reloadKey,
   onSource,
-  onMenu
+  onMenu,
+  onOpenCommit
 }: {
   root: string
   path: string
   /** Revision to read from; null means the file on disk. */
   rev: string | null
-  /** Render markdown instead of showing its source. */
+  kind?: FileDocKind
+  /** Render markdown instead of showing its source (files only). */
   preview: boolean
   wrap: boolean
   outline: boolean
@@ -35,12 +45,19 @@ export function FileDoc({
   /** Reports the loaded text, so the context menu can copy it. */
   onSource: (text: string | null) => void
   onMenu: (state: MenuState) => void
+  /** History rows hand the picked commit back here. */
+  onOpenCommit?: (c: Commit) => void
 }): JSX.Element {
   const { msg } = useMsg()
   const [source, setSource] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const image = isImagePath(path)
+
+  // Blame and history have no file contents to copy from the context menu.
+  useEffect(() => {
+    if (kind !== 'file') onSource(null)
+  }, [kind, onSource])
 
   useEffect(() => {
     // An image is never read as text: `readWorking` would only call it binary.
@@ -68,6 +85,21 @@ export function FileDoc({
 
   // An image has no text to copy from the context menu.
   useEffect(() => onSource(image ? null : source), [image, source, onSource])
+
+  if (kind === 'blame') {
+    return <BlamePane root={root} path={path} rev={rev} onMenu={onMenu} />
+  }
+  if (kind === 'history') {
+    return (
+      <FileHistoryPane
+        root={root}
+        path={path}
+        rev={rev}
+        onOpenCommit={onOpenCommit ?? (() => undefined)}
+        onMenu={onMenu}
+      />
+    )
+  }
 
   if (image) {
     return <ImagePane root={root} path={path} rev={rev} reloadKey={reloadKey} onMenu={onMenu} />

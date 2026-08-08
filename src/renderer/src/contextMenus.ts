@@ -43,6 +43,10 @@ export interface ContextMenuDeps {
   selectedFile: string | null
   selectedCommit: string | null
   openFileDoc: (path: string) => void
+  /** Open whole-file blame for a path as a diff-pane document. */
+  openBlame: (path: string) => void
+  /** Open the file's commit history as a diff-pane document. */
+  openHistory: (path: string) => void
   showCommit: (c: Commit) => void
   showSnapshot: (c: Commit) => void
   onSelectCommit: (hash: string, additive: boolean) => void
@@ -78,6 +82,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
     selectedFile,
     selectedCommit,
     openFileDoc,
+    openBlame,
+    openHistory,
     showCommit,
     showSnapshot,
     onSelectCommit,
@@ -219,6 +225,16 @@ export function createContextMenus(deps: ContextMenuDeps): {
         { label: msg.contextMenu.revealInFileManager, action: () => void window.gitty.file.reveal(entry.absPath) }
       )
     }
+    // Whole-file questions, in every mode: a commit-mode file blames that
+    // revision, a snapshot file blames the snapshot's tree.
+    items.push(
+      {
+        label: msg.contextMenu.blameFile,
+        separatorBefore: true,
+        action: () => openBlame(rel)
+      },
+      { label: msg.contextMenu.fileHistory, action: () => openHistory(rel) }
+    )
     items.push({
       label: msg.contextMenu.copyRelativePath,
       separatorBefore: items.length > 0,
