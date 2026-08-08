@@ -51,9 +51,11 @@ A detached run writes everything to
 `${XDG_STATE_HOME:-~/.local/state}/gitty/gitty.log`; use `--fg` when you want
 the output inline.
 
-There is **no test suite and no linter configured**. `npm run typecheck` is the
-whole automated safety net; run it after every change. Verification beyond that
-is visual — see below.
+There is **no linter configured**. The automated safety net is `npm run
+typecheck` plus `npm test`; run both after every change. The test suite lives
+in `test/` — one vitest file per parser, feeding `parse.ts` fixtures without a
+repository — so the folder is a readable index of what is tested. Verification
+beyond that is visual — see below.
 
 `npm install` runs `electron-rebuild -f -w node-pty` via `postinstall`; node-pty
 is native and must match Electron's ABI, not Node's. If the terminal pane fails

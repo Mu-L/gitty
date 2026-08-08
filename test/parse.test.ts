@@ -8,7 +8,7 @@ import {
   UNCOMMITTED_SHA,
   RS,
   US
-} from './parse'
+} from '../src/main/parse'
 
 const Z40 = '0'.repeat(40)
 
