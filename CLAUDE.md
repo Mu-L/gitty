@@ -404,7 +404,10 @@ work tree pane (and the title bar's count) listing changes already committed.
   its icon. `app.setName`, `--class`, `--name`, `--wm-class-class`,
   `CHROME_DESKTOP` and renaming the binary (symlink or hard link) were all
   measured and all leave `WM_CLASS` — the Wayland `app_id` — alone. Only
-  packaging Gitty into its own executable would change it.
+  packaging Gitty into its own executable would change it. **This is a Linux
+  fact and does not generalise**: on macOS the name is already right, because
+  the application menu is `{ role: 'appMenu' }` and Electron labels it with
+  `app.name`, which `app.setName('Gitty')` has set before any window exists.
 - **An application menu must exist.** Without one Chromium binds no edit
   accelerators at all and Ctrl+C on selected diff text silently does nothing.
   The menu bar itself is hidden (`autoHideMenuBar`).
