@@ -33,8 +33,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Hovering a button names where it leads. Each tab keeps its own fifty most
   recent places; they are not remembered across restarts.
 
+- A macOS launcher. `setup.sh` now picks the shortcut by platform and writes a
+  minimal `Gitty.app` to `~/Applications`, with a symlink on the Desktop,
+  wrapping the same `run.sh`. Nothing is packaged — the bundle is there to give
+  Finder and the Dock a name and an icon, built from `build/icon.png` via `sips`
+  and `iconutil`. The Dock itself is left alone, as on Linux. Because a bundle
+  launched from Finder inherits launchd's minimal `PATH`, `node` and `npm` are
+  resolved at install time and prepended, so the build-if-stale step still
+  works; re-run `setup.sh` after switching Node versions. Requested by
+  @OrangeViolin ([#2]).
+
 ### Fixed
 
+- `setup.sh` wrote a `gitty.desktop` entry on macOS, where nothing would ever
+  read it. The shortcut now follows `uname`.
 - `run.sh` now says so when Electron's binary was never downloaded, instead of
   launching a broken install that hangs on "Downloading Electron binary…" with
   nothing to act on. The old check looked for `dist/electron`, the Linux
@@ -47,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   itself as the one before it. Thanks @OrangeViolin ([#3]).
 
 [#1]: https://github.com/baojie/gitty/issues/1
+[#2]: https://github.com/baojie/gitty/issues/2
 [#3]: https://github.com/baojie/gitty/pull/3
 [#4]: https://github.com/baojie/gitty/pull/4
 

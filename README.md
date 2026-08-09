@@ -89,12 +89,20 @@ or, from a checkout, link it into your PATH with:
 ./setup.sh --system      # symlink into /usr/local/bin (needs sudo)
 ```
 
-The `setup.sh` route also installs a desktop launcher: the icon is added to
-the hicolor theme and a `gitty.desktop` entry appears in the application menu
-(and on the desktop, when the session has one). The icon cache and desktop
-database are refreshed afterwards, so the entry shows up with its icon
-straight away. (On Linux it carries one workaround and the app runs with one
-sandbox flag off — see [Linux desktop integration](#linux-desktop-integration).)
+The `setup.sh` route also installs a clickable launcher, picked by platform.
+
+On **Linux** the icon is added to the hicolor theme and a `gitty.desktop` entry
+appears in the application menu (and on the desktop, when the session has one).
+The icon cache and desktop database are refreshed afterwards, so the entry shows
+up with its icon straight away. It carries one workaround, and the app runs with
+one sandbox flag off — see
+[Linux desktop integration](#linux-desktop-integration).
+
+On **macOS** a minimal `Gitty.app` is written to `~/Applications` (with a
+symlink on the Desktop) wrapping the same `run.sh`. Nothing is packaged: the
+bundle exists to give Finder and the Dock a name and an icon. The Dock is not
+touched — drag it there yourself if you want it pinned. See
+[macOS app bundle](#macos-app-bundle).
 
 Then open a repository from anywhere:
 
@@ -528,6 +536,27 @@ The app also runs with Chromium's SUID sandbox disabled
 (`ELECTRON_DISABLE_SANDBOX=1`). The usual fix — making `chrome-sandbox` owned by
 root with mode 4755 — cannot survive inside `node_modules`, so disabling it is
 the pragmatic choice for a local tool that only reads your own repositories.
+
+### macOS app bundle
+
+`Gitty.app` is a wrapper, not a package: `Contents/MacOS/Gitty` is a two-line
+script that execs `run.sh --fg --any`. `--fg` matters — exec all the way down
+means the Dock tile stays on the bundle instead of being orphaned by a process
+that outlives it — and `--any` lets a launch from Finder, which has no working
+directory to speak of, fall back to the repositories opened most recently.
+
+The name is right in all three places it appears, and only one of them comes
+from the bundle. Finder and the Dock read `CFBundleName` and `CFBundleIconFile`
+out of `Info.plist`; the menu bar is `app.name`, which `app.setName('Gitty')`
+sets before any window exists and `{ role: 'appMenu' }` uses as its label. So
+unlike the Linux window-class problem above, nothing here is a compromise —
+which is why packaging (electron-builder) would buy nothing but signing.
+
+A bundle launched from Finder inherits launchd's minimal `PATH`, with no nvm and
+no Homebrew on it, and `run.sh` needs `node` and `npm` to rebuild when the
+bundle is stale. `setup.sh` resolves them at install time and prepends them —
+a prefix, so a terminal launch is unaffected. Switching Node versions later
+leaves that path stale; re-run `setup.sh` to repoint it.
 
 ## Licence
 
