@@ -33,6 +33,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Hovering a button names where it leads. Each tab keeps its own fifty most
   recent places; they are not remembered across restarts.
 
+### Fixed
+
+- `run.sh` now says so when Electron's binary was never downloaded, instead of
+  launching a broken install that hangs on "Downloading Electron binary…" with
+  nothing to act on. The old check looked for `dist/electron`, the Linux
+  layout, and otherwise fell back to `.bin/electron` — a symlink to the
+  package's `cli.js`, which is executable whether or not a binary exists. The
+  path now comes from the package's own `path.txt`, so macOS resolves too, and
+  a missing binary reports how to reinstall it, `ELECTRON_MIRROR` included.
+  Reported and fixed by @OrangeViolin ([#1], [#4]).
+- `package.json` read `0.1.3` at the `v0.1.4` tag, so the release described
+  itself as the one before it. Thanks @OrangeViolin ([#3]).
+
+[#1]: https://github.com/baojie/gitty/issues/1
+[#3]: https://github.com/baojie/gitty/pull/3
+[#4]: https://github.com/baojie/gitty/pull/4
+
 ## [0.1.4] - 2026-08-08
 
 ### Added
