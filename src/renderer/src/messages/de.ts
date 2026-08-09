@@ -88,6 +88,8 @@ export const de: RendererMessages = {
     viewFileTitle: 'Die ganze Datei neben dem Diff öffnen',
     markdownSourceTitle: 'Stattdessen den Markdown-Quelltext anzeigen',
     renderMarkdownTitle: 'Diese Markdown-Datei rendern',
+    htmlPreviewTitle: 'Diese HTML-Datei gerendert öffnen',
+    htmlSourceTitle: 'Stattdessen den HTML-Quelltext anzeigen',
     expandAll: 'Alle ausklappen',
     collapseAll: 'Alle einklappen',
     expandAllTitle: 'Alle Dateien ausklappen',

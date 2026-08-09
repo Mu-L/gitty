@@ -10,6 +10,11 @@ export function isMarkdownPath(path: string): boolean {
   return /\.(md|markdown|mdown|mkd)$/i.test(path)
 }
 
+/** HTML files open rendered by default, with a toggle back to the source. */
+export function isHtmlPath(path: string): boolean {
+  return /\.(html?|xhtml)$/i.test(path)
+}
+
 /** Extensions the image preview claims; must match `IMAGE_MIME` in main/git.ts. */
 const IMAGE_EXT = /\.(png|jpe?g|gif|webp|bmp|ico|avif|svg)$/i
 

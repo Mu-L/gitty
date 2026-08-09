@@ -103,6 +103,8 @@ export const ru: RendererMessages = {
     viewFileTitle: 'Открыть файл целиком рядом с diff',
     markdownSourceTitle: 'Показать исходный markdown',
     renderMarkdownTitle: 'Отрисовать этот markdown-файл',
+    htmlPreviewTitle: 'Открыть этот HTML-файл в режиме рендеринга',
+    htmlSourceTitle: 'Показать исходный HTML',
     expandAll: 'Развернуть все',
     collapseAll: 'Свернуть все',
     expandAllTitle: 'Развернуть все файлы',

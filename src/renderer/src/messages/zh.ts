@@ -87,6 +87,8 @@ export const zh: RendererMessages = {
     viewFileTitle: '在差异旁打开完整文件',
     markdownSourceTitle: '改为显示 Markdown 源码',
     renderMarkdownTitle: '渲染此 Markdown 文件',
+    htmlPreviewTitle: '以渲染形式打开此 HTML 文件',
+    htmlSourceTitle: '改为显示 HTML 源码',
     expandAll: '全部展开',
     collapseAll: '全部折叠',
     expandAllTitle: '展开所有文件',

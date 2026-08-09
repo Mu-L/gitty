@@ -3,9 +3,10 @@ import { useMsg } from '../locale'
 import { BlamePane } from './BlamePane'
 import { CodePane } from './CodePane'
 import { FileHistoryPane } from './FileHistoryPane'
+import { HtmlPane } from './HtmlPane'
 import { ImagePane } from './ImagePane'
 import { MarkdownPane } from './MarkdownPane'
-import { isImagePath, isMarkdownPath } from '../paths'
+import { isHtmlPath, isImagePath, isMarkdownPath } from '../paths'
 import type { MenuState } from './ContextMenu'
 import type { Commit } from '../../../shared/types'
 
@@ -129,6 +130,8 @@ export function FileDoc({
       wrap={wrap}
       onMenu={onMenu}
     />
+  ) : preview && isHtmlPath(path) ? (
+    <HtmlPane source={source} docKey={docKey} wrap={wrap} onMenu={onMenu} />
   ) : (
     <CodePane source={source} docKey={docKey} path={path} wrap={wrap} onMenu={onMenu} />
   )

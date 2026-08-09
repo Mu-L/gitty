@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from 'react'
 import type { Commit, DiffResult } from '../../shared/types'
 import type { MenuItem, MenuState } from './components/ContextMenu'
 import type { DiffView } from './components/DiffPane'
-import { isMarkdownPath } from './paths'
+import { isHtmlPath, isMarkdownPath } from './paths'
 import type { FileEntry } from './components/FilesPane'
 import type { RendererMessages } from '../../shared/messages'
 
@@ -139,7 +139,10 @@ export function createContextMenus(deps: ContextMenuDeps): {
       })
       if (selectedFile) {
         items.push({
-          label: isMarkdownPath(selectedFile) ? msg.contextMenu.previewMarkdown : msg.contextMenu.viewFile,
+          label:
+            isMarkdownPath(selectedFile) || isHtmlPath(selectedFile)
+              ? msg.contextMenu.previewMarkdown
+              : msg.contextMenu.viewFile,
           separatorBefore: true,
           action: () => openFileDoc(selectedFile)
         })

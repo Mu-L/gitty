@@ -88,6 +88,8 @@ export const pt: RendererMessages = {
     viewFileTitle: 'Abrir o ficheiro inteiro ao lado do diff',
     markdownSourceTitle: 'Mostrar antes o código markdown',
     renderMarkdownTitle: 'Renderizar este ficheiro markdown',
+    htmlPreviewTitle: 'Abrir este ficheiro HTML renderizado',
+    htmlSourceTitle: 'Mostrar antes o código HTML',
     expandAll: 'Expandir tudo',
     collapseAll: 'Recolher tudo',
     expandAllTitle: 'Expandir todos os ficheiros',

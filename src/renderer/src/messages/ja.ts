@@ -87,6 +87,8 @@ export const ja: RendererMessages = {
     viewFileTitle: 'ファイル全体を差分の横に開く',
     markdownSourceTitle: 'Markdown のソースを表示する',
     renderMarkdownTitle: 'この Markdown ファイルをレンダリングする',
+    htmlPreviewTitle: 'この HTML ファイルをレンダリングして開く',
+    htmlSourceTitle: 'HTML ソースを表示する',
     expandAll: 'すべて展開',
     collapseAll: 'すべて折りたたむ',
     expandAllTitle: 'すべてのファイルを展開',

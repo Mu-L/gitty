@@ -25,7 +25,7 @@ import { CommitInfo } from './components/CommitInfo'
 import { useMsg } from './locale'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { destroyTerminals } from './terminals'
-import { isImagePath, isMarkdownPath } from './paths'
+import { isHtmlPath, isImagePath, isMarkdownPath } from './paths'
 import { FullButton, HideButton } from './components/PaneChrome'
 import type { Theme } from './components/SettingsPane'
 import { Tooltip } from './components/Tooltip'
@@ -403,7 +403,16 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       setDocs((prev) =>
         prev.some((d) => d.id === id)
           ? prev
-          : [...prev, { kind, id, path, rev, preview: kind === 'file' && isMarkdownPath(path) }]
+          : [
+              ...prev,
+              {
+                kind,
+                id,
+                path,
+                rev,
+                preview: kind === 'file' && (isMarkdownPath(path) || isHtmlPath(path))
+              }
+            ]
       )
       setActiveDoc(id)
     },
@@ -426,7 +435,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   const doc = docs.find((d) => d.id === activeDoc) ?? null
   const viewingFile = doc !== null
-  const previewing = viewingFile && doc.preview && isMarkdownPath(doc.path)
+  const previewing =
+    viewingFile && doc.preview && (isMarkdownPath(doc.path) || isHtmlPath(doc.path))
 
   // Snapshots have no diff, so a file selected there opens as a document.
   useEffect(() => {
@@ -931,13 +941,15 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       title={
                         isMarkdownPath(selectedFile)
                           ? msg.diff.previewTitle
-                          : isImagePath(selectedFile)
-                            ? msg.diff.viewImageTitle
-                            : msg.diff.viewFileTitle
+                          : isHtmlPath(selectedFile)
+                            ? msg.diff.htmlPreviewTitle
+                            : isImagePath(selectedFile)
+                              ? msg.diff.viewImageTitle
+                              : msg.diff.viewFileTitle
                       }
                       onClick={() => openFileDoc(selectedFile)}
                     >
-                      {isMarkdownPath(selectedFile)
+                      {isMarkdownPath(selectedFile) || isHtmlPath(selectedFile)
                         ? msg.diff.preview
                         : isImagePath(selectedFile)
                           ? msg.diff.viewImage
@@ -947,7 +959,11 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {previewing && doc && (
                     <button
                       className="toggle on"
-                      title={msg.diff.markdownSourceTitle}
+                      title={
+                        isHtmlPath(doc.path)
+                          ? msg.diff.htmlSourceTitle
+                          : msg.diff.markdownSourceTitle
+                      }
                       onClick={() =>
                         setDocs((prev) =>
                           prev.map((d) => (d.id === doc.id ? { ...d, preview: false } : d))
@@ -957,19 +973,26 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       {msg.diff.preview}
                     </button>
                   )}
-                  {viewingFile && doc && !previewing && isMarkdownPath(doc.path) && (
-                    <button
-                      className="toggle"
-                      title={msg.diff.renderMarkdownTitle}
-                      onClick={() =>
-                        setDocs((prev) =>
-                          prev.map((d) => (d.id === doc.id ? { ...d, preview: true } : d))
-                        )
-                      }
-                    >
-                      {msg.diff.preview}
-                    </button>
-                  )}
+                  {viewingFile &&
+                    doc &&
+                    !previewing &&
+                    (isMarkdownPath(doc.path) || isHtmlPath(doc.path)) && (
+                      <button
+                        className="toggle"
+                        title={
+                          isHtmlPath(doc.path)
+                            ? msg.diff.htmlPreviewTitle
+                            : msg.diff.renderMarkdownTitle
+                        }
+                        onClick={() =>
+                          setDocs((prev) =>
+                            prev.map((d) => (d.id === doc.id ? { ...d, preview: true } : d))
+                          )
+                        }
+                      >
+                        {msg.diff.preview}
+                      </button>
+                    )}
                   {!viewingFile && collapseState.files > 1 && (
                     <button
                       className="toggle"

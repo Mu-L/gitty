@@ -137,6 +137,8 @@ export interface RendererMessages {
     readonly viewFileTitle: string
     readonly markdownSourceTitle: string
     readonly renderMarkdownTitle: string
+    readonly htmlPreviewTitle: string
+    readonly htmlSourceTitle: string
     readonly expandAll: string
     readonly collapseAll: string
     readonly expandAllTitle: string

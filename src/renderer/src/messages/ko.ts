@@ -87,6 +87,8 @@ export const ko: RendererMessages = {
     viewFileTitle: '파일 전체를 diff 옆에 열기',
     markdownSourceTitle: '마크다운 원본 보기',
     renderMarkdownTitle: '이 마크다운 파일 렌더링하기',
+    htmlPreviewTitle: '이 HTML 파일을 렌더링하여 열기',
+    htmlSourceTitle: 'HTML 소스 보기',
     expandAll: '모두 펼치기',
     collapseAll: '모두 접기',
     expandAllTitle: '모든 파일 펼치기',
