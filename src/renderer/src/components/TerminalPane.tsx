@@ -113,14 +113,22 @@ export function TerminalPane({
     const s = ensureSession(id, root, fontSize)
     s.onFocus = onFocus
     s.onExit = onExit
-    // appendChild moves the node when it already has a parent, which is
-    // exactly what a re-parented panel needs.
-    box.appendChild(s.host)
-    // Once now and once after the browser has laid the panel out: closing a
-    // split re-parents the terminal into a box that has no size yet.
-    fitSession(s, id)
-    const raf = requestAnimationFrame(() => fitSession(s, id))
-    return () => cancelAnimationFrame(raf)
+    // Repo changes trigger state updates that re-render the whole tree, and
+    // this effect (no deps) runs on every one. Re-appending the host and
+    // calling fit on a terminal whose container never moved is at best wasted
+    // work and at worst the reason the textarea loses focus mid-type. The
+    // guard below skips both unless the container actually changed — a split,
+    // a merge, or the first mount after ensureSession created the host.
+    if (s.host.parentElement !== box) {
+      // appendChild moves a node that already has a parent, which is exactly
+      // what a re-parented panel needs.
+      box.appendChild(s.host)
+      // Once now and once after the browser has laid the panel out: closing a
+      // split re-parents the terminal into a box that has no size yet.
+      fitSession(s, id)
+      const raf = requestAnimationFrame(() => fitSession(s, id))
+      return () => cancelAnimationFrame(raf)
+    }
   })
 
   // Appearance changes apply to the running shell rather than replacing it.

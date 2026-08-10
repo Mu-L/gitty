@@ -787,7 +787,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const hideButton = (id: PaneId): JSX.Element | null =>
     canHide ? <HideButton accel={paneAccel(id)} onHide={() => onHidePane(id)} /> : null
 
-  const toggleFull = (id: PaneId): void => setFull((f) => (f === id ? null : id))
+  const toggleFull = useCallback((id: PaneId): void => setFull((f) => (f === id ? null : id)), [])
 
   const fullButton = (id: PaneId): JSX.Element => (
     <FullButton full={full === id} accel={paneFullAccel(id)} onToggle={() => toggleFull(id)} />

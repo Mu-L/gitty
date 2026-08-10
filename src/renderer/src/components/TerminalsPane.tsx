@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState, type JSX } from 'react'
+import { Fragment, memo, useCallback, useEffect, useRef, useState, type JSX } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { TerminalPane, type Theme } from './TerminalPane'
 import { useMsg } from '../locale'
@@ -63,7 +63,7 @@ function nodeKey(node: TermNode): string {
 }
 
 /** The terminal pane: one shell, or several split across it. */
-export function TerminalsPane({
+export const TerminalsPane = memo(function TerminalsPane({
   root,
   theme,
   fontSize,
@@ -97,13 +97,13 @@ export function TerminalsPane({
     layouts.set(root, { tree, focused })
   }, [root, tree, focused])
 
-  const split = (orientation: Orientation): void => {
+  const split = useCallback((orientation: Orientation): void => {
     const id = nextTermId()
     setTree((t) => splitAt(t, focused, orientation, id))
     setFocused(id)
-  }
+  }, [focused])
 
-  const close = (id: string): void => {
+  const close = useCallback((id: string): void => {
     const rest = idsRef.current
     // The last terminal stays: an empty pane would have no way back.
     if (rest.length < 2) return
@@ -111,7 +111,7 @@ export function TerminalsPane({
     const i = rest.indexOf(id)
     setFocused(rest[i + 1] ?? rest[i - 1])
     setTree((t) => removeAt(t, id) ?? t)
-  }
+  }, [])
 
   // Focus follows the split, and a click inside a terminal reports back here.
   useEffect(() => focusSession(focused), [focused])
@@ -178,4 +178,4 @@ export function TerminalsPane({
       {root && <div className="term-body" key={nodeKey(tree)}>{render(tree)}</div>}
     </div>
   )
-}
+})
