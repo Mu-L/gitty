@@ -9,6 +9,8 @@ export interface FileEntry {
   /** Status marks rendered before the file name. */
   marks: Array<{ char: string; cls: string }>
   deleted: boolean
+  /** Work tree only: the change is in the index, whole or in part. */
+  staged?: boolean
   /** Present for renames: the previous path. */
   origPath?: string
   /** Number of lines, when counted. */
@@ -132,7 +134,13 @@ export function FilesPane({
                 {m.char}
               </span>
             ))}
-            <span className={`file-name${row.entry!.deleted ? ' deleted' : ''}`}>{row.name}</span>
+            <span
+              className={`file-name${row.entry!.deleted ? ' deleted' : ''}${
+                row.entry!.staged ? ' staged' : ''
+              }`}
+            >
+              {row.name}
+            </span>
             {row.entry!.lines != null && (
               <span className="file-lines">{msg.files.lines(row.entry!.lines)}</span>
             )}

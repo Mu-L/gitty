@@ -298,6 +298,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
           absPath: f.absPath,
           marks: statusMarks(f),
           deleted: f.worktree === 'D' || f.index === 'D',
+          // Anything the index carries, whether or not the work tree has more
+          // on top of it. Only the work tree has an index to speak of.
+          staged: !f.untracked && f.index !== ' ',
           origPath: f.origPath
         }))
       } else if (view.mode === 'snapshot') {

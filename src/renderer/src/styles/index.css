@@ -522,6 +522,13 @@ button:disabled:hover {
   color: var(--fg-dim);
 }
 
+/* Staged, whole or in part — the same green the index column already uses.
+   After the deleted rule, so a staged deletion keeps its line through the
+   name and still reads as staged. */
+.file-name.staged {
+  color: var(--green);
+}
+
 .file-lines {
   color: var(--fg-dim);
   font-size: 0.9em;

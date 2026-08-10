@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A staged file's name is green in the work tree, the colour its index column
+  already carried. Partly staged counts — the index has something either way —
+  and a staged deletion keeps the line through its name as well.
 - **Delete File…** in the work tree's file context menu. It asks first, in a
   native dialog, and moves the file to the system trash — recoverable outside
   git as well as inside it. Where there is no trash to move it to (a mount
