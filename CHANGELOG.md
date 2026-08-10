@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Delete File…** in the work tree's file context menu. It asks first, in a
+  native dialog, and moves the file to the system trash — recoverable outside
+  git as well as inside it. Where there is no trash to move it to (a mount
+  without one, a system with none at all) it asks a second time and says
+  plainly that the file leaves the disk. The entry belongs to the work tree
+  alone: a commit's file list and a snapshot describe revisions, where there is
+  nothing on disk to delete, and a file already deleted is not offered either.
 - Per-file churn in the file tree, after the line count: `+12 −3`, the lines
   this change added and removed in that file. Measured against HEAD in the work
   tree and against the parent for a commit or a range. A snapshot is a tree

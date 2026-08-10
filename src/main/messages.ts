@@ -13,7 +13,18 @@ const en: MainMessages = {
     openRepoTitle: 'Open Repository',
     notARepo: 'Not a repository',
     notInsideWorkTree: (path: string) =>
-      `${path} is not inside a git work tree.`
+      `${path} is not inside a git work tree.`,
+    deleteTitle: 'Delete File',
+    deleteConfirm: (name: string) => `Move ${name} to the trash?`,
+    deleteDetail:
+      'The file goes to the system trash, and the work tree shows it as deleted.',
+    deleteButton: 'Delete',
+    cancelButton: 'Cancel',
+    deleteFailed: 'Could not delete the file',
+    deletePermanentConfirm: (name: string) => `Delete ${name} permanently?`,
+    deletePermanentDetail:
+      'This system has no trash to move it to. A tracked file can still be restored with git; an untracked one cannot.',
+    deletePermanentButton: 'Delete Permanently'
   },
   window: {
     title: 'Gitty'
@@ -49,7 +60,17 @@ const zh: MainMessages = {
     openRepoTitle: '打开仓库',
     notARepo: '不是仓库',
     notInsideWorkTree: (path: string) =>
-      `${path} 不在 git 工作树中。`
+      `${path} 不在 git 工作树中。`,
+    deleteTitle: '删除文件',
+    deleteConfirm: (name: string) => `将 ${name} 移到回收站？`,
+    deleteDetail: '文件会被移到系统回收站，工作树中显示为已删除。',
+    deleteButton: '删除',
+    cancelButton: '取消',
+    deleteFailed: '无法删除该文件',
+    deletePermanentConfirm: (name: string) => `永久删除 ${name}？`,
+    deletePermanentDetail:
+      '本系统没有可用的回收站。已跟踪的文件仍可用 git 恢复，未跟踪的则无法恢复。',
+    deletePermanentButton: '永久删除'
   },
   window: {
     title: 'Gitty'
@@ -85,7 +106,18 @@ const ja: MainMessages = {
     openRepoTitle: 'リポジトリを開く',
     notARepo: 'リポジトリではありません',
     notInsideWorkTree: (path: string) =>
-      `${path} は git ワークツリー内にありません。`
+      `${path} は git ワークツリー内にありません。`,
+    deleteTitle: 'ファイルを削除',
+    deleteConfirm: (name: string) => `${name} をゴミ箱に移動しますか？`,
+    deleteDetail:
+      'ファイルはシステムのゴミ箱に移動し、ワークツリーでは削除として表示されます。',
+    deleteButton: '削除',
+    cancelButton: 'キャンセル',
+    deleteFailed: 'ファイルを削除できませんでした',
+    deletePermanentConfirm: (name: string) => `${name} を完全に削除しますか？`,
+    deletePermanentDetail:
+      'このシステムには移動先のゴミ箱がありません。追跡されているファイルは git で復元できますが、追跡されていないファイルは復元できません。',
+    deletePermanentButton: '完全に削除'
   },
   window: {
     title: 'Gitty'
@@ -121,7 +153,17 @@ const ko: MainMessages = {
     openRepoTitle: '저장소 열기',
     notARepo: '저장소가 아닙니다',
     notInsideWorkTree: (path: string) =>
-      `${path}은(는) git 작업 트리 안에 없습니다.`
+      `${path}은(는) git 작업 트리 안에 없습니다.`,
+    deleteTitle: '파일 삭제',
+    deleteConfirm: (name: string) => `${name}을(를) 휴지통으로 옮길까요?`,
+    deleteDetail: '파일은 시스템 휴지통으로 이동하고, 작업 트리에는 삭제로 표시됩니다.',
+    deleteButton: '삭제',
+    cancelButton: '취소',
+    deleteFailed: '파일을 삭제할 수 없습니다',
+    deletePermanentConfirm: (name: string) => `${name}을(를) 영구히 삭제할까요?`,
+    deletePermanentDetail:
+      '이 시스템에는 옮길 휴지통이 없습니다. 추적되는 파일은 git으로 되돌릴 수 있지만, 추적되지 않는 파일은 되돌릴 수 없습니다.',
+    deletePermanentButton: '영구 삭제'
   },
   window: {
     title: 'Gitty'
@@ -157,7 +199,18 @@ const fr: MainMessages = {
     openRepoTitle: 'Ouvrir un dépôt',
     notARepo: 'Pas un dépôt',
     notInsideWorkTree: (path: string) =>
-      `${path} n'est pas dans une copie de travail git.`
+      `${path} n'est pas dans une copie de travail git.`,
+    deleteTitle: 'Supprimer le fichier',
+    deleteConfirm: (name: string) => `Mettre ${name} à la corbeille ?`,
+    deleteDetail:
+      "Le fichier part à la corbeille du système, et la copie de travail l'affiche comme supprimé.",
+    deleteButton: 'Supprimer',
+    cancelButton: 'Annuler',
+    deleteFailed: 'Impossible de supprimer le fichier',
+    deletePermanentConfirm: (name: string) => `Supprimer ${name} définitivement ?`,
+    deletePermanentDetail:
+      "Ce système n'a pas de corbeille où le déplacer. Un fichier suivi reste récupérable avec git ; un fichier non suivi, non.",
+    deletePermanentButton: 'Supprimer définitivement'
   },
   window: {
     title: 'Gitty'
@@ -194,7 +247,18 @@ const de: MainMessages = {
     openRepoTitle: 'Repository öffnen',
     notARepo: 'Kein Repository',
     notInsideWorkTree: (path: string) =>
-      `${path} liegt nicht in einem Git-Arbeitsverzeichnis.`
+      `${path} liegt nicht in einem Git-Arbeitsverzeichnis.`,
+    deleteTitle: 'Datei löschen',
+    deleteConfirm: (name: string) => `${name} in den Papierkorb verschieben?`,
+    deleteDetail:
+      'Die Datei wandert in den Papierkorb des Systems, im Arbeitsverzeichnis erscheint sie als gelöscht.',
+    deleteButton: 'Löschen',
+    cancelButton: 'Abbrechen',
+    deleteFailed: 'Die Datei konnte nicht gelöscht werden',
+    deletePermanentConfirm: (name: string) => `${name} endgültig löschen?`,
+    deletePermanentDetail:
+      'Dieses System hat keinen Papierkorb, in den sie verschoben werden könnte. Eine versionierte Datei lässt sich mit git wiederherstellen, eine unversionierte nicht.',
+    deletePermanentButton: 'Endgültig löschen'
   },
   window: {
     title: 'Gitty'
@@ -231,7 +295,18 @@ const es: MainMessages = {
     openRepoTitle: 'Abrir repositorio',
     notARepo: 'No es un repositorio',
     notInsideWorkTree: (path: string) =>
-      `${path} no está dentro de un árbol de trabajo de git.`
+      `${path} no está dentro de un árbol de trabajo de git.`,
+    deleteTitle: 'Eliminar archivo',
+    deleteConfirm: (name: string) => `¿Mover ${name} a la papelera?`,
+    deleteDetail:
+      'El archivo va a la papelera del sistema, y el árbol de trabajo lo muestra como eliminado.',
+    deleteButton: 'Eliminar',
+    cancelButton: 'Cancelar',
+    deleteFailed: 'No se pudo eliminar el archivo',
+    deletePermanentConfirm: (name: string) => `¿Eliminar ${name} de forma permanente?`,
+    deletePermanentDetail:
+      'Este sistema no tiene papelera a la que moverlo. Un archivo versionado se puede recuperar con git; uno sin seguimiento, no.',
+    deletePermanentButton: 'Eliminar permanentemente'
   },
   window: {
     title: 'Gitty'
@@ -268,7 +343,18 @@ const ru: MainMessages = {
     openRepoTitle: 'Открыть репозиторий',
     notARepo: 'Это не репозиторий',
     notInsideWorkTree: (path: string) =>
-      `${path} не находится в рабочем дереве git.`
+      `${path} не находится в рабочем дереве git.`,
+    deleteTitle: 'Удалить файл',
+    deleteConfirm: (name: string) => `Переместить ${name} в корзину?`,
+    deleteDetail:
+      'Файл отправится в системную корзину, а в рабочем дереве появится как удалённый.',
+    deleteButton: 'Удалить',
+    cancelButton: 'Отмена',
+    deleteFailed: 'Не удалось удалить файл',
+    deletePermanentConfirm: (name: string) => `Удалить ${name} безвозвратно?`,
+    deletePermanentDetail:
+      'В этой системе нет корзины, куда его переместить. Отслеживаемый файл можно вернуть через git, неотслеживаемый — нет.',
+    deletePermanentButton: 'Удалить безвозвратно'
   },
   window: {
     title: 'Gitty'
@@ -304,7 +390,18 @@ const pt: MainMessages = {
     openRepoTitle: 'Abrir repositório',
     notARepo: 'Não é um repositório',
     notInsideWorkTree: (path: string) =>
-      `${path} não está dentro de uma árvore de trabalho do git.`
+      `${path} não está dentro de uma árvore de trabalho do git.`,
+    deleteTitle: 'Eliminar ficheiro',
+    deleteConfirm: (name: string) => `Mover ${name} para o lixo?`,
+    deleteDetail:
+      'O ficheiro vai para o lixo do sistema, e a árvore de trabalho mostra-o como eliminado.',
+    deleteButton: 'Eliminar',
+    cancelButton: 'Cancelar',
+    deleteFailed: 'Não foi possível eliminar o ficheiro',
+    deletePermanentConfirm: (name: string) => `Eliminar ${name} definitivamente?`,
+    deletePermanentDetail:
+      'Este sistema não tem lixo para onde o mover. Um ficheiro versionado ainda pode ser recuperado com git; um não versionado, não.',
+    deletePermanentButton: 'Eliminar definitivamente'
   },
   window: {
     title: 'Gitty'

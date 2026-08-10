@@ -106,7 +106,11 @@ const api = {
   file: {
     open: (abs: string): Promise<string | null> => ipcRenderer.invoke('file:open', abs),
     reveal: (abs: string): Promise<void> => ipcRenderer.invoke('file:reveal', abs),
-    openExternal: (url: string): Promise<void> => ipcRenderer.invoke('file:openExternal', url)
+    openExternal: (url: string): Promise<void> => ipcRenderer.invoke('file:openExternal', url),
+    /** Send a work-tree file to the trash, after a native confirmation.
+     *  Resolves true only when it is gone; the watcher refreshes the panes. */
+    trash: (root: string, filePath: string): Promise<boolean> =>
+      ipcRenderer.invoke('file:trash', root, filePath)
   },
   /** gource, when it is installed: an animation of the repository's history.
    *  It draws its own window; `play` resolves once it is up, or with what it

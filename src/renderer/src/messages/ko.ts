@@ -205,6 +205,7 @@ export const ko: RendererMessages = {
     copyFileName: '파일 이름 복사',
     openInSystemApp: '시스템 앱으로 열기',
     revealInFileManager: '파일 관리자에서 보기',
+    deleteFile: '파일 삭제…',
     viewFileAccel: '더블 클릭',
     showCommitDiff: '커밋 diff 표시',
     showCommitDiffAccel: 'Enter',

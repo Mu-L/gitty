@@ -225,6 +225,7 @@ export const ru: RendererMessages = {
     copyFileName: 'Копировать имя файла',
     openInSystemApp: 'Открыть в системном приложении',
     revealInFileManager: 'Показать в файловом менеджере',
+    deleteFile: 'Удалить файл…',
     viewFileAccel: 'Двойной щелчок',
     showCommitDiff: 'Показать diff коммита',
     showCommitDiffAccel: 'Enter',

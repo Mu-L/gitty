@@ -206,6 +206,7 @@ export const en: RendererMessages = {
     copyFileName: 'Copy File Name',
     openInSystemApp: 'Open in System App',
     revealInFileManager: 'Reveal in File Manager',
+    deleteFile: 'Delete File…',
     viewFileAccel: 'Double click',
     showCommitDiff: 'Show Commit Diff',
     showCommitDiffAccel: 'Enter',

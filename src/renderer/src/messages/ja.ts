@@ -205,6 +205,7 @@ export const ja: RendererMessages = {
     copyFileName: 'ファイル名をコピー',
     openInSystemApp: 'システムのアプリで開く',
     revealInFileManager: 'ファイルマネージャーで表示',
+    deleteFile: 'ファイルを削除…',
     viewFileAccel: 'ダブルクリック',
     showCommitDiff: 'コミットの差分を表示',
     showCommitDiffAccel: 'Enter',

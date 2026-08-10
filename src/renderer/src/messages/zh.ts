@@ -205,6 +205,7 @@ export const zh: RendererMessages = {
     copyFileName: '复制文件名',
     openInSystemApp: '在系统应用中打开',
     revealInFileManager: '在文件管理器中显示',
+    deleteFile: '删除文件…',
     viewFileAccel: '双击',
     showCommitDiff: '显示提交差异',
     showCommitDiffAccel: 'Enter',

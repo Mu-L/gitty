@@ -252,6 +252,16 @@ export function createContextMenus(deps: ContextMenuDeps): {
       label: msg.contextMenu.copyFileName,
       action: () => void window.gitty.clipboard.write(rel.split('/').pop() ?? rel)
     })
+    // Deleting is about the file on disk, so it belongs to the work tree alone:
+    // a commit's file list and a snapshot describe revisions, where there is
+    // nothing to delete. A file already gone from the tree is not offered either.
+    if (view.mode === 'worktree' && !entry.deleted) {
+      items.push({
+        label: msg.contextMenu.deleteFile,
+        separatorBefore: true,
+        action: () => void window.gitty.file.trash(root, rel)
+      })
+    }
     setMenu({ ...at, items })
   }
 

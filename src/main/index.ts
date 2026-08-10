@@ -297,6 +297,55 @@ function registerIpc(): void {
     shell.showItemInFolder(abs)
   })
 
+  /**
+   * Delete a file from the work tree. The path is resolved against the root and
+   * checked, like every other path the renderer names, and it goes to the
+   * system trash rather than being unlinked — a deletion made by a right-click
+   * should be recoverable outside git as well as inside it. Confirmation is a
+   * native dialog here rather than something the renderer draws, so the window
+   * cannot be clicked past while it is up.
+   */
+  ipcMain.handle('file:trash', async (_e, root: string, filePath: string) => {
+    const abs = path.resolve(root, filePath)
+    if (abs === root || !abs.startsWith(root + path.sep)) return false
+    const answer = await dialog.showMessageBox(win!, {
+      type: 'warning',
+      title: msg.dialog.deleteTitle,
+      message: msg.dialog.deleteConfirm(path.basename(abs)),
+      detail: msg.dialog.deleteDetail,
+      buttons: [msg.dialog.cancelButton, msg.dialog.deleteButton],
+      defaultId: 0,
+      cancelId: 0
+    })
+    if (answer.response !== 1) return false
+    try {
+      await shell.trashItem(abs)
+      return true
+    } catch {
+      // No trash to move it to — a repository on a mount without one, or a
+      // system with no desktop trash at all. Ask again rather than report a
+      // failure the user can do nothing about: the second ask says plainly
+      // that the file is gone from disk.
+      const again = await dialog.showMessageBox(win!, {
+        type: 'warning',
+        title: msg.dialog.deleteTitle,
+        message: msg.dialog.deletePermanentConfirm(path.basename(abs)),
+        detail: msg.dialog.deletePermanentDetail,
+        buttons: [msg.dialog.cancelButton, msg.dialog.deletePermanentButton],
+        defaultId: 0,
+        cancelId: 0
+      })
+      if (again.response !== 1) return false
+      try {
+        await fs.promises.rm(abs)
+        return true
+      } catch (e) {
+        dialog.showErrorBox(msg.dialog.deleteFailed, e instanceof Error ? e.message : String(e))
+        return false
+      }
+    }
+  })
+
   // Optional: the button is only rendered where gource is installed.
   ipcMain.handle('gource:available', () => gource.available())
   ipcMain.handle('gource:play', (_e, root: string) => gource.play(root))

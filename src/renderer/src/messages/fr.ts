@@ -209,6 +209,7 @@ export const fr: RendererMessages = {
     copyFileName: 'Copier le nom du fichier',
     openInSystemApp: 'Ouvrir dans l’application système',
     revealInFileManager: 'Afficher dans le gestionnaire de fichiers',
+    deleteFile: 'Supprimer le fichier…',
     viewFileAccel: 'Double-clic',
     showCommitDiff: 'Afficher le diff du commit',
     showCommitDiffAccel: 'Entrée',

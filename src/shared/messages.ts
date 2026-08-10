@@ -20,6 +20,17 @@ export interface MainMessages {
     readonly openRepoTitle: string
     readonly notARepo: string
     readonly notInsideWorkTree: (path: string) => string
+    /** Confirming a deletion from the work tree, and reporting a failed one. */
+    readonly deleteTitle: string
+    readonly deleteConfirm: (name: string) => string
+    readonly deleteDetail: string
+    readonly deleteButton: string
+    readonly cancelButton: string
+    readonly deleteFailed: string
+    /** Second ask, where the system has no trash to move the file to. */
+    readonly deletePermanentConfirm: (name: string) => string
+    readonly deletePermanentDetail: string
+    readonly deletePermanentButton: string
   }
   readonly window: {
     readonly title: string
@@ -259,6 +270,8 @@ export interface RendererMessages {
     readonly copyFileName: string
     readonly openInSystemApp: string
     readonly revealInFileManager: string
+    /** Work-tree only: sends the file to the system trash. */
+    readonly deleteFile: string
     // file tree
     readonly viewFileAccel: string
     // commit log
