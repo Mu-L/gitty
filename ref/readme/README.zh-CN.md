@@ -2,7 +2,7 @@
 
 [English](../../README.md) · **简体中文** · [日本語](README.ja.md) · [Español](README.es.md) · [Français](README.fr.md) · [Deutsch](README.de.md)
 
-> **翻译于 2026-08-07。**
+> **翻译于 2026-08-10。**
 > [英文 README](../../README.md) 是官方版本，也是唯一持续更新的版本。本文是那一
 > 刻的快照，两者不一致时以英文版为准。界面本身全是英文，所以下文中的按钮名、菜单
 > 项一律保留原文。
@@ -43,7 +43,7 @@
 - **每个窗格都可缩放、可隐藏、可全屏**——一套四窗格布局，能缩到只剩 diff、或只剩
   日志，也能再回来。
 
-![Gitty 0.1.3](../../ref/gitty-0.1.3.png)
+![Gitty 0.1.4](../../ref/gitty-0.1.4.png)
 
 ## 为什么又造一个？ <a id="why-another-one"></a>
 
@@ -65,6 +65,8 @@
 - Node.js 20 或更新版本
 - `PATH` 上有 `git`
 - Linux、macOS 或 Windows，且有桌面会话
+- 可选：[gource](https://gource.io/) 在 `PATH` 上，用于[动画](#gource)；没有也不
+  影响任何功能
 
 ## 运行 <a id="running"></a>
 
@@ -81,10 +83,17 @@ npm install -g gitty-desktop      # installs the gitty command globally
 ./setup.sh --system      # symlink into /usr/local/bin (needs sudo)
 ```
 
-走 `setup.sh` 这条路还会装一个桌面启动器：图标加进 hicolor 主题，应用菜单里出现一
-个 `gitty.desktop` 条目（会话有桌面时，桌面上也有）。之后图标缓存和 desktop 数据库
-会被刷新，所以条目连同图标会立刻出现。（在 Linux 上它带一个变通设置，且应用关掉了
-一个沙箱开关——见 [Linux 桌面集成](#linux-desktop-integration)。）
+走 `setup.sh` 这条路还会装一个可点击的启动器，按平台而定。
+
+在 **Linux** 上，图标加进 hicolor 主题，应用菜单里出现一个 `gitty.desktop` 条目
+（会话有桌面时，桌面上也有）。之后图标缓存和 desktop 数据库会被刷新，所以条目连
+同图标会立刻出现。它带一个变通设置，且应用关掉了一个沙箱开关——见
+[Linux 桌面集成](#linux-desktop-integration)。
+
+在 **macOS** 上，一个极简的 `Gitty.app` 会被写入 `~/Applications`（桌面上带一个符
+号链接），封装同一个 `run.sh`。没有任何打包：这个 bundle 的存在只是为了给 Finder
+和 Dock 一个名字和图标。Dock 不会被碰——想固定它的话自己拖过去。见
+[macOS 应用 bundle](#macos-app-bundle)。
 
 然后在任何地方打开一个仓库：
 
@@ -115,6 +124,7 @@ Gitty 会从终端脱离并打印自己的 pid，所以 shell 依然可用，关
 
 从左到右，它先描述当前仓库，再对它动手：
 
+- **‹ › ▾** —— 你在这个仓库里去过的地方。见[后退](#going-back)。
 - **仓库路径**是一个按钮：点开
   [最近仓库](#recent-repositories)菜单。
 - **⎇ 分支**也是按钮——显示 git 当前检出的分支，并给出其余分支的菜单供你阅读。见
@@ -131,6 +141,26 @@ Gitty 会从终端脱离并打印自己的 pid，所以 shell 依然可用，关
 
 当你在读另一个分支时，分支按钮显示为 `⎇ main › other-branch`；上一条 git 命令的
 错误会以红字出现在计数旁边。
+
+### 后退 <a id="going-back"></a>
+
+读历史就是到处逛：一个提交、里面的一个文件、往下翻两页日志后的另一个提交、再回到
+第一个。标题栏最左边的三个按钮会记住这些脚步，就像浏览器的前进后退一样。
+
+- **‹**（<kbd>Alt+←</kbd>）回到你看这一个之前的那个位置，**›**（<kbd>Alt+→</kbd>）
+  向前回到你刚才离开的那个。无处可去时两者都会变灰，鼠标悬停时显示它会带你去的位
+  置名称。
+- **▾** 列出这些位置本身，最近的在最前面，你当前所在的那个旁边有个点。随便选一个
+  就能直接跳过去。
+
+一个*位置*包含了上方两个窗格所显示的一切：视图——工作区、一个提交、两个提交的区间、
+一个快照——其中选中的文件，以及 diff 旁边打开的文档。所以一个停留点读作
+`Working tree`、`7bb7787 — Refresh screenshot batches`、
+`src/main/git.ts @ 7bb7787` 或 `blame: src/main/git.ts @ 7bb7787`，回到它意味着把
+同一个文件以同一个版本放回屏幕，而不只是重新选中那个提交。
+
+历史属于仓库，不属于窗口：每个标签页各自记住自己最近五十个位置，切换标签页就是切
+换按钮漫步的是哪一组。历史不跨重启保留。
 
 ### 标签页 <a id="tabs"></a>
 
@@ -173,6 +203,9 @@ Gitty 会从终端脱离并打印自己的 pid，所以 shell 依然可用，关
 - 标题栏里的 **Panes** 列出四个窗格，可见的那些旁边有个点；点一下切换，
   **Show All Panes** 恢复四窗格布局。
 - <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> 依次切换 Files、Diff、Commits 和 Terminal。
+- <kbd>Ctrl+Shift+0</kbd> 把四个全部带回——零代表「全都要」，比那四个各自切换的键
+  多一个。它需要 Shift 是因为 <kbd>Ctrl+0</kbd> 是浏览器引擎的还原缩放，留在 View
+  菜单里。
 
 剩下的窗格会分掉整个窗口，所以隐藏提交窗格就把整个高度让给了 diff。最后一个可见窗
 格没有 **×**——空窗口会让人无处可点。隐藏状态跨重启记住，而终端窗格只是被收起、从不
@@ -184,13 +217,16 @@ Gitty 会从终端脱离并打印自己的 pid，所以 shell 依然可用，关
 
 改动过的文件，呈可折叠的树，每个文件名旁边带着行数。显示两列状态：暂存区状态（绿
 色）和工作区状态（黄 / 红）；未跟踪文件是 `??`。行数在工作区从磁盘读取，其他情况从
-对应版本读取；二进制文件、已删除的文件，以及超过 8 MB 的文件不显示行数。
+对应版本读取；二进制文件、已删除的文件，以及超过 8 MB 的文件不显示行数。行数之后跟
+着变更量（churn）——这个改动在这个文件里增删了多少行，显示为 `+12 −3`：工作区里是与
+HEAD 比较，提交或区间里是与父提交比较。快照是一棵树而不是一次改动，所以没有变更
+量；二进制文件和合并提交也没有——合并 diff 不会把改动归到具体文件。
 
 - **点击** —— 在右边显示该文件的 diff。
 - **双击** —— 把整个文件作为文档开在 diff 旁边，带行号和语法高亮（Markdown 是渲染
   后的文档，图片则是图片本身）。
 - **右键** —— View File、Open in System App、Reveal in File Manager、Copy Relative
-  Path、Copy Absolute Path、Copy File Name。
+  Path、Copy Absolute Path、Copy File Name、Blame File、File History。
 - **点击文件夹** —— 折叠或展开。
 
 选中一个提交或一段提交区间时，这个窗格改为列出那个提交涉及的文件；
@@ -275,13 +311,23 @@ Markdown 里的原始 HTML 不会被渲染，链接在系统浏览器里打开�
 窗格大小，衬在棋盘格上，所以透明就看得出是透明；**点击**它切到原始尺寸并可滚动查
 看，再点一次回到适配。像素尺寸和磁盘占用写在下方。超过 12 MB 的图片不内联。
 
+#### Blame 与文件历史 <a id="blame-and-file-history"></a>
+
+在树里右键任何文件，选择 **Blame File** 或 **File History**；两者都作为 diff 旁边的
+文档打开。Blame 每行源码一行——提交、作者以及行本身，尚未提交的行显示为 em dash——
+在你正在查看的版本上。File History 列出碰过这个文件的每一次提交，跟踪重命名，点一个
+提交就打开它。
+
 ### Commits（左下） <a id="commits-bottom-left"></a>
 
 当前分支的日志，一次加载 300 条并随滚动延伸。第一行是 **Working Tree** —— 未提交的
-改动，带改动文件数；选中它会把上方两个窗格带回工作区。
+改动，带改动文件数；选中它会把上方两个窗格带回工作区。日志上方有一个过滤框，把列表
+收窄到提交消息或作者包含你输入文字的条目——带防抖，有清空用的 ✕——列表同样按页加
+载。
 
 - **点击**或 <kbd>Enter</kbd> —— 显示那个提交：它的文件填满左上窗格，它的完整 diff
-  填满右上窗格。
+  填满右上窗格。提交的 subject、作者、日期和完整正文显示在文件列表上方的一个信息条
+  里；正文太长时，▸ 开关可以把它折起，把空间留给文件列表。
 - **Ctrl+点击**（macOS 上是 <kbd>Cmd</kbd>）、<kbd>Shift+点击</kbd> 或
   <kbd>Space</kbd> —— 选第二个提交并比较两者，旧的在前。
 - **↑ ↓ / j k / PgUp / PgDn / Home / End** —— 移动光标。
@@ -294,6 +340,17 @@ Markdown 里的原始 HTML 不会被渲染，链接在系统浏览器里打开�
   击。这些 URL 在仓库保持打开期间有效。
 - 在左上窗格选中一个文件会把 diff 收窄到那个文件；**Show Whole Diff** 再把它放回
   去。
+
+#### Gource <a id="gource"></a>
+
+如果 [gource](https://gource.io/) 在 `PATH` 上，提交窗格会在 **Open in Browser** 旁
+边多出一个 **Gource** 按钮：它把仓库历史播放成动画——目录树生长，每次提交落地时文件
+亮起，日志中每个名字对应一个作者在文件间飞来飞去。Gource 打开自己的窗口，在你关掉
+Gitty 之后继续运行；按钮只等足够确认它已启动的时间，如果没启动成就显示 gource 说的
+话。
+
+启动时每天历史占半秒，空闲文件留在屏幕上，长间隔被跳过——这才是让真实仓库可读而非缓
+慢滴淌的配置。不会替你安装任何东西：gource 不在 `PATH` 上时，按钮干脆不出现。
 
 #### 浏览另一个分支 <a id="browsing-another-branch"></a>
 
@@ -335,6 +392,7 @@ diff 和终端全都停在 git 留下的地方。你在看另一个分支时，�
 | | |
 | --- | --- |
 | **Theme** | Dark 或 Light。 |
+| **Language** | English、简体中文、日本語、한국어、Français、Deutsch、Español、Русский 或 Português——界面、菜单和对话框一起切换，无需重启。 |
 | **Font size** | 11 – 16，以半磅为步长。作用于每个窗格，终端也算在内。 |
 | **Row height** | 18 – 26 像素——所有列表赖以构建的行高，文件树、日志和 diff 都在内。紧一点屏幕装得下更多，松一点更好读。 |
 | **Diff layout** | Inline 或 Side-by-Side，和 diff 标题栏里那个开关是同一个。 |
@@ -353,10 +411,12 @@ diff 和终端全都停在 git 留下的地方。你在看另一个分支时，�
 | <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | 标记第二个提交并比较这一对 |
 | <kbd>Ctrl+Click</kbd> 于文件标题 | 把那个文件开进新文档标签 |
 | <kbd>Esc</kbd> | 回到工作区 |
+| <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | 在浏览过的位置间后退和前进 |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | 刷新状态和日志 |
 | <kbd>Ctrl+O</kbd> | 在新标签页打开另一个仓库 |
 | <kbd>Ctrl+,</kbd> | 设置 |
 | <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> | 隐藏或显示 Files、Diff、Commits、Terminal |
+| <kbd>Ctrl+Shift+0</kbd> | 把四个窗格全部带回 |
 | <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> | 让那个窗格铺满窗口 |
 
 ## 架构 <a id="architecture"></a>
@@ -389,6 +449,24 @@ git 通过 `execFile('git', …)` 驱动，解析 `--porcelain=v2 -z` /`--name-s
 应用还关掉了 Chromium 的 SUID 沙箱运行（`ELECTRON_DISABLE_SANDBOX=1`）。通常的办法
 ——把 `chrome-sandbox` 改为 root 所有、权限 4755——在 `node_modules` 里存活不下来，所
 以对一个只读你自己仓库的本地工具而言，关掉它是务实的选择。
+
+### macOS 应用 bundle <a id="macos-app-bundle"></a>
+
+`Gitty.app` 是一个封装，不是一个打包好的应用：`Contents/MacOS/Gitty` 是一个两行脚
+本，exec 到 `run.sh --fg --any`。`--fg` 很关键——一路 exec 到底意味着 Dock 图标留在
+bundle 上，而不是被一个比它活得更久的进程孤立——`--any` 让从 Finder 启动（没有工作目
+录可言）回退到最近打开的仓库。
+
+它在三个出现的地方名字都是对的，而只有一处来自 bundle。Finder 和 Dock 从
+`Info.plist` 中读取 `CFBundleName` 和 `CFBundleIconFile`；菜单栏是 `app.name`，由
+`app.setName('Gitty')` 在任何窗口存在之前设置，被 `{ role: 'appMenu' }` 用作标签。
+所以不像上面 Linux 的窗口类问题，这里没有任何妥协——这也是为什么打包
+（electron-builder）除了签名什么也买不到。
+
+从 Finder 启动的 bundle 继承的是 launchd 的极简 `PATH`，上面没有 nvm 也没有
+Homebrew，而 `run.sh` 在 bundle 过期时需要 `node` 和 `npm` 来重建。`setup.sh` 在安
+装时解析它们并把路径前置——用前缀，所以从终端启动不受影响。之后切换 Node 版本会让那
+条路径过时；重新运行 `setup.sh` 来重新指向。
 
 ## 许可 <a id="licence"></a>
 

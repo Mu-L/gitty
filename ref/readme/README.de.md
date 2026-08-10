@@ -2,7 +2,7 @@
 
 [English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Español](README.es.md) · [Français](README.fr.md) · **Deutsch**
 
-> **Übersetzt am 2026-08-07.**
+> **Übersetzt am 2026-08-10.**
 > Die [englische README](../../README.md) ist die offizielle Fassung und die
 > einzige, die weiter gepflegt wird. Dieses Dokument ist eine Momentaufnahme
 > davon; wo beide sich widersprechen, gilt das Englische. Die Oberfläche selbst
@@ -54,7 +54,7 @@ Ungewöhnlich für andere Git-Browser:
   vier Bereichen, das auf nur das Diff oder nur das Log zusammenschrumpft und
   zurückkommt.
 
-![Gitty 0.1.3](../../ref/gitty-0.1.3.png)
+![Gitty 0.1.4](../../ref/gitty-0.1.4.png)
 
 ## Warum noch einer? <a id="why-another-one"></a>
 
@@ -79,6 +79,8 @@ im Fenster.
 - Node.js 20 oder neuer
 - `git` im `PATH`
 - Linux, macOS oder Windows mit einer Desktop-Sitzung
+- Optional [gource](https://gource.io/) im `PATH`, für
+  [die Animation](#gource); nichts ändert sich, wenn es fehlt
 
 ## Starten <a id="running"></a>
 
@@ -95,13 +97,22 @@ oder ihn aus einem Checkout heraus in den PATH verlinken:
 ./setup.sh --system      # symlink into /usr/local/bin (needs sudo)
 ```
 
-Der Weg über `setup.sh` installiert außerdem einen Desktop-Starter: das Symbol
-kommt ins hicolor-Theme und ein Eintrag `gitty.desktop` erscheint im
-Anwendungsmenü (und auf dem Schreibtisch, wenn die Sitzung einen hat). Danach
-werden Symbol-Cache und Desktop-Datenbank aufgefrischt, sodass der Eintrag
-sofort mit seinem Symbol auftaucht. (Unter Linux trägt er einen Behelf, und die
-Anwendung läuft mit einem abgeschalteten Sandbox-Schalter — siehe
-[Linux-Desktop-Integration](#linux-desktop-integration).)
+Der Weg über `setup.sh` installiert außerdem einen anklickbaren Starter, je nach
+Plattform.
+
+Unter **Linux** kommt das Symbol ins hicolor-Theme und ein Eintrag
+`gitty.desktop` erscheint im Anwendungsmenü (und auf dem Schreibtisch, wenn die
+Sitzung einen hat). Danach werden Symbol-Cache und Desktop-Datenbank
+aufgefrischt, sodass der Eintrag sofort mit seinem Symbol auftaucht. Er trägt
+einen Behelf, und die Anwendung läuft mit einem abgeschalteten Sandbox-Schalter —
+siehe [Linux-Desktop-Integration](#linux-desktop-integration).
+
+Unter **macOS** wird ein minimales `Gitty.app` nach `~/Applications` geschrieben
+(mit einem Symlink auf dem Schreibtisch), das dasselbe `run.sh` einpackt. Nichts
+ist paketiert: das Bundle existiert, um dem Finder und dem Dock einen Namen und
+ein Symbol zu geben. Das Dock wird nicht angefasst — zieh es selbst dorthin, wenn
+du es angeheftet haben willst. Siehe
+[macOS-App-Bundle](#macos-app-bundle).
 
 Dann von überall ein Repository öffnen:
 
@@ -136,6 +147,8 @@ Vier Bereiche in der Mitte, darüber eine Titelleiste, darunter eine Tab-Leiste.
 
 Von links nach rechts beschreibt sie das aktive Repository und handelt dann daran:
 
+- **‹ › ▾** — wo du in diesem Repository gewesen bist. Siehe
+  [Zurückgehen](#going-back).
 - **Der Repository-Pfad** ist eine Schaltfläche: sie öffnet das Menü der
   [zuletzt geöffneten Repositories](#recent-repositories).
 - **⎇ Branch** ist ebenfalls eine Schaltfläche — der Branch, den git ausgecheckt
@@ -158,6 +171,33 @@ Von links nach rechts beschreibt sie das aktive Repository und handelt dann dara
 Während man einen anderen Branch liest, zeigt die Branch-Schaltfläche
 `⎇ main › other-branch`, und Fehler des letzten Git-Befehls erscheinen rot neben
 den Zählern.
+
+### Zurückgehen <a id="going-back"></a>
+
+Historie zu lesen heißt umherzustreifen: ein Commit, eine Datei darin, ein
+weiterer Commit zwei Seiten tiefer im Log, dann zurück zum ersten. Die drei
+Schaltflächen links in der Titelleiste merken sich dieses Herumstreifen, so wie
+ein Browser.
+
+- **‹** (<kbd>Alt+←</kbd>) kehrt zu dem Ort zurück, den man vor diesem
+  betrachtet hat, und **›** (<kbd>Alt+→</kbd>) geht zu dem, von dem man
+  weggegangen ist. Beide sind grau, wenn es nirgendwo hinzugehen gibt, und wenn
+  man über eine fährt, nennt sie den Ort, zu dem sie einen bringen würde.
+- **▾** listet die Orte selbst, die jüngsten zuerst, mit einem Punkt auf dem,
+  bei dem man gerade ist. Einen auszuwählen springt direkt hin.
+
+Ein *Ort* ist alles, was die beiden oberen Bereiche gezeigt haben: die
+Ansicht — das Arbeitsverzeichnis, ein Commit, ein Bereich aus zwei Commits,
+eine Momentaufnahme — die darin gewählte Datei und das neben dem Diff geöffnete
+Dokument. Ein Haltepunkt liest sich als `Working tree`,
+`7bb7787 — Refresh screenshot batches`, `src/main/git.ts @ 7bb7787` oder
+`blame: src/main/git.ts @ 7bb7787`, und dorthin zurückzukehren bringt dieselbe
+Datei in derselben Revision wieder auf den Schirm, statt nur den Commit erneut
+auszuwählen.
+
+Die Historie gehört dem Repository, nicht dem Fenster: jeder Tab merkt sich seine
+eigenen fünfzig jüngsten Orte, und zwischen den Tabs zu wechseln wechselt, durch
+welche die Schaltflächen gehen. Über Neustarts hinweg wird sie nicht behalten.
 
 ### Tabs <a id="tabs"></a>
 
@@ -213,6 +253,10 @@ zurückholen:
   vier Bereichen wieder her.
 - <kbd>Strg+1</kbd> … <kbd>Strg+4</kbd> schalten Files, Diff, Commits und
   Terminal in dieser Reihenfolge um.
+- <kbd>Strg+Umschalt+0</kbd> bringt alle vier zurück — Null für »alle«, eine
+  Taste hinter den vieren, die je einen umschalten. Es braucht die Umschalttaste,
+  weil <kbd>Strg+0</kbd> der Zoom-Zurücksetzen-Befehl der Browser-Engine ist, den
+  das View-Menü behält.
 
 Was übrig bleibt, teilt sich das Fenster; den Commit-Bereich auszublenden gibt
 dem Diff also die volle Höhe. Der letzte sichtbare Bereich hat kein **×** — ein
@@ -229,13 +273,18 @@ dem Namen. Zwei Statusspalten werden gezeigt: der Zustand im Index (grün) und d
 im Arbeitsverzeichnis (gelb / rot); unversionierte Dateien sind `??`. Die Zahl
 wird im Arbeitsverzeichnis von der Platte und sonst aus der Revision gelesen;
 Binärdateien, gelöschte Dateien und alles über 8 MB zeigen schlicht keine.
+Danach folgt der Änderungsumfang — wie viele Zeilen diese Änderung in der Datei
+hinzugefügt und entfernt hat, `+12 −3`, gegen HEAD im Arbeitsverzeichnis und
+gegen den Vorgänger bei einem Commit oder einem Bereich. Eine Momentaufnahme
+ist ein Baum und keine Änderung, daher hat sie keinen Änderungsumfang; ebenso
+Binärdateien oder ein Merge-Commit, dessen kombiniertes Diff nichts zuschreibt.
 
 - **Klick** — das Diff der Datei rechts zeigen.
 - **Doppelklick** — die ganze Datei als Dokument neben dem Diff öffnen, mit
   Zeilennummern und Syntaxhervorhebung (ein gerendertes Dokument bei Markdown,
   das Bild selbst bei einem Bild).
 - **Rechtsklick** — View File, Open in System App, Reveal in File Manager, Copy
-  Relative Path, Copy Absolute Path, Copy File Name.
+  Relative Path, Copy Absolute Path, Copy File Name, Blame File, File History.
 - **Klick auf einen Ordner** — ein- oder ausklappen.
 
 Ist ein Commit oder ein Commit-Bereich gewählt, listet dieser Bereich stattdessen
@@ -357,15 +406,30 @@ in den Bereich eingepasst, sodass Transparenz als Transparenz lesbar ist; ein
 ein. Pixelmaße und Größe auf der Platte stehen darunter. Bilder über 12 MB werden
 nicht eingebettet.
 
+#### Blame und Datei-Historie <a id="blame-and-file-history"></a>
+
+Rechtsklick auf eine Datei im Baum und **Blame File** oder **File History**
+wählen; beide öffnen als Dokumente neben dem Diff. Blame zeigt eine Zeile pro
+Quellzeile — den Commit, seinen Autor und die Zeile selbst, mit einem
+Geviertstrich, wo eine Zeile noch nicht committet ist — in der Revision, die man
+gerade betrachtet. File History listet jeden Commit, der die Datei berührt hat,
+folgt Umbenennungen, und ein Klick auf einen Commit öffnet ihn.
+
 ### Commits (unten links) <a id="commits-bottom-left"></a>
 
 Das Log des aktuellen Branches, in Schritten von 300 geladen und beim Scrollen
 verlängert. Die erste Zeile ist **Working Tree** — die nicht committeten
 Änderungen, mit der Zahl geänderter Dateien; sie auszuwählen holt die oberen
-Bereiche zurück ins Arbeitsverzeichnis.
+Bereiche zurück ins Arbeitsverzeichnis. Ein Filterfeld über dem Log grenzt die
+Liste auf Commits ein, deren Nachricht oder Autor den eingegebenen Text
+enthalten — entprellt, mit einem ✕ zum Löschen — und die Liste blättert auf
+dieselbe Weise.
 
 - **Klick** oder <kbd>Enter</kbd> — diesen Commit zeigen: seine Dateien füllen
-  den Bereich oben links, sein vollständiges Diff den oben rechts.
+  den Bereich oben links, sein vollständiges Diff den oben rechts. Betreff,
+  Autor, Datum und der vollständige Nachrichtentext des Commits erscheinen in
+  einem Streifen über der Dateiliste; ist der Text lang, klappt ihn ein
+  ▸-Schalter weg, sodass die Dateiliste den Platz behält.
 - **Strg+Klick** (<kbd>Cmd</kbd> unter macOS), <kbd>Umschalt+Klick</kbd> oder
   <kbd>Leertaste</kbd> — einen zweiten Commit wählen und beide vergleichen, den
   älteren zuerst.
@@ -382,6 +446,22 @@ Bereiche zurück ins Arbeitsverzeichnis.
   Repository offen ist.
 - Eine Datei im Bereich oben links auszuwählen verengt das Diff auf diese Datei;
   **Show Whole Diff** weitet es wieder.
+
+#### Gource <a id="gource"></a>
+
+Ist [gource](https://gource.io/) im `PATH`, bekommt der Commit-Bereich eine
+Schaltfläche **Gource** neben **Open in Browser**: sie spielt die Historie des
+Repositories als Animation ab — der Verzeichnisbaum wächst, Dateien leuchten auf,
+wenn ein Commit landet, ein Autor fliegt zwischen ihnen pro Name im Log. Gource
+öffnet ein eigenes Fenster und läuft weiter, nachdem man Gitty geschlossen hat;
+die Schaltfläche wartet nur lange genug, um zu sehen, dass es gestartet ist, und
+zeigt, was gource gesagt hat, wenn nicht.
+
+Es wird mit einem Tag Historie pro halber Sekunde gestartet, inaktive Dateien
+bleiben auf dem Schirm und lange Lücken werden übersprungen — das ist es, was ein
+echtes Repository lesbar macht statt zu einem langsamen Tröpfeln. Nichts wird für
+dich installiert: wo gource nicht im `PATH` ist, ist die Schaltfläche schlicht
+nicht da.
 
 #### Einen anderen Branch durchsehen <a id="browsing-another-branch"></a>
 
@@ -436,6 +516,7 @@ Tab und wird über Neustarts gemerkt; **Restore Defaults** setzt alles zurück.
 | | |
 | --- | --- |
 | **Theme** | Dark oder Light. |
+| **Language** | English, 简体中文, 日本語, 한국어, Français, Deutsch, Español, Русский oder Português — die Oberfläche, die Menüs und die Dialoge ändern sich alle gemeinsam, ohne Neustart. |
 | **Font size** | 11 – 16, in halben Punkten. Gilt für jeden Bereich, das Terminal eingeschlossen. |
 | **Row height** | 18 – 26 Pixel — die Zeilenhöhe, auf der jede Liste aufbaut: Dateibaum, Log und Diff. Enger passt mehr auf den Schirm, weiter liest sich leichter. |
 | **Diff layout** | Inline oder Side-by-Side, derselbe Schalter, den die Diff-Kopfzeile trägt. |
@@ -455,10 +536,12 @@ die die Diff-Kopfzeile trägt: eine Änderung an einer Stelle wirkt an beiden.
 | <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Einen zweiten Commit markieren und das Paar vergleichen |
 | <kbd>Ctrl+Click</kbd> auf eine Dateiüberschrift | Diese Datei in einem neuen Dokument-Tab öffnen |
 | <kbd>Esc</kbd> | Zurück zum Arbeitsverzeichnis |
+| <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Zurück und vorwärts durch die besuchten Orte |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Status und Log aktualisieren |
 | <kbd>Ctrl+O</kbd> | Ein weiteres Repository in einem neuen Tab öffnen |
 | <kbd>Ctrl+,</kbd> | Einstellungen |
 | <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> | Files, Diff, Commits, Terminal aus- oder einblenden |
+| <kbd>Ctrl+Shift+0</kbd> | Alle vier Bereiche wieder anzeigen |
 | <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> | Das Fenster mit diesem Bereich füllen |
 
 ## Architektur <a id="architecture"></a>
@@ -500,6 +583,30 @@ Die Anwendung läuft außerdem mit abgeschalteter SUID-Sandbox von Chromium
 zu lassen, mit Modus 4755 — überlebt innerhalb von `node_modules` nicht, also ist
 das Abschalten die pragmatische Wahl für ein lokales Werkzeug, das nur die
 eigenen Repositories liest.
+
+### macOS-App-Bundle <a id="macos-app-bundle"></a>
+
+`Gitty.app` ist ein Wrapper, kein Paket: `Contents/MacOS/Gitty` ist ein
+zweizeiliges Skript, das `run.sh --fg --any` per exec ausführt. `--fg` ist
+wichtig — exec bis ganz nach unten bedeutet, dass das Dock-Symbol beim Bundle
+bleibt, statt von einem Prozess verwaist zu werden, der es überlebt — und
+`--any` lässt einen Start aus dem Finder, der kein sinnvolles
+Arbeitsverzeichnis hat, auf die zuletzt geöffneten Repositories zurückfallen.
+
+Der Name stimmt an allen drei Stellen, an denen er auftaucht, und nur eine davon
+kommt aus dem Bundle. Finder und Dock lesen `CFBundleName` und `CFBundleIconFile`
+aus `Info.plist`; die Menüleiste ist `app.name`, den `app.setName('Gitty')`
+setzt, bevor ein Fenster existiert, und `{ role: 'appMenu' }` als
+Beschriftung verwendet. Anders als beim Linux-Fensterklassen-Problem oben ist
+hier also nichts ein Kompromiss — weshalb Paketieren (electron-builder) nichts
+außer Signieren einbrächte.
+
+Ein aus dem Finder gestartetes Bundle erbt launchds minimalen `PATH`, ohne nvm
+und ohne Homebrew, und `run.sh` braucht `node` und `npm`, um neu zu bauen, wenn
+das Bundle veraltet ist. `setup.sh` löst sie zur Installationszeit auf und
+stellt sie voran — als Präfix, sodass ein Start aus dem Terminal unbeeinflusst
+bleibt. Ein späterer Wechsel der Node-Version lässt diesen Pfad veralten;
+`setup.sh` erneut auszuführen korrigiert ihn.
 
 ## Lizenz <a id="licence"></a>
 

@@ -2,7 +2,7 @@
 
 [English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Español](README.es.md) · **Français** · [Deutsch](README.de.md)
 
-> **Traduit le 2026-08-07.**
+> **Traduit le 2026-08-10.**
 > Le [README en anglais](../../README.md) est la version officielle et la seule
 > tenue à jour. Ce document en est un instantané ; en cas de divergence, c'est
 > l'anglais qui fait foi. L'interface est en anglais, donc les noms de boutons et
@@ -56,7 +56,7 @@ Rare chez les autres navigateurs git :
   disposition à quatre volets qui se réduit au seul diff, ou au seul journal, et
   revient.
 
-![Gitty 0.1.3](../../ref/gitty-0.1.3.png)
+![Gitty 0.1.4](../../ref/gitty-0.1.4.png)
 
 ## Pourquoi un de plus ? <a id="why-another-one"></a>
 
@@ -81,6 +81,8 @@ Markdown**, et un **copier-coller qui marche** partout dans la fenêtre.
 - Node.js 20 ou plus récent
 - `git` dans le `PATH`
 - Linux, macOS ou Windows avec une session de bureau
+- [gource](https://gource.io/) dans le `PATH`, optionnel, pour
+  [l'animation](#gource) ; rien ne change s'il est absent
 
 ## Lancement <a id="running"></a>
 
@@ -97,13 +99,20 @@ ou, depuis une copie du dépôt, liez-la dans votre PATH avec :
 ./setup.sh --system      # symlink into /usr/local/bin (needs sudo)
 ```
 
-La voie `setup.sh` installe aussi un lanceur de bureau : l'icône est ajoutée au
-thème hicolor et une entrée `gitty.desktop` apparaît dans le menu des
-applications (et sur le bureau, quand la session en a un). Le cache d'icônes et
-la base de données de bureau sont ensuite rafraîchis, de sorte que l'entrée
-apparaît tout de suite avec son icône. (Sous Linux elle porte un contournement et
+La voie `setup.sh` installe aussi un lanceur cliquable, selon la plateforme.
+
+Sous **Linux**, l'icône est ajoutée au thème hicolor et une entrée `gitty.desktop`
+apparaît dans le menu des applications (et sur le bureau, quand la session en a un).
+Le cache d'icônes et la base de données de bureau sont ensuite rafraîchis, de sorte
+que l'entrée apparaît tout de suite avec son icône. Elle porte un contournement et
 l'application tourne avec un interrupteur de bac à sable désactivé — voir
-[Intégration au bureau Linux](#linux-desktop-integration).)
+[Intégration au bureau Linux](#linux-desktop-integration).
+
+Sous **macOS**, un `Gitty.app` minimal est écrit dans `~/Applications` (avec un
+lien symbolique sur le Bureau) qui enveloppe le même `run.sh`. Rien n'est
+empaqueté : le bundle existe pour donner au Finder et au Dock un nom et une icône.
+Le Dock n'est pas touché — glissez-le vous-même si vous voulez l'épingler. Voir
+[Bundle applicatif macOS](#macos-app-bundle).
 
 Puis ouvrez un dépôt depuis n'importe où :
 
@@ -139,6 +148,8 @@ dessous.
 
 De gauche à droite, elle décrit le dépôt actif puis agit dessus :
 
+- **‹ › ▾** — où vous êtes allé dans ce dépôt. Voir
+  [Revenir en arrière](#going-back).
 - **Le chemin du dépôt** est un bouton : il ouvre le menu des
   [dépôts récents](#recent-repositories).
 - **⎇ branche** est un bouton aussi — la branche que git a sortie, et un menu de
@@ -161,6 +172,32 @@ De gauche à droite, elle décrit le dépôt actif puis agit dessus :
 Pendant que vous lisez une autre branche, le bouton de branche affiche
 `⎇ main › other-branch`, et les erreurs de la dernière commande git apparaissent
 en rouge à côté des compteurs.
+
+### Revenir en arrière <a id="going-back"></a>
+
+Lire l'historique, c'est vagabonder : un commit, un fichier dedans, un autre
+commit deux pages plus bas dans le journal, puis retour au premier. Les trois
+boutons à gauche de la barre de titre se souviennent de ce cheminement, comme un
+navigateur web.
+
+- **‹** (<kbd>Alt+←</kbd>) revient à l'endroit que vous regardiez avant celui-ci,
+  et **›** (<kbd>Alt+→</kbd>) retourne à celui que vous venez de quitter. Les
+  deux sont grisés quand il n'y a nulle part où aller, et survoler l'un ou l'autre
+  nomme l'endroit où il vous mènerait.
+- **▾** liste les endroits eux-mêmes, le plus récent en premier, avec un point
+  sur celui où vous êtes. Choisissez-en un pour y sauter directement.
+
+Un *endroit* est tout ce que les deux volets du haut montraient : la vue —
+l'arbre de travail, un commit, une plage de deux, un instantané — le fichier
+sélectionné à l'intérieur, et le document ouvert à côté du diff. Un arrêt se lit
+donc `Working tree`, `7bb7787 — Refresh screenshot batches`,
+`src/main/git.ts @ 7bb7787` ou `blame: src/main/git.ts @ 7bb7787`, et y revenir
+replace le même fichier à l'écran à la même révision plutôt que de simplement
+resélectionner le commit.
+
+L'historique appartient au dépôt, pas à la fenêtre : chaque onglet garde ses
+cinquante derniers endroits, et changer d'onglet change ceux que les boutons
+parcourent. Il n'est pas conservé d'un lancement à l'autre.
 
 ### Onglets <a id="tabs"></a>
 
@@ -216,6 +253,10 @@ rappelé :
   disposition à quatre volets.
 - <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> basculent Files, Diff, Commits et
   Terminal, dans cet ordre.
+- <kbd>Ctrl+Maj+0</kbd> les ramène tous les quatre — zéro pour « tous », une
+  touche après les quatre qui basculent chacun. Elle prend Maj parce que
+  <kbd>Ctrl+0</kbd> est le zoom par défaut du moteur du navigateur, que le menu
+  View conserve.
 
 Ce qui reste se partage la fenêtre, donc masquer le volet des commits donne au
 diff toute la hauteur. Le dernier volet visible n'a pas de **×** — une fenêtre
@@ -232,14 +273,19 @@ du nom. Deux colonnes d'état sont affichées : l'état de l'index (vert) et cel
 de l'arbre de travail (jaune / rouge) ; les fichiers non suivis sont `??`. Le
 compte est lu sur le disque dans l'arbre de travail et dans la révision partout
 ailleurs ; les fichiers binaires, les fichiers supprimés et tout ce qui dépasse
-8 Mo n'en affichent simplement aucun.
+8 Mo n'en affichent simplement aucun. Vient ensuite le brassage — combien de
+lignes cette modification a ajoutées et supprimées dans ce fichier, `+12 −3`,
+par rapport à HEAD dans l'arbre de travail et par rapport au parent pour un
+commit ou une plage. Un instantané est un arbre plutôt qu'une modification, donc
+il n'a pas de brassage ; pas plus que les fichiers binaires ou un commit de
+fusion, dont le diff combiné n'attribue rien.
 
 - **Clic** — afficher le diff du fichier à droite.
 - **Double-clic** — ouvrir le fichier entier comme document à côté du diff, avec
   numéros de ligne et coloration syntaxique (un document rendu pour markdown,
   l'image elle-même pour une image).
 - **Clic droit** — View File, Open in System App, Reveal in File Manager, Copy
-  Relative Path, Copy Absolute Path, Copy File Name.
+  Relative Path, Copy Absolute Path, Copy File Name, Blame File, File History.
 - **Clic sur un dossier** — le replier ou le déplier.
 
 Quand un commit ou une plage de commits est sélectionné, ce volet liste les
@@ -358,15 +404,29 @@ volet sur un damier, pour que la transparence se lise comme de la transparence ;
 l'ajuster. Ses dimensions en pixels et sa taille sur le disque sont en dessous.
 Les images de plus de 12 Mo ne sont pas intégrées.
 
+#### Blame et historique de fichier <a id="blame-and-file-history"></a>
+
+Faites un clic droit sur n'importe quel fichier de l'arbre et choisissez **Blame
+File** ou **File History** ; les deux s'ouvrent comme documents à côté du diff.
+Blame montre une ligne par ligne source — le commit, son auteur et la ligne
+elle-même, avec un tiret cadratin quand une ligne n'est pas encore validée — à la
+révision que vous consultez. File History liste chaque commit qui a touché le
+fichier, suit les renommages, et cliquer un commit l'ouvre.
+
 ### Commits (en bas à gauche) <a id="commits-bottom-left"></a>
 
 Le journal de la branche courante, chargé par 300 et étendu au défilement. La
 première ligne est **Working Tree** — les modifications non validées, avec un
 compte de fichiers modifiés ; la sélectionner ramène les volets du haut à l'arbre
-de travail.
+de travail. Un champ de filtre au-dessus du journal réduit la liste aux commits
+dont le message ou l'auteur contient le texte saisi — avec un délai, et un ✕ pour
+effacer — et la liste se pagine de la même façon.
 
 - **Clic** ou <kbd>Entrée</kbd> — montrer ce commit : ses fichiers remplissent le
-  volet en haut à gauche et son diff complet celui en haut à droite.
+  volet en haut à gauche et son diff complet celui en haut à droite. Le sujet,
+  l'auteur, la date et le corps complet du commit apparaissent dans un bandeau
+  au-dessus de la liste des fichiers ; quand le corps est long, un bouton ▸ le
+  replie pour que la liste des fichiers garde la place.
 - **Ctrl+clic** (<kbd>Cmd</kbd> sur macOS), <kbd>Maj+clic</kbd> ou
   <kbd>Espace</kbd> — choisir un second commit et comparer les deux, le plus
   ancien d'abord.
@@ -382,6 +442,21 @@ de travail.
   à un clic. Les URL fonctionnent tant que le dépôt est ouvert.
 - Sélectionner un fichier dans le volet en haut à gauche restreint le diff à ce
   fichier ; **Show Whole Diff** le rélargit.
+
+#### Gource <a id="gource"></a>
+
+Si [gource](https://gource.io/) est dans le `PATH`, le volet des commits gagne un
+bouton **Gource** à côté de **Open in Browser** : il joue l'historique du dépôt
+comme une animation — l'arborescence qui pousse, les fichiers qui s'allument à
+chaque commit, un auteur qui vole de l'un à l'autre par nom dans le journal.
+Gource ouvre sa propre fenêtre et continue de tourner après que vous fermez
+Gitty ; le bouton attend juste assez longtemps pour voir qu'il a démarré, et
+montre ce que gource a dit s'il ne l'a pas fait.
+
+Il est lancé avec un jour d'historique par demi-seconde, les fichiers inactifs
+gardés à l'écran et les longs intervalles sautés, ce qui rend un vrai dépôt
+lisible plutôt qu'un lent filet. Rien n'est installé pour vous : là où gource
+n'est pas dans le `PATH`, le bouton n'est tout simplement pas là.
 
 #### Parcourir une autre branche <a id="browsing-another-branch"></a>
 
@@ -437,6 +512,7 @@ remet tout en place.
 | | |
 | --- | --- |
 | **Theme** | Dark ou Light. |
+| **Language** | English, 简体中文, 日本語, 한국어, Français, Deutsch, Español, Русский ou Português — l'interface, les menus et les boîtes de dialogue changent tous ensemble sans redémarrer. |
 | **Font size** | 11 – 16, par demi-points. S'applique à tous les volets, terminal compris. |
 | **Row height** | 18 – 26 pixels — la hauteur de ligne sur laquelle chaque liste est bâtie : l'arbre des fichiers, le journal et le diff. Plus serré fait tenir davantage à l'écran, plus aéré se lit mieux. |
 | **Diff layout** | Inline ou Side-by-Side, la même bascule que porte l'en-tête du diff. |
@@ -456,10 +532,12 @@ que celles de l'en-tête du diff : en changer une d'un côté la change des deux
 | <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Marquer un second commit et comparer la paire |
 | <kbd>Ctrl+Click</kbd> sur un titre de fichier | Ouvrir ce fichier dans un nouvel onglet de document |
 | <kbd>Esc</kbd> | Retour à l'arbre de travail |
+| <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Reculer et avancer parmi les endroits consultés |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Rafraîchir l'état et le journal |
 | <kbd>Ctrl+O</kbd> | Ouvrir un autre dépôt dans un nouvel onglet |
 | <kbd>Ctrl+,</kbd> | Réglages |
 | <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> | Masquer ou afficher Files, Diff, Commits, Terminal |
+| <kbd>Ctrl+Shift+0</kbd> | Réafficher les quatre volets |
 | <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> | Remplir la fenêtre avec ce volet |
 
 ## Architecture <a id="architecture"></a>
@@ -500,6 +578,30 @@ L'application tourne aussi avec le bac à sable SUID de Chromium désactivé
 `chrome-sandbox` à root en mode 4755 — ne survit pas dans `node_modules`, donc le
 désactiver est le choix pragmatique pour un outil local qui ne lit que vos
 propres dépôts.
+
+### Bundle applicatif macOS <a id="macos-app-bundle"></a>
+
+`Gitty.app` est une enveloppe, pas un paquet : `Contents/MacOS/Gitty` est un
+script de deux lignes qui exécute `run.sh --fg --any`. `--fg` compte — un exec
+jusqu'au bout signifie que la tuile du Dock reste sur le bundle au lieu d'être
+orpheline d'un processus qui lui survit — et `--any` permet à un lancement depuis
+le Finder, qui n'a pas de répertoire de travail à proprement parler, de se
+rabattre sur les dépôts ouverts le plus récemment.
+
+Le nom est juste aux trois endroits où il apparaît, et un seul d'entre eux
+provient du bundle. Le Finder et le Dock lisent `CFBundleName` et
+`CFBundleIconFile` dans `Info.plist` ; la barre de menu est `app.name`, que
+`app.setName('Gitty')` définit avant toute fenêtre et que `{ role: 'appMenu' }`
+utilise comme étiquette. Contrairement au problème de classe de fenêtre Linux
+ci-dessus, rien ici n'est un compromis — c'est pourquoi l'empaquetage
+(electron-builder) n'apporterait rien d'autre que la signature.
+
+Un bundle lancé depuis le Finder hérite du `PATH` minimal de launchd, sans nvm ni
+Homebrew, et `run.sh` a besoin de `node` et `npm` pour reconstruire quand le
+bundle est périmé. `setup.sh` les résout au moment de l'installation et les
+préfixe — un préfixe, pour qu'un lancement depuis le terminal ne soit pas
+affecté. Changer de version de Node plus tard laisse ce chemin périmé ; relancez
+`setup.sh` pour le remettre à jour.
 
 ## Licence <a id="licence"></a>
 
