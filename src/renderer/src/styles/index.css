@@ -455,17 +455,24 @@ button:disabled:hover {
   background: var(--bg-select);
 }
 
+/* Everything beside the name is fixed width and must not absorb the overflow:
+   a flex item shrinks by default, so without this the indent and the status
+   codes collapse before the name ellipsises, and the row still runs past the
+   pane — pushing the line count and the churn out of sight. */
 .tree-indent {
   display: inline-block;
+  flex: none;
 }
 
 .twisty {
   width: 10px;
+  flex: none;
   color: var(--fg-dim);
 }
 
 .status-code {
   width: 16px;
+  flex: none;
   text-align: center;
   font-weight: 600;
 }
@@ -504,6 +511,8 @@ button:disabled:hover {
 }
 
 .file-name {
+  flex: 0 1 auto;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }

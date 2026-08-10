@@ -45,6 +45,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A long file name pushed its line count and churn out of the file tree. The
+  name is a flex item beside fixed-width ones, and those were shrinking first:
+  the indent and the status codes collapsed while the name kept its full length,
+  so the row overran the pane and the numbers at its end went with it. Only the
+  name gives way now, ellipsised to whatever room the rest of the row leaves.
 - `setup.sh` wrote a `gitty.desktop` entry on macOS, where nothing would ever
   read it. The shortcut now follows `uname`.
 - `run.sh` now says so when Electron's binary was never downloaded, instead of
