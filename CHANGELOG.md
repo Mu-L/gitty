@@ -37,6 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Two user-visible strings bypassed the message tables: the loading fallback of
+  the lazily loaded chunks and the oversized-image notice when a committed
+  image is too large to preview. Both now read through the tables like the rest
+  of the UI, so they show the active language instead of English.
 - Rendered markdown, the code viewer and blame rebuilt their DOM on every state
   change —
   for markdown the whole document, for the other two every line, and for

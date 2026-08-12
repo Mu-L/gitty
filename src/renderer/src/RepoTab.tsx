@@ -1094,7 +1094,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   <Suspense
                     fallback={
                       <div className="pane-body">
-                        <div className="empty">Loading…</div>
+                        <div className="empty">{msg.common.loading}</div>
                       </div>
                     }
                   >

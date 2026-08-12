@@ -476,7 +476,7 @@ export async function readImageFile(
   } else {
     buf = await gitBytes(root, ['show', `${rev}:${filePath}`])
     if (buf.length > MAX_IMAGE_BYTES) {
-      return { dataUrl: null, notice: 'Image too large to preview.', bytes: buf.length }
+      return { dataUrl: null, notice: msg.git.imageTooLarge, bytes: buf.length }
     }
   }
 
