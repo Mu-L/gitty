@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Whole-file blame is syntax-highlighted like the code viewer, so the lines in
+  the blame pane carry the same token colours as the diff and the file.
+
 ## [0.1.5] - 2026-08-12
 
 ### Added

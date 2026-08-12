@@ -1378,70 +1378,108 @@ button:disabled:hover {
   overflow-wrap: anywhere;
 }
 
-/* The token colours are shared with the markdown preview. */
+/* The token colours are shared with the markdown preview and blame. */
 .code .hljs-comment,
-.code .hljs-quote {
+.blame .hljs-comment,
+.code .hljs-quote,
+.blame .hljs-quote {
   color: var(--fg-faint);
   font-style: italic;
 }
 
 .code .hljs-keyword,
+.blame .hljs-keyword,
 .code .hljs-selector-tag,
+.blame .hljs-selector-tag,
 .code .hljs-literal,
+.blame .hljs-literal,
 .code .hljs-doctag,
-.code .hljs-formula {
+.blame .hljs-doctag,
+.code .hljs-formula,
+.blame .hljs-formula {
   color: var(--magenta);
 }
 
 .code .hljs-string,
+.blame .hljs-string,
 .code .hljs-regexp,
+.blame .hljs-regexp,
 .code .hljs-addition,
-.code .hljs-meta-string {
+.blame .hljs-addition,
+.code .hljs-meta-string,
+.blame .hljs-meta-string {
   color: var(--green);
 }
 
 .code .hljs-number,
+.blame .hljs-number,
 .code .hljs-symbol,
+.blame .hljs-symbol,
 .code .hljs-bullet,
+.blame .hljs-bullet,
 .code .hljs-link,
+.blame .hljs-link,
 .code .hljs-selector-attr,
+.blame .hljs-selector-attr,
 .code .hljs-selector-pseudo,
-.code .hljs-template-variable {
+.blame .hljs-selector-pseudo,
+.code .hljs-template-variable,
+.blame .hljs-template-variable {
   color: var(--yellow);
 }
 
 .code .hljs-title,
+.blame .hljs-title,
 .code .hljs-title.function_,
+.blame .hljs-title.function_,
 .code .hljs-section,
-.code .hljs-name {
+.blame .hljs-section,
+.code .hljs-name,
+.blame .hljs-name {
   color: var(--blue);
 }
 
 .code .hljs-built_in,
+.blame .hljs-built_in,
 .code .hljs-class .hljs-title,
+.blame .hljs-class .hljs-title,
 .code .hljs-title.class_,
+.blame .hljs-title.class_,
 .code .hljs-type,
-.code .hljs-selector-id {
+.blame .hljs-type,
+.code .hljs-selector-id,
+.blame .hljs-selector-id {
   color: var(--cyan);
 }
 
 .code .hljs-attr,
+.blame .hljs-attr,
 .code .hljs-attribute,
+.blame .hljs-attribute,
 .code .hljs-variable,
+.blame .hljs-variable,
 .code .hljs-property,
+.blame .hljs-property,
 .code .hljs-params,
-.code .hljs-template-tag {
+.blame .hljs-params,
+.code .hljs-template-tag,
+.blame .hljs-template-tag {
   color: var(--hljs-attr);
 }
 
 .code .hljs-meta,
+.blame .hljs-meta,
 .code .hljs-meta .hljs-keyword,
+.blame .hljs-meta .hljs-keyword,
 .code .hljs-punctuation,
-.code .hljs-operator {
+.blame .hljs-punctuation,
+.code .hljs-operator,
+.blame .hljs-operator {
   color: var(--fg-dim);
 }
 
-.code .hljs-deletion {
+.code .hljs-deletion,
+.blame .hljs-deletion {
   color: var(--red);
 }
 

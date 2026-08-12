@@ -364,6 +364,8 @@ there leaves a dashed placeholder with its alt text. Images from the web are not
 fetched at all: reading a stranger's README should not announce you to whatever
 host it points at.
 
+![Markdown preview](ref/gitty-0.1.5-markdown.png)
+
 #### Images
 
 A `.png`, `.jpg`, `.gif`, `.webp`, `.bmp`, `.ico`, `.avif` or `.svg` opens as
@@ -373,12 +375,15 @@ checkerboard, so transparency reads as transparency; **click** it for actual
 size and scroll around, click again to fit. Its pixel dimensions and size on
 disk sit underneath. Images above 12 MB are not inlined.
 
+![Image preview](ref/gitty-0.1.5-image.png)
+
 #### Blame and file history
 
 Right-click any file in the tree and choose **Blame File** or **File History**;
 both open as documents beside the diff. Blame shows one row per source line —
-the commit, its author and the line itself, with an em dash where a line is not
-committed yet — at the revision you are viewing. File History lists every commit
+the commit, its author and the line itself, highlighted like the code viewer,
+with an em dash where a line is not committed yet — at the revision you are
+viewing. File History lists every commit
 that touched the file, follows renames, and clicking a commit opens it.
 
 ### Commits (bottom left)
@@ -407,6 +412,8 @@ text you type — debounced, with a ✕ to clear — and the list pages the same
   click away. The URLs work while the repository is open.
 - Selecting a file in the top-left pane narrows the diff to that file;
   **Show Whole Diff** widens it back out.
+
+![Diff against any two commits](ref/gitty-0.1.5-range.png)
 
 #### Gource
 

@@ -1,8 +1,9 @@
-import { useEffect, useState, type JSX } from 'react'
+import { useEffect, useMemo, useState, type JSX } from 'react'
 import type { BlameLine } from '../../../shared/types'
 import { UNCOMMITTED_SHA } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
+import { highlightLines, languageFor } from '../highlight'
 
 /** Hash a string to a stable integer for hue assignment. */
 function hashStr(s: string): number {
@@ -35,6 +36,14 @@ export function BlamePane({
   const { msg } = useMsg()
   const [lines, setLines] = useState<BlameLine[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const language = useMemo(() => languageFor(path), [path])
+  // The whole file is one highlight pass, because a comment or template
+  // literal can span lines; the lines are split apart only after hljs has
+  // seen all of them together. Each blame row shows its own line's fragment.
+  const highlighted = useMemo(
+    () => (lines ? highlightLines(lines.map((l) => l.line).join('\n'), language) : null),
+    [lines, language]
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -86,7 +95,10 @@ export function BlamePane({
               <span className="blame-num">{i + 1}</span>
               <span className="blame-sha">{l.sha === UNCOMMITTED_SHA ? '—' : l.sha.slice(0, 8)}</span>
               <span className="blame-author">{l.author}</span>
-              <span className="blame-text">{l.line}</span>
+              <span
+                className="blame-text"
+                dangerouslySetInnerHTML={{ __html: highlighted ? highlighted[i] || ' ' : l.line }}
+              />
             </div>
           )
         })
