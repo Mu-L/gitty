@@ -1714,6 +1714,26 @@ button:disabled:hover {
   border-top: 1px solid var(--border);
 }
 
+/* Opens another repository, beside the button that lists the recent ones —
+   the two are the same subject, so they sit together rather than at opposite
+   ends of the bar. Coloured rather than plain: it is the one control a window
+   with a single repository still needs to find. */
+.repo-add {
+  flex: none;
+  padding: 0 7px;
+  font-size: 15px;
+  line-height: 1.1;
+  font-weight: 600;
+  color: var(--blue);
+  border-color: var(--border-active);
+}
+
+.repo-add:hover {
+  color: var(--bg);
+  background: var(--border-active);
+  border-color: var(--border-active);
+}
+
 /* Repository name in the title bar, doubling as the recent-repository menu. */
 .repo-button {
   display: flex;

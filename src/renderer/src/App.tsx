@@ -601,6 +601,13 @@ export default function App(): JSX.Element {
           <span className="repo">{active ? active.split('/').pop() : msg.app.noRepo}</span>
           <span className="caret">▾</span>
         </button>
+        <button
+          className="repo-add"
+          title={msg.app.openRepository}
+          onClick={() => pickAndOpen()}
+        >
+          +
+        </button>
         {activeStatus && (
           <>
             <button
@@ -642,7 +649,6 @@ export default function App(): JSX.Element {
         >
           {msg.app.settings}
         </button>
-        <button onClick={() => pickAndOpen()}>{msg.app.openRepository}</button>
         <button onClick={refreshActive}>{msg.app.refresh}</button>
       </div>
 

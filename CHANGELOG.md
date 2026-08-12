@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Open Repository** has left the right-hand end of the title bar for a **+**
+  beside the repository button. The two are the same subject — which repository
+  is on screen, and opening another — and the button they now sit next to is
+  the recent-repositories menu, where opening one is what you came for. It is
+  drawn in the accent colour rather than as another grey button: with a single
+  repository open it is the one control the window still needs to offer.
+
 ### Added
 
 - <kbd>Ctrl+Shift+C</kbd> copies as well as <kbd>Ctrl+C</kbd>, everywhere in

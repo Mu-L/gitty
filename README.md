@@ -140,6 +140,10 @@ Left to right, it describes the active repository and then acts on it:
   [Going back](#going-back).
 - **The repository path** is a button: it opens the
   [recent repositories](#recent-repositories) menu.
+- **+** beside it — a directory picker, opening the repository you choose into a
+  new tab (<kbd>Ctrl+O</kbd>). It sits with the repository button because the
+  two are the same subject: which repository you are looking at, and opening
+  another.
 - **⎇ branch** is a button too — the branch git has checked out, and a menu of
   every other branch to read. See
   [browsing another branch](#browsing-another-branch).
@@ -151,8 +155,6 @@ Left to right, it describes the active repository and then acts on it:
   [Full screen and hiding](#full-screen-and-hiding).
 - **Settings** — the preferences dialog ([Settings](#settings)),
   also <kbd>Ctrl+,</kbd>.
-- **Open Repository** — a directory picker, opening into a new tab
-  (<kbd>Ctrl+O</kbd>).
 - **Refresh** — re-read status and log by hand (<kbd>F5</kbd> /
   <kbd>Ctrl+R</kbd>). Gitty watches the repository and refreshes on its own;
   this is for the times watching cannot see a change.
