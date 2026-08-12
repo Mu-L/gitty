@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type JSX } from 'react'
 import { useMsg } from '../locale'
 import type { MenuState } from './ContextMenu'
 import { useFind } from './useFind'
+import { isCopyChord } from '../copy'
 
 /**
  * The highlight styles have to live inside the frame, which cannot see the
@@ -62,6 +63,16 @@ export function HtmlPane({
         if (!doc) return
         frameBody.current = doc.body
         injectFindStyles(doc)
+        // Keys pressed inside the frame never reach the host, so the second
+        // copy chord is answered here too. The listener goes with the document
+        // it is added to, which a reload replaces wholesale.
+        doc.addEventListener('keydown', (e) => {
+          if (!isCopyChord(e)) return
+          const sel = doc.getSelection()?.toString() ?? ''
+          if (!sel) return
+          e.preventDefault()
+          void window.gitty.clipboard.write(sel)
+        })
         setLoaded((n) => n + 1)
         if (wrap) setHeight(doc.documentElement.scrollHeight)
       } catch {

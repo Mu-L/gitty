@@ -459,7 +459,10 @@ hand in the terminal pane, which is right there.
 ### Terminal (bottom right)
 
 A real interactive login shell (`$SHELL`) rooted at the repository, so any git
-command can be run directly. The other panes refresh automatically when the
+command can be run directly. <kbd>Ctrl+Shift+C</kbd> copies the terminal's
+selection — <kbd>Ctrl+C</kbd> there is the interrupt, and stays the interrupt.
+The same chord copies in every other pane too, so it does not change meaning as
+the focus moves. The other panes refresh automatically when the
 repository changes on disk. Which shell it starts, and whether it starts as a
 login shell, are [Settings](#settings); both are read when a terminal is
 created, so a change takes effect on the next split.
@@ -529,6 +532,7 @@ highlight** lives here only.
 | <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Mark a second commit and diff the pair |
 | <kbd>Ctrl+Click</kbd> on a file heading | Open that file in a new document tab |
 | <kbd>Ctrl+F</kbd> | Find in the diff, the file, or whatever the pane is showing |
+| <kbd>Ctrl+C</kbd> / <kbd>Ctrl+Shift+C</kbd> | Copy the selection, anywhere in the window |
 | <kbd>Esc</kbd> | Back to the working tree |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Back and forward through the places viewed |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |

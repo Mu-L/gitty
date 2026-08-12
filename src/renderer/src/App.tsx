@@ -34,6 +34,7 @@ import type { Branch, DiffOptions, RepoStatus, TerminalOptions } from '../../sha
 import { DEFAULT_DIFF_OPTIONS } from '../../shared/types'
 import { LocaleProvider, loadLocale, type Locale } from './locale'
 import { TimeProvider, loadTimeZone, SYSTEM_TZ, type TimeZone } from './time'
+import { copySelection, isCopyChord } from './copy'
 import { ALL_LOCALES } from './locale'
 import { getMessages } from './messages'
 
@@ -242,6 +243,19 @@ export default function App(): JSX.Element {
   useEffect(() => {
     if (roots.length > 0) localStorage.setItem('gitty.roots', JSON.stringify(roots))
   }, [roots])
+
+  // Ctrl+Shift+C copies as well, so the key does not change meaning when the
+  // focus moves into a terminal — where Ctrl+C is the interrupt. App-wide
+  // rather than per tab: the panes it covers belong to several of them.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      if (!isCopyChord(e)) return
+      // Nothing selected: leave the key alone rather than swallowing it.
+      if (copySelection()) e.preventDefault()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   useEffect(() => void window.gitty.appIcon().then(setAppIcon), [])
 

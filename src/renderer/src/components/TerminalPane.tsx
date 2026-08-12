@@ -6,6 +6,7 @@ import { focusSession, sessions, type Session } from '../terminals'
 import { getMessages } from '../messages'
 import { loadLocale, useMsg } from '../locale'
 import type { TerminalOptions } from '../../../shared/types'
+import { isCopyChord } from '../copy'
 
 export type Theme = 'dark' | 'light'
 
@@ -77,6 +78,10 @@ function ensureSession(
   term.loadAddon(fit)
   term.loadAddon(new WebLinksAddon())
   term.open(host)
+  // Ctrl+Shift+C is a copy, not something the shell should see: xterm would
+  // otherwise send it on as the interrupt. Returning false leaves the event to
+  // bubble, which is where the app's copy handler picks it up.
+  term.attachCustomKeyEventHandler((e) => !(e.type === 'keydown' && isCopyChord(e)))
   term.onData((data) => window.gitty.terminal.input(id, data))
 
   const s: Session = { host, term, fit }

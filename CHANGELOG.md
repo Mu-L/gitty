@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- <kbd>Ctrl+Shift+C</kbd> copies as well as <kbd>Ctrl+C</kbd>, everywhere in
+  the window. It is the chord a terminal has always meant by copy, because
+  <kbd>Ctrl+C</kbd> there is the interrupt — and it now means copy in the diff,
+  a file and a rendered document too, so it does not change meaning as the
+  focus moves. In a terminal it takes xterm's own selection (which the document
+  cannot see) and is no longer passed to the shell as an interrupt; in an HTML
+  preview it takes the selection inside the frame. With nothing selected the
+  key is left alone rather than swallowed.
+
 - <kbd>Ctrl+F</kbd> finds text in whatever the right-hand pane is showing: a
   diff, a file, a rendered markdown document, an HTML preview, a blame or a
   file's history. Every match is highlighted with the current one picked out,

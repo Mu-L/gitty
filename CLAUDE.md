@@ -487,7 +487,14 @@ work tree pane (and the title bar's count) listing changes already committed.
   `app.name`, which `app.setName('Gitty')` has set before any window exists.
 - **An application menu must exist.** Without one Chromium binds no edit
   accelerators at all and Ctrl+C on selected diff text silently does nothing.
-  The menu bar itself is hidden (`autoHideMenuBar`).
+  The menu bar itself is hidden (`autoHideMenuBar`). That menu is also why **Ctrl+C is
+  not handled in the renderer at all** — Chromium's own binding does it. The
+  second copy chord, Ctrl+Shift+C, is ours (`copy.ts`, wired in `App.tsx`),
+  because three different things hold a selection: the document, xterm (which
+  draws its own text, so the document's selection knows nothing about it) and
+  the HTML preview's iframe (whose keys never reach the host at all, hence a
+  listener of its own). `TerminalPane` also has to tell xterm not to pass the
+  chord to the shell, which would otherwise arrive as an interrupt.
 - **Linux runs with `ELECTRON_DISABLE_SANDBOX=1`** (set by `run.sh`);
   `chrome-sandbox` cannot keep a root-owned setuid bit inside `node_modules`.
 - The repository to open is resolved as `$GITTY_REPO`, else the first argv entry
