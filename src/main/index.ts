@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, shell } from 'electron'
+import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, nativeImage, shell } from 'electron'
 import * as git from './git'
 import * as gource from './gource'
 import { createTerminal, type TerminalSession } from './pty'
@@ -172,18 +172,42 @@ function registerIpc(): void {
 
   // The About dialog: version plus the runtimes the app is built on. A native
   // dialog like the delete confirmations, so it reads the same everywhere.
+  // Unpackaged, getAppPath points at out/main, where no package.json lives —
+  // app.getVersion() would report Electron's own version — so the version and
+  // icon come from the repo root beside the bundle instead.
   ipcMain.handle('app:about', async () => {
+    const root = path.resolve(__dirname, '..', '..')
+    let version = app.getVersion()
+    let author = ''
+    try {
+      const pkg = JSON.parse(
+        fs.readFileSync(path.join(root, 'package.json'), 'utf8')
+      ) as { version?: string; author?: string }
+      if (pkg.version) version = pkg.version
+      author = pkg.author ?? ''
+    } catch {
+      // Packaged: no manifest beside the bundle; app.getVersion() is right.
+    }
+    const iconPath = path.join(root, 'build', 'icon.png')
+    const icon = fs.existsSync(iconPath) ? nativeImage.createFromPath(iconPath) : undefined
     const versions = [
-      msg.dialog.aboutVersion(app.getVersion()),
+      msg.dialog.aboutVersion(version),
       msg.dialog.aboutElectron(process.versions.electron ?? ''),
       msg.dialog.aboutChromium(process.versions.chrome ?? ''),
-      msg.dialog.aboutNode(process.versions.node ?? '')
-    ].join('\n')
+      msg.dialog.aboutNode(process.versions.node ?? ''),
+      '',
+      author ? msg.dialog.aboutAuthor(author) : '',
+      // The project's home page; a URL is not a translated string.
+      'https://github.com/baojie/gitty'
+    ]
+      .filter(Boolean)
+      .join('\n')
     await dialog.showMessageBox(win!, {
       type: 'info',
       title: msg.dialog.aboutTitle,
       message: msg.window.title,
       detail: versions,
+      icon,
       buttons: [msg.dialog.okButton],
       defaultId: 0
     })

@@ -34,6 +34,7 @@ export interface MainMessages {
     /** The About dialog, opened from the title bar's brand. */
     readonly aboutTitle: string
     readonly aboutVersion: (v: string) => string
+    readonly aboutAuthor: (name: string) => string
     readonly aboutElectron: (v: string) => string
     readonly aboutChromium: (v: string) => string
     readonly aboutNode: (v: string) => string
