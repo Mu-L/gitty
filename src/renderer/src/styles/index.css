@@ -1032,10 +1032,21 @@ button:disabled:hover {
   line-height: 1.4;
 }
 
+/* Wraps a scrolling viewer so the strip can float over it. Inside the scroller
+   the strip would scroll away with the content. */
+.find-host {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 /* The strip floats, so the top of the document would sit under it — and a
    match up there cannot be scrolled clear, the document being already at its
    top. While the strip is open the body keeps that band free. */
-.md-body.finding {
+.md-body.finding,
+.pane-body.finding {
   padding-top: 46px;
 }
 
@@ -1891,8 +1902,9 @@ button:disabled:hover {
 
 /* ---------- blame ---------- */
 
-/* One source line per row: number, short sha (— when uncommitted), author,
-   then the line itself, which wraps. */
+/* One source line per row: number, author, date, then the line itself, which
+   wraps. The commit's short sha is not on the row — it is in the tooltip and
+   a right-click copies it. */
 .blame {
   user-select: text;
 }
@@ -1915,27 +1927,21 @@ button:disabled:hover {
   color: var(--fg-faint);
 }
 
-.blame-sha {
-  flex: none;
-  width: 6.5em;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  /* Hue is set per-row from the commit SHA; saturation and lightness adapt to
-     the theme so the text stays legible on both dark and light backgrounds. */
-  color: hsl(var(--blame-hue, 0), 55%, 58%);
-}
-
-[data-theme='light'] .blame-sha {
-  color: hsl(var(--blame-hue, 0), 65%, 38%);
-}
-
+/* The stable per-commit hue was on the short sha; it lives on the two columns
+   that stay, so its job — telling adjacent commits apart — is kept. Saturation
+   and lightness adapt to the theme so the text stays legible on both dark and
+   light backgrounds. */
 .blame-author {
   flex: none;
   max-width: 18em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--fg-dim);
+  color: hsl(var(--blame-hue, 0), 55%, 58%);
+}
+
+[data-theme='light'] .blame-author {
+  color: hsl(var(--blame-hue, 0), 65%, 38%);
 }
 
 .blame-date {
@@ -1944,6 +1950,17 @@ button:disabled:hover {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: hsl(var(--blame-hue, 0), 55%, 58%);
+}
+
+[data-theme='light'] .blame-date {
+  color: hsl(var(--blame-hue, 0), 65%, 38%);
+}
+
+/* A line that is not committed yet has no SHA to colour from; its author and
+   date drop to the dim foreground instead of the hue fallback. */
+.blame-row.uncommitted .blame-author,
+.blame-row.uncommitted .blame-date {
   color: var(--fg-dim);
 }
 

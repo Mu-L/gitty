@@ -1,8 +1,9 @@
-import { useEffect, useState, type JSX } from 'react'
+import { useEffect, useRef, useState, type JSX } from 'react'
 import type { Commit } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
 import { fmtDateTimeZone, stamp, useTime } from '../time'
+import { useFind } from './useFind'
 
 /**
  * Every commit that touched this file, newest first. Clicking a row opens that
@@ -13,17 +14,21 @@ export function FileHistoryPane({
   root,
   path,
   rev,
+  active,
   onOpenCommit,
   onMenu
 }: {
   root: string
   path: string
   rev: string | null
+  /** On screen in the active tab, so Ctrl+F belongs to this view. */
+  active: boolean
   onOpenCommit: (c: Commit) => void
   onMenu: (state: MenuState) => void
 }): JSX.Element {
   const { msg, locale } = useMsg()
   const time = useTime()
+  const hostRef = useRef<HTMLDivElement>(null)
   const [commits, setCommits] = useState<Commit[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -46,6 +51,14 @@ export function FileHistoryPane({
     }
   }, [root, rev, path])
 
+  // The whole history is rendered at once, so a search sees every row.
+  const find = useFind({
+    hostRef,
+    active,
+    contentKey: commits?.length ?? 0,
+    resetKey: `${rev ?? ''}:${path}`
+  })
+
   if (commits === null) {
     return (
       <div className="pane-body">
@@ -55,13 +68,16 @@ export function FileHistoryPane({
   }
 
   return (
-    <div
-      className="pane-body"
-      onContextMenu={(e) => {
-        e.preventDefault()
-        onMenu({ x: e.clientX, y: e.clientY, items: [] })
-      }}
-    >
+    <div className="find-host">
+      {find.bar}
+      <div
+        className={`pane-body${find.open ? ' finding' : ''}`}
+        ref={hostRef}
+        onContextMenu={(e) => {
+          e.preventDefault()
+          onMenu({ x: e.clientX, y: e.clientY, items: [] })
+        }}
+      >
       {commits.length === 0 ? (
         <div className="empty">{msg.diff.emptyHistory}</div>
       ) : (
@@ -79,6 +95,7 @@ export function FileHistoryPane({
           </div>
         ))
       )}
+      </div>
     </div>
   )
 }

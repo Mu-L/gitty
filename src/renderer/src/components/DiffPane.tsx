@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -9,6 +10,7 @@ import {
 } from 'react'
 import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
+import { useFind } from './useFind'
 import type { RendererMessages } from '../../../shared/messages'
 
 /** Rows rendered before the first scroll, and added each time the end nears. */
@@ -336,6 +338,8 @@ export const DiffPane = forwardRef<
     wrap: boolean
     view: DiffView
     wordDiff: boolean
+    /** On screen in the active tab, so Ctrl+F belongs to this view. */
+    active: boolean
     onMenu: (state: MenuState) => void
     /** Ctrl+click or right-click on a file heading, with its path. */
     onOpenFile?: (path: string) => void
@@ -344,7 +348,19 @@ export const DiffPane = forwardRef<
     onCollapseState?: (state: CollapseState) => void
   }
 >(function DiffPane(
-  { patch, notice, placeholder, wrap, view, wordDiff, onMenu, onOpenFile, onFileMenu, onCollapseState },
+  {
+    patch,
+    notice,
+    placeholder,
+    wrap,
+    view,
+    wordDiff,
+    active,
+    onMenu,
+    onOpenFile,
+    onFileMenu,
+    onCollapseState
+  },
   ref
 ): JSX.Element {
   const { msg } = useMsg()
@@ -414,6 +430,18 @@ export const DiffPane = forwardRef<
     return () => el.removeEventListener('scroll', onScroll)
   }, [total])
 
+  // A search covers the whole diff, not the part scrolled to so far, so the
+  // chunks still to come are rendered as the strip opens. A collapsed file
+  // stays collapsed: it is not on screen, and nothing hidden is searched.
+  const revealAll = useCallback(() => setShown(total), [total])
+  const find = useFind({
+    hostRef,
+    active,
+    contentKey: `${shown}:${view}:${collapsed.size}`,
+    resetKey: patch,
+    onOpen: revealAll
+  })
+
   if (total === 0) {
     return (
       <div className="pane-body">
@@ -427,17 +455,22 @@ export const DiffPane = forwardRef<
   // the top of the pane until the next heading pushes it away. Single-file
   // diffs don't need it — nothing would ever push the heading off.
   const multi = fileNames.length > 1
-  const cls = `pane-body diff${wrap ? ' wrap' : ''} ${view}${multi ? ' multi' : ''}`
+
+  const cls = `pane-body diff${wrap ? ' wrap' : ''} ${view}${multi ? ' multi' : ''}${
+    find.open ? ' finding' : ''
+  }`
 
   return (
-    <div
-      className={cls}
-      ref={hostRef}
-      onContextMenu={(e) => {
-        e.preventDefault()
-        onMenu({ x: e.clientX, y: e.clientY, items: [] })
-      }}
-    >
+    <div className="find-host">
+      {find.bar}
+      <div
+        className={cls}
+        ref={hostRef}
+        onContextMenu={(e) => {
+          e.preventDefault()
+          onMenu({ x: e.clientX, y: e.clientY, items: [] })
+        }}
+      >
       {notice && <div className="notice">{notice}</div>}
 
       {view === 'inline' ? (
@@ -521,6 +554,7 @@ export const DiffPane = forwardRef<
           {msg.diff.loadMoreLines(total - shown)}
         </div>
       )}
+      </div>
     </div>
   )
 })

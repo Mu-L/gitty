@@ -10,6 +10,15 @@
  * without the two fighting over the DOM.
  */
 
+/**
+ * `CSS` and `Highlight` are on the global object but not on the `Window` type,
+ * so a frame's copies have to be named for the compiler.
+ */
+type FrameGlobals = Window & {
+  CSS?: { highlights?: HighlightRegistry }
+  Highlight?: typeof Highlight
+}
+
 /** Every match, and the one the reader is on — painted differently. */
 const ALL = 'gitty-find'
 const CURRENT = 'gitty-find-current'
@@ -26,11 +35,14 @@ const SKIP = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT'])
 export function findRanges(root: HTMLElement, query: string): Range[] {
   const needle = query.toLowerCase()
   if (!needle) return []
+  // The root may live in another document — the HTML preview is an iframe —
+  // and a Range must be made by the document its nodes belong to.
+  const doc = root.ownerDocument
 
   const nodes: Text[] = []
   const starts: number[] = []
   let text = ''
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+  const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
     acceptNode: (n) =>
       SKIP.has((n.parentElement?.tagName ?? '')) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
   })
@@ -45,7 +57,7 @@ export function findRanges(root: HTMLElement, query: string): Range[] {
   const hay = text.toLowerCase()
   const ranges: Range[] = []
   for (let at = hay.indexOf(needle); at !== -1; at = hay.indexOf(needle, at + needle.length)) {
-    const r = document.createRange()
+    const r = doc.createRange()
     const [sNode, sOffset] = locate(nodes, starts, at)
     const [eNode, eOffset] = locate(nodes, starts, at + needle.length)
     if (!sNode || !eNode) continue
@@ -77,22 +89,46 @@ function locate(nodes: Text[], starts: number[], at: number): [Text | null, numb
   return [nodes[found], offset]
 }
 
-/** Paint the matches; `current` is the one the reader is on. */
-export function paintFind(all: Range[], current: Range | null): void {
-  const reg = CSS.highlights
+/**
+ * Which view's search is on screen. The highlight registry is one per document
+ * while the app has a search per view, and hidden tabs stay mounted — so a
+ * view only ever clears paint it put there itself, and the last one to paint
+ * owns the registry.
+ */
+let owner: object | null = null
+
+/**
+ * Paint the matches; `current` is the one the reader is on. The registry
+ * belongs to a document, so a search inside the HTML preview's iframe paints
+ * through that frame's own `CSS` object.
+ */
+export function paintFind(
+  by: object,
+  all: Range[],
+  current: Range | null,
+  win: Window = window
+): void {
+  const g = win as FrameGlobals
+  const reg = g.CSS?.highlights
   if (!reg) return
+  owner = by
   // The current match is painted by its own highlight, so it must not also be
   // in the general one — the later registration would not always win.
   const rest = current ? all.filter((r) => r !== current) : all
-  reg.set(ALL, new Highlight(...rest))
-  if (current) reg.set(CURRENT, new Highlight(current))
+  const H = g.Highlight
+  if (!H) return
+  reg.set(ALL, new H(...rest))
+  if (current) reg.set(CURRENT, new H(current))
   else reg.delete(CURRENT)
 }
 
-/** Take the paint off, on close or unmount. */
-export function clearFind(): void {
-  CSS.highlights?.delete(ALL)
-  CSS.highlights?.delete(CURRENT)
+/** Take the paint off, on close or unmount — but only one's own. */
+export function clearFind(by: object, win: Window = window): void {
+  if (owner !== by) return
+  owner = null
+  const reg = (win as FrameGlobals).CSS?.highlights
+  reg?.delete(ALL)
+  reg?.delete(CURRENT)
 }
 
 /**
@@ -107,11 +143,18 @@ const OVERLAY_INSET = 52
  * down rather than at the very edge — a match with no context above it reads
  * as if the document starts there.
  */
-export function scrollRangeIntoView(range: Range, scroller: HTMLElement): void {
+export function scrollRangeIntoView(range: Range, scroller: HTMLElement | null): void {
   const rect = range.getBoundingClientRect()
   // A collapsed rect means the range is inside a hidden or not-yet-laid-out
   // subtree; there is nothing to scroll to.
   if (rect.height === 0 && rect.width === 0) return
+  // No scroller of our own — the match is inside an iframe, where the browser
+  // knows better than we do which boxes have to move, including the host's.
+  if (!scroller) {
+    const el = range.startContainer.parentElement
+    el?.scrollIntoView({ block: 'center' })
+    return
+  }
   const box = scroller.getBoundingClientRect()
   if (rect.top >= box.top + OVERLAY_INSET && rect.bottom <= box.bottom - 8) return
   scroller.scrollTop += rect.top - box.top - scroller.clientHeight / 3

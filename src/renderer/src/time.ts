@@ -123,6 +123,23 @@ export function stamp(iso: string, t: TimeSettings, m: TimeMessages): string {
     : day
 }
 
+/**
+ * A compact date for a narrow column, like blame's: month and day, with the
+ * year only when it is not the current one, so a run of dates does not repeat
+ * a year that is the same on every row. The split is a calendar split in the
+ * displayed zone, like `stamp`'s "today". Relative stamps keep the ladder.
+ */
+export function fmtShortDate(iso: string, locale: string, t: TimeSettings, m: TimeMessages): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  if (t.relative) return relative(d, m)
+  const zone = zoneOf(t.zone)
+  const year = (x: Date): string => x.toLocaleDateString('en-CA', { timeZone: zone }).slice(0, 4)
+  const opts: Intl.DateTimeFormatOptions = { timeZone: zone, month: 'short', day: 'numeric' }
+  if (year(d) !== year(new Date())) opts.year = 'numeric'
+  return d.toLocaleDateString(locale, opts)
+}
+
 /** Date and time together, for the commit header. */
 export function fmtDateTime(
   iso: string,

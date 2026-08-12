@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from 'react'
 import MarkdownIt from 'markdown-it'
 import { hljs } from '../highlight'
 import { useMsg } from '../locale'
 import type { MenuState } from './ContextMenu'
-import { FindBar } from './FindBar'
-import { clearFind, findRanges, paintFind, scrollRangeIntoView } from '../find'
+import { useFind } from './useFind'
 
 /** `html: false` keeps raw HTML in the source inert — no sanitiser needed. */
 const md = new MarkdownIt({
@@ -283,68 +282,7 @@ export function MarkdownPane({
     return () => el.removeEventListener('scroll', onScroll)
   }, [headings])
 
-  /* ---------- find in document ---------- */
-
-  const [findOpen, setFindOpen] = useState(false)
-  const [query, setQuery] = useState('')
-  const [matches, setMatches] = useState<Range[]>([])
-  const [index, setIndex] = useState(0)
-
-  // Re-find whenever the query changes or the document is re-rendered
-  // underneath it: a work-tree file is re-read on every repository change, and
-  // the Ranges of the old DOM point at nodes that are gone.
-  useEffect(() => {
-    const el = bodyRef.current
-    if (!findOpen || !el) return
-    const found = query ? findRanges(el, query) : []
-    setMatches(found)
-    setIndex((i) => (found.length === 0 ? 0 : Math.min(i, found.length - 1)))
-  }, [findOpen, query, html])
-
-  // Paint what was found, and keep the current match on screen. Separate from
-  // the search so walking the matches does not re-run it.
-  useEffect(() => {
-    if (!findOpen) return
-    const current = matches[index] ?? null
-    paintFind(matches, current)
-    const el = bodyRef.current
-    if (current && el) scrollRangeIntoView(current, el)
-  }, [findOpen, matches, index])
-
-  // The paint outlives React's tree, so it has to be taken off by hand — on
-  // close, on unmount, and when another document takes this pane.
-  useEffect(() => clearFind, [])
-  useEffect(() => {
-    if (!findOpen) clearFind()
-  }, [findOpen])
-  useEffect(() => {
-    setFindOpen(false)
-    setQuery('')
-  }, [docKey])
-
-  const step = useCallback(
-    (delta: number) => {
-      setIndex((i) => (matches.length === 0 ? 0 : (i + delta + matches.length) % matches.length))
-    },
-    [matches.length]
-  )
-
-  // Ctrl+F belongs to the document on screen in the active tab; the others stay
-  // mounted and must not open a strip nobody can see.
-  useEffect(() => {
-    if (!active) return
-    const onKey = (e: KeyboardEvent): void => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-        e.preventDefault()
-        // Already open: re-focus and select, which is what the strip does when
-        // it mounts — so remount it rather than growing a second code path.
-        setFindOpen(false)
-        requestAnimationFrame(() => setFindOpen(true))
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [active])
+  const find = useFind({ hostRef: bodyRef, active, contentKey: html, resetKey: docKey })
 
   // The prop object, not just the string. React sets innerHTML whenever the
   // dangerouslySetInnerHTML prop is a different object — a fresh `{__html}`
@@ -365,20 +303,7 @@ export function MarkdownPane({
       e.preventDefault()
       onMenu({ x: e.clientX, y: e.clientY, items: [] })
     }}>
-      {findOpen && (
-        <FindBar
-          query={query}
-          onQuery={(v) => {
-            setQuery(v)
-            setIndex(0)
-          }}
-          count={matches.length}
-          index={matches.length === 0 ? -1 : index}
-          onNext={() => step(1)}
-          onPrev={() => step(-1)}
-          onClose={() => setFindOpen(false)}
-        />
-      )}
+      {find.bar}
       {outline && headings.length > 0 && (
         <nav className="md-outline">
           <div className="md-outline-title">{msg.diff.outline}</div>
@@ -395,7 +320,7 @@ export function MarkdownPane({
         </nav>
       )}
       <div
-        className={`md-body${wrap ? ' wrap' : ''}${findOpen ? ' finding' : ''}`}
+        className={`md-body${wrap ? ' wrap' : ''}${find.open ? ' finding' : ''}`}
         ref={bodyRef}
         onClick={(e) => {
           // Links must never navigate the window away from the app.

@@ -353,11 +353,8 @@ glance.
   strings wrap too, rather than scrolling sideways.
 - **Outline** — the heading structure beside the document, indented by level,
   tracking the heading you have scrolled to. Click an entry to jump.
-- **<kbd>Ctrl+F</kbd>** — find in the document. Every match is highlighted and
-  the current one picked out; <kbd>Enter</kbd> and <kbd>Shift+Enter</kbd> (or
-  the arrows) walk them, wrapping around at either end, and <kbd>Esc</kbd>
-  closes. The search is case-insensitive and reads the rendered text, so a
-  phrase is found across the bold and code spans markdown leaves inside it.
+- **<kbd>Ctrl+F</kbd>** — find in the document; see
+  [Finding text](#finding-text).
 - **Right-click** — Copy Selection, Copy Markdown Source, the wrap and outline
   toggles, and Show Diff Instead.
 
@@ -478,6 +475,21 @@ resize against each other.
 by itself. The last terminal always stays: exiting it leaves the notice on
 screen instead of an empty pane.
 
+## Finding text
+
+<kbd>Ctrl+F</kbd> searches whatever the right-hand pane is showing: a diff, a
+file, a rendered markdown document, an HTML preview, a blame, or a file's
+history. Every match is highlighted with the current one picked out,
+<kbd>Enter</kbd> and <kbd>Shift+Enter</kbd> (or the arrows) walk them and wrap
+around at either end, the count says where you are, and <kbd>Esc</kbd> closes.
+
+The search is case-insensitive and reads the text as rendered, not the markup
+behind it — so a phrase is found across the bold and code spans markdown leaves
+inside it, and a diff is searched as the lines you see. Views that render in
+chunks as you scroll (a long file, a large diff) render the rest when the strip
+opens, so the count covers the whole thing rather than the part scrolled to so
+far. A collapsed file in a multi-file diff stays collapsed and is not searched.
+
 ## Settings
 
 **Settings** in the title bar, or <kbd>Ctrl+,</kbd>. Everything here applies to
@@ -516,7 +528,7 @@ highlight** lives here only.
 | <kbd>Enter</kbd> | Show the selected commit |
 | <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Mark a second commit and diff the pair |
 | <kbd>Ctrl+Click</kbd> on a file heading | Open that file in a new document tab |
-| <kbd>Ctrl+F</kbd> | Find in the rendered markdown document |
+| <kbd>Ctrl+F</kbd> | Find in the diff, the file, or whatever the pane is showing |
 | <kbd>Esc</kbd> | Back to the working tree |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Back and forward through the places viewed |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |

@@ -1111,12 +1111,14 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       reloadKey={tick}
                       onSource={setDocSource}
                       onMenu={diffMenu}
+                      setMenu={setMenu}
                       onOpenCommit={showCommit}
                     />
                   </Suspense>
                 ) : (
                   <DiffPane
                     ref={diffRef}
+                    active={active}
                     onOpenFile={openFileDoc}
                     onFileMenu={diffFileMenu}
                     onCollapseState={setCollapseState}

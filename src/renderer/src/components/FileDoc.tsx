@@ -31,6 +31,7 @@ export function FileDoc({
   reloadKey,
   onSource,
   onMenu,
+  setMenu,
   onOpenCommit
 }: {
   root: string
@@ -49,6 +50,8 @@ export function FileDoc({
   /** Reports the loaded text, so the context menu can copy it. */
   onSource: (text: string | null) => void
   onMenu: (state: MenuState) => void
+  /** Sets the context menu directly; blame rows build their own items. */
+  setMenu: (state: MenuState) => void
   /** History rows hand the picked commit back here. */
   onOpenCommit?: (c: Commit) => void
 }): JSX.Element {
@@ -91,7 +94,7 @@ export function FileDoc({
   useEffect(() => onSource(image ? null : source), [image, source, onSource])
 
   if (kind === 'blame') {
-    return <BlamePane root={root} path={path} rev={rev} onMenu={onMenu} />
+    return <BlamePane root={root} path={path} rev={rev} active={active} setMenu={setMenu} />
   }
   if (kind === 'history') {
     return (
@@ -99,6 +102,7 @@ export function FileDoc({
         root={root}
         path={path}
         rev={rev}
+        active={active}
         onOpenCommit={onOpenCommit ?? (() => undefined)}
         onMenu={onMenu}
       />
@@ -135,8 +139,15 @@ export function FileDoc({
       onMenu={onMenu}
     />
   ) : preview && isHtmlPath(path) ? (
-    <HtmlPane source={source} docKey={docKey} wrap={wrap} onMenu={onMenu} />
+    <HtmlPane source={source} docKey={docKey} wrap={wrap} active={active} onMenu={onMenu} />
   ) : (
-    <CodePane source={source} docKey={docKey} path={path} wrap={wrap} onMenu={onMenu} />
+    <CodePane
+      source={source}
+      docKey={docKey}
+      path={path}
+      wrap={wrap}
+      active={active}
+      onMenu={onMenu}
+    />
   )
 }

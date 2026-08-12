@@ -373,14 +373,34 @@ discarding the patch.
 That subtree has two consequences worth knowing before touching it. **Memoise
 the prop object, not just the string**: React sets innerHTML whenever the
 `dangerouslySetInnerHTML` prop is a different object, so a fresh `{__html}`
-literal per render rebuilds the whole document on every state change — the
-scroll handler that tracks the outline was enough to do it continuously.
-And **anything anchored into the document must survive that rewrite anyway**,
-which is why Ctrl+F (`find.ts`) paints matches with the CSS Custom Highlight
-API rather than wrapping them in `<mark>`: a `Highlight` holds Ranges and
-touches no nodes, so a re-render cannot discard it. When the document really
-does change, the Ranges collapse to the container and the search re-runs — the
-find effect lists `html` among its dependencies for exactly that. The CSP is `img-src 'self' data:`, so a `https://` image
+literal per render rebuilds the nodes on every state change — the scroll
+handler that tracks the outline was enough to do it continuously. The same
+applies per line in `CodePane` and `BlamePane`, which is why both build their
+`{__html}` objects in a `useMemo` beside the highlighted lines. And **anything
+anchored into the document must survive that rewrite anyway** — see below.
+
+### Finding text
+
+`find.ts` is the search itself — walking a subtree's text as one string,
+painting matches, scrolling to one — and `components/useFind.tsx` is the whole
+feature for one view: the strip, the state, and Ctrl+F while that view is the
+one on screen. Every viewer wires the same three things (the scroller, a
+`contentKey` that changes when the rendered nodes change, a `resetKey` for
+"another document took this pane"), so `DiffPane`, `CodePane`, `MarkdownPane`,
+`BlamePane`, `FileHistoryPane` and `HtmlPane` all find text identically.
+
+Four things it has to respect. Matches are painted with the **CSS Custom
+Highlight API**, not `<mark>`: a `Highlight` holds Ranges and touches no nodes,
+so React rewriting a subtree cannot discard it — wrapping elements would be
+gone by the next render. The registry is **one per document while the app has a
+search per view**, and hidden tabs stay mounted, so `paintFind` records an
+owner and `clearFind` only takes off paint the same view put there. Views that
+render in chunks (`shown`) must render **the rest** as the strip opens, or a
+search silently covers only what has been scrolled to. And the HTML preview is
+an **iframe**: its nodes belong to another document, so the Ranges are made by
+that document, the highlights go in that window's registry, and the scrolling
+is left to `scrollIntoView`, which knows about boxes on both sides of the
+frame boundary. The CSP is `img-src 'self' data:`, so a `https://` image
 in a document is not fetched — deliberately, since rendering someone else's
 README should not report to their host.
 
