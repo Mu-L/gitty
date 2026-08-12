@@ -8,6 +8,7 @@ import type {
   CommitDetail,
   CommitFile,
   CommitMeta,
+  DiffOptions,
   DiffRequest,
   DiffResult,
   FileChurn,
@@ -17,6 +18,7 @@ import type {
   RepoChanged,
   RepoStatus,
   SnapshotFileContent,
+  TerminalOptions,
   WebUrl
 } from '../shared/types'
 
@@ -82,8 +84,8 @@ const api = {
       ipcRenderer.invoke('git:fileHistory', root, rev, filePath),
     rangeFiles: (root: string, from: string, to: string): Promise<CommitFile[]> =>
       ipcRenderer.invoke('git:rangeFiles', root, from, to),
-    diff: (root: string, req: DiffRequest): Promise<DiffResult> =>
-      ipcRenderer.invoke('git:diff', root, req),
+    diff: (root: string, req: DiffRequest, opts: DiffOptions): Promise<DiffResult> =>
+      ipcRenderer.invoke('git:diff', root, req, opts),
     snapshotFiles: (root: string, hash: string): Promise<string[]> =>
       ipcRenderer.invoke('git:snapshotFiles', root, hash),
     snapshotFile: (root: string, hash: string, filePath: string): Promise<SnapshotFileContent> =>
@@ -100,8 +102,11 @@ const api = {
       pairs: Array<{ rev: string | null; filePath: string }>
     ): Promise<Array<number | null>> => ipcRenderer.invoke('git:fileLines', root, pairs),
     /** Lines added and removed per path, for one commit, range or the work tree. */
-    fileChurn: (root: string, spec: ChurnSpec): Promise<Record<string, FileChurn>> =>
-      ipcRenderer.invoke('git:fileChurn', root, spec)
+    fileChurn: (
+      root: string,
+      spec: ChurnSpec,
+      opts: DiffOptions
+    ): Promise<Record<string, FileChurn>> => ipcRenderer.invoke('git:fileChurn', root, spec, opts)
   },
   file: {
     open: (abs: string): Promise<string | null> => ipcRenderer.invoke('file:open', abs),
@@ -136,8 +141,13 @@ const api = {
   // Several shells can be alive at once — the pane splits — so every call and
   // every event names the session it belongs to.
   terminal: {
-    start: (id: string, root: string, cols: number, rows: number): Promise<boolean> =>
-      ipcRenderer.invoke('terminal:start', id, root, cols, rows),
+    start: (
+      id: string,
+      root: string,
+      cols: number,
+      rows: number,
+      opts: TerminalOptions
+    ): Promise<boolean> => ipcRenderer.invoke('terminal:start', id, root, cols, rows, opts),
     input: (id: string, data: string): void => ipcRenderer.send('terminal:input', id, data),
     resize: (id: string, cols: number, rows: number): void =>
       ipcRenderer.send('terminal:resize', id, cols, rows),

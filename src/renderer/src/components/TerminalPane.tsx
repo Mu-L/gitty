@@ -5,6 +5,7 @@ import { WebLinksAddon } from '@xterm/addon-web-links'
 import { focusSession, sessions, type Session } from '../terminals'
 import { getMessages } from '../messages'
 import { loadLocale, useMsg } from '../locale'
+import type { TerminalOptions } from '../../../shared/types'
 
 export type Theme = 'dark' | 'light'
 
@@ -53,7 +54,12 @@ function fitSession(s: Session, id: string): void {
   }
 }
 
-function ensureSession(id: string, root: string, fontSize: number): Session {
+function ensureSession(
+  id: string,
+  root: string,
+  fontSize: number,
+  opts: TerminalOptions
+): Session {
   const existing = sessions.get(id)
   if (existing) return existing
 
@@ -78,7 +84,7 @@ function ensureSession(id: string, root: string, fontSize: number): Session {
   term.textarea?.addEventListener('focus', () => s.onFocus?.())
 
   new ResizeObserver(() => fitSession(s, id)).observe(host)
-  void window.gitty.terminal.start(id, root, term.cols || 80, term.rows || 24)
+  void window.gitty.terminal.start(id, root, term.cols || 80, term.rows || 24, opts)
   return s
 }
 
@@ -88,6 +94,8 @@ export function TerminalPane({
   root,
   theme,
   fontSize,
+  fontFamily,
+  options,
   active,
   canClose,
   onFocus,
@@ -98,6 +106,11 @@ export function TerminalPane({
   root: string
   theme: Theme
   fontSize: number
+  /** The monospace font setting. Only a signal that it changed: the value the
+   *  terminal takes is the computed one, the same the panes are drawn in. */
+  fontFamily: string
+  /** Which shell this session starts, and how — read only when it is created. */
+  options: TerminalOptions
   active: boolean
   canClose: boolean
   onFocus: () => void
@@ -110,7 +123,7 @@ export function TerminalPane({
   useEffect(() => {
     const box = boxRef.current
     if (!box) return
-    const s = ensureSession(id, root, fontSize)
+    const s = ensureSession(id, root, fontSize, options)
     s.onFocus = onFocus
     s.onExit = onExit
     // Repo changes trigger state updates that re-render the whole tree, and
@@ -136,9 +149,10 @@ export function TerminalPane({
     const s = sessions.get(id)
     if (!s) return
     s.term.options.fontSize = fontSize
+    s.term.options.fontFamily = getComputedStyle(document.body).fontFamily
     s.term.options.theme = readTheme()
     fitSession(s, id)
-  }, [id, theme, fontSize])
+  }, [id, theme, fontSize, fontFamily])
 
   return (
     <div

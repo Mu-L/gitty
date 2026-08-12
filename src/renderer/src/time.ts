@@ -1,4 +1,8 @@
 import { createContext, createElement, useContext, type ReactNode } from 'react'
+import type { RendererMessages } from '../../shared/messages'
+
+/** The relative-time wordings, the only strings this module needs. */
+type TimeMessages = RendererMessages['time']
 
 // ── The setting ──────────────────────────────────────────────────────────────
 
@@ -52,6 +56,18 @@ export function allZones(): string[] {
 // use so the cost lands when the settings dialog opens, not at startup.
 let zones: string[] | null = null
 
+/**
+ * Everything that decides how an instant is written: which zone it is read in,
+ * and whether it is named absolutely or by its distance from now.
+ */
+export interface TimeSettings {
+  zone: TimeZone
+  /** "2h ago" in place of a clock time or a date. */
+  relative: boolean
+}
+
+export const DEFAULT_TIME: TimeSettings = { zone: SYSTEM_TZ, relative: false }
+
 /** Load the persisted zone, or fall back to the system's. */
 export function loadTimeZone(): TimeZone {
   try {
@@ -72,15 +88,35 @@ function ymd(d: Date, zone: string | undefined): string {
 }
 
 /**
- * Today's rows show a time, anything older shows a date. The cutoff is the
- * calendar day, not the last 24 hours: at 3 PM a "9:45 PM" with no date beside
- * it would be yesterday evening, which reads as a time still to come. Which day
- * it is depends on the displayed zone, so both sides are read through it.
+ * Distance from now, coarsening as it grows — the same ladder the branch menu
+ * dates its entries on. Nothing here needs the zone: an elapsed span is the
+ * same span wherever it is read.
  */
-export function stamp(iso: string, tz: TimeZone): string {
+function relative(d: Date, m: TimeMessages): string {
+  const secs = Math.max(0, (Date.now() - d.getTime()) / 1000)
+  if (secs < 60) return m.justNow
+  const mins = Math.floor(secs / 60)
+  if (mins < 60) return m.minutesAgo(mins)
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return m.hoursAgo(hours)
+  const days = Math.floor(hours / 24)
+  if (days < 30) return m.daysAgo(days)
+  if (days < 365) return m.monthsAgo(days)
+  return m.yearsAgo(days)
+}
+
+/**
+ * A row's stamp. Today's rows show a time, anything older shows a date. The
+ * cutoff is the calendar day, not the last 24 hours: at 3 PM a "9:45 PM" with
+ * no date beside it would be yesterday evening, which reads as a time still to
+ * come. Which day it is depends on the displayed zone, so both sides are read
+ * through it. Relative stamps sidestep the question entirely.
+ */
+export function stamp(iso: string, t: TimeSettings, m: TimeMessages): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
-  const zone = zoneOf(tz)
+  if (t.relative) return relative(d, m)
+  const zone = zoneOf(t.zone)
   const day = ymd(d, zone)
   return day === ymd(new Date(), zone)
     ? d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: zone })
@@ -88,42 +124,46 @@ export function stamp(iso: string, tz: TimeZone): string {
 }
 
 /** Date and time together, for the commit header. */
-export function fmtDateTime(iso: string, locale: string, tz: TimeZone): string {
+export function fmtDateTime(
+  iso: string,
+  locale: string,
+  t: TimeSettings,
+  m: TimeMessages
+): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleString(locale, { dateStyle: 'medium', timeStyle: 'short', timeZone: zoneOf(tz) })
+  if (t.relative) return relative(d, m)
+  return d.toLocaleString(locale, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: zoneOf(t.zone)
+  })
 }
 
 /**
- * The same instant named with its zone, for hover tips. A row's short stamp
- * says nothing about which zone it is in, and once the setting can move that
- * zone the tip is where the answer belongs.
+ * The same instant named with its zone, for hover tips — always absolute,
+ * whatever the rows show. A short stamp, relative or not, says nothing about
+ * which zone it is in, and the tip is where that answer belongs.
  */
-export function fmtDateTimeZone(iso: string, locale: string, tz: TimeZone): string {
+export function fmtDateTimeZone(iso: string, locale: string, t: TimeSettings): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
   return d.toLocaleString(locale, {
     dateStyle: 'medium',
     timeStyle: 'long',
-    timeZone: zoneOf(tz)
+    timeZone: zoneOf(t.zone)
   })
 }
 
 // ── React Context ────────────────────────────────────────────────────────────
 
-const Ctx = createContext<TimeZone>(SYSTEM_TZ)
+const Ctx = createContext<TimeSettings>(DEFAULT_TIME)
 
-export function TimeZoneProvider({
-  timeZone,
-  children
-}: {
-  timeZone: TimeZone
-  children: ReactNode
-}) {
-  return createElement(Ctx.Provider, { value: timeZone }, children)
+export function TimeProvider({ time, children }: { time: TimeSettings; children: ReactNode }) {
+  return createElement(Ctx.Provider, { value: time }, children)
 }
 
-/** The zone every stamp in the interface is rendered in. */
-export function useTimeZone(): TimeZone {
+/** How every stamp in the interface is written. */
+export function useTime(): TimeSettings {
   return useContext(Ctx)
 }

@@ -1,7 +1,7 @@
 import { useState, type JSX } from 'react'
 import type { CommitMeta } from '../../../shared/types'
 import { useMsg } from '../locale'
-import { fmtDateTime, fmtDateTimeZone, useTimeZone } from '../timezone'
+import { fmtDateTime, fmtDateTimeZone, useTime } from '../time'
 
 /**
  * The commit a repository session is showing, above its file list: subject,
@@ -11,7 +11,7 @@ import { fmtDateTime, fmtDateTimeZone, useTimeZone } from '../timezone'
  */
 export function CommitInfo({ meta }: { meta: CommitMeta }): JSX.Element {
   const { msg, locale } = useMsg()
-  const tz = useTimeZone()
+  const time = useTime()
   const [collapsed, setCollapsed] = useState(true)
   const hasBody = meta.body.length > 0
   return (
@@ -19,8 +19,8 @@ export function CommitInfo({ meta }: { meta: CommitMeta }): JSX.Element {
       <div className="commit-info-subject">{meta.subject}</div>
       <div className="commit-info-meta">
         <span className="commit-info-author">{meta.author}</span>
-        <span className="commit-info-date" title={fmtDateTimeZone(meta.date, locale, tz)}>
-          {fmtDateTime(meta.date, locale, tz)}
+        <span className="commit-info-date" title={fmtDateTimeZone(meta.date, locale, time)}>
+          {fmtDateTime(meta.date, locale, time, msg.time)}
         </span>
         {hasBody && (
           <>

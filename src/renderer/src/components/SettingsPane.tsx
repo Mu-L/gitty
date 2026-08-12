@@ -2,7 +2,8 @@ import { useMsg } from '../locale'
 import { ALL_LOCALES, type Locale } from '../locale'
 import type { JSX } from 'react'
 import type { DiffView } from './DiffPane'
-import { allZones, systemZone, SYSTEM_TZ, type TimeZone } from '../timezone'
+import { allZones, systemZone, SYSTEM_TZ, type TimeZone } from '../time'
+import type { DiffOptions } from '../../../shared/types'
 
 export type Theme = 'dark' | 'light'
 
@@ -80,6 +81,33 @@ function Dropdown<T extends string>({
   )
 }
 
+/** A free-text row, for a setting no list can enumerate (a font, a shell). */
+function TextRow({
+  label,
+  value,
+  placeholder,
+  onChange
+}: {
+  label: string
+  value: string
+  placeholder: string
+  onChange: (v: string) => void
+}): JSX.Element {
+  return (
+    <label className="setting-row">
+      <span>{label}</span>
+      <input
+        type="text"
+        className="setting-text"
+        value={value}
+        placeholder={placeholder}
+        spellCheck={false}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </label>
+  )
+}
+
 /** A labelled slider with a numeric read-out. */
 function Slider({
   label,
@@ -138,6 +166,20 @@ export function SettingsPane(props: {
   setLocale: (v: Locale) => void
   timeZone: TimeZone
   setTimeZone: (v: TimeZone) => void
+  relativeTime: boolean
+  setRelativeTime: (v: boolean) => void
+  monoFont: string
+  setMonoFont: (v: string) => void
+  diffContext: number
+  setDiffContext: (v: number) => void
+  ignoreWhitespace: DiffOptions['ignoreWhitespace']
+  setIgnoreWhitespace: (v: DiffOptions['ignoreWhitespace']) => void
+  restoreTabs: boolean
+  setRestoreTabs: (v: boolean) => void
+  termShell: string
+  setTermShell: (v: string) => void
+  termLogin: boolean
+  setTermLogin: (v: boolean) => void
 }): JSX.Element | null {
   const { msg } = useMsg()
   if (!props.open) return null
@@ -176,6 +218,15 @@ export function SettingsPane(props: {
               onChange={props.setTimeZone}
             />
             <Segmented
+              label={msg.settings.timeFormat}
+              value={props.relativeTime ? 'relative' : 'absolute'}
+              options={[
+                { value: 'absolute', label: msg.settings.absolute },
+                { value: 'relative', label: msg.settings.relative }
+              ]}
+              onChange={(v) => props.setRelativeTime(v === 'relative')}
+            />
+            <Segmented
               label={msg.settings.theme}
               value={props.theme}
               options={[
@@ -191,6 +242,12 @@ export function SettingsPane(props: {
               max={16}
               step={0.5}
               onChange={props.setFontSize}
+            />
+            <TextRow
+              label={msg.settings.monoFont}
+              value={props.monoFont}
+              placeholder={msg.settings.systemDefault}
+              onChange={props.setMonoFont}
             />
             <Slider
               label={msg.settings.rowHeight}
@@ -212,9 +269,46 @@ export function SettingsPane(props: {
               ]}
               onChange={props.setDiffView}
             />
+            <Slider
+              label={msg.settings.contextLines}
+              value={props.diffContext}
+              min={0}
+              max={25}
+              step={1}
+              onChange={props.setDiffContext}
+            />
+            <Segmented
+              label={msg.settings.ignoreWhitespace}
+              value={props.ignoreWhitespace}
+              options={[
+                { value: 'none', label: msg.settings.whitespaceNone },
+                { value: 'change', label: msg.settings.whitespaceChange },
+                { value: 'all', label: msg.settings.whitespaceAll }
+              ]}
+              onChange={props.setIgnoreWhitespace}
+            />
             <CheckRow label={msg.settings.wordWrap} checked={props.wrap} onChange={props.setWrap} />
             <CheckRow label={msg.settings.wordHighlight} checked={props.wordDiff} onChange={props.setWordDiff} />
             <CheckRow label={msg.settings.markdownOutline} checked={props.mdOutline} onChange={props.setMdOutline} />
+          </div>
+          <div className="settings-group">
+            <h3 className="settings-group-title">{msg.settings.session}</h3>
+            <CheckRow
+              label={msg.settings.restoreTabs}
+              checked={props.restoreTabs}
+              onChange={props.setRestoreTabs}
+            />
+            <TextRow
+              label={msg.settings.shell}
+              value={props.termShell}
+              placeholder={msg.settings.systemDefault}
+              onChange={props.setTermShell}
+            />
+            <CheckRow
+              label={msg.settings.loginShell}
+              checked={props.termLogin}
+              onChange={props.setTermLogin}
+            />
           </div>
         </div>
         <div className="settings-footer">

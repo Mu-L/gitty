@@ -51,10 +51,12 @@ import type {
   Commit,
   CommitFile,
   CommitMeta,
+  DiffOptions,
   DiffRequest,
   DiffResult,
   FileChurn,
   RepoStatus,
+  TerminalOptions,
   WorkingFile
 } from '../../shared/types'
 
@@ -111,6 +113,12 @@ export interface RepoTabProps {
   setWordDiff: Dispatch<SetStateAction<boolean>>
   mdOutline: boolean
   setMdOutline: Dispatch<SetStateAction<boolean>>
+  /** The monospace font setting, passed through to the terminal. */
+  fontFamily: string
+  /** How git is asked to compute every diff this tab shows. */
+  diffOptions: DiffOptions
+  /** Which shell a terminal in this tab starts, and how. */
+  terminalOptions: TerminalOptions
   /** Which panes are on screen; hidden ones are not rendered at all. */
   panes: PaneVisibility
   /** Hide a pane from its own header button. */
@@ -154,6 +162,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setWordDiff,
     mdOutline,
     setMdOutline,
+    fontFamily,
+    diffOptions,
+    terminalOptions,
     panes,
     onHidePane,
     browsing,
@@ -368,7 +379,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         const [counts, churn] = await Promise.all([
           window.gitty.git.fileLines(root, pairs),
           spec
-            ? window.gitty.git.fileChurn(root, spec)
+            ? window.gitty.git.fileChurn(root, spec, diffOptions)
             : Promise.resolve<Record<string, FileChurn>>({})
         ])
         if (!cancelled) {
@@ -385,7 +396,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     return () => {
       cancelled = true
     }
-  }, [root, view, status])
+  }, [root, view, status, diffOptions])
 
   /* ---------- documents (diff + opened files) ---------- */
 
@@ -511,13 +522,13 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     async (req: DiffRequest) => {
       const seq = ++diffSeq.current
       try {
-        const d = await window.gitty.git.diff(root, req)
+        const d = await window.gitty.git.diff(root, req, diffOptions)
         if (seq === diffSeq.current) setDiff(d)
       } catch (e) {
         if (seq === diffSeq.current) setDiff({ patch: '', title: msg.diff.errorTitle, notice: String(e) })
       }
     },
-    [root, msg]
+    [root, msg, diffOptions]
   )
 
   /** Bumps the sequence too, so a load already in flight cannot undo it. */
@@ -1267,6 +1278,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   root={root}
                   theme={theme}
                   fontSize={fontSize}
+                  fontFamily={fontFamily}
+                  options={terminalOptions}
                   disabled={!active}
                   full={full === 'terminal'}
                   onToggleFull={() => toggleFull('terminal')}

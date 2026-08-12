@@ -12,6 +12,7 @@ import type {
   CommitFile,
   CommitMeta,
   FileChurn,
+  DiffOptions,
   DiffRequest,
   DiffResult,
   GitOpResult,
@@ -19,6 +20,7 @@ import type {
   RepoStatus,
   SnapshotFileContent
 } from '../shared/types'
+import { DEFAULT_DIFF_OPTIONS } from '../shared/types'
 import {
   parseBlame,
   parseBranches,
@@ -253,14 +255,22 @@ export async function rangeFiles(
  * Keyed by path; a file missing from the map has no countable churn (binary,
  * or a merge commit, whose combined diff `--numstat` reports nothing for).
  */
-export async function fileChurn(root: string, spec: ChurnSpec): Promise<Record<string, FileChurn>> {
+export async function fileChurn(
+  root: string,
+  spec: ChurnSpec,
+  opts: DiffOptions = DEFAULT_DIFF_OPTIONS
+): Promise<Record<string, FileChurn>> {
+  // Whitespace is ignored here too when the diff ignores it, or the file list
+  // would count lines the diff beside it then refuses to show. Context lines
+  // do not enter into a --numstat count.
+  const ws = diffFlags(opts).filter((f) => f.startsWith('--ignore'))
   const args =
     spec.kind === 'commit'
-      ? ['show', '--numstat', '-z', '--format=', spec.hash]
+      ? ['show', '--numstat', '-z', '--format=', ...ws, spec.hash]
       : spec.kind === 'range'
-        ? ['diff', '--numstat', '-z', `${spec.from}..${spec.to}`]
+        ? ['diff', '--numstat', '-z', ...ws, `${spec.from}..${spec.to}`]
         : // Staged and unstaged together, which is what the work-tree list shows.
-          ['diff', '--numstat', '-z', 'HEAD']
+          ['diff', '--numstat', '-z', ...ws, 'HEAD']
   try {
     return Object.fromEntries(parseNumstat(await git(root, args)))
   } catch {
@@ -289,8 +299,24 @@ function clip(patch: string, title: string): DiffResult {
   return { patch, title }
 }
 
-export async function diff(root: string, req: DiffRequest): Promise<DiffResult> {
-  const common = ['--no-color', '--no-ext-diff']
+/**
+ * The renderer's diff preferences as git flags. The context count is clamped
+ * here rather than trusted: it arrives over IPC, and a huge -U on a large
+ * repository is a way to make git chew for minutes.
+ */
+function diffFlags(o: DiffOptions): string[] {
+  const flags = [`-U${Math.min(100, Math.max(0, Math.round(o.context)))}`]
+  if (o.ignoreWhitespace === 'change') flags.push('--ignore-space-change')
+  else if (o.ignoreWhitespace === 'all') flags.push('--ignore-all-space')
+  return flags
+}
+
+export async function diff(
+  root: string,
+  req: DiffRequest,
+  opts: DiffOptions = DEFAULT_DIFF_OPTIONS
+): Promise<DiffResult> {
+  const common = ['--no-color', '--no-ext-diff', ...diffFlags(opts)]
 
   if (req.kind === 'working') {
     if (!req.path) {

@@ -108,6 +108,28 @@ export const UNCOMMITTED_SHA = '0'.repeat(40)
 /** Which side of the index a working-tree diff should be read from. */
 export type DiffSide = 'worktree' | 'index'
 
+/**
+ * How git is asked to compute a diff, rather than which diff is wanted — a
+ * preference the renderer carries with every request, since the main process
+ * holds no view state of its own.
+ */
+export interface DiffOptions {
+  /** Lines of context around each hunk; git's own default is 3. */
+  context: number
+  /** `change` is git's -b (amount of space), `all` its -w. */
+  ignoreWhitespace: 'none' | 'change' | 'all'
+}
+
+export const DEFAULT_DIFF_OPTIONS: DiffOptions = { context: 3, ignoreWhitespace: 'none' }
+
+/** Which shell a terminal session starts, and how. */
+export interface TerminalOptions {
+  /** Empty means the system's own — $SHELL, or COMSPEC on Windows. */
+  shell: string
+  /** Start it as a login shell, so the user's profile is sourced. */
+  login: boolean
+}
+
 export interface DiffRequestWorking {
   kind: 'working'
   /** Omit for every uncommitted change at once. */

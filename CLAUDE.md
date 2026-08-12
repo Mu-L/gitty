@@ -131,13 +131,17 @@ Adding a language is a new table beside `en.ts`, a `Locale` in `locale.ts`, an
 entry in `messages/index.ts`, and a `MainMessages` table in `src/main/messages.ts`
 — miss the last one and the menus quietly stay English.
 
-### Time zone
+### Time
 
-`src/renderer/src/timezone.ts` is the one place a date becomes text. It holds
-the setting (`system`, or an IANA name), the formatters every pane calls, and a
-`TimeZoneProvider` / `useTimeZone()` pair beside `locale.ts`'s — the zone is a
-formatting choice like the locale, not part of the message tables. Three things
-it exists to keep right. `Intl.supportedValuesOf('timeZone')` **omits `UTC`**
+`src/renderer/src/time.ts` is the one place a date becomes text. It holds the
+`TimeSettings` (zone plus absolute-or-relative), the formatters every pane
+calls, and a `TimeProvider` / `useTime()` pair beside `locale.ts`'s — how a time
+is written is a formatting choice like the locale, not part of the message
+tables. Relative stamps do take wordings from the message table, so `stamp` is
+handed `msg.time`; hover tips stay absolute whatever the rows show, because a
+short stamp never says which zone it is in.
+
+Three things it exists to keep right. `Intl.supportedValuesOf('timeZone')` **omits `UTC`**
 (an alias, not a canonical zone), so the list prepends it. An unknown zone name
 makes `toLocaleString` throw, and a `RangeError` raised while rendering the
 commit log takes the whole window white — `zoneOf` therefore falls back to the
@@ -177,6 +181,32 @@ path) and report gource's own stderr through the same strip push and pull use,
 short enough that the button does not feel stuck. If it is still alive when the
 timer fires, its pipes are destroyed and it is `unref`'d — gource draws its own
 window and is meant to outlive Gitty, so nothing is piped through the app.
+
+### Settings, and where a preference lives
+
+`App.tsx` owns every app-wide preference, persists it under `gitty.*` in
+`localStorage` and hands it down; `SettingsPane` is a dumb dialog of value and
+setter pairs, grouped Appearance / View / Session. Three things worth keeping
+in mind, two of which have already gone wrong once.
+
+Read a stored number through the `num()` helper, never `Number(getItem(…))`
+alone: an absent key is `null` and `Number(null)` is `0`, which is finite — so
+the fallback never runs and an unset slider silently starts at its minimum.
+
+The open-repository list (`gitty.roots`, for **Reopen last session**) is
+persisted only when it is **non-empty**, and cleared only by closing the last
+tab. The app holds `[]` until the restore pass has opened anything, and
+StrictMode replays effects on mount — one replayed effect writing that `[]`
+erases the very session about to be reopened.
+
+Preferences that git needs (`DiffOptions`) or the pty needs (`TerminalOptions`)
+travel *with each call* rather than being pushed into the main process: it
+holds no view state, and a diff request that carries its own options cannot be
+computed against a stale setting. They are memoised in `App.tsx` because
+`RepoTab`'s diff effect depends on the object identity. Terminal options are
+read only when a session is created — changing them affects the next split, not
+a running shell — which is deliberate: restarting a shell under the user to
+apply a setting would take whatever is running in it down.
 
 ### Multiple repositories, tabs
 

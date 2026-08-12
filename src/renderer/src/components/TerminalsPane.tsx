@@ -2,6 +2,7 @@ import { Fragment, memo, useCallback, useEffect, useRef, useState, type JSX } fr
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { TerminalPane, type Theme } from './TerminalPane'
 import { useMsg } from '../locale'
+import type { TerminalOptions } from '../../../shared/types'
 import { FullButton, HideButton } from './PaneChrome'
 import { paneControls } from '../panes'
 import { Tooltip } from './Tooltip'
@@ -67,6 +68,8 @@ export const TerminalsPane = memo(function TerminalsPane({
   root,
   theme,
   fontSize,
+  fontFamily,
+  options,
   disabled = false,
   full = false,
   onToggleFull,
@@ -75,6 +78,10 @@ export const TerminalsPane = memo(function TerminalsPane({
   root: string
   theme: Theme
   fontSize: number
+  /** The monospace font setting, so a change reaches the running shells. */
+  fontFamily: string
+  /** Which shell a new session starts, and how. */
+  options: TerminalOptions
   /** Set on hidden tabs, so their splits stay out of pointer hit testing. */
   disabled?: boolean
   /** This pane is filling the window. */
@@ -124,6 +131,8 @@ export const TerminalsPane = memo(function TerminalsPane({
           root={root}
           theme={theme}
           fontSize={fontSize}
+          fontFamily={fontFamily}
+          options={options}
           active={ids.length > 1 && node.id === focused}
           canClose={ids.length > 1}
           onFocus={() => setFocused(node.id)}

@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Six new settings, and a third **Session** group in the dialog to hold the
+  ones that are not about a pane:
+  - **Context lines** — 0 to 25 lines of context around each hunk (git's `-U`,
+    whose default is 3), so a change can be read in as much or as little of its
+    surroundings as it needs.
+  - **Ignore whitespace** — Off, Amount (`-b`) or All (`-w`). Reindented or
+    rewrapped code reads as unchanged instead of as a wall of red and green.
+    The file list's churn counts follow the same setting, so `+12 −3` cannot
+    claim lines the diff beside it then refuses to show.
+  - **Reopen last session** — the repositories open at exit come back as tabs
+    at the next launch. The repository Gitty was started with stays the active
+    one; any that have since been deleted are quietly dropped.
+  - **Monospace font** — the family the panes and the terminal are drawn in.
+    Empty keeps the built-in stack, and a font the system lacks falls through
+    to it.
+  - **Time format** — Absolute or Relative (`28m ago`), a companion to the
+    time-zone setting. Hover tips stay absolute either way.
+  - **Shell** and **Login shell** — which shell a terminal starts and whether
+    it sources the user's profile. Both are read when a session is created, so
+    they apply to the next split rather than to running shells. A shell path
+    that does not exist falls back to the system's rather than leaving a dead
+    pane.
+
 - **Time zone** in Settings: the zone every date and time on screen is rendered
   in — the machine's own by default, UTC, or any zone the system knows. Git
   stores a commit with its author's own offset, so a stamp was always a choice
@@ -63,6 +86,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   @OrangeViolin ([#2]).
 
 ### Fixed
+
+- Font size and row height started at their minimums (11 and 18) on a fresh
+  install rather than at their defaults (12.5 and 20): the stored value was
+  read through `Number(localStorage.getItem(…))`, and `Number(null)` is 0,
+  which is finite — so the fallback never ran and the clamp took over.
 
 - A long file name pushed its line count and churn out of the file tree. The
   name is a flex item beside fixed-width ones, and those were shrinking first:

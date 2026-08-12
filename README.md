@@ -451,7 +451,9 @@ hand in the terminal pane, which is right there.
 
 A real interactive login shell (`$SHELL`) rooted at the repository, so any git
 command can be run directly. The other panes refresh automatically when the
-repository changes on disk.
+repository changes on disk. Which shell it starts, and whether it starts as a
+login shell, are [Settings](#settings); both are read when a terminal is
+created, so a change takes effect on the next split.
 
 The pane splits into as many shells as you want: **Split →** puts a new one
 beside the focused terminal, **Split ↓** below it, and the separators between
@@ -475,14 +477,23 @@ back.
 | **Theme** | Dark or Light. |
 | **Language** | English, 简体中文, 日本語, 한국어, Français, Deutsch, Español, Русский or Português — the interface, the menus and the dialogs all change together without restarting. |
 | **Time zone** | The zone every date and time on screen is rendered in: the machine's own by default, or UTC, or any zone the system knows. Git records each commit with its author's offset, so a stamp is always a choice of zone — this is where it is made. The log's date column follows it, which means the boundary between "today" and a date moves with it too. |
+| **Time format** | Absolute (a clock time or a date) or Relative (`28m ago`, `2h ago`). Relative sidesteps the zone question entirely; the hover tip on a row stays absolute either way, and names its zone. |
 | **Font size** | 11 – 16, in half points. Applies to every pane, the terminal included. |
+| **Monospace font** | The family the panes and the terminal are drawn in. Empty means the built-in stack (JetBrains Mono, Fira Code, DejaVu Sans Mono, …); a name the system does not have simply falls through to it. |
 | **Row height** | 18 – 26 pixels — the line height every list is built on, the file tree, the log and the diff. Tighter fits more on screen, looser reads easier. |
 | **Diff layout** | Inline or Side-by-Side, the same toggle the diff header carries. |
+| **Context lines** | 0 – 25 unchanged lines around each hunk — git's `-U`, whose own default is 3. Widen it to see what a change sits in, narrow it to fit more of a large diff on screen. |
+| **Ignore whitespace** | Off, Amount (git's `-b`: a run of spaces changing length is not a change) or All (`-w`: no whitespace difference is). Reindented or rewrapped code reads as unchanged rather than as a wall of red and green. The file list's `+12 −3` counts follow the same setting, so it cannot claim lines the diff then refuses to show. |
 | **Word wrap** | Wrap long lines instead of scrolling sideways. |
 | **Word highlight** | Mark the words that changed inside a changed line, not just the line. |
 | **Markdown outline** | Show the outline beside a rendered document. |
+| **Reopen last session** | Reopen the repositories that were open when the app last exited. The repository Gitty was started with is still the active tab; ones that have since been deleted are quietly dropped. |
+| **Shell** | The shell a terminal starts. Empty means the system's own — `$SHELL`, or `COMSPEC` on Windows. A path that does not exist falls back to it rather than leaving a dead pane. |
+| **Login shell** | Start it with `-l`, so the user's profile is sourced. Turn it off for a faster, quieter shell — no profile output, no login-time checks. Windows shells have no such flag and ignore this. |
 
-**Word wrap**, **Diff layout** and **Markdown outline** are the same toggles the
+**Shell** and **Login shell** are read when a terminal is created, so they take
+effect on the next split or the next repository tab, not in the shells already
+running. **Word wrap**, **Diff layout** and **Markdown outline** are the same toggles the
 diff header carries, so changing one in either place changes both. **Word
 highlight** lives here only.
 

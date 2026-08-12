@@ -7,7 +7,7 @@ import { createTerminal, type TerminalSession } from './pty'
 import { addRecent, clearRecent, listRecent, removeRecent } from './recent'
 import { watchRepo, type RepoWatcher } from './watcher'
 import * as web from './web'
-import type { ChurnSpec, DiffRequest } from '../shared/types'
+import type { ChurnSpec, DiffOptions, DiffRequest, TerminalOptions } from '../shared/types'
 import { msg, setMainLocale } from './messages'
 
 // Fixes the userData directory (~/.config/Gitty) rather than inheriting
@@ -256,7 +256,9 @@ function registerIpc(): void {
   ipcMain.handle('git:rangeFiles', (_e, root: string, from: string, to: string) =>
     git.rangeFiles(root, from, to)
   )
-  ipcMain.handle('git:diff', (_e, root: string, req: DiffRequest) => git.diff(root, req))
+  ipcMain.handle('git:diff', (_e, root: string, req: DiffRequest, opts?: DiffOptions) =>
+    git.diff(root, req, opts)
+  )
   ipcMain.handle('git:snapshotFiles', (_e, root: string, hash: string) =>
     git.snapshotFiles(root, hash)
   )
@@ -282,7 +284,9 @@ function registerIpc(): void {
       git.countFileLines(root, pairs)
   )
 
-  ipcMain.handle('git:fileChurn', (_e, root: string, spec: ChurnSpec) => git.fileChurn(root, spec))
+  ipcMain.handle('git:fileChurn', (_e, root: string, spec: ChurnSpec, opts?: DiffOptions) =>
+    git.fileChurn(root, spec, opts)
+  )
 
   ipcMain.handle('file:openExternal', (_e, url: string) => {
     // Only ever hand real web links to the system browser.
@@ -358,9 +362,9 @@ function registerIpc(): void {
 
   ipcMain.handle(
     'terminal:start',
-    (e, id: string, root: string, cols: number, rows: number) => {
+    (e, id: string, root: string, cols: number, rows: number, opts?: TerminalOptions) => {
       disposeTerminal(id)
-      terms.set(id, createTerminal(e.sender, id, root, cols, rows))
+      terms.set(id, createTerminal(e.sender, id, root, cols, rows, opts))
       return true
     }
   )

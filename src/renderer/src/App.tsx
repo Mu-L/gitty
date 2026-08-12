@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type JSX
@@ -29,9 +30,10 @@ import {
 } from './panes'
 import { navLabel, type NavHistory } from './nav'
 import type { DiffView } from './components/DiffPane'
-import type { Branch, RepoStatus } from '../../shared/types'
+import type { Branch, DiffOptions, RepoStatus, TerminalOptions } from '../../shared/types'
+import { DEFAULT_DIFF_OPTIONS } from '../../shared/types'
 import { LocaleProvider, loadLocale, type Locale } from './locale'
-import { TimeZoneProvider, loadTimeZone, SYSTEM_TZ, type TimeZone } from './timezone'
+import { TimeProvider, loadTimeZone, SYSTEM_TZ, type TimeZone } from './time'
 import { ALL_LOCALES } from './locale'
 import { getMessages } from './messages'
 
@@ -65,27 +67,56 @@ export default function App(): JSX.Element {
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem('gitty.theme') === 'light' ? 'light' : 'dark')
   )
-  const [fontSize, setFontSize] = useState(() => {
-    const v = Number(localStorage.getItem('gitty.fontSize'))
-    return Number.isFinite(v) ? Math.min(16, Math.max(11, v)) : 12.5
-  })
-  const [rowHeight, setRowHeight] = useState(() => {
-    const v = Number(localStorage.getItem('gitty.rowHeight'))
-    return Number.isFinite(v) ? Math.min(26, Math.max(18, v)) : 20
-  })
+  const [fontSize, setFontSize] = useState(() => num('gitty.fontSize', 12.5, 11, 16))
+  const [rowHeight, setRowHeight] = useState(() => num('gitty.rowHeight', 20, 18, 26))
   const [timeZone, setTimeZone] = useState<TimeZone>(loadTimeZone)
+  const [relativeTime, setRelativeTime] = useState(
+    () => localStorage.getItem('gitty.relativeTime') === 'on'
+  )
+  // Empty means the stylesheet's own stack, which is the sane default; a name
+  // the system does not have simply falls through it.
+  const [monoFont, setMonoFont] = useState(() => localStorage.getItem('gitty.monoFont') ?? '')
+  const [diffContext, setDiffContext] = useState(() =>
+    num('gitty.diffContext', DEFAULT_DIFF_OPTIONS.context, 0, 25)
+  )
+  const [ignoreWhitespace, setIgnoreWhitespace] = useState<DiffOptions['ignoreWhitespace']>(() => {
+    const v = localStorage.getItem('gitty.ignoreWhitespace')
+    return v === 'change' || v === 'all' ? v : 'none'
+  })
+  const [restoreTabs, setRestoreTabs] = useState(
+    () => localStorage.getItem('gitty.restoreTabs') !== 'off'
+  )
+  const [termShell, setTermShell] = useState(() => localStorage.getItem('gitty.termShell') ?? '')
+  const [termLogin, setTermLogin] = useState(
+    () => localStorage.getItem('gitty.termLogin') !== 'off'
+  )
   const [recent, setRecent] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
   // The four-pane icon, fetched from the main process as a data URL.
   const [appIcon, setAppIcon] = useState<string | null>(null)
 
+  // Grouped for the consumers that take them whole. Memoised because RepoTab's
+  // diff effect depends on the object: a fresh one per render would re-run git
+  // on every keystroke anywhere in the app.
+  const time = useMemo(() => ({ zone: timeZone, relative: relativeTime }), [timeZone, relativeTime])
+  const diffOptions = useMemo<DiffOptions>(
+    () => ({ context: diffContext, ignoreWhitespace }),
+    [diffContext, ignoreWhitespace]
+  )
+  const terminalOptions = useMemo<TerminalOptions>(
+    () => ({ shell: termShell, login: termLogin }),
+    [termShell, termLogin]
+  )
+
   /* ---------- tab management ---------- */
 
-  const openTab = useCallback(async (candidate: string): Promise<boolean> => {
+  const openTab = useCallback(async (candidate: string, silent = false): Promise<boolean> => {
     const resolved = await window.gitty.repo.resolve(candidate)
     if (!resolved) {
-      setError(msg.app.notInWorkTreeHint(candidate))
+      // A repository restored from the last session may simply be gone; that is
+      // not something to complain about, it just does not reopen.
+      if (!silent) setError(msg.app.notInWorkTreeHint(candidate))
       return false
     }
     setError(null)
@@ -165,6 +196,7 @@ export default function App(): JSX.Element {
       if (i < 0) return
       const next = roots.filter((r) => r !== root)
       setRoots(next)
+      if (next.length === 0) localStorage.setItem('gitty.roots', '[]')
       // Closing the active tab activates its neighbour; the last one leaves the
       // window on the empty state.
       if (active === root) setActive(next[Math.min(i, next.length - 1)] ?? null)
@@ -179,16 +211,37 @@ export default function App(): JSX.Element {
   }, [openTab])
 
   // Launch in the requested repository; if there is none — started from a
-  // directory outside any work tree — fall back to the last one opened.
+  // directory outside any work tree — fall back to the last one opened. Last
+  // session's tabs are reopened first, so the requested repository is the one
+  // left active whether or not it was among them.
   useEffect(() => {
     void (async () => {
+      let restoredAny = false
+      if (restoreTabs) {
+        for (const saved of loadRoots()) {
+          restoredAny = (await openTab(saved, true)) || restoredAny
+        }
+      }
       const initial = await window.gitty.repo.initial()
-      if (await openTab(initial)) return
+      if (await openTab(initial, restoredAny)) return
+      if (restoredAny) return
       for (const previous of await window.gitty.repo.recent()) {
         if (await openTab(previous)) return
       }
     })()
+    // Reopening is a startup decision; toggling the setting later must not
+    // reopen anything under the user, so this deliberately runs once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openTab])
+
+  // Remember the open set for the next launch. Never the empty list: that is
+  // what the app holds before the restore pass has opened anything, and React
+  // remounts effects (StrictMode), so a "restored yet?" flag is not enough —
+  // one replayed effect would erase the very session about to be reopened.
+  // Closing the last tab is a deliberate act and writes the empty list itself.
+  useEffect(() => {
+    if (roots.length > 0) localStorage.setItem('gitty.roots', JSON.stringify(roots))
+  }, [roots])
 
   useEffect(() => void window.gitty.appIcon().then(setAppIcon), [])
 
@@ -308,6 +361,13 @@ export default function App(): JSX.Element {
     setPanes({ ...ALL_PANES })
     setLocale('en')
     setTimeZone(SYSTEM_TZ)
+    setRelativeTime(false)
+    setMonoFont('')
+    setDiffContext(DEFAULT_DIFF_OPTIONS.context)
+    setIgnoreWhitespace('none')
+    setRestoreTabs(true)
+    setTermShell('')
+    setTermLogin(true)
     setTheme('dark')
     setFontSize(12.5)
     setRowHeight(20)
@@ -324,8 +384,12 @@ export default function App(): JSX.Element {
     el.dataset.theme = theme
     el.style.setProperty('--font-size', `${fontSize}px`)
     el.style.setProperty('--row-h', `${rowHeight}px`)
+    // Empty removes the override, leaving the stylesheet's own stack; a name
+    // with spaces needs quoting to be a valid font-family value.
+    if (monoFont.trim()) el.style.setProperty('--font-mono', `"${monoFont.trim()}", monospace`)
+    else el.style.removeProperty('--font-mono')
     el.style.colorScheme = theme
-  }, [theme, fontSize, rowHeight])
+  }, [theme, fontSize, rowHeight, monoFont])
 
   useEffect(() => {
     localStorage.setItem('gitty.wrap', wrap ? 'on' : 'off')
@@ -337,7 +401,31 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.rowHeight', String(rowHeight))
     localStorage.setItem('gitty.panes', JSON.stringify(panes))
     localStorage.setItem('gitty.timeZone', timeZone)
-  }, [wrap, diffView, wordDiff, mdOutline, theme, fontSize, rowHeight, panes, timeZone])
+    localStorage.setItem('gitty.relativeTime', relativeTime ? 'on' : 'off')
+    localStorage.setItem('gitty.monoFont', monoFont)
+    localStorage.setItem('gitty.diffContext', String(diffContext))
+    localStorage.setItem('gitty.ignoreWhitespace', ignoreWhitespace)
+    localStorage.setItem('gitty.restoreTabs', restoreTabs ? 'on' : 'off')
+    localStorage.setItem('gitty.termShell', termShell)
+    localStorage.setItem('gitty.termLogin', termLogin ? 'on' : 'off')
+  }, [
+    wrap,
+    diffView,
+    wordDiff,
+    mdOutline,
+    theme,
+    fontSize,
+    rowHeight,
+    panes,
+    timeZone,
+    relativeTime,
+    monoFont,
+    diffContext,
+    ignoreWhitespace,
+    restoreTabs,
+    termShell,
+    termLogin
+  ])
 
   // Persist locale and tell the main process.
   useEffect(() => {
@@ -437,7 +525,7 @@ export default function App(): JSX.Element {
 
   return (
     <LocaleProvider locale={locale} setLocale={setLocale}>
-    <TimeZoneProvider timeZone={timeZone}>
+    <TimeProvider time={time}>
     <div className="app" onContextMenu={(e) => e.preventDefault()}>
       <div className="titlebar">
         {appIcon && (
@@ -578,6 +666,9 @@ export default function App(): JSX.Element {
                   setWordDiff={setWordDiff}
                   mdOutline={mdOutline}
                   setMdOutline={setMdOutline}
+                  fontFamily={monoFont}
+                  diffOptions={diffOptions}
+                  terminalOptions={terminalOptions}
                   panes={panes}
                   onHidePane={togglePane}
                   browsing={browsingByRoot[r] ?? null}
@@ -646,11 +737,47 @@ export default function App(): JSX.Element {
         setLocale={setLocale}
         timeZone={timeZone}
         setTimeZone={setTimeZone}
+        relativeTime={relativeTime}
+        setRelativeTime={setRelativeTime}
+        monoFont={monoFont}
+        setMonoFont={setMonoFont}
+        diffContext={diffContext}
+        setDiffContext={setDiffContext}
+        ignoreWhitespace={ignoreWhitespace}
+        setIgnoreWhitespace={setIgnoreWhitespace}
+        restoreTabs={restoreTabs}
+        setRestoreTabs={setRestoreTabs}
+        termShell={termShell}
+        setTermShell={setTermShell}
+        termLogin={termLogin}
+        setTermLogin={setTermLogin}
       />
     </div>
-    </TimeZoneProvider>
+    </TimeProvider>
     </LocaleProvider>
   )
+}
+
+/**
+ * A numeric setting, clamped to the range its control offers. Reading through
+ * Number() alone will not do: an absent key is null, and Number(null) is 0 —
+ * which is finite, so every unset slider would silently start at its minimum.
+ */
+function num(key: string, fallback: number, min: number, max: number): number {
+  const raw = localStorage.getItem(key)
+  if (raw === null) return fallback
+  const v = Number(raw)
+  return Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : fallback
+}
+
+/** The repositories open when the app last exited, for the restore pass. */
+function loadRoots(): string[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem('gitty.roots') ?? '[]')
+    return Array.isArray(raw) ? raw.filter((r): r is string => typeof r === 'string') : []
+  } catch {
+    return []
+  }
 }
 
 /** Coarse age of a branch's last commit, to date the branch menu's entries. */

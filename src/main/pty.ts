@@ -1,6 +1,9 @@
+import fs from 'node:fs'
 import os from 'node:os'
+import path from 'node:path'
 import type { WebContents } from 'electron'
 import * as nodePty from 'node-pty'
+import type { TerminalOptions } from '../shared/types'
 
 export interface TerminalSession {
   write(data: string): void
@@ -14,6 +17,18 @@ function defaultShell(): string {
 }
 
 /**
+ * A shell the settings named, falling back to the system's when it is empty or
+ * not there. A typo would otherwise spawn nothing and leave the pane dead with
+ * no way to fix it from inside the app.
+ */
+function chosenShell(want: string): string {
+  const s = want.trim()
+  if (!s) return defaultShell()
+  if (path.isAbsolute(s) && !fs.existsSync(s)) return defaultShell()
+  return s
+}
+
+/**
  * Spawn an interactive login shell rooted at the repository, streaming its
  * output to the renderer over `terminal:data`. Every message carries the
  * session id, since the renderer may hold several split terminals at once.
@@ -23,10 +38,13 @@ export function createTerminal(
   id: string,
   cwd: string,
   cols = 80,
-  rows = 24
+  rows = 24,
+  opts: TerminalOptions = { shell: '', login: true }
 ): TerminalSession {
-  const shell = defaultShell()
-  const proc = nodePty.spawn(shell, process.platform === 'win32' ? [] : ['-l'], {
+  const shell = chosenShell(opts.shell)
+  // Windows shells have no login flag; -l is a POSIX-shell idea.
+  const args = process.platform === 'win32' || !opts.login ? [] : ['-l']
+  const proc = nodePty.spawn(shell, args, {
     name: 'xterm-256color',
     cwd,
     cols,

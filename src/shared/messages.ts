@@ -244,6 +244,26 @@ export interface RendererMessages {
     readonly timeZone: string
     /** The entry standing for the machine's own zone, which it names. */
     readonly systemTimeZone: (zone: string) => string
+    /** Whether a stamp is a clock time or a distance from now. */
+    readonly timeFormat: string
+    readonly absolute: string
+    readonly relative: string
+    /** The font the panes and the terminal are drawn in. */
+    readonly monoFont: string
+    /** Placeholder for a free-text setting left empty. */
+    readonly systemDefault: string
+    /** Lines of context git puts around each hunk. */
+    readonly contextLines: string
+    /** How much whitespace a diff is allowed to ignore. */
+    readonly ignoreWhitespace: string
+    readonly whitespaceNone: string
+    readonly whitespaceChange: string
+    readonly whitespaceAll: string
+    /** Third group: what happens outside the panes. */
+    readonly session: string
+    readonly restoreTabs: string
+    readonly shell: string
+    readonly loginShell: string
     readonly restoreDefaults: string
     readonly done: string
   }
@@ -330,6 +350,10 @@ export interface RendererMessages {
   readonly time: {
     readonly today: string
     readonly yesterday: string
+    /** Relative stamps, finer-grained than the branch menu's ladder. */
+    readonly justNow: string
+    readonly minutesAgo: (n: number) => string
+    readonly hoursAgo: (n: number) => string
     readonly daysAgo: (n: number) => string
     readonly monthsAgo: (n: number) => string
     readonly yearsAgo: (n: number) => string

@@ -2,7 +2,7 @@ import { useEffect, useRef, type JSX } from 'react'
 import type { Commit } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
-import { fmtDateTimeZone, stamp, useTimeZone } from '../timezone'
+import { fmtDateTimeZone, stamp, useTime } from '../time'
 
 /** Pseudo-hash of the row that stands for the uncommitted work tree. */
 export const WORKTREE_ROW = '__worktree__'
@@ -35,7 +35,7 @@ export function LogPane({
   onScrollEnd: () => void
 }): JSX.Element {
   const { msg, locale } = useMsg()
-  const tz = useTimeZone()
+  const time = useTime()
   const listRef = useRef<HTMLDivElement>(null)
   // The work-tree row sits above the log and takes part in keyboard navigation.
   const hashes = [WORKTREE_ROW, ...commits.map((c) => c.hash)]
@@ -145,10 +145,10 @@ export function LogPane({
               e.preventDefault()
               onMenu(c, { x: e.clientX, y: e.clientY, items: [] })
             }}
-            title={`${c.hash}\n${c.author} <${c.email}>\n${fmtDateTimeZone(c.date, locale, tz)}\n\n${c.subject}`}
+            title={`${c.hash}\n${c.author} <${c.email}>\n${fmtDateTimeZone(c.date, locale, time)}\n\n${c.subject}`}
           >
             <span className="commit-hash">{c.short}</span>
-            <span className="commit-time">{stamp(c.date, tz)}</span>
+            <span className="commit-time">{stamp(c.date, time, msg.time)}</span>
             <span className="commit-author">{c.author}</span>
             {c.refs && <span className="commit-refs">({c.refs})</span>}
             <span className="commit-subject">{c.subject}</span>
