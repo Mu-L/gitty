@@ -31,6 +31,13 @@ export interface MainMessages {
     readonly deletePermanentConfirm: (name: string) => string
     readonly deletePermanentDetail: string
     readonly deletePermanentButton: string
+    /** The About dialog, opened from the title bar's brand. */
+    readonly aboutTitle: string
+    readonly aboutVersion: (v: string) => string
+    readonly aboutElectron: (v: string) => string
+    readonly aboutChromium: (v: string) => string
+    readonly aboutNode: (v: string) => string
+    readonly okButton: string
   }
   readonly window: {
     readonly title: string
@@ -62,6 +69,8 @@ export interface MainMessages {
 export interface RendererMessages {
   readonly app: {
     readonly title: string
+    /** Title-bar brand tooltip; clicking it opens the About dialog. */
+    readonly about: string
     readonly settings: string
     readonly openRepository: string
     readonly refresh: string

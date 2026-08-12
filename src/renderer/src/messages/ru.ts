@@ -17,6 +17,7 @@ function plural(n: number, one: string, few: string, many: string): string {
 export const ru: RendererMessages = {
   app: {
     title: 'Gitty',
+    about: 'О Gitty',
     settings: 'Настройки',
     openRepository: 'Открыть репозиторий',
     refresh: 'Обновить',

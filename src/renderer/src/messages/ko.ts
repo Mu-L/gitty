@@ -3,6 +3,7 @@ import type { RendererMessages } from '../../../shared/messages'
 export const ko: RendererMessages = {
   app: {
     title: 'Gitty',
+    about: 'Gitty 정보',
     settings: '설정',
     openRepository: '저장소 열기',
     refresh: '새로 고침',

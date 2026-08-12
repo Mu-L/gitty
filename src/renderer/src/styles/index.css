@@ -155,6 +155,23 @@ button:disabled:hover {
   white-space: nowrap;
 }
 
+/* The brand (icon + name) opens the About dialog. It reads as static
+   title-bar text — no border — until hover hints it is clickable. */
+.titlebar .titlebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 6px;
+  margin-left: -6px;
+  border-color: transparent;
+  cursor: default;
+}
+
+.titlebar .titlebar-brand:hover {
+  background: var(--bg-hover);
+  border-color: transparent;
+}
+
 .titlebar .titlebar-icon {
   width: 14px;
   height: 14px;

@@ -3,6 +3,7 @@ import type { RendererMessages } from '../../../shared/messages'
 export const pt: RendererMessages = {
   app: {
     title: 'Gitty',
+    about: 'Sobre o Gitty',
     settings: 'Definições',
     openRepository: 'Abrir repositório',
     refresh: 'Atualizar',

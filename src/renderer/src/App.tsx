@@ -542,10 +542,14 @@ export default function App(): JSX.Element {
     <TimeProvider time={time}>
     <div className="app" onContextMenu={(e) => e.preventDefault()}>
       <div className="titlebar">
-        {appIcon && (
-          <img className="titlebar-icon" src={appIcon} alt={msg.app.title} draggable={false} />
-        )}
-        <strong>{msg.app.title}</strong>
+        {/* The brand opens the About dialog, like the application menu's
+            About on macOS. */}
+        <button className="titlebar-brand" title={msg.app.about} onClick={() => void window.gitty.about()}>
+          {appIcon && (
+            <img className="titlebar-icon" src={appIcon} alt={msg.app.title} draggable={false} />
+          )}
+          <strong>{msg.app.title}</strong>
+        </button>
         {/* Back, forward and the list of places — of the active tab, since the
             history belongs to a repository session, not to the window. */}
         {active && (

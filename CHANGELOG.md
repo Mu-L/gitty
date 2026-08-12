@@ -34,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the blame pane carry the same token colours as the diff and the file.
 - Each blame row shows the date of the commit that last touched the line, read
   through the same time-zone and relative-time settings as the rest of the UI.
+- Clicking the **Gitty** brand at the left of the title bar opens an **About**
+  dialog: the version, plus the Electron, Chromium and Node versions the app
+  is built on. A native dialog, so it reads the same on every platform.
 
 ### Changed
 

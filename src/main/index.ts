@@ -170,6 +170,25 @@ function registerIpc(): void {
     }
   })
 
+  // The About dialog: version plus the runtimes the app is built on. A native
+  // dialog like the delete confirmations, so it reads the same everywhere.
+  ipcMain.handle('app:about', async () => {
+    const versions = [
+      msg.dialog.aboutVersion(app.getVersion()),
+      msg.dialog.aboutElectron(process.versions.electron ?? ''),
+      msg.dialog.aboutChromium(process.versions.chrome ?? ''),
+      msg.dialog.aboutNode(process.versions.node ?? '')
+    ].join('\n')
+    await dialog.showMessageBox(win!, {
+      type: 'info',
+      title: msg.dialog.aboutTitle,
+      message: msg.window.title,
+      detail: versions,
+      buttons: [msg.dialog.okButton],
+      defaultId: 0
+    })
+  })
+
   ipcMain.handle('repo:resolve', async (_e, cwd: string) => {
     try {
       return await git.resolveRepo(cwd)
