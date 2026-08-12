@@ -272,6 +272,14 @@ export const en: RendererMessages = {
     loading: 'Loading…',
     binaryOrOversized: 'Binary or oversized file.'
   },
+  find: {
+    placeholder: 'Find in document',
+    count: (i: number, n: number) => `${i} / ${n}`,
+    noMatches: 'No matches',
+    next: 'Next match (Enter)',
+    previous: 'Previous match (Shift+Enter)',
+    close: 'Close (Escape)'
+  },
   time: {
     today: 'today',
     yesterday: 'yesterday',

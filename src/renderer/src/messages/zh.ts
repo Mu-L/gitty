@@ -271,6 +271,14 @@ export const zh: RendererMessages = {
     loading: '加载中…',
     binaryOrOversized: '二进制文件或文件过大。'
   },
+  find: {
+    placeholder: '在文档中查找',
+    count: (i: number, n: number) => `${i} / ${n}`,
+    noMatches: '无匹配',
+    next: '下一个匹配（Enter）',
+    previous: '上一个匹配（Shift+Enter）',
+    close: '关闭（Escape）'
+  },
   time: {
     today: '今天',
     yesterday: '昨天',

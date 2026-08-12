@@ -271,6 +271,14 @@ export const ja: RendererMessages = {
     loading: '読み込み中…',
     binaryOrOversized: 'バイナリまたはサイズの大きいファイルです。'
   },
+  find: {
+    placeholder: 'ドキュメント内を検索',
+    count: (i: number, n: number) => `${i} / ${n}`,
+    noMatches: '一致なし',
+    next: '次の一致（Enter）',
+    previous: '前の一致（Shift+Enter）',
+    close: '閉じる（Escape）'
+  },
   time: {
     today: '今日',
     yesterday: '昨日',

@@ -275,6 +275,14 @@ export const es: RendererMessages = {
     loading: 'Cargando…',
     binaryOrOversized: 'Archivo binario o demasiado grande.'
   },
+  find: {
+    placeholder: 'Buscar en el documento',
+    count: (i: number, n: number) => `${i} / ${n}`,
+    noMatches: 'Sin coincidencias',
+    next: 'Coincidencia siguiente (Intro)',
+    previous: 'Coincidencia anterior (Mayús+Intro)',
+    close: 'Cerrar (Escape)'
+  },
   time: {
     today: 'hoy',
     yesterday: 'ayer',

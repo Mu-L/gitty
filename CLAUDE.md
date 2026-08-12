@@ -368,7 +368,19 @@ The substitution happens **in the render pass** — the image rule reads a map o
 markdown-it's `env` and re-renders once the fetches land. Patching `src` onto
 the rendered DOM instead is the obvious thing and does not work: React owns that
 subtree through `dangerouslySetInnerHTML` and rewrites it wholesale, silently
-discarding the patch. The CSP is `img-src 'self' data:`, so a `https://` image
+discarding the patch.
+
+That subtree has two consequences worth knowing before touching it. **Memoise
+the prop object, not just the string**: React sets innerHTML whenever the
+`dangerouslySetInnerHTML` prop is a different object, so a fresh `{__html}`
+literal per render rebuilds the whole document on every state change — the
+scroll handler that tracks the outline was enough to do it continuously.
+And **anything anchored into the document must survive that rewrite anyway**,
+which is why Ctrl+F (`find.ts`) paints matches with the CSS Custom Highlight
+API rather than wrapping them in `<mark>`: a `Highlight` holds Ranges and
+touches no nodes, so a re-render cannot discard it. When the document really
+does change, the Ranges collapse to the container and the search re-runs — the
+find effect lists `html` among its dependencies for exactly that. The CSP is `img-src 'self' data:`, so a `https://` image
 in a document is not fetched — deliberately, since rendering someone else's
 README should not report to their host.
 

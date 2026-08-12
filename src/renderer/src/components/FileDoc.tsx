@@ -27,6 +27,7 @@ export function FileDoc({
   preview,
   wrap,
   outline,
+  active,
   reloadKey,
   onSource,
   onMenu,
@@ -41,6 +42,8 @@ export function FileDoc({
   preview: boolean
   wrap: boolean
   outline: boolean
+  /** On screen in the active tab, so document-level keys belong to it. */
+  active: boolean
   /** Bumped when the repository changes, to re-read a work-tree file. */
   reloadKey: number
   /** Reports the loaded text, so the context menu can copy it. */
@@ -128,6 +131,7 @@ export function FileDoc({
       rev={rev}
       outline={outline}
       wrap={wrap}
+      active={active}
       onMenu={onMenu}
     />
   ) : preview && isHtmlPath(path) ? (

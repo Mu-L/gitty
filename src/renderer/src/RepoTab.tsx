@@ -1107,6 +1107,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       preview={doc.preview}
                       wrap={wrap}
                       outline={mdOutline}
+                      active={active}
                       reloadKey={tick}
                       onSource={setDocSource}
                       onMenu={diffMenu}

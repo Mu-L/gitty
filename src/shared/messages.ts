@@ -347,6 +347,16 @@ export interface RendererMessages {
     readonly loading: string
     readonly binaryOrOversized: string
   }
+  /** The find strip over a rendered document. */
+  readonly find: {
+    readonly placeholder: string
+    /** "3 / 12" — which match, and how many there are. */
+    readonly count: (i: number, n: number) => string
+    readonly noMatches: string
+    readonly next: string
+    readonly previous: string
+    readonly close: string
+  }
   readonly time: {
     readonly today: string
     readonly yesterday: string

@@ -291,6 +291,14 @@ export const ru: RendererMessages = {
     loading: 'Загрузка…',
     binaryOrOversized: 'Двоичный или слишком большой файл.'
   },
+  find: {
+    placeholder: 'Поиск в документе',
+    count: (i: number, n: number) => `${i} / ${n}`,
+    noMatches: 'Нет совпадений',
+    next: 'Следующее совпадение (Enter)',
+    previous: 'Предыдущее совпадение (Shift+Enter)',
+    close: 'Закрыть (Escape)'
+  },
   time: {
     today: 'сегодня',
     yesterday: 'вчера',

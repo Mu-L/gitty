@@ -353,6 +353,11 @@ glance.
   strings wrap too, rather than scrolling sideways.
 - **Outline** — the heading structure beside the document, indented by level,
   tracking the heading you have scrolled to. Click an entry to jump.
+- **<kbd>Ctrl+F</kbd>** — find in the document. Every match is highlighted and
+  the current one picked out; <kbd>Enter</kbd> and <kbd>Shift+Enter</kbd> (or
+  the arrows) walk them, wrapping around at either end, and <kbd>Esc</kbd>
+  closes. The search is case-insensitive and reads the rendered text, so a
+  phrase is found across the bold and code spans markdown leaves inside it.
 - **Right-click** — Copy Selection, Copy Markdown Source, the wrap and outline
   toggles, and Show Diff Instead.
 
@@ -511,6 +516,7 @@ highlight** lives here only.
 | <kbd>Enter</kbd> | Show the selected commit |
 | <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Mark a second commit and diff the pair |
 | <kbd>Ctrl+Click</kbd> on a file heading | Open that file in a new document tab |
+| <kbd>Ctrl+F</kbd> | Find in the rendered markdown document |
 | <kbd>Esc</kbd> | Back to the working tree |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Back and forward through the places viewed |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |

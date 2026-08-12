@@ -275,6 +275,14 @@ export const pt: RendererMessages = {
     loading: 'A carregar…',
     binaryOrOversized: 'Ficheiro binário ou demasiado grande.'
   },
+  find: {
+    placeholder: 'Procurar no documento',
+    count: (i: number, n: number) => `${i} / ${n}`,
+    noMatches: 'Sem resultados',
+    next: 'Resultado seguinte (Enter)',
+    previous: 'Resultado anterior (Shift+Enter)',
+    close: 'Fechar (Escape)'
+  },
   time: {
     today: 'hoje',
     yesterday: 'ontem',

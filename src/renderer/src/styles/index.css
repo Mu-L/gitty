@@ -38,6 +38,10 @@
   --wd-del-fg: #ffb1b1;
   --notice-bg: #3a2f1a;
   --row-hash: #fff;
+  --find-bg: #5a4a12;
+  --find-fg: #ffe9a8;
+  --find-current-bg: #c8a020;
+  --find-current-fg: #1a1200;
 }
 
 /* Light theme: swap the palette by overriding the same variables. The font
@@ -77,6 +81,10 @@
   --wd-del-fg: #932727;
   --notice-bg: #f7ecda;
   --row-hash: #000;
+  --find-bg: #ffeaa0;
+  --find-fg: #3d2f00;
+  --find-current-bg: #ffb62e;
+  --find-current-fg: #2a1d00;
 }
 
 * {
@@ -965,9 +973,82 @@ button:disabled:hover {
 /* ---------- markdown preview ---------- */
 
 .md-host {
+  position: relative;
   display: flex;
   flex: 1;
   min-height: 0;
+}
+
+/* ---------- find in document ---------- */
+
+/* Floats over the document rather than sitting above it: opening the strip
+   must not reflow the text the reader is looking at. */
+.find-bar {
+  position: absolute;
+  top: 6px;
+  right: 16px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: var(--bg-header);
+  border: 1px solid var(--border-active);
+  border-radius: 4px;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 45%);
+}
+
+.find-input {
+  width: 200px;
+  padding: 2px 6px;
+  color: var(--fg);
+  background: var(--bg-pane);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font: inherit;
+}
+
+.find-input:focus {
+  outline: none;
+  border-color: var(--border-active);
+}
+
+/* A query with nothing to find says so in the field itself, not only in the
+   count beside it. */
+.find-input.none {
+  border-color: var(--red);
+}
+
+.find-count {
+  min-width: 56px;
+  text-align: center;
+  color: var(--fg-dim);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.find-btn {
+  padding: 0 6px;
+  line-height: 1.4;
+}
+
+/* The strip floats, so the top of the document would sit under it — and a
+   match up there cannot be scrolled clear, the document being already at its
+   top. While the strip is open the body keeps that band free. */
+.md-body.finding {
+  padding-top: 46px;
+}
+
+/* Painted through the Custom Highlight API, so these are the only styles the
+   matches get — no element exists to carry a class. */
+::highlight(gitty-find) {
+  background-color: var(--find-bg);
+  color: var(--find-fg);
+}
+
+::highlight(gitty-find-current) {
+  background-color: var(--find-current-bg);
+  color: var(--find-current-fg);
 }
 
 .md-outline {

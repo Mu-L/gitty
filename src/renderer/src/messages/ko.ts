@@ -271,6 +271,14 @@ export const ko: RendererMessages = {
     loading: '불러오는 중…',
     binaryOrOversized: '바이너리이거나 너무 큰 파일입니다.'
   },
+  find: {
+    placeholder: '문서에서 찾기',
+    count: (i: number, n: number) => `${i} / ${n}`,
+    noMatches: '일치 없음',
+    next: '다음 일치(Enter)',
+    previous: '이전 일치(Shift+Enter)',
+    close: '닫기(Escape)'
+  },
   time: {
     today: '오늘',
     yesterday: '어제',

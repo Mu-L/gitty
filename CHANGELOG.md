@@ -9,10 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- <kbd>Ctrl+F</kbd> finds text in a rendered markdown document. Every match is
+  highlighted with the current one picked out, <kbd>Enter</kbd> /
+  <kbd>Shift+Enter</kbd> and the arrows walk them (wrapping at either end),
+  <kbd>Esc</kbd> closes, and the count says where you are. The search reads the
+  rendered text rather than the markup, so a phrase is found across the bold
+  and code spans markdown leaves inside it.
+
+
 - Whole-file blame is syntax-highlighted like the code viewer, so the lines in
   the blame pane carry the same token colours as the diff and the file.
 - Each blame row shows the date of the commit that last touched the line, read
   through the same time-zone and relative-time settings as the rest of the UI.
+
+### Fixed
+
+- A rendered markdown document rebuilt its entire DOM on every state change —
+  including the one a scroll fires to track the outline. React sets innerHTML
+  whenever the `dangerouslySetInnerHTML` prop is a different object, and a
+  fresh `{__html}` literal per render is always a different object. Memoising
+  it leaves the document's nodes alone, which large documents feel and which
+  the find highlights need to survive at all.
 
 ## [0.1.5] - 2026-08-12
 
