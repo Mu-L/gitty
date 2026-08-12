@@ -4,6 +4,7 @@ import { UNCOMMITTED_SHA } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
 import { highlightLines, languageFor } from '../highlight'
+import { fmtDateTimeZone, stamp, useTime } from '../time'
 
 /** Hash a string to a stable integer for hue assignment. */
 function hashStr(s: string): number {
@@ -33,7 +34,8 @@ export function BlamePane({
   rev: string | null
   onMenu: (state: MenuState) => void
 }): JSX.Element {
-  const { msg } = useMsg()
+  const { msg, locale } = useMsg()
+  const time = useTime()
   const [lines, setLines] = useState<BlameLine[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const language = useMemo(() => languageFor(path), [path])
@@ -85,16 +87,20 @@ export function BlamePane({
       ) : (
         lines.map((l, i) => {
           const hue = l.sha === UNCOMMITTED_SHA ? null : hashStr(l.sha) % 360
+          // `author-time` is epoch seconds; the formatters want an ISO instant.
+          // An uncommitted line has no commit to date, and shows an em dash.
+          const iso = l.sha === UNCOMMITTED_SHA ? null : new Date(l.time * 1000).toISOString()
           return (
             <div
               className="blame-row"
               key={i}
-              title={`${l.sha}\n${l.author}\n${l.summary}`}
+              title={`${l.sha}\n${l.author}${iso ? `\n${fmtDateTimeZone(iso, locale, time)}` : ''}\n${l.summary}`}
               style={hue != null ? { '--blame-hue': hue } as React.CSSProperties : undefined}
             >
               <span className="blame-num">{i + 1}</span>
               <span className="blame-sha">{l.sha === UNCOMMITTED_SHA ? '—' : l.sha.slice(0, 8)}</span>
               <span className="blame-author">{l.author}</span>
+              <span className="blame-date">{iso ? stamp(iso, time, msg.time) : '—'}</span>
               <span
                 className="blame-text"
                 dangerouslySetInnerHTML={{ __html: highlighted ? highlighted[i] || ' ' : l.line }}

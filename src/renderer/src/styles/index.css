@@ -1857,6 +1857,15 @@ button:disabled:hover {
   color: var(--fg-dim);
 }
 
+.blame-date {
+  flex: none;
+  width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--fg-dim);
+}
+
 .blame-text {
   flex: 1;
   min-width: 0;

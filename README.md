@@ -381,9 +381,9 @@ disk sit underneath. Images above 12 MB are not inlined.
 
 Right-click any file in the tree and choose **Blame File** or **File History**;
 both open as documents beside the diff. Blame shows one row per source line —
-the commit, its author and the line itself, highlighted like the code viewer,
-with an em dash where a line is not committed yet — at the revision you are
-viewing. File History lists every commit
+the commit, its author, its date and the line itself, highlighted like the code
+viewer, with an em dash where a line is not committed yet — at the revision you
+are viewing. File History lists every commit
 that touched the file, follows renames, and clicking a commit opens it.
 
 ### Commits (bottom left)
