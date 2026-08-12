@@ -180,6 +180,8 @@ export const de: RendererMessages = {
     wordHighlight: 'Worthervorhebung',
     markdownOutline: 'Markdown-Gliederung',
     language: 'Sprache',
+    timeZone: 'Zeitzone',
+    systemTimeZone: (zone: string) => `System (${zone})`,
     restoreDefaults: 'Standard wiederherstellen',
     done: 'Fertig'
   },

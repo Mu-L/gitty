@@ -177,6 +177,8 @@ export const zh: RendererMessages = {
     wordHighlight: '单词高亮',
     markdownOutline: 'Markdown 大纲',
     language: '语言',
+    timeZone: '时区',
+    systemTimeZone: (zone: string) => `系统（${zone}）`,
     restoreDefaults: '恢复默认',
     done: '完成'
   },

@@ -181,6 +181,8 @@ export const pt: RendererMessages = {
     wordHighlight: 'Realce de palavras',
     markdownOutline: 'Estrutura do markdown',
     language: 'Idioma',
+    timeZone: 'Fuso horário',
+    systemTimeZone: (zone: string) => `Sistema (${zone})`,
     restoreDefaults: 'Repor predefinições',
     done: 'Concluído'
   },

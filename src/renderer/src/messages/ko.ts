@@ -177,6 +177,8 @@ export const ko: RendererMessages = {
     wordHighlight: '단어 강조',
     markdownOutline: '마크다운 개요',
     language: '언어',
+    timeZone: '시간대',
+    systemTimeZone: (zone: string) => `시스템(${zone})`,
     restoreDefaults: '기본값 복원',
     done: '완료'
   },

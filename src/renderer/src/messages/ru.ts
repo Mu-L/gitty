@@ -197,6 +197,8 @@ export const ru: RendererMessages = {
     wordHighlight: 'Подсветка слов',
     markdownOutline: 'Структура markdown',
     language: 'Язык',
+    timeZone: 'Часовой пояс',
+    systemTimeZone: (zone: string) => `Системный (${zone})`,
     restoreDefaults: 'Восстановить по умолчанию',
     done: 'Готово'
   },

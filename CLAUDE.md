@@ -131,6 +131,21 @@ Adding a language is a new table beside `en.ts`, a `Locale` in `locale.ts`, an
 entry in `messages/index.ts`, and a `MainMessages` table in `src/main/messages.ts`
 — miss the last one and the menus quietly stay English.
 
+### Time zone
+
+`src/renderer/src/timezone.ts` is the one place a date becomes text. It holds
+the setting (`system`, or an IANA name), the formatters every pane calls, and a
+`TimeZoneProvider` / `useTimeZone()` pair beside `locale.ts`'s — the zone is a
+formatting choice like the locale, not part of the message tables. Three things
+it exists to keep right. `Intl.supportedValuesOf('timeZone')` **omits `UTC`**
+(an alias, not a canonical zone), so the list prepends it. An unknown zone name
+makes `toLocaleString` throw, and a `RangeError` raised while rendering the
+commit log takes the whole window white — `zoneOf` therefore falls back to the
+system zone for anything the runtime does not know, which is what a setting
+that outlived its zone name looks like. And "today" is a calendar day *in the
+displayed zone*, so `stamp` reads both the commit and now through it, or a
+midnight-adjacent commit shows a time on the wrong day.
+
 ### Git access
 
 `src/main/git.ts` shells out to `git` via `execFile` — no git library. Parsing

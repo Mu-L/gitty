@@ -2,27 +2,10 @@ import { useEffect, useRef, type JSX } from 'react'
 import type { Commit } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
+import { fmtDateTimeZone, stamp, useTimeZone } from '../timezone'
 
 /** Pseudo-hash of the row that stands for the uncommitted work tree. */
 export const WORKTREE_ROW = '__worktree__'
-
-/**
- * Today's rows show a time, anything older shows a date. The cutoff is the
- * calendar day, not the last 24 hours: at 3 PM a "9:45 PM" with no date beside
- * it would be yesterday evening, which reads as a time still to come.
- */
-export function stamp(iso: string): string {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  const now = new Date()
-  const today =
-    d.getDate() === now.getDate() &&
-    d.getMonth() === now.getMonth() &&
-    d.getFullYear() === now.getFullYear()
-  return today
-    ? d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-    : d.toLocaleDateString('en-CA')
-}
 
 export function LogPane({
   commits,
@@ -51,7 +34,8 @@ export function LogPane({
   onWorktreeMenu: (state: MenuState) => void
   onScrollEnd: () => void
 }): JSX.Element {
-  const { msg } = useMsg()
+  const { msg, locale } = useMsg()
+  const tz = useTimeZone()
   const listRef = useRef<HTMLDivElement>(null)
   // The work-tree row sits above the log and takes part in keyboard navigation.
   const hashes = [WORKTREE_ROW, ...commits.map((c) => c.hash)]
@@ -161,10 +145,10 @@ export function LogPane({
               e.preventDefault()
               onMenu(c, { x: e.clientX, y: e.clientY, items: [] })
             }}
-            title={`${c.hash}\n${c.author} <${c.email}>\n${c.date}\n\n${c.subject}`}
+            title={`${c.hash}\n${c.author} <${c.email}>\n${fmtDateTimeZone(c.date, locale, tz)}\n\n${c.subject}`}
           >
             <span className="commit-hash">{c.short}</span>
-            <span className="commit-time">{stamp(c.date)}</span>
+            <span className="commit-time">{stamp(c.date, tz)}</span>
             <span className="commit-author">{c.author}</span>
             {c.refs && <span className="commit-refs">({c.refs})</span>}
             <span className="commit-subject">{c.subject}</span>

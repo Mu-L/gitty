@@ -240,6 +240,10 @@ export interface RendererMessages {
     readonly wordHighlight: string
     readonly markdownOutline: string
     readonly language: string
+    /** The zone every date and time in the interface is shown in. */
+    readonly timeZone: string
+    /** The entry standing for the machine's own zone, which it names. */
+    readonly systemTimeZone: (zone: string) => string
     readonly restoreDefaults: string
     readonly done: string
   }

@@ -178,6 +178,8 @@ export const en: RendererMessages = {
     wordHighlight: 'Word highlight',
     markdownOutline: 'Markdown outline',
     language: 'Language',
+    timeZone: 'Time zone',
+    systemTimeZone: (zone: string) => `System (${zone})`,
     restoreDefaults: 'Restore Defaults',
     done: 'Done'
   },

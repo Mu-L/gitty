@@ -1523,6 +1523,18 @@ button:disabled:hover {
   border-bottom: 0;
 }
 
+/* The zone list is long enough that it has to scroll; keep it from stretching
+   the dialog to the width of its longest name. */
+.setting-row select {
+  max-width: 60%;
+  padding: 2px 4px;
+  color: var(--fg);
+  background: var(--bg-header);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font: inherit;
+}
+
 .setting-row input[type='range'] {
   flex: 1;
   accent-color: var(--border-active);

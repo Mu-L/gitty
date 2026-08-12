@@ -474,6 +474,7 @@ back.
 | --- | --- |
 | **Theme** | Dark or Light. |
 | **Language** | English, 简体中文, 日本語, 한국어, Français, Deutsch, Español, Русский or Português — the interface, the menus and the dialogs all change together without restarting. |
+| **Time zone** | The zone every date and time on screen is rendered in: the machine's own by default, or UTC, or any zone the system knows. Git records each commit with its author's offset, so a stamp is always a choice of zone — this is where it is made. The log's date column follows it, which means the boundary between "today" and a date moves with it too. |
 | **Font size** | 11 – 16, in half points. Applies to every pane, the terminal included. |
 | **Row height** | 18 – 26 pixels — the line height every list is built on, the file tree, the log and the diff. Tighter fits more on screen, looser reads easier. |
 | **Diff layout** | Inline or Side-by-Side, the same toggle the diff header carries. |

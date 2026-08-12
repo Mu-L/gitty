@@ -31,6 +31,7 @@ import { navLabel, type NavHistory } from './nav'
 import type { DiffView } from './components/DiffPane'
 import type { Branch, RepoStatus } from '../../shared/types'
 import { LocaleProvider, loadLocale, type Locale } from './locale'
+import { TimeZoneProvider, loadTimeZone, SYSTEM_TZ, type TimeZone } from './timezone'
 import { ALL_LOCALES } from './locale'
 import { getMessages } from './messages'
 
@@ -72,6 +73,7 @@ export default function App(): JSX.Element {
     const v = Number(localStorage.getItem('gitty.rowHeight'))
     return Number.isFinite(v) ? Math.min(26, Math.max(18, v)) : 20
   })
+  const [timeZone, setTimeZone] = useState<TimeZone>(loadTimeZone)
   const [recent, setRecent] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
@@ -305,6 +307,7 @@ export default function App(): JSX.Element {
   const resetSettings = useCallback(() => {
     setPanes({ ...ALL_PANES })
     setLocale('en')
+    setTimeZone(SYSTEM_TZ)
     setTheme('dark')
     setFontSize(12.5)
     setRowHeight(20)
@@ -333,7 +336,8 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.fontSize', String(fontSize))
     localStorage.setItem('gitty.rowHeight', String(rowHeight))
     localStorage.setItem('gitty.panes', JSON.stringify(panes))
-  }, [wrap, diffView, wordDiff, mdOutline, theme, fontSize, rowHeight, panes])
+    localStorage.setItem('gitty.timeZone', timeZone)
+  }, [wrap, diffView, wordDiff, mdOutline, theme, fontSize, rowHeight, panes, timeZone])
 
   // Persist locale and tell the main process.
   useEffect(() => {
@@ -433,6 +437,7 @@ export default function App(): JSX.Element {
 
   return (
     <LocaleProvider locale={locale} setLocale={setLocale}>
+    <TimeZoneProvider timeZone={timeZone}>
     <div className="app" onContextMenu={(e) => e.preventDefault()}>
       <div className="titlebar">
         {appIcon && (
@@ -639,8 +644,11 @@ export default function App(): JSX.Element {
         onReset={resetSettings}
         locale={locale}
         setLocale={setLocale}
+        timeZone={timeZone}
+        setTimeZone={setTimeZone}
       />
     </div>
+    </TimeZoneProvider>
     </LocaleProvider>
   )
 }

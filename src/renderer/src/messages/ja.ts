@@ -177,6 +177,8 @@ export const ja: RendererMessages = {
     wordHighlight: '単語のハイライト',
     markdownOutline: 'Markdown アウトライン',
     language: '言語',
+    timeZone: 'タイムゾーン',
+    systemTimeZone: (zone: string) => `システム（${zone}）`,
     restoreDefaults: '既定値に戻す',
     done: '完了'
   },

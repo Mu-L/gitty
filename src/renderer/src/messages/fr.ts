@@ -181,6 +181,8 @@ export const fr: RendererMessages = {
     wordHighlight: 'Surlignage des mots',
     markdownOutline: 'Plan markdown',
     language: 'Langue',
+    timeZone: 'Fuseau horaire',
+    systemTimeZone: (zone: string) => `Système (${zone})`,
     restoreDefaults: 'Rétablir les valeurs par défaut',
     done: 'Terminé'
   },

@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Time zone** in Settings: the zone every date and time on screen is rendered
+  in — the machine's own by default, UTC, or any zone the system knows. Git
+  stores a commit with its author's own offset, so a stamp was always a choice
+  of zone; now it is one that can be made. The commit log, a file's history and
+  the commit header all follow it, and so does the cutoff between a row showing
+  a time and one showing a date, which is a calendar day in the chosen zone.
+  A row's hover tip now spells the time out with the zone it is in, in place of
+  the raw ISO stamp.
+
 - A staged file's name is green in the work tree, the colour its index column
   already carried. Partly staged counts — the index has something either way —
   and a staged deletion keeps the line through its name as well.

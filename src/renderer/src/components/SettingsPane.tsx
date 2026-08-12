@@ -2,6 +2,7 @@ import { useMsg } from '../locale'
 import { ALL_LOCALES, type Locale } from '../locale'
 import type { JSX } from 'react'
 import type { DiffView } from './DiffPane'
+import { allZones, systemZone, SYSTEM_TZ, type TimeZone } from '../timezone'
 
 export type Theme = 'dark' | 'light'
 
@@ -50,6 +51,32 @@ function Segmented<T extends string>({
         ))}
       </div>
     </div>
+  )
+}
+
+/** A dropdown, where a segmented control would have too many options to lay out. */
+function Dropdown<T extends string>({
+  label,
+  value,
+  options,
+  onChange
+}: {
+  label: string
+  value: T
+  options: Array<{ value: T; label: string }>
+  onChange: (v: T) => void
+}): JSX.Element {
+  return (
+    <label className="setting-row">
+      <span>{label}</span>
+      <select value={value} onChange={(e) => onChange(e.target.value as T)}>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </label>
   )
 }
 
@@ -109,6 +136,8 @@ export function SettingsPane(props: {
   onReset: () => void
   locale: Locale
   setLocale: (v: Locale) => void
+  timeZone: TimeZone
+  setTimeZone: (v: TimeZone) => void
 }): JSX.Element | null {
   const { msg } = useMsg()
   if (!props.open) return null
@@ -136,6 +165,15 @@ export function SettingsPane(props: {
               value={props.locale}
               options={ALL_LOCALES.map((l) => ({ value: l.code, label: l.label }))}
               onChange={props.setLocale}
+            />
+            <Dropdown
+              label={msg.settings.timeZone}
+              value={props.timeZone}
+              options={[
+                { value: SYSTEM_TZ, label: msg.settings.systemTimeZone(systemZone()) },
+                ...allZones().map((z) => ({ value: z, label: z }))
+              ]}
+              onChange={props.setTimeZone}
             />
             <Segmented
               label={msg.settings.theme}
