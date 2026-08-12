@@ -1,13 +1,13 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, nativeImage, shell } from 'electron'
+import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, shell } from 'electron'
 import * as git from './git'
 import * as gource from './gource'
 import { createTerminal, type TerminalSession } from './pty'
 import { addRecent, clearRecent, listRecent, removeRecent } from './recent'
 import { watchRepo, type RepoWatcher } from './watcher'
 import * as web from './web'
-import type { ChurnSpec, DiffOptions, DiffRequest, TerminalOptions } from '../shared/types'
+import type { AboutInfo, ChurnSpec, DiffOptions, DiffRequest, TerminalOptions } from '../shared/types'
 import { msg, setMainLocale } from './messages'
 
 // Fixes the userData directory (~/.config/Gitty) rather than inheriting
@@ -158,11 +158,15 @@ function createWindow(): void {
 function registerIpc(): void {
   ipcMain.handle('repo:initial', () => initialPath())
 
-  // The window icon doubles as the title-bar mark. The renderer cannot read
-  // build/ for itself, so serve it as a data URL. Null when the PNG is absent
-  // (e.g. running unpackaged from a tarball without build assets).
+  // The window icon doubles as the title-bar mark, and the About dialog shows
+  // it too. The renderer cannot read build/ for itself, so serve it as a data
+  // URL. Unpackaged, getAppPath points at out/main, where no build/ lives — the
+  // repo root beside the bundle is where the icon actually is, the same root
+  // the About dialog reads its version from.
   ipcMain.handle('app:icon', () => {
-    const icon = path.join(app.getAppPath(), 'build', 'icon.png')
+    const icon = fs.existsSync(path.join(app.getAppPath(), 'build', 'icon.png'))
+      ? path.join(app.getAppPath(), 'build', 'icon.png')
+      : path.join(path.resolve(__dirname, '..', '..'), 'build', 'icon.png')
     try {
       return `data:image/png;base64,${fs.readFileSync(icon).toString('base64')}`
     } catch {
@@ -170,12 +174,14 @@ function registerIpc(): void {
     }
   })
 
-  // The About dialog: version plus the runtimes the app is built on. A native
-  // dialog like the delete confirmations, so it reads the same everywhere.
+  // The About dialog's contents. The renderer draws the dialog itself — a
+  // native message box's detail is plain text, and the project link has to be
+  // clickable — so this returns the facts and lets React lay them out.
   // Unpackaged, getAppPath points at out/main, where no package.json lives —
-  // app.getVersion() would report Electron's own version — so the version and
-  // icon come from the repo root beside the bundle instead.
-  ipcMain.handle('app:about', async () => {
+  // app.getVersion() would report Electron's own version — so the version
+  // comes from the repo root beside the bundle instead, and the build time is
+  // the bundle's own mtime.
+  ipcMain.handle('app:about', (): AboutInfo => {
     const root = path.resolve(__dirname, '..', '..')
     let version = app.getVersion()
     let author = ''
@@ -188,29 +194,21 @@ function registerIpc(): void {
     } catch {
       // Packaged: no manifest beside the bundle; app.getVersion() is right.
     }
-    const iconPath = path.join(root, 'build', 'icon.png')
-    const icon = fs.existsSync(iconPath) ? nativeImage.createFromPath(iconPath) : undefined
-    const versions = [
-      msg.dialog.aboutVersion(version),
-      msg.dialog.aboutElectron(process.versions.electron ?? ''),
-      msg.dialog.aboutChromium(process.versions.chrome ?? ''),
-      msg.dialog.aboutNode(process.versions.node ?? ''),
-      '',
-      author ? msg.dialog.aboutAuthor(author) : '',
-      // The project's home page; a URL is not a translated string.
-      'https://github.com/baojie/gitty'
-    ]
-      .filter(Boolean)
-      .join('\n')
-    await dialog.showMessageBox(win!, {
-      type: 'info',
-      title: msg.dialog.aboutTitle,
-      message: msg.window.title,
-      detail: versions,
-      icon,
-      buttons: [msg.dialog.okButton],
-      defaultId: 0
-    })
+    let builtAt = ''
+    try {
+      builtAt = fs.statSync(path.join(__dirname, 'index.js')).mtime.toISOString()
+    } catch {
+      // No stat-able bundle — nothing to say about the build.
+    }
+    return {
+      version,
+      author,
+      github: 'https://github.com/baojie/gitty',
+      builtAt,
+      electron: process.versions.electron ?? '',
+      chromium: process.versions.chrome ?? '',
+      node: process.versions.node ?? ''
+    }
   })
 
   ipcMain.handle('repo:resolve', async (_e, cwd: string) => {

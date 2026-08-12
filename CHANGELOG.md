@@ -44,8 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Each blame row shows the date of the commit that last touched the line, read
   through the same time-zone and relative-time settings as the rest of the UI.
 - Clicking the **Gitty** brand at the left of the title bar opens an **About**
-  dialog: the version, plus the Electron, Chromium and Node versions the app
-  is built on. A native dialog, so it reads the same on every platform.
+  dialog: the version, when it was built, the author, and the Electron,
+  Chromium and Node versions the app is built on. The dialog is drawn by the
+  renderer rather than as a native message box — a native box's text cannot be
+  clicked — so the link to the project's home page opens in the system browser.
 
 ### Changed
 

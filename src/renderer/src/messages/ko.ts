@@ -3,7 +3,17 @@ import type { RendererMessages } from '../../../shared/messages'
 export const ko: RendererMessages = {
   app: {
     title: 'Gitty',
-    about: 'Gitty 정보',
+    about: {
+      title: 'Gitty 정보',
+      version: (v: string) => `버전 ${v}`,
+      author: (name: string) => `작성자: ${name}`,
+      builtAt: (when: string) => `빌드 ${when}`,
+      electron: (v: string) => `Electron ${v}`,
+      chromium: (v: string) => `Chromium ${v}`,
+      node: (v: string) => `Node.js ${v}`,
+      github: 'GitHub',
+      close: '닫기'
+    },
     settings: '설정',
     openRepository: '저장소 열기',
     refresh: '새로 고침',

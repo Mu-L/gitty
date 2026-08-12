@@ -24,14 +24,7 @@ const en: MainMessages = {
     deletePermanentConfirm: (name: string) => `Delete ${name} permanently?`,
     deletePermanentDetail:
       'This system has no trash to move it to. A tracked file can still be restored with git; an untracked one cannot.',
-    deletePermanentButton: 'Delete Permanently',
-    aboutTitle: 'About Gitty',
-    aboutVersion: (v: string) => `Version ${v}`,
-    aboutAuthor: (name: string) => `by ${name}`,
-    aboutElectron: (v: string) => `Electron ${v}`,
-    aboutChromium: (v: string) => `Chromium ${v}`,
-    aboutNode: (v: string) => `Node.js ${v}`,
-    okButton: 'OK'
+    deletePermanentButton: 'Delete Permanently'
   },
   window: {
     title: 'Gitty'
@@ -77,14 +70,7 @@ const zh: MainMessages = {
     deletePermanentConfirm: (name: string) => `永久删除 ${name}？`,
     deletePermanentDetail:
       '本系统没有可用的回收站。已跟踪的文件仍可用 git 恢复，未跟踪的则无法恢复。',
-    deletePermanentButton: '永久删除',
-    aboutTitle: '关于 Gitty',
-    aboutVersion: (v: string) => `版本 ${v}`,
-    aboutAuthor: (name: string) => `作者：${name}`,
-    aboutElectron: (v: string) => `Electron ${v}`,
-    aboutChromium: (v: string) => `Chromium ${v}`,
-    aboutNode: (v: string) => `Node.js ${v}`,
-    okButton: '确定'
+    deletePermanentButton: '永久删除'
   },
   window: {
     title: 'Gitty'
@@ -131,14 +117,7 @@ const ja: MainMessages = {
     deletePermanentConfirm: (name: string) => `${name} を完全に削除しますか？`,
     deletePermanentDetail:
       'このシステムには移動先のゴミ箱がありません。追跡されているファイルは git で復元できますが、追跡されていないファイルは復元できません。',
-    deletePermanentButton: '完全に削除',
-    aboutTitle: 'Gitty について',
-    aboutVersion: (v: string) => `バージョン ${v}`,
-    aboutAuthor: (name: string) => `作者: ${name}`,
-    aboutElectron: (v: string) => `Electron ${v}`,
-    aboutChromium: (v: string) => `Chromium ${v}`,
-    aboutNode: (v: string) => `Node.js ${v}`,
-    okButton: 'OK'
+    deletePermanentButton: '完全に削除'
   },
   window: {
     title: 'Gitty'
@@ -184,14 +163,7 @@ const ko: MainMessages = {
     deletePermanentConfirm: (name: string) => `${name}을(를) 영구히 삭제할까요?`,
     deletePermanentDetail:
       '이 시스템에는 옮길 휴지통이 없습니다. 추적되는 파일은 git으로 되돌릴 수 있지만, 추적되지 않는 파일은 되돌릴 수 없습니다.',
-    deletePermanentButton: '영구 삭제',
-    aboutTitle: 'Gitty 정보',
-    aboutVersion: (v: string) => `버전 ${v}`,
-    aboutAuthor: (name: string) => `작성자: ${name}`,
-    aboutElectron: (v: string) => `Electron ${v}`,
-    aboutChromium: (v: string) => `Chromium ${v}`,
-    aboutNode: (v: string) => `Node.js ${v}`,
-    okButton: '확인'
+    deletePermanentButton: '영구 삭제'
   },
   window: {
     title: 'Gitty'
@@ -238,14 +210,7 @@ const fr: MainMessages = {
     deletePermanentConfirm: (name: string) => `Supprimer ${name} définitivement ?`,
     deletePermanentDetail:
       "Ce système n'a pas de corbeille où le déplacer. Un fichier suivi reste récupérable avec git ; un fichier non suivi, non.",
-    deletePermanentButton: 'Supprimer définitivement',
-    aboutTitle: 'À propos de Gitty',
-    aboutVersion: (v: string) => `Version ${v}`,
-    aboutAuthor: (name: string) => `par ${name}`,
-    aboutElectron: (v: string) => `Electron ${v}`,
-    aboutChromium: (v: string) => `Chromium ${v}`,
-    aboutNode: (v: string) => `Node.js ${v}`,
-    okButton: 'OK'
+    deletePermanentButton: 'Supprimer définitivement'
   },
   window: {
     title: 'Gitty'
@@ -293,14 +258,7 @@ const de: MainMessages = {
     deletePermanentConfirm: (name: string) => `${name} endgültig löschen?`,
     deletePermanentDetail:
       'Dieses System hat keinen Papierkorb, in den sie verschoben werden könnte. Eine versionierte Datei lässt sich mit git wiederherstellen, eine unversionierte nicht.',
-    deletePermanentButton: 'Endgültig löschen',
-    aboutTitle: 'Über Gitty',
-    aboutVersion: (v: string) => `Version ${v}`,
-    aboutAuthor: (name: string) => `von ${name}`,
-    aboutElectron: (v: string) => `Electron ${v}`,
-    aboutChromium: (v: string) => `Chromium ${v}`,
-    aboutNode: (v: string) => `Node.js ${v}`,
-    okButton: 'OK'
+    deletePermanentButton: 'Endgültig löschen'
   },
   window: {
     title: 'Gitty'
@@ -348,14 +306,7 @@ const es: MainMessages = {
     deletePermanentConfirm: (name: string) => `¿Eliminar ${name} de forma permanente?`,
     deletePermanentDetail:
       'Este sistema no tiene papelera a la que moverlo. Un archivo versionado se puede recuperar con git; uno sin seguimiento, no.',
-    deletePermanentButton: 'Eliminar permanentemente',
-    aboutTitle: 'Acerca de Gitty',
-    aboutVersion: (v: string) => `Versión ${v}`,
-    aboutAuthor: (name: string) => `por ${name}`,
-    aboutElectron: (v: string) => `Electron ${v}`,
-    aboutChromium: (v: string) => `Chromium ${v}`,
-    aboutNode: (v: string) => `Node.js ${v}`,
-    okButton: 'Aceptar'
+    deletePermanentButton: 'Eliminar permanentemente'
   },
   window: {
     title: 'Gitty'
@@ -403,14 +354,7 @@ const ru: MainMessages = {
     deletePermanentConfirm: (name: string) => `Удалить ${name} безвозвратно?`,
     deletePermanentDetail:
       'В этой системе нет корзины, куда его переместить. Отслеживаемый файл можно вернуть через git, неотслеживаемый — нет.',
-    deletePermanentButton: 'Удалить безвозвратно',
-    aboutTitle: 'О Gitty',
-    aboutVersion: (v: string) => `Версия ${v}`,
-    aboutAuthor: (name: string) => `Автор: ${name}`,
-    aboutElectron: (v: string) => `Electron ${v}`,
-    aboutChromium: (v: string) => `Chromium ${v}`,
-    aboutNode: (v: string) => `Node.js ${v}`,
-    okButton: 'ОК'
+    deletePermanentButton: 'Удалить безвозвратно'
   },
   window: {
     title: 'Gitty'
@@ -457,14 +401,7 @@ const pt: MainMessages = {
     deletePermanentConfirm: (name: string) => `Eliminar ${name} definitivamente?`,
     deletePermanentDetail:
       'Este sistema não tem lixo para onde o mover. Um ficheiro versionado ainda pode ser recuperado com git; um não versionado, não.',
-    deletePermanentButton: 'Eliminar definitivamente',
-    aboutTitle: 'Sobre o Gitty',
-    aboutVersion: (v: string) => `Versão ${v}`,
-    aboutAuthor: (name: string) => `por ${name}`,
-    aboutElectron: (v: string) => `Electron ${v}`,
-    aboutChromium: (v: string) => `Chromium ${v}`,
-    aboutNode: (v: string) => `Node.js ${v}`,
-    okButton: 'OK'
+    deletePermanentButton: 'Eliminar definitivamente'
   },
   window: {
     title: 'Gitty'

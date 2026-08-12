@@ -200,3 +200,16 @@ export interface RepoChanged {
  * the server is not running or the repo is not open.
  */
 export type WebUrl = string | null
+
+/** What the About dialog shows: version, author, home page and runtimes. */
+export interface AboutInfo {
+  readonly version: string
+  readonly author: string
+  /** The project's home page, opened in the system browser when clicked. */
+  readonly github: string
+  /** When the app was built, as an ISO timestamp; empty if unreadable. */
+  readonly builtAt: string
+  readonly electron: string
+  readonly chromium: string
+  readonly node: string
+}

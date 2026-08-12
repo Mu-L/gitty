@@ -17,7 +17,17 @@ function plural(n: number, one: string, few: string, many: string): string {
 export const ru: RendererMessages = {
   app: {
     title: 'Gitty',
-    about: 'О Gitty',
+    about: {
+      title: 'О Gitty',
+      version: (v: string) => `Версия ${v}`,
+      author: (name: string) => `Автор: ${name}`,
+      builtAt: (when: string) => `Сборка ${when}`,
+      electron: (v: string) => `Electron ${v}`,
+      chromium: (v: string) => `Chromium ${v}`,
+      node: (v: string) => `Node.js ${v}`,
+      github: 'GitHub',
+      close: 'Закрыть'
+    },
     settings: 'Настройки',
     openRepository: 'Открыть репозиторий',
     refresh: 'Обновить',

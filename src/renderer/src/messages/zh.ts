@@ -3,7 +3,17 @@ import type { RendererMessages } from '../../../shared/messages'
 export const zh: RendererMessages = {
   app: {
     title: 'Gitty',
-    about: '关于 Gitty',
+    about: {
+      title: '关于 Gitty',
+      version: (v: string) => `版本 ${v}`,
+      author: (name: string) => `作者：${name}`,
+      builtAt: (when: string) => `构建于 ${when}`,
+      electron: (v: string) => `Electron ${v}`,
+      chromium: (v: string) => `Chromium ${v}`,
+      node: (v: string) => `Node.js ${v}`,
+      github: 'GitHub',
+      close: '关闭'
+    },
     settings: '设置',
     openRepository: '打开仓库',
     refresh: '刷新',

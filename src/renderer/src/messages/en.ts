@@ -3,7 +3,17 @@ import type { RendererMessages } from '../../../shared/messages'
 export const en: RendererMessages = {
   app: {
     title: 'Gitty',
-    about: 'About Gitty',
+    about: {
+      title: 'About Gitty',
+      version: (v: string) => `Version ${v}`,
+      author: (name: string) => `by ${name}`,
+      builtAt: (when: string) => `Built ${when}`,
+      electron: (v: string) => `Electron ${v}`,
+      chromium: (v: string) => `Chromium ${v}`,
+      node: (v: string) => `Node.js ${v}`,
+      github: 'GitHub',
+      close: 'Close'
+    },
     settings: 'Settings',
     openRepository: 'Open Repository',
     refresh: 'Refresh',

@@ -31,14 +31,6 @@ export interface MainMessages {
     readonly deletePermanentConfirm: (name: string) => string
     readonly deletePermanentDetail: string
     readonly deletePermanentButton: string
-    /** The About dialog, opened from the title bar's brand. */
-    readonly aboutTitle: string
-    readonly aboutVersion: (v: string) => string
-    readonly aboutAuthor: (name: string) => string
-    readonly aboutElectron: (v: string) => string
-    readonly aboutChromium: (v: string) => string
-    readonly aboutNode: (v: string) => string
-    readonly okButton: string
   }
   readonly window: {
     readonly title: string
@@ -70,8 +62,22 @@ export interface MainMessages {
 export interface RendererMessages {
   readonly app: {
     readonly title: string
-    /** Title-bar brand tooltip; clicking it opens the About dialog. */
-    readonly about: string
+    /** The About dialog, opened from the title-bar brand. */
+    readonly about: {
+      /** The brand's tooltip, and the dialog's heading. */
+      readonly title: string
+      readonly version: (v: string) => string
+      readonly author: (name: string) => string
+      /** `when` is the build time, already formatted in the active locale. */
+      readonly builtAt: (when: string) => string
+      readonly electron: (v: string) => string
+      readonly chromium: (v: string) => string
+      readonly node: (v: string) => string
+      /** The label on the link to the project's home page; the URL is not
+       *  translated. */
+      readonly github: string
+      readonly close: string
+    }
     readonly settings: string
     readonly openRepository: string
     readonly refresh: string

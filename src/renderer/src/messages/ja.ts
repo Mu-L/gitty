@@ -3,7 +3,17 @@ import type { RendererMessages } from '../../../shared/messages'
 export const ja: RendererMessages = {
   app: {
     title: 'Gitty',
-    about: 'Gitty について',
+    about: {
+      title: 'Gitty について',
+      version: (v: string) => `バージョン ${v}`,
+      author: (name: string) => `作者: ${name}`,
+      builtAt: (when: string) => `ビルド ${when}`,
+      electron: (v: string) => `Electron ${v}`,
+      chromium: (v: string) => `Chromium ${v}`,
+      node: (v: string) => `Node.js ${v}`,
+      github: 'GitHub',
+      close: '閉じる'
+    },
     settings: '設定',
     openRepository: 'リポジトリを開く',
     refresh: '更新',

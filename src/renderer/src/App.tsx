@@ -10,6 +10,7 @@ import {
   type JSX
 } from 'react'
 import { ContextMenu, type MenuItem, type MenuState } from './components/ContextMenu'
+import { AboutPane } from './components/AboutPane'
 import { SettingsPane, type Theme } from './components/SettingsPane'
 import type { RepoTabHandle } from './RepoTab'
 
@@ -65,6 +66,7 @@ export default function App(): JSX.Element {
   )
   const [panes, setPanes] = useState<PaneVisibility>(loadPanes)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [aboutOpen, setAboutOpen] = useState(false)
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem('gitty.theme') === 'light' ? 'light' : 'dark')
   )
@@ -322,9 +324,11 @@ export default function App(): JSX.Element {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
-      // Settings is app-wide; Escape closes it before any tab's own unwinding.
-      if (e.key === 'Escape' && settingsOpen) {
+      // Settings and About are app-wide; Escape closes them before any tab's
+      // own unwinding.
+      if (e.key === 'Escape' && (settingsOpen || aboutOpen)) {
         setSettingsOpen(false)
+        setAboutOpen(false)
       } else if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
         e.preventDefault()
         void pickAndOpen()
@@ -351,7 +355,7 @@ export default function App(): JSX.Element {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [settingsOpen, pickAndOpen, togglePane, goBack, goForward])
+  }, [settingsOpen, aboutOpen, pickAndOpen, togglePane, goBack, goForward])
 
   const openPanesMenu = (x: number, y: number): void => {
     const items: MenuItem[] = PANE_ORDER.map((id) => ({
@@ -544,7 +548,11 @@ export default function App(): JSX.Element {
       <div className="titlebar">
         {/* The brand opens the About dialog, like the application menu's
             About on macOS. */}
-        <button className="titlebar-brand" title={msg.app.about} onClick={() => void window.gitty.about()}>
+        <button
+          className="titlebar-brand"
+          title={msg.app.about.title}
+          onClick={() => setAboutOpen(true)}
+        >
           {appIcon && (
             <img className="titlebar-icon" src={appIcon} alt={msg.app.title} draggable={false} />
           )}
@@ -776,6 +784,7 @@ export default function App(): JSX.Element {
         termLogin={termLogin}
         setTermLogin={setTermLogin}
       />
+      <AboutPane open={aboutOpen} onClose={() => setAboutOpen(false)} appIcon={appIcon} />
     </div>
     </TimeProvider>
     </LocaleProvider>

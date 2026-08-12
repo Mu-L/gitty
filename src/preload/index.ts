@@ -1,6 +1,7 @@
 import os from 'node:os'
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
+  AboutInfo,
   BlameLine,
   Branch,
   ChurnSpec,
@@ -27,8 +28,8 @@ const api = {
   homeDir: os.homedir(),
   /** The app icon as a data URL, for the title bar; null when unavailable. */
   appIcon: (): Promise<string | null> => ipcRenderer.invoke('app:icon'),
-  /** Open the About dialog: name, version and the runtimes it is built on. */
-  about: (): Promise<void> => ipcRenderer.invoke('app:about'),
+  /** Facts for the About dialog: version, author, home page, build time. */
+  about: (): Promise<AboutInfo> => ipcRenderer.invoke('app:about'),
   repo: {
     initial: (): Promise<string> => ipcRenderer.invoke('repo:initial'),
     resolve: (cwd: string): Promise<string | null> => ipcRenderer.invoke('repo:resolve', cwd),
