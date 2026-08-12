@@ -54,7 +54,7 @@ Ungewöhnlich für andere Git-Browser:
   vier Bereichen, das auf nur das Diff oder nur das Log zusammenschrumpft und
   zurückkommt.
 
-![Gitty 0.1.4](../../ref/gitty-0.1.4.png)
+![Gitty 0.1.5](../../ref/gitty-0.1.5.png)
 
 ## Warum noch einer? <a id="why-another-one"></a>
 

@@ -47,7 +47,7 @@ Uncommon in other git browsers:
 - **Every pane resizable, hidable, or full screen** — a four-pane layout that
   shrinks to just the diff, or just the log, and comes back.
 
-![Gitty 0.1.4](ref/gitty-0.1.4.png)
+![Gitty 0.1.5](ref/gitty-0.1.5.png)
 
 ## Why another one?
 

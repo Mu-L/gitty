@@ -52,7 +52,7 @@ Poco habitual en otros navegadores de git:
   disposición de cuatro paneles que se encoge hasta dejar solo el diff, o solo el
   log, y vuelve.
 
-![Gitty 0.1.4](../../ref/gitty-0.1.4.png)
+![Gitty 0.1.5](../../ref/gitty-0.1.5.png)
 
 ## ¿Por qué otro más? <a id="why-another-one"></a>
 

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-08-12
+
 ### Added
 
 - Six new settings, and a third **Session** group in the dialog to hold the
@@ -494,7 +496,8 @@ Initial release.
   `chrome-sandbox` cannot keep its root-owned setuid bit inside `node_modules`.
 - README shows a screenshot of the interface (`ref/gitty-0.1.0.png`).
 
-[Unreleased]: https://github.com/baojie/gitty/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/baojie/gitty/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/baojie/gitty/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/baojie/gitty/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/baojie/gitty/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/baojie/gitty/compare/v0.1.1...v0.1.2
