@@ -23,29 +23,43 @@ its path, click two commits to diff them.
 All panes are resizable by dragging the separators, and each one hides and comes
 back — see [Full screen and hiding](#full-screen-and-hiding).
 
-Uncommon in other git browsers:
+Things the other git browsers mostly do not do:
 
 - **A real shell docked to the history.** Not a git-calling widget — a genuine
   login shell (`$SHELL`) rooted at the repository, in the same window as the
-  diff. Most git browsers leave the terminal outside, so checking a hunch means
-  alt-tabbing. Here it is right there, and every other pane refreshes as the
-  repository changes.
-- **Two commits at once.** Click one, then <kbd>Ctrl+click</kbd> / <kbd>Shift+click</kbd> a
-  second, and diff the pair in place — most browsers only diff a commit against
-  its parent or a tree you pick in a dialog.
-- **Browse any branch without checking it out.** Pick a branch and its whole
-  history is there to read; the work tree, the diffs and the terminals stay
-  exactly where git left them. Nothing in the working directory moves.
-- **Markdown preview built in.** Selecting a `.md` change renders the document —
-  syntax-highlighted code, an outline that tracks your scroll — at the revision
-  you are on, not just the working copy.
-- **A whole diff with every file's heading pinned.** With nothing selected you
-  see every change at once, and the file heading you are reading stays glued to
-  the top of the pane until the next file's heading pushes it away.
-- **Text selection and copy that just works** — no mouse mode, no register, no
-  keyboard gymnastics; select and copy anything anywhere in the window.
-- **Every pane resizable, hidable, or full screen** — a four-pane layout that
-  shrinks to just the diff, or just the log, and comes back.
+  diff, splittable into several. Most git browsers either have no terminal or
+  launch an external one, so checking a hunch means alt-tabbing. Here it is
+  right there, and every other pane refreshes as the repository changes.
+- **Documents, not only diffs.** Markdown is rendered, HTML is shown in a
+  sandboxed frame, images are shown as pictures — all at the revision you are
+  on. A README from two years ago renders with the screenshots *that* commit
+  shipped, read straight out of the object database — nothing on disk is
+  involved, and nothing is fetched from the web, because reading someone else's
+  README should not announce you to whatever host it points at.
+- **Rendered markdown that can still tell you where you are in the file.** Turn
+  on **Markdown source lines** and every heading, paragraph, list item, table,
+  fenced block and image is numbered in the gutter with the line it starts on in
+  the source — so a passage you found by reading can be edited by line.
+- **A diff, a blame, a file's history and a rendered README, open at once.**
+  Files open as their own tabs *beside* the diff rather than over it, each
+  remembering the revision it was opened at. Reading a file never costs you the
+  change you were looking at.
+- **<kbd>Ctrl+F</kbd> that works in whatever the pane is showing** — including
+  rendered markdown, where a phrase is found across bold and code spans because
+  the search reads the rendered text, and inside the HTML preview's frame.
+- **The history, served to your browser.** **Open in Browser** hands a commit —
+  its metadata, its files, its diffs — to the system browser, from a web server
+  inside the app bound to `127.0.0.1` — your own browser and nobody else's.
+  Commits are real URLs, so the history can be read in tabs, kept open, and
+  searched with the browser's own find, for as long as the repository is open.
+- **[gource](https://gource.io/) in one click**, when it is installed: the
+  repository's whole history as an animation, in its own window. Where gource is
+  absent the button is not drawn — nothing is downloaded or offered that cannot
+  run.
+- **Nine interface languages and an explicit time zone.** Git records every
+  commit with its author's offset, so a stamp is always a choice of zone; here
+  you make it, and the whole UI — log, blame, file history, the boundary between
+  "today" and a date — follows.
 
 ![Gitty 0.1.6](ref/gitty-0.1.6.png)
 
@@ -329,8 +343,8 @@ than over it, so a file can be read without losing the diff you were on. The
 in place. Each document remembers the revision it was opened at, closes with its
 own **×**, and re-reads a work-tree file when the repository changes. Source
 files get line numbers and syntax highlighting; markdown opens
-[rendered](#markdown-preview), with a toggle back to the source; an image opens
-as [the picture](#images).
+[rendered](#markdown-preview), with a toggle back to the source; HTML opens
+[rendered too](#html-preview); an image opens as [the picture](#images).
 
 Which revision you get follows the pane: the file on disk in the work tree, the
 file as it was at the selected commit everywhere else. Opening a document is an
@@ -369,6 +383,12 @@ glance.
   width is shared by every document in the repository — it is a reading
   preference, not a property of one file — and lasts as long as the window,
   like the other panes' sizes.
+- **Source lines** — off by default, and turned on in
+  [Settings](#settings): every heading, paragraph, list item, table, fenced
+  block and image is numbered in the left gutter with the line it starts on in
+  the source. The numbers are drawn rather than inserted, so they stay out of a
+  selection you copy and out of what <kbd>Ctrl+F</kbd> searches. An image
+  written inside a sentence takes its paragraph's line, having none of its own.
 - **<kbd>Ctrl+F</kbd>** — find in the document; see
   [Finding text](#finding-text).
 - **Right-click** — Copy Selection, Copy Markdown Source, the wrap and outline
@@ -383,6 +403,21 @@ fetched at all: reading a stranger's README should not announce you to whatever
 host it points at.
 
 ![Markdown preview](ref/gitty-0.1.5-markdown.png)
+
+#### HTML preview
+
+An `.html`, `.htm` or `.xhtml` file gets the same **Preview** button, and the
+document is rendered rather than shown as source — the version on disk in the
+work tree, the version at the selected commit everywhere else.
+
+It renders in a sandboxed frame loaded through `srcdoc`, so the page can never
+navigate the app away from itself. Its own stylesheets apply — layout, colours,
+fonts are the document's. Scripts do not run and remote images are not fetched:
+the frame inherits the app's content security policy, which admits neither. A
+page is shown, not executed. **Wrap** decides whether the frame scrolls on its
+own or grows to its content so the whole page scrolls as one. <kbd>Ctrl+F</kbd>
+and <kbd>Ctrl+Shift+C</kbd> work inside the frame, whose keys never reach the
+rest of the window.
 
 #### Images
 
@@ -497,8 +532,8 @@ screen instead of an empty pane.
 ## Finding text
 
 <kbd>Ctrl+F</kbd> searches whatever the right-hand pane is showing: a diff, a
-file, a rendered markdown document, an HTML preview, a blame, or a file's
-history. Every match is highlighted with the current one picked out,
+file, a rendered markdown document, an [HTML preview](#html-preview), a blame,
+or a file's history. Every match is highlighted with the current one picked out,
 <kbd>Enter</kbd> and <kbd>Shift+Enter</kbd> (or the arrows) walk them and wrap
 around at either end, the count says where you are, and <kbd>Esc</kbd> closes.
 
