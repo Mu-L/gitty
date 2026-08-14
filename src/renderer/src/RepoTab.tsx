@@ -906,6 +906,19 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {commitMeta && <CommitInfo meta={commitMeta} />}
                   <FilesPane
                     entries={viewFiles}
+                    // A whole repository — browsing the work tree or a commit's
+                    // snapshot — opens shut: it is a tree to descend into, not
+                    // a list of changes to read.
+                    startCollapsed={view.mode === 'snapshot'}
+                    treeKey={
+                      view.mode === 'snapshot'
+                        ? `snapshot:${view.hash ?? 'worktree'}`
+                        : view.mode === 'commit'
+                          ? `commit:${view.hash}`
+                          : view.mode === 'range'
+                            ? `range:${view.from}..${view.to}`
+                            : 'worktree'
+                    }
                     selected={selectedFile}
                     onSelect={(f) => {
                       setSelectedFile(f.path)

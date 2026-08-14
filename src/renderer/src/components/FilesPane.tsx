@@ -1,4 +1,4 @@
-import { useMemo, useState, type JSX } from 'react'
+import { useCallback, useEffect, useMemo, useState, type JSX } from 'react'
 import { useMsg } from '../locale'
 import type { FileChurn } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
@@ -30,7 +30,7 @@ interface TreeRow {
 }
 
 /** Flatten the entry list into visible tree rows, honouring collapsed folders. */
-function buildRows(entries: FileEntry[], collapsed: Set<string>): TreeRow[] {
+function buildRows(entries: FileEntry[], collapsed: (key: string) => boolean): TreeRow[] {
   const rows: TreeRow[] = []
   let prevParts: string[] = []
 
@@ -53,7 +53,7 @@ function buildRows(entries: FileEntry[], collapsed: Set<string>): TreeRow[] {
     }
     prevParts = dirs
 
-    const hidden = dirs.some((_, d) => collapsed.has(dirs.slice(0, d + 1).join('/')))
+    const hidden = dirs.some((_, d) => collapsed(dirs.slice(0, d + 1).join('/')))
     if (!hidden) {
       rows.push({
         kind: 'file',
@@ -69,12 +69,14 @@ function buildRows(entries: FileEntry[], collapsed: Set<string>): TreeRow[] {
   return rows.filter((r) => {
     if (r.kind !== 'dir') return true
     const segs = r.key.split('/')
-    return !segs.slice(0, -1).some((_, i) => collapsed.has(segs.slice(0, i + 1).join('/')))
+    return !segs.slice(0, -1).some((_, i) => collapsed(segs.slice(0, i + 1).join('/')))
   })
 }
 
 export function FilesPane({
   entries,
+  startCollapsed,
+  treeKey,
   selected,
   onSelect,
   onOpen,
@@ -82,6 +84,12 @@ export function FilesPane({
   emptyText
 }: {
   entries: FileEntry[]
+  /** Start with every directory shut: a whole repository is a list to open
+   *  into, where a list of changes is one to read. */
+  startCollapsed: boolean
+  /** Which tree is on screen. A different one starts from the default again;
+   *  the same one re-read (a file changed on disk) keeps what is open. */
+  treeKey: string
   selected: string | null
   onSelect: (entry: FileEntry) => void
   onOpen: (entry: FileEntry) => void
@@ -89,7 +97,17 @@ export function FilesPane({
   emptyText: string
 }): JSX.Element {
   const { msg } = useMsg()
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+  // What the user has changed from the default, rather than what is shut: the
+  // set of every directory is not known until the entries are in, and they
+  // arrive in two passes (paths first, line counts after).
+  const [toggled, setToggled] = useState<Set<string>>(new Set())
+  useEffect(() => setToggled(new Set()), [treeKey])
+
+  const collapsed = useCallback(
+    (key: string): boolean => toggled.has(key) !== startCollapsed,
+    [toggled, startCollapsed]
+  )
+
   // Sorted here rather than by each producer: git orders by byte, which puts
   // W10 before W9 and every capital before every lowercase letter, and the
   // entries arrive from five different commands.
@@ -99,7 +117,7 @@ export function FilesPane({
   )
 
   const toggle = (key: string): void =>
-    setCollapsed((prev) => {
+    setToggled((prev) => {
       const next = new Set(prev)
       if (next.has(key)) next.delete(key)
       else next.add(key)
@@ -119,7 +137,7 @@ export function FilesPane({
             title={row.key}
           >
             <span className="tree-indent" style={{ width: row.depth * 12 }} />
-            <span className="twisty">{collapsed.has(row.key) ? '▶' : '▼'}</span>
+            <span className="twisty">{collapsed(row.key) ? '▶' : '▼'}</span>
             <span className="dir-name">{row.name}/</span>
           </div>
         ) : (

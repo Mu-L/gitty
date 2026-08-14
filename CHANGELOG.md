@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Browsing a whole repository starts with every directory collapsed — the work
+  tree browsed from the worktree row, and a commit's snapshot. A repository is
+  a tree to descend into, where a list of changes is one to read, and the
+  latter still opens expanded. What you open stays open while that tree is on
+  screen; showing another one starts from the default again.
 - The file tree sorts names naturally. Git orders paths by byte, which puts
   `SKILL_W10` between `SKILL_W0` and `SKILL_W1`, and every capital before every
   lowercase letter; the tree now reads the digits in a name as a number and

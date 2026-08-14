@@ -252,8 +252,10 @@ come back with their scrollback when it does.
 ### Working Tree (top left)
 
 Changed files as a collapsible tree, each with its line count beside the name.
-Names are sorted the way a reader expects rather than the way a byte comparison
-does: the digits in a name count as a number, so `W9` comes before `W10`, and
+Browsing a whole repository — the work tree or a commit's snapshot — opens with
+every directory shut, since that is a tree to descend into rather than a list of
+changes to read; a list of changes opens expanded. Names are sorted the way a
+reader expects rather than the way a byte comparison does: the digits in a name count as a number, so `W9` comes before `W10`, and
 case is not a first-order difference, so `butler/` sorts with the b's instead of
 after every capital letter.
 Two status columns are shown: the staged state (green) and the work-tree state
