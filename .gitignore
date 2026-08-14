@@ -33,3 +33,6 @@ Thumbs.db
 # Misc
 coverage/
 .cache/
+
+# electron-builder output
+release/

@@ -1,0 +1,87 @@
+appId: dev.baojie.gitty
+productName: Gitty
+copyright: MIT © baojie
+
+directories:
+  # `build/` is where electron-builder looks for icons by convention, and it is
+  # already where the app's own icon lives.
+  buildResources: build
+  output: release
+
+# The bundle plus what the main process reads off disk at runtime: the icon
+# (title bar, About dialog) and package.json (version and author).
+files:
+  - out/**
+  - build/icon.png
+  - package.json
+  # Everything the renderer uses — React, xterm, highlight.js, markdown-it —
+  # is already inside out/, bundled by vite; shipping the packages again would
+  # double them. node-pty is the one module still required at runtime, because
+  # it is native and cannot be bundled. Electron itself is a dependency so
+  # `npm install -g gitty-desktop` still gets a runtime — in a package it would
+  # be 300 MB of a second copy of the binary that is already running.
+  - '!node_modules/**'
+  - 'node_modules/node-pty/**'
+
+# node-pty is a native module: the `.node` inside an asar cannot be loaded, so
+# it is unpacked beside it. Rebuilding it against Electron's ABI is
+# electron-builder's job (npmRebuild, on by default) — never a prebuilt binary
+# checked in by hand.
+asarUnpack:
+  - '**/node_modules/node-pty/**'
+
+linux:
+  executableName: gitty
+  # A .deb needs a maintainer field. It lives here rather than as an author
+  # object in package.json, where the About dialog reads `author` as a string.
+  maintainer: baojie <baojie@gmail.com>
+  # Electron derives a Wayland app_id / WM_CLASS from `desktopName` in
+  # package.json, and this writes the matching StartupWMClass into the entry —
+  # which is what a packaged build has instead of the hand-written
+  # `StartupWMClass=electron` the developer scripts still need.
+  syncDesktopName: true
+  category: Development;RevisionControl;
+  icon: build/icon.png
+  synopsis: A four-pane git history browser
+  description: >-
+    Gitty shows a repository as four panes at once — the working tree, the diff,
+    the commit log and a real shell — so reading history and acting on it happen
+    in the same window.
+  desktop:
+    entry:
+      # StartupWMClass is not written by hand here: syncDesktopName above
+      # derives it from the executable, which is what a packaged Electron
+      # actually reports. The `StartupWMClass=electron` in setup.sh stays,
+      # because that route really is running an unpackaged Electron.
+      Keywords: git;diff;commit;history;repository;
+  target:
+    # .deb first: its postinst is what makes Chromium's sandbox work — it sets
+    # chrome-sandbox 4755 where the kernel has no unprivileged user namespaces
+    # and leaves it 0755 where it has, and it installs the AppArmor profile
+    # Ubuntu 24.04 wants. Neither is possible without a package, which is why
+    # the developer scripts still turn the sandbox off.
+    - target: deb
+      arch: [x64, arm64]
+    # AppImage cannot carry a setuid bit, so its sandbox falls back to
+    # unprivileged user namespaces — which Ubuntu 24.04's AppArmor profile
+    # restricts by default. Kept as the distro-independent option, not as the
+    # recommended one.
+    - target: AppImage
+      arch: [x64, arm64]
+
+deb:
+  # git is not vendored; whatever is on PATH is what the app shows.
+  depends:
+    - git
+    - libgtk-3-0
+    - libnotify4
+    - libnss3
+    - libxss1
+    - libxtst6
+    - libatspi2.0-0
+    - libuuid1
+    - libsecret-1-0
+    - xdg-utils
+
+appImage:
+  artifactName: ${productName}-${version}-${arch}.${ext}

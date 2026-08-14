@@ -9,8 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Linux packages: a `.deb` and an `.AppImage`, built by electron-builder
+  (`electron-builder.yml`, `npm run dist`) and attached to every `v*` tag by a
+  release workflow. The `.deb` installs `/usr/bin/gitty` and a menu entry,
+  needs no Node, and runs with Chromium's sandbox **on** — its `postinst` sets
+  `chrome-sandbox` up and installs an AppArmor profile. The AppImage can do
+  neither and may need `--no-sandbox`; it is the second choice.
+- CI on pull requests: typecheck, tests and a build.
 - README translations for 한국어, Русский and Português; the five existing
   translations updated to match the English README.
+
+### Changed
+
+- The packaged desktop entry matches its window on `gitty`, so another
+  unpackaged Electron app can no longer borrow Gitty's icon. `setup.sh` keeps
+  `StartupWMClass=electron`: that route really is an unpackaged Electron, which
+  reports nothing else.
+- `electron` moved to `optionalDependencies`. electron-builder refuses to
+  package a project that has it in `dependencies`, and npm installs optional
+  ones anyway, so `npm install -g gitty-desktop` is unaffected.
+- README's **Running** section leads with the `.deb`; Node 20 is listed as a
+  requirement of the npm and source routes only.
 
 ## [0.1.6] - 2026-08-14
 

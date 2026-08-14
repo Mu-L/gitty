@@ -1,0 +1,36 @@
+name: Release
+
+# A tag is what publishes: push v0.1.7 and the Linux artifacts appear on the
+# release for it. Nothing is signed and nothing is auto-updated — these are
+# downloads, not a channel.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      # arm64 artifacts are cross-built from x64; electron-builder fetches the
+      # matching Electron binaries itself. Only the .deb and the AppImage are
+      # produced — no snap, which would want a store login.
+      - run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/*.deb
+            release/*.AppImage
+          fail_on_unmatched_files: true

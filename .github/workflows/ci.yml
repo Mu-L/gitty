@@ -1,0 +1,27 @@
+name: CI
+
+# The whole automated safety net is a typecheck and the vitest suite; without
+# this they only ever ran on someone's laptop, so an outside pull request was
+# read by eye.
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      # postinstall rebuilds node-pty against Electron's ABI, which needs the
+      # headers electron ships — nothing else here touches native code.
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      # The bundle is what ships; a build error is a broken commit even when
+      # the types are fine.
+      - run: npm run build

@@ -82,21 +82,39 @@ Two more things I wanted and almost nothing offered: a **markdown preview**, and
 
 ## Requirements
 
-- Node.js 20 or newer
 - `git` on `PATH`
 - Linux, macOS or Windows with a desktop session
+- Node.js 20 or newer — only for the npm and source installs below; the `.deb`
+  brings its own runtime
 - Optionally [gource](https://gource.io/) on `PATH`, for
   [the animation](#gource); nothing changes if it is absent
 
 ## Running
 
-Install the `gitty` command once:
+### Download a package (Linux)
+
+The `.deb` on the [releases page](https://github.com/baojie/gitty/releases) is
+the shortest way in — no Node, no build:
+
+```bash
+sudo dpkg -i gitty-desktop_*_amd64.deb
+```
+
+It installs `/usr/bin/gitty`, an application-menu entry with its icon, and runs
+with Chromium's sandbox **on** — see
+[Linux desktop integration](#linux-desktop-integration). An `.AppImage` is
+published beside it for distributions without dpkg; it is the second choice,
+because an AppImage cannot install the sandbox helper.
+
+### From npm
 
 ```bash
 npm install -g gitty-desktop      # installs the gitty command globally
 ```
 
-or, from a checkout, link it into your PATH with:
+### From a checkout
+
+Link it into your PATH with:
 
 ```bash
 ./setup.sh               # symlink into ~/.local/bin (no sudo)
@@ -621,17 +639,29 @@ one — is specified in [ref/spec/lazy-loading.md](ref/spec/lazy-loading.md).
 
 ### Linux desktop integration
 
-The desktop entry carries `StartupWMClass=electron`, which is what gives the
-running window its icon in the window list and the dock. An Electron app that
-is run rather than packaged reports `electron` as its window class whatever the
-application calls itself, so that is the name the entry has to match — with the
-side effect that another unpackaged Electron app on the same session would
-borrow Gitty's icon.
+Both compromises below have the same cause — an Electron app that is *run*
+rather than packaged — so both are gone in the `.deb`, and both remain on the
+`setup.sh` route, which really is running an unpackaged Electron.
 
-The app also runs with Chromium's SUID sandbox disabled
-(`ELECTRON_DISABLE_SANDBOX=1`). The usual fix — making `chrome-sandbox` owned by
-root with mode 4755 — cannot survive inside `node_modules`, so disabling it is
-the pragmatic choice for a local tool that only reads your own repositories.
+**Window class.** The desktop entry `setup.sh` writes carries
+`StartupWMClass=electron`: that is what an unpackaged Electron reports whatever
+the application calls itself, and it is what the window list and the dock match
+a window against to find its icon. The side effect is that another unpackaged
+Electron app in the same session borrows Gitty's icon. The packaged build has
+its own executable, so its entry matches `gitty` and the collision cannot
+happen.
+
+**Sandbox.** `run.sh` and `cli.js` set `ELECTRON_DISABLE_SANDBOX=1`, because
+`chrome-sandbox` cannot keep a root-owned setuid bit inside `node_modules`. The
+`.deb` has nothing to work around: its `postinst` sets the helper 4755 on
+kernels without unprivileged user namespaces, leaves it 0755 where the
+namespace sandbox works, and installs the AppArmor profile Ubuntu 24.04 asks
+for. So the sandbox is on for anything installed from the package.
+
+The `.AppImage` is the weaker of the two: nothing about it can carry a setuid
+bit, so it depends on unprivileged user namespaces — which Ubuntu 24.04's
+AppArmor policy restricts by default. Expect to pass `--no-sandbox` there, or
+to install an AppArmor profile of your own. Prefer the `.deb` where you can.
 
 ### macOS app bundle
 
@@ -646,7 +676,8 @@ from the bundle. Finder and the Dock read `CFBundleName` and `CFBundleIconFile`
 out of `Info.plist`; the menu bar is `app.name`, which `app.setName('Gitty')`
 sets before any window exists and `{ role: 'appMenu' }` uses as its label. So
 unlike the Linux window-class problem above, nothing here is a compromise —
-which is why packaging (electron-builder) would buy nothing but signing.
+which is why packaging would buy nothing but signing, and why
+`electron-builder.yml` configures Linux targets only.
 
 A bundle launched from Finder inherits launchd's minimal `PATH`, with no nvm and
 no Homebrew on it, and `run.sh` needs `node` and `npm` to rebuild when the
