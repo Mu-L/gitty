@@ -191,6 +191,7 @@ export const de: RendererMessages = {
     wordWrap: 'Zeilenumbruch',
     wordHighlight: 'Worthervorhebung',
     markdownOutline: 'Markdown-Gliederung',
+    markdownLineNumbers: 'Markdown-Quellzeilennummern',
     fileSort: 'Dateisortierung',
     sortNatural: 'Natürlich',
     sortByte: 'Byte-Reihenfolge',

@@ -208,6 +208,7 @@ export const ru: RendererMessages = {
     wordWrap: 'Перенос по словам',
     wordHighlight: 'Подсветка слов',
     markdownOutline: 'Структура markdown',
+    markdownLineNumbers: 'Номера строк исходника markdown',
     fileSort: 'Сортировка файлов',
     sortNatural: 'Естественная',
     sortByte: 'По байтам',

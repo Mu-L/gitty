@@ -192,6 +192,7 @@ export const es: RendererMessages = {
     wordWrap: 'Ajuste de línea',
     wordHighlight: 'Resaltado de palabras',
     markdownOutline: 'Esquema de markdown',
+    markdownLineNumbers: 'Números de línea del origen markdown',
     fileSort: 'Orden de archivos',
     sortNatural: 'Natural',
     sortByte: 'Por bytes',

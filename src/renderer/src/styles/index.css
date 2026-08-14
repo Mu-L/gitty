@@ -1152,6 +1152,38 @@ button:disabled:hover {
   margin-top: 0;
 }
 
+/* Source line numbers in a gutter beside the rendered document.
+   The numbers are generated content, so they stay out of the DOM text: the
+   find highlighter walks text nodes, and a copied selection must not pick
+   them up. Absolute against .md-body — the scroller, so they scroll with the
+   text — and with no `top`, which leaves each at its static position, the
+   first line of the block it belongs to. */
+.md-body.lines {
+  position: relative;
+  padding-left: 62px;
+}
+
+.md-body.lines [data-line]::before {
+  content: attr(data-line);
+  position: absolute;
+  left: 0;
+  width: 44px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: inherit;
+  color: var(--fg-dim);
+  opacity: 0.5;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Headings set their own line-height and size, so the number would ride up
+   with them; pin it to the document's own leading instead. */
+.md-body.lines :is(h1, h2, h3, h4, h5, h6)[data-line]::before {
+  line-height: 1.9;
+}
+
 /* Heading levels are coloured as well as sized, so depth reads at a glance
    and matches the level indentation in the outline. */
 .md-body h1,

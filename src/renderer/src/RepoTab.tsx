@@ -113,6 +113,8 @@ export interface RepoTabProps {
   setWordDiff: Dispatch<SetStateAction<boolean>>
   mdOutline: boolean
   setMdOutline: Dispatch<SetStateAction<boolean>>
+  /** Number markdown blocks with their source lines. */
+  mdLineNumbers: boolean
   /** Sort file names the way a reader does, rather than by code unit. */
   naturalSort: boolean
   /** The monospace font setting, passed through to the terminal. */
@@ -164,6 +166,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setWordDiff,
     mdOutline,
     setMdOutline,
+    mdLineNumbers,
     naturalSort,
     fontFamily,
     diffOptions,
@@ -1145,6 +1148,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       preview={doc.preview}
                       wrap={wrap}
                       outline={mdOutline}
+                      lineNumbers={mdLineNumbers}
                       active={active}
                       reloadKey={tick}
                       onSource={setDocSource}

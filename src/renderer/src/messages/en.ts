@@ -189,6 +189,7 @@ export const en: RendererMessages = {
     wordWrap: 'Word wrap',
     wordHighlight: 'Word highlight',
     markdownOutline: 'Markdown outline',
+    markdownLineNumbers: 'Markdown source lines',
     fileSort: 'File sorting',
     sortNatural: 'Natural',
     sortByte: 'Byte order',

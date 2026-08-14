@@ -257,6 +257,8 @@ export interface RendererMessages {
     readonly wordWrap: string
     readonly wordHighlight: string
     readonly markdownOutline: string
+    /** Number each markdown block with the source line it starts on. */
+    readonly markdownLineNumbers: string
     /** How the file tree orders names. */
     readonly fileSort: string
     readonly sortNatural: string

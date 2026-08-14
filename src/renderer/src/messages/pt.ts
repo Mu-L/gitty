@@ -192,6 +192,7 @@ export const pt: RendererMessages = {
     wordWrap: 'Moldagem de texto',
     wordHighlight: 'Realce de palavras',
     markdownOutline: 'Estrutura do markdown',
+    markdownLineNumbers: 'Números de linha da fonte markdown',
     fileSort: 'Ordenação de ficheiros',
     sortNatural: 'Natural',
     sortByte: 'Por bytes',

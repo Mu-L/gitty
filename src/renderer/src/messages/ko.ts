@@ -188,6 +188,7 @@ export const ko: RendererMessages = {
     wordWrap: '자동 줄 바꿈',
     wordHighlight: '단어 강조',
     markdownOutline: '마크다운 개요',
+    markdownLineNumbers: '마크다운 원본 줄 번호',
     fileSort: '파일 정렬',
     sortNatural: '자연 순',
     sortByte: '바이트 순',

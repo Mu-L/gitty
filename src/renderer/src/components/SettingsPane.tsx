@@ -151,6 +151,8 @@ export function SettingsPane(props: {
   setWordDiff: (v: boolean) => void
   mdOutline: boolean
   setMdOutline: (v: boolean) => void
+  mdLineNumbers: boolean
+  setMdLineNumbers: (v: boolean) => void
   naturalSort: boolean
   setNaturalSort: (v: boolean) => void
   onReset: () => void
@@ -313,6 +315,7 @@ export function SettingsPane(props: {
             <CheckRow label={msg.settings.wordWrap} checked={props.wrap} onChange={props.setWrap} />
             <CheckRow label={msg.settings.wordHighlight} checked={props.wordDiff} onChange={props.setWordDiff} />
             <CheckRow label={msg.settings.markdownOutline} checked={props.mdOutline} onChange={props.setMdOutline} />
+            <CheckRow label={msg.settings.markdownLineNumbers} checked={props.mdLineNumbers} onChange={props.setMdLineNumbers} />
             <Segmented
               label={msg.settings.fileSort}
               value={props.naturalSort ? 'natural' : 'byte'}

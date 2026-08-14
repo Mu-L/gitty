@@ -529,6 +529,7 @@ order.
 | **Word wrap** | Wrap long lines instead of scrolling sideways. |
 | **Word highlight** | Mark the words that changed inside a changed line, not just the line. |
 | **Markdown outline** | Show the outline beside a rendered document. |
+| **Markdown source lines** | Number each block of a rendered document with the line it starts on in the source. Headings, paragraphs, list items, tables, fenced code and images all carry one, in a gutter down the left. Off by default. |
 | **File sorting** | Natural or Byte order. Natural reads the digits in a name as a number (`W9` before `W10`) and puts case second; byte order is git's own, where every capital sorts ahead of every lowercase letter. |
 | **Reopen last session** | Reopen the repositories that were open when the app last exited. The repository Gitty was started with is still the active tab; ones that have since been deleted are quietly dropped. |
 | **Shell** | The shell a terminal starts, listed from `/etc/shells` plus the usual paths (`COMSPEC` and PowerShell on Windows). **System default** is `$SHELL`. A path that has since gone falls back to it rather than leaving a dead pane. |

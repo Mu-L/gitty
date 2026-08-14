@@ -188,6 +188,7 @@ export const ja: RendererMessages = {
     wordWrap: '折り返し',
     wordHighlight: '単語のハイライト',
     markdownOutline: 'Markdown アウトライン',
+    markdownLineNumbers: 'Markdown のソース行番号',
     fileSort: 'ファイルの並び',
     sortNatural: '自然順',
     sortByte: 'バイト順',

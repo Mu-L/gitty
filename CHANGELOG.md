@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Markdown source lines**, a View setting: each block of a rendered document
+  is numbered in the left gutter with the line it starts on in the source.
+  Headings, paragraphs, list items, tables, fenced code and images all get one,
+  so a passage in the preview can be found in the file. Off by default.
+
 ### Changed
 
 - **Font size** goes from 9 to 20, where it was 11 to 16.

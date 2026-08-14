@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from 'react'
-import MarkdownIt from 'markdown-it'
+import MarkdownIt, { type Token } from 'markdown-it'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { hljs } from '../highlight'
 import { useMsg } from '../locale'
@@ -40,19 +40,23 @@ const BLANK_PIXEL =
   'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 
 /**
- * What `render` passes to (and collects from) the image rule below.
+ * What `render` passes to (and collects from) the rules below.
  * markdown-it types `env` as an index signature, hence the cast at each use.
  */
-interface ImageEnv {
+interface RenderEnv {
   [key: string | symbol]: unknown
   /** Every repository-relative src the document mentions, in reading order. */
   refs: Set<string>
   /** Bytes already fetched: src → data URL, or null when it could not be read. */
   loaded: Map<string, string | null>
+  /** Number source lines in the gutter. */
+  lines: boolean
+  /** Lines of front matter sliced off before parsing; see `render`. */
+  lineOffset: number
 }
 
 md.renderer.rules.image = (tokens, idx, options, rawEnv, self) => {
-  const env = rawEnv as unknown as ImageEnv
+  const env = rawEnv as unknown as RenderEnv
   const token = tokens[idx]
   const alt = token.attrIndex('alt')
   if (alt >= 0 && token.attrs) {
@@ -69,6 +73,63 @@ md.renderer.rules.image = (tokens, idx, options, rawEnv, self) => {
     if (data === null) token.attrSet('class', 'md-img-missing')
   }
   return self.renderToken(tokens, idx, options)
+}
+
+/**
+ * A fence carries its attributes on the inner `<code>`, which scrolls sideways
+ * with the code when wrapping is off — so the gutter number, which has to stay
+ * put, is written onto the `<pre>` here instead of through `markLines`.
+ */
+const renderFence = md.renderer.rules.fence
+md.renderer.rules.fence = (tokens, idx, options, rawEnv, self) => {
+  const out = renderFence?.(tokens, idx, options, rawEnv, self) ?? ''
+  const env = rawEnv as unknown as RenderEnv
+  const map = tokens[idx].map
+  if (!env.lines || !map) return out
+  return out.replace('<pre', `<pre data-line="${map[0] + 1 + env.lineOffset}"`)
+}
+
+/**
+ * A table scrolls sideways (`display: block; overflow-x: auto`), which both
+ * clips a gutter number and puts its static position below the rows. Wrapping
+ * it in a plain block gives the number something in normal flow to sit beside.
+ */
+md.renderer.rules.table_open = (tokens, idx, options, rawEnv, self) => {
+  const env = rawEnv as unknown as RenderEnv
+  const map = tokens[idx].map
+  const open = self.renderToken(tokens, idx, options)
+  if (!env.lines) return open
+  const at = map ? ` data-line="${map[0] + 1 + env.lineOffset}"` : ''
+  return `<div class="md-table"${at}>${open}`
+}
+md.renderer.rules.table_close = (tokens, idx, options, rawEnv, self) => {
+  const env = rawEnv as unknown as RenderEnv
+  const close = self.renderToken(tokens, idx, options)
+  return env.lines ? `${close}</div>` : close
+}
+
+/**
+ * Tag each block with the source line it starts on, for the gutter.
+ *
+ * Only top-level blocks are numbered, plus list items wherever they nest: a
+ * list opens on the same line as its first item, so numbering both would put
+ * two numbers on one gutter row, and a paragraph inside a list item or a row
+ * inside a table would do the same. Fences and tables are left to the rules
+ * above, which have their own reasons to write the attribute themselves.
+ */
+function markLines(tokens: Token[], offset: number): void {
+  let depth = 0
+  for (const t of tokens) {
+    if (t.nesting === -1) {
+      depth--
+      continue
+    }
+    const top = depth === 0
+    if (t.nesting === 1) depth++
+    if (!t.map || t.type === 'fence' || t.type === 'table_open') continue
+    if (t.type === 'bullet_list_open' || t.type === 'ordered_list_open') continue
+    if (t.type === 'list_item_open' || top) t.attrSet('data-line', String(t.map[0] + 1 + offset))
+  }
 }
 
 /** Images fetched per document, so a gallery cannot spawn git processes forever. */
@@ -127,27 +188,35 @@ function slugger(): (text: string) => string {
 /** YAML front matter, which markdown-it would otherwise read as a rule + text. */
 const FRONT_MATTER = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/
 
-function renderFrontMatter(yaml: string): string {
+function renderFrontMatter(yaml: string, lines: boolean): string {
   let inner: string
   try {
     inner = hljs.highlight(yaml, { language: 'yaml', ignoreIllegals: true }).value
   } catch {
     inner = md.utils.escapeHtml(yaml)
   }
-  return `<div class="md-frontmatter"><pre><code>${inner}</code></pre></div>`
+  // Front matter is always the top of the file, so its own line is 1.
+  const at = lines ? ' data-line="1"' : ''
+  return `<div class="md-frontmatter"${at}><pre><code>${inner}</code></pre></div>`
 }
 
 /** Render markdown, collecting its headings and its image references. */
 function render(
   source: string,
-  loaded: Map<string, string | null>
+  loaded: Map<string, string | null>,
+  lines: boolean
 ): { html: string; headings: Heading[]; refs: string[] } {
   const fm = FRONT_MATTER.exec(source)
   const body = fm ? source.slice(fm[0].length) : source
-  const env: ImageEnv = { refs: new Set(), loaded }
+  // Token line numbers count from the start of what was parsed, and front
+  // matter was sliced off first — so the gutter has to add it back.
+  const lineOffset = fm ? (fm[0].match(/\n/g)?.length ?? 0) : 0
+  const env: RenderEnv = { refs: new Set(), loaded, lines, lineOffset }
   const tokens = md.parse(body, env as never)
   const headings: Heading[] = []
   const slug = slugger()
+
+  if (lines) markLines(tokens, lineOffset)
 
   for (let i = 0; i < tokens.length; i++) {
     const t = tokens[i]
@@ -161,7 +230,7 @@ function render(
 
   const html = md.renderer.render(tokens, md.options, env as never)
   return {
-    html: fm ? renderFrontMatter(fm[1]) + html : html,
+    html: fm ? renderFrontMatter(fm[1], lines) + html : html,
     headings,
     refs: [...env.refs]
   }
@@ -174,6 +243,7 @@ export function MarkdownPane({
   docPath,
   rev,
   outline,
+  lineNumbers,
   wrap,
   active,
   onMenu
@@ -188,6 +258,8 @@ export function MarkdownPane({
   rev: string | null
   /** Show the heading outline beside the document. */
   outline: boolean
+  /** Number each block in the gutter with the source line it starts on. */
+  lineNumbers: boolean
   /** Wrap fenced code blocks and tables instead of scrolling them sideways. */
   wrap: boolean
   /** On screen in the active tab — only then does Ctrl+F belong to it. */
@@ -196,7 +268,10 @@ export function MarkdownPane({
 }): JSX.Element {
   const { msg } = useMsg()
   const [images, setImages] = useState<Map<string, string | null>>(new Map())
-  const { html, headings, refs } = useMemo(() => render(source, images), [source, images])
+  const { html, headings, refs } = useMemo(
+    () => render(source, images, lineNumbers),
+    [source, images, lineNumbers]
+  )
   const bodyRef = useRef<HTMLDivElement>(null)
   // Which heading the outline marks — not to be confused with the `active`
   // prop, which is about this pane being the one on screen.
@@ -317,7 +392,7 @@ export function MarkdownPane({
 
   const body = (
     <div
-      className={`md-body${wrap ? ' wrap' : ''}${find.open ? ' finding' : ''}`}
+      className={`md-body${wrap ? ' wrap' : ''}${lineNumbers ? ' lines' : ''}${find.open ? ' finding' : ''}`}
       ref={bodyRef}
       onClick={(e) => {
         // Links must never navigate the window away from the app.

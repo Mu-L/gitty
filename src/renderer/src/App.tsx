@@ -64,6 +64,11 @@ export default function App(): JSX.Element {
   const [mdOutline, setMdOutline] = useState(
     () => localStorage.getItem('gitty.mdOutline') !== 'off'
   )
+  // Off by default: source lines beside rendered prose are for cross-checking
+  // against the file, not for reading it.
+  const [mdLineNumbers, setMdLineNumbers] = useState(
+    () => localStorage.getItem('gitty.mdLineNumbers') === 'on'
+  )
   // Natural by default: it is what a reader expects. Off gives git's own byte
   // order, which is what the command line shows.
   const [naturalSort, setNaturalSort] = useState(
@@ -398,6 +403,7 @@ export default function App(): JSX.Element {
     setDiffView('inline')
     setWordDiff(true)
     setMdOutline(true)
+    setMdLineNumbers(false)
     setNaturalSort(true)
   }, [])
 
@@ -420,6 +426,7 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.diffView', diffView)
     localStorage.setItem('gitty.wordDiff', wordDiff ? 'on' : 'off')
     localStorage.setItem('gitty.mdOutline', mdOutline ? 'on' : 'off')
+    localStorage.setItem('gitty.mdLineNumbers', mdLineNumbers ? 'on' : 'off')
     localStorage.setItem('gitty.naturalSort', naturalSort ? 'on' : 'off')
     localStorage.setItem('gitty.theme', theme)
     localStorage.setItem('gitty.fontSize', String(fontSize))
@@ -438,6 +445,7 @@ export default function App(): JSX.Element {
     diffView,
     wordDiff,
     mdOutline,
+    mdLineNumbers,
     naturalSort,
     theme,
     fontSize,
@@ -705,6 +713,7 @@ export default function App(): JSX.Element {
                   wordDiff={wordDiff}
                   setWordDiff={setWordDiff}
                   mdOutline={mdOutline}
+                  mdLineNumbers={mdLineNumbers}
                   naturalSort={naturalSort}
                   setMdOutline={setMdOutline}
                   fontFamily={monoFont}
@@ -772,6 +781,8 @@ export default function App(): JSX.Element {
         wordDiff={wordDiff}
         setWordDiff={setWordDiff}
         mdOutline={mdOutline}
+        mdLineNumbers={mdLineNumbers}
+        setMdLineNumbers={setMdLineNumbers}
         setMdOutline={setMdOutline}
         naturalSort={naturalSort}
         setNaturalSort={setNaturalSort}

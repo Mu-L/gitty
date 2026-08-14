@@ -27,6 +27,7 @@ export function FileDoc({
   preview,
   wrap,
   outline,
+  lineNumbers,
   active,
   reloadKey,
   onSource,
@@ -43,6 +44,8 @@ export function FileDoc({
   preview: boolean
   wrap: boolean
   outline: boolean
+  /** Number markdown blocks with their source lines. */
+  lineNumbers: boolean
   /** On screen in the active tab, so document-level keys belong to it. */
   active: boolean
   /** Bumped when the repository changes, to re-read a work-tree file. */
@@ -134,6 +137,7 @@ export function FileDoc({
       docPath={path}
       rev={rev}
       outline={outline}
+      lineNumbers={lineNumbers}
       wrap={wrap}
       active={active}
       onMenu={onMenu}

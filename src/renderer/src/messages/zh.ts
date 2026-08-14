@@ -188,6 +188,7 @@ export const zh: RendererMessages = {
     wordWrap: '自动折行',
     wordHighlight: '单词高亮',
     markdownOutline: 'Markdown 大纲',
+    markdownLineNumbers: 'Markdown 源码行号',
     fileSort: '文件排序',
     sortNatural: '自然',
     sortByte: '字节序',
