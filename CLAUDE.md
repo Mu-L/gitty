@@ -23,6 +23,14 @@ may be in another language, but nothing that lands in the repository is — exce
 the two things below, which are translations of English originals rather than
 work authored in another language.
 
+The user-facing documentation is two files. `README.md` is the short one —
+what Gitty is, why it exists, how to install it, what it deliberately does not
+do — and is kept under about 200 lines. `docs/manual.md` is the long one: every
+pane, the settings table, the shortcuts, the platform notes. A behaviour change
+usually belongs in the manual; the README changes only when the pitch does.
+The translations track the README alone, which is what keeps nine of them
+affordable.
+
 `ref/readme/README.<lang>.md` holds README translations (zh-CN, ja, es, fr, de).
 They are **snapshots, not a second source of truth** — each carries the date it
 was translated and a line saying the English README is the official version and

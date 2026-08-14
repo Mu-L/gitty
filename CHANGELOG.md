@@ -76,6 +76,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The README is 660 lines shorter than it was: everything pane-by-pane — the
+  window, the panes, finding text, the settings table, the shortcuts and the
+  platform notes — moved to **[docs/manual.md](docs/manual.md)**, which the
+  README links to. A manual and a business card should not be the same file,
+  and the translations now have only the README to track.
+  (The review that asked for the split also asked for a ten-second GIF in the
+  screenshot's place. That needs a screen recording of a real session, which
+  this change cannot produce; the static screenshot stays.)
 - The packaged desktop entry matches its window on `gitty`, so another
   unpackaged Electron app can no longer borrow Gitty's icon. `setup.sh` keeps
   `StartupWMClass=electron`: that route really is an unpackaged Electron, which
