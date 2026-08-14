@@ -156,6 +156,12 @@ export const fr: RendererMessages = {
     filterPlaceholder: 'Filtrer les commits…',
     noMatches: 'Aucun commit ne correspond',
     clearFilter: 'Effacer le filtre',
+    filterModeText: 'Message / Auteur',
+    filterModeContent: 'Contenu',
+    filterModeRegex: 'Contenu regex',
+    filterModeTitle:
+      'Ce qui est cherché.\nMessage / Auteur : le message de commit et l’auteur.\nContenu (-S) : les commits où le nombre d’occurrences du texte a changé — ceux qui l’ont introduit ou retiré.\nContenu regex (-G) : tout commit dont le diff correspond à l’expression, y compris ceux qui n’ont fait que déplacer la ligne.',
+    searching: 'Recherche dans les diffs…',
     browsingAnother: 'Consultation d’une autre branche',
     comparing2: 'comparaison de 2 commits',
     openInBrowser: 'Ouvrir dans le navigateur',

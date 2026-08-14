@@ -153,6 +153,12 @@ export const ko: RendererMessages = {
     filterPlaceholder: '커밋 필터링…',
     noMatches: '일치하는 커밋이 없습니다',
     clearFilter: '필터 지우기',
+    filterModeText: '메시지 / 작성자',
+    filterModeContent: '내용',
+    filterModeRegex: '내용 정규식',
+    filterModeTitle:
+      '무엇을 찾을지.\n메시지 / 작성자: 커밋 메시지와 작성자.\n내용 (-S): 그 문자열의 등장 횟수가 바뀐 커밋 — 도입하거나 삭제한 커밋.\n내용 정규식 (-G): diff가 정규식과 일치하는 모든 커밋. 줄을 옮기기만 한 것도 포함됩니다.',
+    searching: 'diff를 검색하는 중…',
     browsingAnother: '다른 브랜치를 보는 중',
     comparing2: '커밋 2개 비교 중',
     openInBrowser: '브라우저에서 열기',

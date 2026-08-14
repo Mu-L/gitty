@@ -235,6 +235,13 @@ export interface RendererMessages {
     readonly noMatches: string
     /** Title of the button that clears the filter. */
     readonly clearFilter: string
+    /** What the filter box searches: the message, or the diffs themselves. */
+    readonly filterModeText: string
+    readonly filterModeContent: string
+    readonly filterModeRegex: string
+    readonly filterModeTitle: string
+    /** A pickaxe search reads every diff in the history; it takes a while. */
+    readonly searching: string
     readonly browsingAnother: string
     readonly comparing2: string
     readonly openInBrowser: string

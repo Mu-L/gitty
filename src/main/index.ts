@@ -14,6 +14,7 @@ import type {
   DiffOptions,
   DiffRequest,
   HunkPick,
+  LogFilterMode,
   TerminalOptions
 } from '../shared/types'
 import { msg, setMainLocale } from './messages'
@@ -278,8 +279,15 @@ function registerIpc(): void {
   ipcMain.handle('git:status', (_e, root: string) => git.status(root))
   ipcMain.handle(
     'git:log',
-    (_e, root: string, limit: number, skip: number, ref: string | null, filter: string) =>
-      git.log(root, limit, skip, ref, filter)
+    (
+      _e,
+      root: string,
+      limit: number,
+      skip: number,
+      ref: string | null,
+      filter: string,
+      mode: LogFilterMode
+    ) => git.log(root, limit, skip, ref, filter, mode)
   )
   ipcMain.handle('git:branches', (_e, root: string) => git.branches(root))
   ipcMain.handle('git:push', (_e, root: string, branch: string | null) =>

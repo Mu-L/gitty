@@ -153,6 +153,12 @@ export const ja: RendererMessages = {
     filterPlaceholder: 'コミットをフィルタ…',
     noMatches: '一致するコミットはありません',
     clearFilter: 'フィルタをクリア',
+    filterModeText: 'メッセージ / 作者',
+    filterModeContent: '内容',
+    filterModeRegex: '内容 正規表現',
+    filterModeTitle:
+      '何を検索するか。\nメッセージ / 作者：コミットメッセージと作者。\n内容 (-S)：そのテキストの出現回数が変わったコミット——導入または削除したもの。\n内容 正規表現 (-G)：diff が正規表現に一致するすべてのコミット。行を移動しただけのものも含みます。',
+    searching: 'diff を検索中…',
     browsingAnother: '別のブランチを閲覧中',
     comparing2: '2 つのコミットを比較中',
     openInBrowser: 'ブラウザーで開く',

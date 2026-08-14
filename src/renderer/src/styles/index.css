@@ -428,6 +428,24 @@ button:disabled:hover {
   border-color: var(--border-active);
 }
 
+.log-filter-mode {
+  flex: none;
+  padding: 1px 4px;
+  color: var(--fg-dim);
+  background: var(--bg-pane);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 11px;
+}
+
+/* Says why the list is empty while a pickaxe search walks the history. */
+.log-filter-busy {
+  flex: none;
+  color: var(--fg-dim);
+  font-size: 11px;
+}
+
 .log-filter-clear {
   flex: none;
   padding: 0 6px;

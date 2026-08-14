@@ -155,6 +155,12 @@ export const de: RendererMessages = {
     filterPlaceholder: 'Commits filtern…',
     noMatches: 'Keine passenden Commits',
     clearFilter: 'Filter löschen',
+    filterModeText: 'Nachricht / Autor',
+    filterModeContent: 'Inhalt',
+    filterModeRegex: 'Inhalt (Regex)',
+    filterModeTitle:
+      'Was gesucht wird.\nNachricht / Autor: die Commit-Nachricht und der Autor.\nInhalt (-S): Commits, in denen sich die Anzahl der Vorkommen des Textes geändert hat — die ihn eingeführt oder entfernt haben.\nInhalt (Regex) (-G): jeder Commit, dessen Diff auf den Ausdruck passt, auch wenn die Zeile nur verschoben wurde.',
+    searching: 'Diffs werden durchsucht…',
     browsingAnother: 'Anderer Branch wird angesehen',
     comparing2: '2 Commits werden verglichen',
     openInBrowser: 'Im Browser öffnen',

@@ -151,6 +151,12 @@ export const zh: RendererMessages = {
     filterPlaceholder: '过滤提交…',
     noMatches: '没有匹配的提交。',
     clearFilter: '清除过滤',
+    filterModeText: '消息 / 作者',
+    filterModeContent: '内容',
+    filterModeRegex: '内容正则',
+    filterModeTitle:
+      '搜索什么。\n消息 / 作者：提交消息和作者。\n内容 (-S)：该文本出现次数发生变化的提交——即引入或删除它的那次。\n内容正则 (-G)：diff 匹配该正则的所有提交，包括只是移动了那一行的。',
+    searching: '正在搜索 diff…',
     browsingAnother: '正在浏览其他分支',
     comparing2: '正在比较 2 个提交',
     openInBrowser: '在浏览器中打开',

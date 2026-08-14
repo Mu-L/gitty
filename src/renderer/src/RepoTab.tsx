@@ -58,6 +58,7 @@ import type {
   DiffSide,
   FileChurn,
   HunkPick,
+  LogFilterMode,
   RepoStatus,
   TerminalOptions,
   WorkingFile
@@ -239,6 +240,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // fire a git log.
   const [filter, setFilter] = useState('')
   const [debouncedFilter, setDebouncedFilter] = useState('')
+  // What the filter searches. A pickaxe mode reads every diff in the history,
+  // so the log reports that it is working rather than looking briefly empty.
+  const [filterMode, setFilterMode] = useState<LogFilterMode>('text')
+  const [searching, setSearching] = useState(false)
   useEffect(() => {
     const t = setTimeout(() => setDebouncedFilter(filter), 250)
     return () => clearTimeout(t)
@@ -256,21 +261,27 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   const refresh = useCallback(async () => {
     const seq = ++refreshSeq.current
+    const pickaxe = debouncedFilter !== '' && filterMode !== 'text'
+    if (pickaxe) setSearching(true)
     const [st, log] = await Promise.all([
       window.gitty.git.status(root),
-      window.gitty.git.log(root, PAGE, 0, browsing, debouncedFilter)
+      window.gitty.git.log(root, PAGE, 0, browsing, debouncedFilter, filterMode)
     ])
     if (seq !== refreshSeq.current) return
+    setSearching(false)
     setStatus(st)
     onStatus(st)
-    const filterChanged = lastFilter.current !== debouncedFilter
-    lastFilter.current = debouncedFilter
+    // The mode is half of the query, so changing it invalidates the loaded
+    // rows exactly as changing the text does.
+    const query = `${filterMode}\u0000${debouncedFilter}`
+    const filterChanged = lastFilter.current !== query
+    lastFilter.current = query
     if (filterChanged) exhausted.current = false
     setCommits(
       filterChanged ? log : (prev) => (prev.length > PAGE ? mergeLog(prev, log) : log)
     )
     setTick((t) => t + 1)
-  }, [root, browsing, onStatus, debouncedFilter])
+  }, [root, browsing, onStatus, debouncedFilter, filterMode])
 
   // Another branch means another history: drop what is loaded rather than
   // merging two logs, and let go of a selection that may not be in it. The
@@ -719,14 +730,15 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         PAGE,
         commits.length,
         browsing,
-        debouncedFilter
+        debouncedFilter,
+        filterMode
       )
       if (more.length === 0) exhausted.current = true
       else setCommits((prev) => mergeLog(prev, more))
     } finally {
       loadingMore.current = false
     }
-  }, [root, browsing, commits.length, debouncedFilter])
+  }, [root, browsing, commits.length, debouncedFilter, filterMode])
 
   /* ---------- staging ---------- */
 
@@ -1456,6 +1468,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   changedCount={status?.files.length ?? 0}
                   filter={filter}
                   onFilter={setFilter}
+                  filterMode={filterMode}
+                  onFilterMode={setFilterMode}
+                  searching={searching}
                   onSelect={onSelectCommit}
                   onWorktreeMenu={worktreeMenu}
                   onEnter={(hash) => {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, type JSX } from 'react'
-import type { Commit } from '../../../shared/types'
+import type { Commit, LogFilterMode } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
 import { fmtDateTimeZone, stamp, useTime } from '../time'
@@ -14,6 +14,9 @@ export function LogPane({
   changedCount,
   filter,
   onFilter,
+  filterMode,
+  onFilterMode,
+  searching,
   onSelect,
   onEnter,
   onMenu,
@@ -25,9 +28,14 @@ export function LogPane({
   compare: string | null
   /** Number of uncommitted changes, shown on the work-tree row. */
   changedCount: number
-  /** The commit filter, narrowed in git (message or author); '' shows all. */
+  /** The commit filter, narrowed in git; '' shows all. */
   filter: string
   onFilter: (value: string) => void
+  /** What the filter searches: the message, or the diffs themselves. */
+  filterMode: LogFilterMode
+  onFilterMode: (mode: LogFilterMode) => void
+  /** A pickaxe search is running; it reads every diff in the history. */
+  searching: boolean
   onSelect: (hash: string, additive: boolean) => void
   onEnter: (hash: string) => void
   onMenu: (commit: Commit, state: MenuState) => void
@@ -55,6 +63,18 @@ export function LogPane({
   return (
     <>
       <div className="log-filter">
+        {/* The mode sits before the box, because it changes what typing into
+            the box means. */}
+        <select
+          className="log-filter-mode"
+          value={filterMode}
+          title={msg.log.filterModeTitle}
+          onChange={(e) => onFilterMode(e.target.value as LogFilterMode)}
+        >
+          <option value="text">{msg.log.filterModeText}</option>
+          <option value="content">{msg.log.filterModeContent}</option>
+          <option value="regex">{msg.log.filterModeRegex}</option>
+        </select>
         <input
           type="text"
           value={filter}
@@ -62,6 +82,7 @@ export function LogPane({
           onChange={(e) => onFilter(e.target.value)}
           spellCheck={false}
         />
+        {searching && <span className="log-filter-busy">{msg.log.searching}</span>}
         {filter !== '' && (
           <button
             className="log-filter-clear"
@@ -130,7 +151,9 @@ export function LogPane({
           </span>
         </div>
         {commits.length === 0 && (
-          <div className="empty">{filter ? msg.log.noMatches : msg.log.noCommitsYet}</div>
+          <div className="empty">
+            {searching ? msg.log.searching : filter ? msg.log.noMatches : msg.log.noCommitsYet}
+          </div>
         )}
       {commits.map((c) => {
         const cls =

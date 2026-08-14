@@ -105,6 +105,17 @@ export interface BlameLine {
 /** The sha a blame line that is not committed yet carries. */
 export const UNCOMMITTED_SHA = '0'.repeat(40)
 
+/**
+ * What the commit filter box searches.
+ *
+ * `text` is the message and the author. The other two are git's pickaxe, and
+ * they are not the same question: `content` (`-S`) finds the commits where the
+ * *number of occurrences* of a string changed — where it was introduced or
+ * removed — while `regex` (`-G`) finds every commit whose diff text matches,
+ * including the ones that merely moved the line about.
+ */
+export type LogFilterMode = 'text' | 'content' | 'regex'
+
 /** Which side of the index a working-tree diff should be read from. */
 export type DiffSide = 'worktree' | 'index'
 

@@ -33,6 +33,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the agent runs where there is a real tty, so its prompts, hooks and gpg
   signing all work. **Copy Staged Diff** on the work-tree row's menu covers the
   case where the conversation is in another window.
+- The commit filter has a mode: **Message / Author** as before, or git's
+  pickaxe over the diffs themselves — **Content** (`-S`, where a string's
+  number of occurrences changed) and **Content regex** (`-G`, any diff that
+  matches). That is the question blame cannot answer: which commit introduced
+  this line. The box reports that it is searching, and changing the query kills
+  the search still running rather than letting it finish for nobody.
 - A README section on what Gitty does not do — rebase, merge, cherry-pick,
   conflicts, branch surgery — and why the shell in the same window is the
   answer rather than half a button.

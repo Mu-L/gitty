@@ -494,8 +494,22 @@ that touched the file, follows renames, and clicking a commit opens it.
 The log of the current branch, loaded 300 at a time and extended as you scroll.
 The first row is the **Working Tree** — the uncommitted changes, with a count of
 changed files; selecting it brings the top panes back to the work tree. A filter
-box above the log narrows the list to commits whose message or author contain the
-text you type — debounced, with a ✕ to clear — and the list pages the same way.
+box above the log narrows the list — debounced, with a ✕ to clear — and the
+result pages the same way.
+
+The dropdown beside it says what is being searched:
+
+| | |
+| --- | --- |
+| **Message / Author** | The commit message and the author, case-insensitively. The default. |
+| **Content** | git's `-S`: the commits where the *number of occurrences* of the text changed — where it was introduced or removed. Literal, so a search full of `.` and `(` means those characters. |
+| **Content regex** | git's `-G`: every commit whose diff matches the expression, including the ones that only moved the line about. |
+
+The two content modes answer the question blame cannot — *which commit
+introduced this line* — and they read every diff in the history to do it, so
+the box says it is searching while they run. Changing the text or the mode
+kills the search still running; nothing is spliced into a command line, so a
+regular expression reaches git as one argument.
 
 - **Click** or <kbd>Enter</kbd> — show that commit: its files fill the top-left
   pane and its full diff the top-right one. The commit's subject, author, date

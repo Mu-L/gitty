@@ -17,6 +17,7 @@ import type {
   DiffResult,
   GitOpResult,
   ImageFileContent,
+  LogFilterMode,
   RepoStatus,
   SnapshotFileContent
 } from '../shared/types'
@@ -106,21 +107,71 @@ export async function branches(root: string): Promise<Branch[]> {
 }
 
 /**
+ * A `git log` that can be abandoned.
+ *
+ * Pickaxe searches walk the whole history and open every diff on the way, so
+ * on a large repository they take seconds — long enough that the reader has
+ * typed another character. Each root keeps at most one of these in flight and
+ * the previous one is killed, rather than left to finish a query nobody is
+ * waiting for. A killed search resolves empty; the call that killed it is the
+ * one that will answer.
+ */
+const searches = new Map<string, ReturnType<typeof execFile>>()
+
+function searchLog(root: string, args: string[]): Promise<string> {
+  searches.get(root)?.kill()
+  return new Promise((resolve) => {
+    const child = execFile(
+      'git',
+      args,
+      {
+        cwd: root,
+        maxBuffer: 64 * 1024 * 1024,
+        windowsHide: true,
+        env: { ...process.env, GIT_OPTIONAL_LOCKS: '0', LC_ALL: 'C' }
+      },
+      (err, stdout) => {
+        if (searches.get(root) === child) searches.delete(root)
+        resolve(err ? '' : stdout)
+      }
+    )
+    searches.set(root, child)
+  })
+}
+
+/**
  * `ref` points the log at another branch; undefined means HEAD. `filter`, when
- * set, narrows it to commits whose message or author contains the text — the
- * subject is part of the message, so typing a few words filters the log.
+ * set, narrows it — by message and author, or through git's pickaxe over the
+ * diffs themselves, depending on `mode`.
+ *
+ * Every part of the query is an argument in the array, never text spliced into
+ * a command line: a regular expression is made almost entirely of characters a
+ * shell would take for itself.
  */
 export async function log(
   root: string,
   limit: number,
   skip = 0,
   ref?: string | null,
-  filter?: string
+  filter?: string,
+  mode: LogFilterMode = 'text'
 ): Promise<Commit[]> {
   const fmt = ['%H', '%h', '%an', '%ae', '%aI', '%s', '%D', '%P'].join(US) + RS
   let raw: string
   try {
-    if (filter) {
+    if (filter && mode !== 'text') {
+      // The pickaxe pages like an ordinary log, so no union pass is needed —
+      // only the patience to let it run, and the ability to give up on it.
+      raw = await searchLog(root, [
+        'log',
+        `--max-count=${limit}`,
+        `--skip=${skip}`,
+        `--pretty=format:${fmt}`,
+        mode === 'content' ? `-S${filter}` : `-G${filter}`,
+        ...(ref ? [ref] : []),
+        '--'
+      ])
+    } else if (filter) {
       // A filter is a union of two greps: one over the message, one over the
       // author. git ANDs --grep with --author, so a single command cannot
       // express the OR — hence a rev-list pass per side, merged by hash, then
