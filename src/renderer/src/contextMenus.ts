@@ -8,14 +8,16 @@ import type { RendererMessages } from '../../shared/messages'
 
 /**
  * What a repository session can show: the work tree, one commit, a range, or
- * the whole tree at a commit. The menus below only read it, but most of the
+ * the whole tree at a commit. A snapshot with a null hash is "browse working
+ * tree": the whole tree, but read from the disk as it is right now rather
+ * than from a revision. The menus below only read the view, but most of the
  * tab does too, so it lives with its owner and is imported back by RepoTab.
  */
 export type View =
   | { mode: 'worktree' }
   | { mode: 'commit'; hash: string; short: string; subject: string }
   | { mode: 'range'; from: string; to: string }
-  | { mode: 'snapshot'; hash: string; short: string; subject: string }
+  | { mode: 'snapshot'; hash: string | null; short: string; subject: string }
 
 /**
  * Everything the four context-menu builders read from the repository session
@@ -54,7 +56,7 @@ export interface ContextMenuDeps {
   setSelectedFile: Dispatch<SetStateAction<string | null>>
   setActiveDoc: Dispatch<SetStateAction<string | null>>
   setMenu: (state: MenuState) => void
-  /** Show the full repository file tree at HEAD, like "Browse Snapshot" for the current state. */
+  /** Browse the whole repository as it is on disk right now, read-only. */
   browseWorktree: () => void
 }
 
@@ -221,10 +223,11 @@ export function createContextMenus(deps: ContextMenuDeps): {
         }
       }
     ]
-    if (snapshot && view.mode === 'snapshot') {
+    const snapshotHash = snapshot && view.mode === 'snapshot' ? view.hash : null
+    if (snapshotHash) {
       items.push({
         label: msg.contextMenu.openInSystemApp,
-        action: () => void window.gitty.git.snapshotOpen(root, view.hash, rel)
+        action: () => void window.gitty.git.snapshotOpen(root, snapshotHash, rel)
       })
     } else {
       items.push(

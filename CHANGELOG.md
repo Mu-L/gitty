@@ -23,6 +23,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   drawn in the accent colour rather than as another grey button: with a single
   repository open it is the one control the window still needs to offer.
 
+- The work tree row's right-click menu offers **Browse Working Tree** where it
+  used to say **Browse Snapshot** — and it now means what it says. Browsing
+  used to open the repository tree at HEAD, a snapshot of a revision: a file
+  you had just created or edited was simply missing from it. Browsing the work
+  tree reads the disk itself, listing tracked and untracked files alike, so an
+  uncommitted change is right there alongside everything else and a file opened
+  from it shows what is on disk right now. A commit's **Browse Snapshot** still
+  browses that revision.
+
 ### Added
 
 - <kbd>Ctrl+Shift+C</kbd> copies as well as <kbd>Ctrl+C</kbd>, everywhere in

@@ -493,6 +493,26 @@ export async function snapshotFiles(root: string, hash: string): Promise<string[
   return raw.split('\0').filter((p) => p.length > 0)
 }
 
+/**
+ * Every file in the work tree — tracked and untracked — as it is on disk right
+ * now, for "browse working tree". A file deleted on disk is gone, so it is not
+ * listed; an untracked one is. `ls-files -c` still names files the index has
+ * but the disk has lost, which is what the access check drops.
+ */
+export async function worktreeFiles(root: string): Promise<string[]> {
+  const raw = await git(root, ['ls-files', '-c', '-o', '--exclude-standard', '-z'])
+  const paths = raw.split('\0').filter((p) => p.length > 0)
+  const existing = await Promise.all(
+    paths.map((p) =>
+      fs.promises
+        .access(path.join(root, p))
+        .then(() => p)
+        .catch(() => null)
+    )
+  )
+  return existing.filter((p): p is string => p !== null).sort()
+}
+
 /** Contents of one file at a revision; binary files report rather than dump. */
 export async function snapshotFile(
   root: string,

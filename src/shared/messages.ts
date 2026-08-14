@@ -147,6 +147,8 @@ export interface RendererMessages {
     readonly emptyWorktree: string
     readonly emptySnapshot: string
     readonly emptyDiff: string
+    /** The empty text shown while browsing the working tree, no file picked. */
+    readonly emptyBrowseWorktree: string
     /** The empty text shown when blame has no lines to attribute. */
     readonly emptyBlame: string
     /** The empty text shown when a file has no commit history. */

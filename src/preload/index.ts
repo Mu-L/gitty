@@ -91,6 +91,9 @@ const api = {
       ipcRenderer.invoke('git:diff', root, req, opts),
     snapshotFiles: (root: string, hash: string): Promise<string[]> =>
       ipcRenderer.invoke('git:snapshotFiles', root, hash),
+    /** Every file on disk now — tracked and untracked — for browsing the work tree. */
+    worktreeFiles: (root: string): Promise<string[]> =>
+      ipcRenderer.invoke('git:worktreeFiles', root),
     snapshotFile: (root: string, hash: string, filePath: string): Promise<SnapshotFileContent> =>
       ipcRenderer.invoke('git:snapshotFile', root, hash, filePath),
     snapshotOpen: (root: string, hash: string, filePath: string): Promise<string | null> =>

@@ -99,6 +99,7 @@ export const ru: RendererMessages = {
     emptyWorktree: 'Рабочее дерево чистое.',
     emptySnapshot: 'Выберите файл, чтобы посмотреть его на этом коммите.',
     emptyDiff: 'Текстовых изменений нет.',
+    emptyBrowseWorktree: 'Выберите файл, чтобы посмотреть его в рабочем дереве.',
     emptyBlame: 'Нет строк для вины.',
     emptyHistory: 'У этого файла пока нет истории.',
     showWholeDiff: 'Показать весь diff',
@@ -266,7 +267,7 @@ export const ru: RendererMessages = {
     diffAgainstAccel: 'Ctrl+щелчок',
     blameFile: 'Blame',
     fileHistory: 'История файла',
-    browseWorktree: 'Просмотреть снимок'
+    browseWorktree: 'Просмотреть рабочее дерево'
   },
   paneChrome: {
     paneLabelFiles: 'Файлы',

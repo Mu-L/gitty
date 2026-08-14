@@ -84,6 +84,7 @@ export const es: RendererMessages = {
     emptyWorktree: 'El árbol de trabajo está limpio.',
     emptySnapshot: 'Selecciona un archivo para verlo en este commit.',
     emptyDiff: 'Sin cambios de texto.',
+    emptyBrowseWorktree: 'Selecciona un archivo para verlo en el árbol de trabajo.',
     emptyBlame: 'No hay líneas que atribuir.',
     emptyHistory: 'Este archivo aún no tiene historial.',
     showWholeDiff: 'Mostrar el diff completo',
@@ -250,7 +251,7 @@ export const es: RendererMessages = {
     diffAgainstAccel: 'Ctrl+clic',
     blameFile: 'Blame',
     fileHistory: 'Historial del archivo',
-    browseWorktree: 'Explorar snapshot'
+    browseWorktree: 'Explorar el árbol de trabajo'
   },
   paneChrome: {
     paneLabelFiles: 'Archivos',

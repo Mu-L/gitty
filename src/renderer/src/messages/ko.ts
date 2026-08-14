@@ -83,6 +83,7 @@ export const ko: RendererMessages = {
     emptyWorktree: '작업 트리가 깨끗합니다.',
     emptySnapshot: '이 커밋 시점의 내용을 볼 파일을 선택하세요.',
     emptyDiff: '텍스트 변경 사항이 없습니다.',
+    emptyBrowseWorktree: '작업 트리의 내용을 볼 파일을 선택하세요.',
     emptyBlame: '추적할 줄이 없습니다.',
     emptyHistory: '이 파일에는 기록이 없습니다.',
     showWholeDiff: '전체 diff 보기',
@@ -246,7 +247,7 @@ export const ko: RendererMessages = {
     diffAgainstAccel: 'Ctrl+클릭',
     blameFile: 'Blame 파일',
     fileHistory: '파일 기록',
-    browseWorktree: '스냅샷 찾아보기'
+    browseWorktree: '작업 트리 보기'
   },
   paneChrome: {
     paneLabelFiles: '파일',

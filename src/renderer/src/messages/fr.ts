@@ -84,6 +84,7 @@ export const fr: RendererMessages = {
     emptyWorktree: 'Copie de travail propre.',
     emptySnapshot: 'Sélectionnez un fichier pour le voir à ce commit.',
     emptyDiff: 'Aucune modification textuelle.',
+    emptyBrowseWorktree: 'Sélectionnez un fichier pour le voir dans la copie de travail.',
     emptyBlame: 'Aucune ligne à imputer.',
     emptyHistory: 'Ce fichier n’a pas encore d’historique.',
     showWholeDiff: 'Afficher tout le diff',
@@ -250,7 +251,7 @@ export const fr: RendererMessages = {
     diffAgainstAccel: 'Ctrl+clic',
     blameFile: 'Blâme',
     fileHistory: 'Historique du fichier',
-    browseWorktree: 'Parcourir le snapshot'
+    browseWorktree: 'Parcourir la copie de travail'
   },
   paneChrome: {
     paneLabelFiles: 'Fichiers',

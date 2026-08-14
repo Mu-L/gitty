@@ -97,7 +97,13 @@ export function navLabel(p: NavPlace, msg: RendererMessages): string {
   } else if (v.mode === 'commit') {
     label = path ? msg.nav.commitFile(path, v.short) : msg.nav.commit(v.short, v.subject)
   } else if (v.mode === 'snapshot') {
-    label = path ? msg.nav.snapshotFile(path, v.short) : msg.nav.snapshot(v.short, v.subject)
+    // A null hash is "browse working tree": the current disk, which the history
+    // menu reads as the work tree itself.
+    if (v.hash === null) {
+      label = path ? msg.nav.worktreeFile(path) : msg.nav.worktree
+    } else {
+      label = path ? msg.nav.snapshotFile(path, v.short) : msg.nav.snapshot(v.short, v.subject)
+    }
   } else {
     label = path ? msg.nav.rangeFile(path, v.from, v.to) : msg.nav.range(v.from, v.to)
   }

@@ -84,6 +84,7 @@ export const en: RendererMessages = {
     emptyWorktree: 'Working tree clean.',
     emptySnapshot: 'Select a file to view it at this commit.',
     emptyDiff: 'No textual changes.',
+    emptyBrowseWorktree: 'Select a file to view it in the working tree.',
     emptyBlame: 'No lines to blame.',
     emptyHistory: 'This file has no history yet.',
     showWholeDiff: 'Show Whole Diff',
@@ -247,7 +248,7 @@ export const en: RendererMessages = {
     diffAgainstAccel: 'Ctrl+Click',
     blameFile: 'Blame File',
     fileHistory: 'File History',
-    browseWorktree: 'Browse Snapshot'
+    browseWorktree: 'Browse Working Tree'
   },
   paneChrome: {
     paneLabelFiles: 'Files',

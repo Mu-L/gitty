@@ -83,6 +83,7 @@ export const ja: RendererMessages = {
     emptyWorktree: 'ワークツリーはクリーンです。',
     emptySnapshot: 'このコミット時点の内容を見るファイルを選択してください。',
     emptyDiff: 'テキストの変更はありません。',
+    emptyBrowseWorktree: 'ワークツリーの内容を見るファイルを選択してください。',
     emptyBlame: '対象の行がありません。',
     emptyHistory: 'このファイルには履歴がありません。',
     showWholeDiff: '差分全体を表示',
@@ -246,7 +247,7 @@ export const ja: RendererMessages = {
     diffAgainstAccel: 'Ctrl+クリック',
     blameFile: 'Blame ファイル',
     fileHistory: 'ファイル履歴',
-    browseWorktree: 'スナップショットを閲覧'
+    browseWorktree: 'ワークツリーを閲覧'
   },
   paneChrome: {
     paneLabelFiles: 'ファイル',

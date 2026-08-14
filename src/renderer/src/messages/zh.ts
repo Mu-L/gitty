@@ -83,6 +83,7 @@ export const zh: RendererMessages = {
     emptyWorktree: '工作树干净。',
     emptySnapshot: '选择一个文件以在此提交中查看。',
     emptyDiff: '无文本变更。',
+    emptyBrowseWorktree: '选择一个文件以在工作树中查看。',
     emptyBlame: '没有可追溯的行。',
     emptyHistory: '此文件还没有历史。',
     showWholeDiff: '显示完整差异',
@@ -246,7 +247,7 @@ export const zh: RendererMessages = {
     diffAgainstAccel: 'Ctrl+单击',
     blameFile: '追溯文件',
     fileHistory: '文件历史',
-    browseWorktree: '浏览快照'
+    browseWorktree: '浏览工作树'
   },
   paneChrome: {
     paneLabelFiles: '文件',

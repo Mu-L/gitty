@@ -315,21 +315,37 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
           origPath: f.origPath
         }))
       } else if (view.mode === 'snapshot') {
-        // Snapshot mode: the whole tree at that commit, read-only.
-        rev = view.hash
-        const [paths, meta] = await Promise.all([
-          window.gitty.git.snapshotFiles(root, view.hash),
-          window.gitty.git.commitMeta(root, view.hash)
-        ])
-        if (cancelled) return
-        setCommitMeta(meta)
-        entries = paths.map<FileEntry>((p) => ({
-          path: p,
-          // Virtual path — no file on disk; fileMenu/onOpen branch on this prefix.
-          absPath: `gitty:snapshot:${view.hash}:${p}`,
-          marks: [],
-          deleted: false
-        }))
+        if (view.hash === null) {
+          // Browse working tree: every file on disk — tracked and untracked —
+          // read-only like a snapshot but with real paths. Opening a file works
+          // ("Open in system app" and "Reveal" too), and its contents come from
+          // the disk as it is now rather than from a revision.
+          rev = null
+          const paths = await window.gitty.git.worktreeFiles(root)
+          if (cancelled) return
+          entries = paths.map<FileEntry>((p) => ({
+            path: p,
+            absPath: `${root}/${p}`,
+            marks: [],
+            deleted: false
+          }))
+        } else {
+          // Snapshot mode: the whole tree at that commit, read-only.
+          rev = view.hash
+          const [paths, meta] = await Promise.all([
+            window.gitty.git.snapshotFiles(root, view.hash),
+            window.gitty.git.commitMeta(root, view.hash)
+          ])
+          if (cancelled) return
+          setCommitMeta(meta)
+          entries = paths.map<FileEntry>((p) => ({
+            path: p,
+            // Virtual path — no file on disk; fileMenu/onOpen branch on this prefix.
+            absPath: `gitty:snapshot:${view.hash}:${p}`,
+            marks: [],
+            deleted: false
+          }))
+        }
       } else {
         if (view.mode === 'commit') {
           rev = view.hash
@@ -489,13 +505,16 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       setSelectedFile(p.selectedFile)
       setDocs(p.doc ? [p.doc] : [])
       setActiveDoc(p.doc?.id ?? null)
-      // Keep the log's highlight in step: a range lit both of its ends.
+      // Keep the log's highlight in step: a range lit both of its ends, and a
+      // work-tree browse is the work tree itself.
       setSelectedCommit(
         p.view.mode === 'worktree'
           ? WORKTREE_ROW
           : p.view.mode === 'range'
             ? p.view.to
-            : p.view.hash
+            : p.view.mode === 'snapshot' && p.view.hash === null
+              ? WORKTREE_ROW
+              : p.view.hash
       )
       setCompareCommit(p.view.mode === 'range' ? p.view.from : null)
     },
@@ -592,18 +611,17 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setView({ mode: 'snapshot', hash: c.hash, short: c.short, subject: c.subject })
   }, [])
 
-  /** Browse the full repository tree at HEAD, like "Browse Snapshot" for the
-   *  current state. The worktree row's context menu offers this. */
+  /** Browse the whole repository as it is on disk right now — tracked and
+   *  untracked files alike, read-only. The worktree row's context menu offers
+   *  this. A null hash is what makes it the work tree rather than a revision. */
   const browseWorktree = useCallback(() => {
-    const head = commits[0]
-    if (!head) return
     setCompareCommit(null)
-    setSelectedCommit(head.hash)
+    setSelectedCommit(WORKTREE_ROW)
     setSelectedFile(null)
     setDocs([])
     setActiveDoc(null)
-    setView({ mode: 'snapshot', hash: head.hash, short: head.short, subject: head.subject })
-  }, [commits])
+    setView({ mode: 'snapshot', hash: null, short: '', subject: '' })
+  }, [])
 
   const backToWorkTree = useCallback(() => {
     setView({ mode: 'worktree' })
@@ -776,6 +794,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const filesTitle = useMemo(() => {
     if (view.mode === 'worktree') return msg.files.workingTreeTitle
     if (view.mode === 'commit') return msg.files.commitTitle(view.short, view.subject)
+    // A null-hash snapshot is the work tree being browsed, not a revision.
+    if (view.mode === 'snapshot' && view.hash === null) return msg.files.workingTreeTitle
     if (view.mode === 'snapshot') return msg.files.snapshotTitle(view.short, view.subject)
     return msg.files.rangeTitle(view.from, view.to)
   }, [view, msg])
@@ -900,7 +920,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     }}
                     onMenu={fileMenu}
                     emptyText={
-                      view.mode === 'worktree'
+                      view.mode === 'worktree' ||
+                      (view.mode === 'snapshot' && view.hash === null)
                         ? msg.files.emptyWorktree
                         : view.mode === 'snapshot'
                           ? msg.files.emptySnapshot
@@ -1131,9 +1152,11 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     placeholder={
                       view.mode === 'worktree'
                         ? msg.diff.emptyWorktree
-                        : view.mode === 'snapshot'
-                          ? msg.diff.emptySnapshot
-                          : msg.diff.emptyDiff
+                        : view.mode === 'snapshot' && view.hash === null
+                          ? msg.diff.emptyBrowseWorktree
+                          : view.mode === 'snapshot'
+                            ? msg.diff.emptySnapshot
+                            : msg.diff.emptyDiff
                     }
                   />
                 )}

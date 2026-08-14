@@ -84,6 +84,7 @@ export const de: RendererMessages = {
     emptyWorktree: 'Arbeitsverzeichnis ist sauber.',
     emptySnapshot: 'Wählen Sie eine Datei, um sie zu diesem Commit anzusehen.',
     emptyDiff: 'Keine Textänderungen.',
+    emptyBrowseWorktree: 'Wählen Sie eine Datei, um sie im Arbeitsverzeichnis anzusehen.',
     emptyBlame: 'Keine Zeilen zuzuordnen.',
     emptyHistory: 'Diese Datei hat noch keinen Verlauf.',
     showWholeDiff: 'Ganzen Diff anzeigen',
@@ -249,7 +250,7 @@ export const de: RendererMessages = {
     diffAgainstAccel: 'Strg+Klick',
     blameFile: 'Blame',
     fileHistory: 'Dateiverlauf',
-    browseWorktree: 'Snapshot durchsuchen'
+    browseWorktree: 'Arbeitsverzeichnis durchsuchen'
   },
   paneChrome: {
     paneLabelFiles: 'Dateien',

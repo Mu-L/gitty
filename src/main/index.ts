@@ -303,6 +303,7 @@ function registerIpc(): void {
   ipcMain.handle('git:snapshotFiles', (_e, root: string, hash: string) =>
     git.snapshotFiles(root, hash)
   )
+  ipcMain.handle('git:worktreeFiles', (_e, root: string) => git.worktreeFiles(root))
   ipcMain.handle('git:snapshotFile', (_e, root: string, hash: string, filePath: string) =>
     git.snapshotFile(root, hash, filePath)
   )
