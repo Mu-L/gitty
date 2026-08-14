@@ -129,6 +129,9 @@ export interface RepoTabProps {
   terminalOptions: TerminalOptions
   /** The command "Commit with agent" types into this tab's focused shell. */
   agentCommand: string
+  /** Draw the lane graph beside the commit hashes. */
+  graph: boolean
+  setGraph: Dispatch<SetStateAction<boolean>>
   /** Which panes are on screen; hidden ones are not rendered at all. */
   panes: PaneVisibility
   /** Hide a pane from its own header button. */
@@ -178,6 +181,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     diffOptions,
     terminalOptions,
     agentCommand,
+    graph,
+    setGraph,
     panes,
     onHidePane,
     browsing,
@@ -231,6 +236,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const [staging, setStaging] = useState(false)
   // The repository search box, above the file list. Open is a state of its own
   // rather than a document, so the pattern can be edited before anything runs.
+  // Every branch at once, rather than the one the log is pointed at. A log
+  // view like the filter, not a preference: it belongs to this repository's
+  // session and starts off again next time.
+  const [allBranches, setAllBranches] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [remoteMsg, setRemoteMsg] = useState<{ ok: boolean; text: string } | null>(null)
@@ -269,7 +278,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     if (pickaxe) setSearching(true)
     const [st, log] = await Promise.all([
       window.gitty.git.status(root),
-      window.gitty.git.log(root, PAGE, 0, browsing, debouncedFilter, filterMode)
+      window.gitty.git.log(root, PAGE, 0, browsing, debouncedFilter, filterMode, allBranches)
     ])
     if (seq !== refreshSeq.current) return
     setSearching(false)
@@ -277,7 +286,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     onStatus(st)
     // The mode is half of the query, so changing it invalidates the loaded
     // rows exactly as changing the text does.
-    const query = `${filterMode}\u0000${debouncedFilter}`
+    const query = `${filterMode}\u0000${allBranches}\u0000${debouncedFilter}`
     const filterChanged = lastFilter.current !== query
     lastFilter.current = query
     if (filterChanged) exhausted.current = false
@@ -285,7 +294,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       filterChanged ? log : (prev) => (prev.length > PAGE ? mergeLog(prev, log) : log)
     )
     setTick((t) => t + 1)
-  }, [root, browsing, onStatus, debouncedFilter, filterMode])
+  }, [root, browsing, onStatus, debouncedFilter, filterMode, allBranches])
 
   // Another branch means another history: drop what is loaded rather than
   // merging two logs, and let go of a selection that may not be in it. The
@@ -788,14 +797,15 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         commits.length,
         browsing,
         debouncedFilter,
-        filterMode
+        filterMode,
+        allBranches
       )
       if (more.length === 0) exhausted.current = true
       else setCommits((prev) => mergeLog(prev, more))
     } finally {
       loadingMore.current = false
     }
-  }, [root, browsing, commits.length, debouncedFilter, filterMode])
+  }, [root, browsing, commits.length, debouncedFilter, filterMode, allBranches])
 
   /* ---------- staging ---------- */
 
@@ -1542,6 +1552,20 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     </button>
                   )}
                   <button
+                    className={`toggle${graph ? ' on' : ''}`}
+                    title={msg.log.graphTitle}
+                    onClick={() => setGraph((g) => !g)}
+                  >
+                    {msg.log.graph}
+                  </button>
+                  <button
+                    className={`toggle${allBranches ? ' on' : ''}`}
+                    title={msg.log.allBranchesTitle}
+                    onClick={() => setAllBranches((a) => !a)}
+                  >
+                    {msg.log.allBranches}
+                  </button>
+                  <button
                     className="toggle"
                     title={msg.log.openRepoCommitsTitle}
                     onClick={() => {
@@ -1570,6 +1594,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                 )}
                 <LogPane
                   commits={commits}
+                  graph={graph}
                   selected={selectedCommit}
                   compare={compareCommit}
                   changedCount={status?.files.length ?? 0}

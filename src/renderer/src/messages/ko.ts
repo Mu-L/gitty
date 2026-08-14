@@ -173,6 +173,12 @@ export const ko: RendererMessages = {
     filterModeTitle:
       '무엇을 찾을지.\n메시지 / 작성자: 커밋 메시지와 작성자.\n내용 (-S): 그 문자열의 등장 횟수가 바뀐 커밋 — 도입하거나 삭제한 커밋.\n내용 정규식 (-G): diff가 정규식과 일치하는 모든 커밋. 줄을 옮기기만 한 것도 포함됩니다.',
     searching: 'diff를 검색하는 중…',
+    graph: '그래프',
+    graphTitle:
+      '해시 옆에 레인을 그립니다 — 분기 지점과 병합이 닿는 곳',
+    allBranches: '모든 브랜치',
+    allBranchesTitle:
+      '로그가 가리키는 하나가 아니라 모든 브랜치를 한 번에 표시',
     browsingAnother: '다른 브랜치를 보는 중',
     comparing2: '커밋 2개 비교 중',
     openInBrowser: '브라우저에서 열기',
@@ -227,6 +233,7 @@ export const ko: RendererMessages = {
     sideBySide: '나란히',
     wordWrap: '자동 줄 바꿈',
     wordHighlight: '단어 강조',
+    commitGraph: '커밋 그래프',
     markdownOutline: '마크다운 개요',
     markdownLineNumbers: '마크다운 원본 줄 번호',
     fileSort: '파일 정렬',

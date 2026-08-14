@@ -193,6 +193,12 @@ export const ru: RendererMessages = {
     filterModeTitle:
       'Что искать.\nСообщение / Автор: сообщение коммита и автор.\nСодержимое (-S): коммиты, в которых изменилось число вхождений строки, — где её добавили или убрали.\nСодержимое (regex) (-G): все коммиты, чей diff совпадает с выражением, включая те, где строку просто переместили.',
     searching: 'Поиск по диффам…',
+    graph: 'Граф',
+    graphTitle:
+      'Рисовать дорожки рядом с хешами — где ветки расходятся и куда падают слияния',
+    allBranches: 'Все ветки',
+    allBranchesTitle:
+      'Показать сразу все ветки, а не одну, на которую указывает журнал',
     browsingAnother: 'Просмотр другой ветки',
     comparing2: 'сравнение 2 коммитов',
     openInBrowser: 'Открыть в браузере',
@@ -249,6 +255,7 @@ export const ru: RendererMessages = {
     sideBySide: 'Рядом',
     wordWrap: 'Перенос по словам',
     wordHighlight: 'Подсветка слов',
+    commitGraph: 'Граф коммитов',
     markdownOutline: 'Структура markdown',
     markdownLineNumbers: 'Номера строк исходника markdown',
     fileSort: 'Сортировка файлов',

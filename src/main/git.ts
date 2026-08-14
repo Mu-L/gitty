@@ -161,9 +161,15 @@ export async function log(
   skip = 0,
   ref?: string | null,
   filter?: string,
-  mode: LogFilterMode = 'text'
+  mode: LogFilterMode = 'text',
+  all = false
 ): Promise<Commit[]> {
   const fmt = ['%H', '%h', '%an', '%ae', '%aI', '%s', '%D', '%P'].join(US) + RS
+  // Every branch at once, which is how two branches can be seen relating to
+  // each other; it replaces a named ref rather than narrowing it. Date order
+  // rather than git's default topological-ish ordering, so the rows read as a
+  // timeline and the lanes stay narrow.
+  const scope = all ? ['--all', '--date-order'] : ref ? [ref] : []
   let raw: string
   try {
     if (filter && mode !== 'text') {
@@ -175,7 +181,7 @@ export async function log(
         `--skip=${skip}`,
         `--pretty=format:${fmt}`,
         mode === 'content' ? `-S${filter}` : `-G${filter}`,
-        ...(ref ? [ref] : []),
+        ...scope,
         '--'
       ])
     } else if (filter) {
@@ -183,7 +189,7 @@ export async function log(
       // author. git ANDs --grep with --author, so a single command cannot
       // express the OR — hence a rev-list pass per side, merged by hash, then
       // one --no-walk pass (date-ordered) to shape and page the result.
-      const base = ref ? [ref] : []
+      const base = scope
       const byMsg = await git(root, [
         'log',
         '--format=%H',
@@ -222,7 +228,7 @@ export async function log(
         `--max-count=${limit}`,
         `--skip=${skip}`,
         `--pretty=format:${fmt}`,
-        ...(ref ? [ref] : []),
+        ...scope,
         // Nothing after this is a path, so a branch cannot be read as one.
         '--'
       ])

@@ -176,6 +176,10 @@ export const en: RendererMessages = {
     filterModeTitle:
       'What to search.\nMessage / Author: the commit message and the author.\nContent (-S): commits where the number of occurrences of the text changed — where it was introduced or removed.\nContent regex (-G): every commit whose diff matches the expression, including ones that only moved the line.',
     searching: 'Searching the diffs…',
+    graph: 'Graph',
+    graphTitle: 'Draw the lanes beside the hashes — where branches part and merges land',
+    allBranches: 'All Branches',
+    allBranchesTitle: 'Show every branch at once, rather than the one the log is pointed at',
     browsingAnother: 'Browsing another branch',
     comparing2: 'comparing 2 commits',
     openInBrowser: 'Open in Browser',
@@ -230,6 +234,7 @@ export const en: RendererMessages = {
     sideBySide: 'Side-by-Side',
     wordWrap: 'Word wrap',
     wordHighlight: 'Word highlight',
+    commitGraph: 'Commit graph',
     markdownOutline: 'Markdown outline',
     markdownLineNumbers: 'Markdown source lines',
     fileSort: 'File sorting',

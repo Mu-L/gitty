@@ -74,6 +74,9 @@ export default function App(): JSX.Element {
   const [naturalSort, setNaturalSort] = useState(
     () => localStorage.getItem('gitty.naturalSort') !== 'off'
   )
+  // The lane graph beside the commit hashes. On by default: a history browser
+  // without one is a list that cannot show a merge.
+  const [graph, setGraph] = useState(() => localStorage.getItem('gitty.graph') !== 'off')
   const [panes, setPanes] = useState<PaneVisibility>(loadPanes)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [aboutOpen, setAboutOpen] = useState(false)
@@ -412,6 +415,7 @@ export default function App(): JSX.Element {
     setMdOutline(true)
     setMdLineNumbers(false)
     setNaturalSort(true)
+    setGraph(true)
   }, [])
 
   // Push the visual knobs onto <html> as layout effects, so child passive
@@ -435,6 +439,7 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.mdOutline', mdOutline ? 'on' : 'off')
     localStorage.setItem('gitty.mdLineNumbers', mdLineNumbers ? 'on' : 'off')
     localStorage.setItem('gitty.naturalSort', naturalSort ? 'on' : 'off')
+    localStorage.setItem('gitty.graph', graph ? 'on' : 'off')
     localStorage.setItem('gitty.theme', theme)
     localStorage.setItem('gitty.fontSize', String(fontSize))
     localStorage.setItem('gitty.rowHeight', String(rowHeight))
@@ -455,6 +460,7 @@ export default function App(): JSX.Element {
     mdOutline,
     mdLineNumbers,
     naturalSort,
+    graph,
     theme,
     fontSize,
     rowHeight,
@@ -729,6 +735,8 @@ export default function App(): JSX.Element {
                   diffOptions={diffOptions}
                   terminalOptions={terminalOptions}
                   agentCommand={agentCommand}
+                  graph={graph}
+                  setGraph={setGraph}
                   panes={panes}
                   onHidePane={togglePane}
                   browsing={browsingByRoot[r] ?? null}
@@ -796,6 +804,8 @@ export default function App(): JSX.Element {
         setMdOutline={setMdOutline}
         naturalSort={naturalSort}
         setNaturalSort={setNaturalSort}
+        graph={graph}
+        setGraph={setGraph}
         onReset={resetSettings}
         locale={locale}
         setLocale={setLocale}

@@ -1,4 +1,5 @@
-import { useEffect, useRef, type JSX } from 'react'
+import { useEffect, useMemo, useRef, type JSX } from 'react'
+import { column, layoutLanes, MAX_LANES, type LaneRow } from '../lanes'
 import type { Commit, LogFilterMode } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
@@ -7,8 +8,75 @@ import { fmtDateTimeZone, stamp, useTime } from '../time'
 /** Pseudo-hash of the row that stands for the uncommitted work tree. */
 export const WORKTREE_ROW = '__worktree__'
 
+/** Horizontal distance between two lanes, in the graph's own units. */
+const LANE_W = 8
+
+/** The row box the graph is drawn into. Its height scales to the real row. */
+const ROW_H = 20
+
+/**
+ * One row of the graph.
+ *
+ * Drawn per row rather than as one tall SVG down the side, so a row can be
+ * added, removed or re-ordered without redrawing the rest — and so the graph
+ * scrolls with the list for free instead of being positioned against it.
+ *
+ * The viewBox is a fixed 20 units tall while the element takes the real row
+ * height, which the row-height setting moves between 18 and 26: lines and a
+ * dot survive that scaling, and nothing here is a shape that would not.
+ */
+function GraphCell({ row, lanes }: { row: LaneRow; lanes: number }): JSX.Element {
+  const width = Math.max(1, lanes) * LANE_W
+  const x = (lane: number): number => column(lane) * LANE_W + LANE_W / 2
+  const mid = ROW_H / 2
+  const hue = (lane: number): string => `var(--lane-${column(lane) % 6})`
+  return (
+    <svg
+      className="commit-graph"
+      width={width}
+      viewBox={`0 0 ${width} ${ROW_H}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      {row.through.map((lane) => (
+        <line
+          key={`t${lane}`}
+          x1={x(lane)}
+          y1={0}
+          x2={x(lane)}
+          y2={ROW_H}
+          stroke={hue(lane)}
+        />
+      ))}
+      {row.incoming && (
+        <line x1={x(row.lane)} y1={0} x2={x(row.lane)} y2={mid} stroke={hue(row.lane)} />
+      )}
+      {row.edges.map((e, i) =>
+        e.from === e.to ? (
+          <line key={i} x1={x(e.from)} y1={mid} x2={x(e.to)} y2={ROW_H} stroke={hue(e.to)} />
+        ) : (
+          // A parent in another lane leaves as a curve, so which line goes
+          // where is readable where several cross in one row.
+          <path
+            key={i}
+            d={`M${x(e.from)},${mid} C${x(e.from)},${ROW_H} ${x(e.to)},${mid} ${x(e.to)},${ROW_H}`}
+            fill="none"
+            stroke={hue(e.to)}
+          />
+        )
+      )}
+      <circle cx={x(row.lane)} cy={mid} r={3} fill={hue(row.lane)} />
+      {/* A lane past the cap shares the last column; the ring says so. */}
+      {row.lane >= MAX_LANES && (
+        <circle cx={x(row.lane)} cy={mid} r={5} fill="none" stroke={hue(row.lane)} />
+      )}
+    </svg>
+  )
+}
+
 export function LogPane({
   commits,
+  graph,
   selected,
   compare,
   changedCount,
@@ -24,6 +92,8 @@ export function LogPane({
   onScrollEnd
 }: {
   commits: Commit[]
+  /** Draw the lane graph beside the hashes. */
+  graph: boolean
   selected: string | null
   compare: string | null
   /** Number of uncommitted changes, shown on the work-tree row. */
@@ -45,6 +115,9 @@ export function LogPane({
   const { msg, locale } = useMsg()
   const time = useTime()
   const listRef = useRef<HTMLDivElement>(null)
+  // Recomputed over the whole loaded list, which is what keeps the first page
+  // identical once the second arrives — see lanes.ts.
+  const lanes = useMemo(() => (graph ? layoutLanes(commits) : null), [graph, commits])
   // The work-tree row sits above the log and takes part in keyboard navigation.
   const hashes = [WORKTREE_ROW, ...commits.map((c) => c.hash)]
   const index = hashes.indexOf(selected ?? '')
@@ -138,6 +211,7 @@ export function LogPane({
           }}
           title={msg.log.worktreeRowTitle}
         >
+          {lanes && <GraphCell row={{ lane: 0, incoming: false, edges: [], through: [] }} lanes={lanes.lanes} />}
           <span className="commit-hash">●</span>
           <span className="commit-time">{msg.log.now}</span>
           <span className="commit-author">{msg.log.placeholder}</span>
@@ -155,7 +229,7 @@ export function LogPane({
             {searching ? msg.log.searching : filter ? msg.log.noMatches : msg.log.noCommitsYet}
           </div>
         )}
-      {commits.map((c) => {
+      {commits.map((c, i) => {
         const cls =
           c.hash === selected ? ' selected' : c.hash === compare ? ' compare' : ''
         return (
@@ -170,6 +244,7 @@ export function LogPane({
             }}
             title={`${c.hash}\n${c.author} <${c.email}>\n${fmtDateTimeZone(c.date, locale, time)}\n\n${c.subject}`}
           >
+            {lanes && <GraphCell row={lanes.rows[i]} lanes={lanes.lanes} />}
             <span className="commit-hash">{c.short}</span>
             <span className="commit-time">{stamp(c.date, time, msg.time)}</span>
             <span className="commit-author">{c.author}</span>

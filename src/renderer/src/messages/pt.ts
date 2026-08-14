@@ -177,6 +177,12 @@ export const pt: RendererMessages = {
     filterModeTitle:
       'O que é procurado.\nMensagem / Autor: a mensagem do commit e o autor.\nConteúdo (-S): os commits em que o número de ocorrências do texto mudou — os que o introduziram ou removeram.\nConteúdo regex (-G): todos os commits cujo diff corresponde à expressão, incluindo os que apenas moveram a linha.',
     searching: 'A procurar nos diffs…',
+    graph: 'Grafo',
+    graphTitle:
+      'Desenhar as faixas ao lado dos hashes — onde os ramos divergem e onde as junções caem',
+    allBranches: 'Todos os ramos',
+    allBranchesTitle:
+      'Mostrar todos os ramos de uma vez, em vez daquele para onde o log aponta',
     browsingAnother: 'A percorrer outro ramo',
     comparing2: 'a comparar 2 commits',
     openInBrowser: 'Abrir no navegador',
@@ -233,6 +239,7 @@ export const pt: RendererMessages = {
     sideBySide: 'Lado a lado',
     wordWrap: 'Moldagem de texto',
     wordHighlight: 'Realce de palavras',
+    commitGraph: 'Grafo de commits',
     markdownOutline: 'Estrutura do markdown',
     markdownLineNumbers: 'Números de linha da fonte markdown',
     fileSort: 'Ordenação de ficheiros',

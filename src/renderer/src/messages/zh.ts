@@ -171,6 +171,12 @@ export const zh: RendererMessages = {
     filterModeTitle:
       '搜索什么。\n消息 / 作者：提交消息和作者。\n内容 (-S)：该文本出现次数发生变化的提交——即引入或删除它的那次。\n内容正则 (-G)：diff 匹配该正则的所有提交，包括只是移动了那一行的。',
     searching: '正在搜索 diff…',
+    graph: '图',
+    graphTitle:
+      '在哈希旁画出分支泳道——分叉在哪里、合并落在哪里',
+    allBranches: '全部分支',
+    allBranchesTitle:
+      '一次显示所有分支，而不只是日志当前指向的那一个',
     browsingAnother: '正在浏览其他分支',
     comparing2: '正在比较 2 个提交',
     openInBrowser: '在浏览器中打开',
@@ -225,6 +231,7 @@ export const zh: RendererMessages = {
     sideBySide: '并排',
     wordWrap: '自动折行',
     wordHighlight: '单词高亮',
+    commitGraph: '提交图',
     markdownOutline: 'Markdown 大纲',
     markdownLineNumbers: 'Markdown 源码行号',
     fileSort: '文件排序',

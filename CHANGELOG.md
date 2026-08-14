@@ -33,6 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the agent runs where there is a real tty, so its prompts, hooks and gpg
   signing all work. **Copy Staged Diff** on the work-tree row's menu covers the
   case where the conversation is in another window.
+- **Graph**: the commit log draws lanes beside the hashes, so a merge shows
+  where it came from and a branch shows where it parted. The lanes are computed
+  from the commits' parents — `git log --graph`'s ASCII is typeset for a
+  terminal and would be brittle to parse and impossible to draw otherwise — and
+  the whole loaded list is laid out from the start each time, which is what
+  keeps the first page from being redrawn when the second arrives. Ten lanes,
+  then the overflow shares the last column. **All Branches** (`git log --all`)
+  shows every branch at once, beside the branch menu's one at a time.
 - The commit filter has a mode: **Message / Author** as before, or git's
   pickaxe over the diffs themselves — **Content** (`-S`, where a string's
   number of occurrences changed) and **Content regex** (`-G`, any diff that

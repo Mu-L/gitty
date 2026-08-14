@@ -74,8 +74,10 @@ const api = {
       skip = 0,
       ref: string | null = null,
       filter = '',
-      mode: LogFilterMode = 'text'
-    ): Promise<Commit[]> => ipcRenderer.invoke('git:log', root, limit, skip, ref, filter, mode),
+      mode: LogFilterMode = 'text',
+      all = false
+    ): Promise<Commit[]> =>
+      ipcRenderer.invoke('git:log', root, limit, skip, ref, filter, mode, all),
     branches: (root: string): Promise<Branch[]> => ipcRenderer.invoke('git:branches', root),
     /** Push the checked-out branch; `branch` is named only to set an upstream. */
     push: (root: string, branch: string | null = null): Promise<GitOpResult> =>

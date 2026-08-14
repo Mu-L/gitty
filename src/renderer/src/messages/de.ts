@@ -175,6 +175,12 @@ export const de: RendererMessages = {
     filterModeTitle:
       'Was gesucht wird.\nNachricht / Autor: die Commit-Nachricht und der Autor.\nInhalt (-S): Commits, in denen sich die Anzahl der Vorkommen des Textes geändert hat — die ihn eingeführt oder entfernt haben.\nInhalt (Regex) (-G): jeder Commit, dessen Diff auf den Ausdruck passt, auch wenn die Zeile nur verschoben wurde.',
     searching: 'Diffs werden durchsucht…',
+    graph: 'Graph',
+    graphTitle:
+      'Die Spuren neben den Hashes zeichnen — wo Zweige abgehen und wo Merges landen',
+    allBranches: 'Alle Branches',
+    allBranchesTitle:
+      'Alle Branches auf einmal zeigen, statt nur den, auf den das Log zeigt',
     browsingAnother: 'Anderer Branch wird angesehen',
     comparing2: '2 Commits werden verglichen',
     openInBrowser: 'Im Browser öffnen',
@@ -231,6 +237,7 @@ export const de: RendererMessages = {
     sideBySide: 'Nebeneinander',
     wordWrap: 'Zeilenumbruch',
     wordHighlight: 'Worthervorhebung',
+    commitGraph: 'Commit-Graph',
     markdownOutline: 'Markdown-Gliederung',
     markdownLineNumbers: 'Markdown-Quellzeilennummern',
     fileSort: 'Dateisortierung',

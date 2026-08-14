@@ -286,8 +286,9 @@ function registerIpc(): void {
       skip: number,
       ref: string | null,
       filter: string,
-      mode: LogFilterMode
-    ) => git.log(root, limit, skip, ref, filter, mode)
+      mode: LogFilterMode,
+      all: boolean
+    ) => git.log(root, limit, skip, ref, filter, mode, all)
   )
   ipcMain.handle('git:branches', (_e, root: string) => git.branches(root))
   ipcMain.handle('git:push', (_e, root: string, branch: string | null) =>

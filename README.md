@@ -515,6 +515,17 @@ changed files; selecting it brings the top panes back to the work tree. A filter
 box above the log narrows the list — debounced, with a ✕ to clear — and the
 result pages the same way.
 
+**Graph** in the header draws the lanes beside the hashes: where a branch
+parted, where a merge landed, which line a commit belongs to. It is computed
+from each commit's parents rather than parsed out of `git log --graph`, whose
+ASCII is typeset for a terminal. A lane keeps its colour down the page, and the
+palette is a fixed one — deliberately unlike blame, whose colours are derived
+from the SHA and mean "who". Past ten lanes the overflow shares the last
+column, ringed, so a repository with many heads cannot push the subjects off
+the pane. **All Branches** shows every branch at once (`git log --all`), which
+is how two branches can be seen relating to each other; the branch menu still
+reads one at a time.
+
 The dropdown beside it says what is being searched:
 
 | | |

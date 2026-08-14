@@ -173,6 +173,12 @@ export const ja: RendererMessages = {
     filterModeTitle:
       '何を検索するか。\nメッセージ / 作者：コミットメッセージと作者。\n内容 (-S)：そのテキストの出現回数が変わったコミット——導入または削除したもの。\n内容 正規表現 (-G)：diff が正規表現に一致するすべてのコミット。行を移動しただけのものも含みます。',
     searching: 'diff を検索中…',
+    graph: 'グラフ',
+    graphTitle:
+      'ハッシュの横にレーンを描く——分岐した場所とマージの落ち先',
+    allBranches: '全ブランチ',
+    allBranchesTitle:
+      'ログが指している一本ではなく、すべてのブランチを一度に表示',
     browsingAnother: '別のブランチを閲覧中',
     comparing2: '2 つのコミットを比較中',
     openInBrowser: 'ブラウザーで開く',
@@ -227,6 +233,7 @@ export const ja: RendererMessages = {
     sideBySide: '左右に並べる',
     wordWrap: '折り返し',
     wordHighlight: '単語のハイライト',
+    commitGraph: 'コミットグラフ',
     markdownOutline: 'Markdown アウトライン',
     markdownLineNumbers: 'Markdown のソース行番号',
     fileSort: 'ファイルの並び',

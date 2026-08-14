@@ -259,6 +259,11 @@ export interface RendererMessages {
     readonly filterModeTitle: string
     /** A pickaxe search reads every diff in the history; it takes a while. */
     readonly searching: string
+    /** The lane graph, and the switch that shows every branch at once. */
+    readonly graph: string
+    readonly graphTitle: string
+    readonly allBranches: string
+    readonly allBranchesTitle: string
     readonly browsingAnother: string
     readonly comparing2: string
     readonly openInBrowser: string
@@ -310,6 +315,8 @@ export interface RendererMessages {
     readonly sideBySide: string
     readonly wordWrap: string
     readonly wordHighlight: string
+    /** Draw the lane graph beside the commit hashes. */
+    readonly commitGraph: string
     readonly markdownOutline: string
     /** Number each markdown block with the source line it starts on. */
     readonly markdownLineNumbers: string

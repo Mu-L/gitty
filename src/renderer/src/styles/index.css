@@ -42,6 +42,16 @@
   --find-fg: #ffe9a8;
   --find-current-bg: #c8a020;
   --find-current-fg: #1a1200;
+  /* Lanes of the commit graph, by lane number. Fixed entries rather than a
+     hue derived from the hash: a branch keeps its colour down the page, and
+     blame's author colouring — which *is* derived — stays the only scale on
+     screen that means "who". */
+  --lane-0: #5b9cff;
+  --lane-1: #61c26b;
+  --lane-2: #d8b34a;
+  --lane-3: #b98ae0;
+  --lane-4: #4fc3d0;
+  --lane-5: #e26a6a;
 }
 
 /* Light theme: swap the palette by overriding the same variables. The font
@@ -65,6 +75,12 @@
   --blue: #2b6dd0;
   --cyan: #0f8a95;
   --magenta: #8a4bbd;
+  --lane-0: #2b6dd0;
+  --lane-1: #1f9d3e;
+  --lane-2: #a67c00;
+  --lane-3: #8a4bbd;
+  --lane-4: #0f8a95;
+  --lane-5: #c93a3a;
   --diff-add-bg: #e6f6ea;
   --diff-del-bg: #fbe9e9;
   --diff-hunk: #e3ecf9;
@@ -697,6 +713,16 @@ button:disabled:hover {
 .commit-row.selected .commit-hash {
   color: var(--row-hash);
   font-weight: 700;
+}
+
+/* One row's slice of the lane graph. Drawn per row so the list can grow and
+   scroll without the graph having to be positioned against it. */
+.commit-graph {
+  flex: none;
+  height: var(--row-h);
+  margin-right: 6px;
+  overflow: visible;
+  stroke-width: 1.5;
 }
 
 /* The uncommitted-changes row pinned above the log. */
