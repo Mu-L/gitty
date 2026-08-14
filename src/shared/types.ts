@@ -116,6 +116,21 @@ export const UNCOMMITTED_SHA = '0'.repeat(40)
  */
 export type LogFilterMode = 'text' | 'content' | 'regex'
 
+/** One line `git grep` matched, in the revision that was searched. */
+export interface GrepHit {
+  path: string
+  /** 1-based line number, as git counts. */
+  line: number
+  text: string
+}
+
+/** A grep's hits, and whether the list stops short of everything git found. */
+export interface GrepResult {
+  hits: GrepHit[]
+  /** True when the search was cut off at the ceiling; the count is what is here. */
+  truncated: boolean
+}
+
 /** Which side of the index a working-tree diff should be read from. */
 export type DiffSide = 'worktree' | 'index'
 

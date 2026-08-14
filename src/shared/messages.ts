@@ -128,6 +128,9 @@ export interface RendererMessages {
     /** Wrappers for a blame or file-history document. */
     readonly blame: (label: string) => string
     readonly fileHistory: (label: string) => string
+    /** The history of a line range, and a repository-wide search. */
+    readonly lineHistory: (path: string, start: number, end: number) => string
+    readonly search: (pattern: string) => string
   }
   readonly branch: {
     readonly noBranchesYet: string
@@ -156,6 +159,12 @@ export interface RendererMessages {
     /** Why nothing happened: no command configured, or nowhere to run it. */
     readonly agentNoCommand: string
     readonly agentNoTerminal: string
+    /** Searching the repository from the file pane's header. */
+    readonly search: string
+    readonly searchTitle: string
+    readonly searchPlaceholder: string
+    readonly searchInRevision: (short: string) => string
+    readonly searchInWorktree: string
   }
   readonly diff: {
     readonly titleFallback: string
@@ -202,6 +211,14 @@ export interface RendererMessages {
     /** Small labels on the doc tabs for blame / file-history documents. */
     readonly docTabBlame: string
     readonly docTabHistory: string
+    readonly docTabLines: string
+    readonly docTabSearch: string
+    /** The line-range history and the repository search, as documents. */
+    readonly emptyLineHistory: string
+    readonly emptySearch: string
+    readonly searchHits: (n: number, files: number) => string
+    /** The ceiling a search stops at, so a huge one cannot fill the pane. */
+    readonly searchTruncated: (n: number) => string
     readonly dblClickFullScreen: string
     /** File heading tooltip in a collapsed multi-file diff. */
     readonly fileHeadingTooltip: (collapsed: boolean) => string
@@ -381,6 +398,8 @@ export interface RendererMessages {
     // file tree — per-file questions, both open a document in the diff pane
     readonly blameFile: string
     readonly fileHistory: string
+    /** On a blame row: what happened to the lines under the selection. */
+    readonly lineHistory: string
     // worktree row in commit log
     readonly browseWorktree: string
   }

@@ -55,7 +55,10 @@ export const ko: RendererMessages = {
     rangeFile: (path: string, from: string, to: string) =>
       `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     blame: (label: string) => `blame: ${label}`,
-    fileHistory: (label: string) => `기록: ${label}`
+    fileHistory: (label: string) => `기록: ${label}`,
+    lineHistory: (path: string, start: number, end: number) =>
+      `${path}의 ${start}–${end}줄`,
+    search: (pattern: string) => `검색: ${pattern}`
   },
   branch: {
     noBranchesYet: '브랜치가 아직 없습니다',
@@ -83,7 +86,12 @@ export const ko: RendererMessages = {
       `스테이지된 내용을 두고 터미널에서 "${command}"를 실행합니다`,
     commitWithAgentEmpty: '먼저 무언가를 스테이지하세요 — 인덱스가 비어 있습니다',
     agentNoCommand: 'agent 명령이 설정되지 않았습니다. 설정 ▸ 세션 ▸ Agent 명령에 있습니다.',
-    agentNoTerminal: '이 탭에는 실행할 셸이 없습니다.'
+    agentNoTerminal: '이 탭에는 실행할 셸이 없습니다.',
+    search: '검색',
+    searchTitle: 'git grep으로 저장소 검색',
+    searchPlaceholder: '저장소 검색…',
+    searchInRevision: (short: string) => `${short} 검색 중`,
+    searchInWorktree: '작업 트리 검색 중'
   },
   diff: {
     titleFallback: 'Diff',
@@ -126,6 +134,12 @@ export const ko: RendererMessages = {
     docTabClose: '닫기',
     docTabBlame: 'blame',
     docTabHistory: '기록',
+    docTabLines: '줄 이력',
+    docTabSearch: '검색',
+    emptyLineHistory: '이 줄들을 건드린 커밋이 없습니다.',
+    emptySearch: '일치하는 것이 없습니다.',
+    searchHits: (n: number, files: number) => `파일 ${files}개에서 ${n}건 일치`,
+    searchTruncated: (n: number) => `${n}건에서 멈췄습니다 — 검색 범위를 좁히세요.`,
     dblClickFullScreen: '더블 클릭하면 전체 화면 전환',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\n클릭하면 ${collapsed ? '펼치기' : '접기'}\nCtrl+클릭하면 새 탭에서 열기\n오른쪽 클릭하면 더 많은 항목`,
@@ -283,6 +297,7 @@ export const ko: RendererMessages = {
     diffAgainstAccel: 'Ctrl+클릭',
     blameFile: 'Blame 파일',
     fileHistory: '파일 기록',
+    lineHistory: '이 줄들의 이력',
     browseWorktree: '작업 트리 보기'
   },
   paneChrome: {

@@ -15,6 +15,7 @@ import type {
   DiffResult,
   FileChurn,
   GitOpResult,
+  GrepResult,
   HunkPick,
   ImageFileContent,
   LogFilterMode,
@@ -90,6 +91,18 @@ const api = {
     /** Every commit that touched this file, newest first, following renames. */
     fileHistory: (root: string, rev: string | null, filePath: string): Promise<Commit[]> =>
       ipcRenderer.invoke('git:fileHistory', root, rev, filePath),
+    /** How a range of lines got this way: `git log -L`, raw, headers and all. */
+    lineHistory: (
+      root: string,
+      rev: string | null,
+      filePath: string,
+      start: number,
+      end: number
+    ): Promise<string> =>
+      ipcRenderer.invoke('git:lineHistory', root, rev, filePath, start, end),
+    /** Search the work tree, or a revision when one is named. */
+    grep: (root: string, pattern: string, rev: string | null): Promise<GrepResult> =>
+      ipcRenderer.invoke('git:grep', root, pattern, rev),
     rangeFiles: (root: string, from: string, to: string): Promise<CommitFile[]> =>
       ipcRenderer.invoke('git:rangeFiles', root, from, to),
     diff: (root: string, req: DiffRequest, opts: DiffOptions): Promise<DiffResult> =>

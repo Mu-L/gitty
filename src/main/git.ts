@@ -16,6 +16,7 @@ import type {
   DiffRequest,
   DiffResult,
   GitOpResult,
+  GrepResult,
   ImageFileContent,
   LogFilterMode,
   RepoStatus,
@@ -27,6 +28,7 @@ import {
   parseBranches,
   parseLog,
   parseNameStatus,
+  parseGrep,
   parseNumstat,
   parseStatus,
   RS,
@@ -118,8 +120,13 @@ export async function branches(root: string): Promise<Branch[]> {
  */
 const searches = new Map<string, ReturnType<typeof execFile>>()
 
-function searchLog(root: string, args: string[]): Promise<string> {
-  searches.get(root)?.kill()
+/**
+ * `kind` keeps the two kinds of search out of each other's way: a grep must not
+ * cancel the log the pane is waiting for, and the log must not cancel a grep.
+ */
+function searchLog(root: string, args: string[], kind = 'log'): Promise<string> {
+  const key = `${kind}:${root}`
+  searches.get(key)?.kill()
   return new Promise((resolve) => {
     const child = execFile(
       'git',
@@ -131,11 +138,11 @@ function searchLog(root: string, args: string[]): Promise<string> {
         env: { ...process.env, GIT_OPTIONAL_LOCKS: '0', LC_ALL: 'C' }
       },
       (err, stdout) => {
-        if (searches.get(root) === child) searches.delete(root)
+        if (searches.get(key) === child) searches.delete(key)
         resolve(err ? '' : stdout)
       }
     )
-    searches.set(root, child)
+    searches.set(key, child)
   })
 }
 
@@ -290,6 +297,67 @@ async function one(root: string, hash: string): Promise<Commit> {
     refs: refs ?? '',
     parents: (parents ?? '').split(' ').filter(Boolean)
   }
+}
+
+/**
+ * How one range of lines got to be the way it is: `git log -L a,b:file`, whose
+ * output is a commit header and that range's diff, repeated back through the
+ * history. Returned raw — the renderer draws it — because git formats it as a
+ * log and a patch together and re-deriving one from the other would only lose
+ * the connection between them.
+ *
+ * `-L` cannot be combined with `--follow`, and does not need to be: it tracks
+ * the range across renames by itself.
+ */
+export async function lineHistory(
+  root: string,
+  rev: string | null,
+  filePath: string,
+  start: number,
+  end: number
+): Promise<string> {
+  const a = Math.max(1, Math.floor(start))
+  const b = Math.max(a, Math.floor(end))
+  const args = ['log', '--no-color', `-L${a},${b}:${filePath}`]
+  if (rev) args.push(rev)
+  try {
+    return await git(root, args)
+  } catch (e) {
+    const err = e as { stderr?: string; message?: string }
+    return err.stderr || err.message || ''
+  }
+}
+
+/** Above this many hits the search stops and says so, like an oversized diff. */
+const MAX_GREP_HITS = 2000
+
+/**
+ * Search the repository's contents. With no revision it searches the work tree
+ * — what is on disk, uncommitted work included — and with one it searches that
+ * revision, so a grep started while browsing a commit answers about the commit
+ * rather than about today.
+ *
+ * The pattern is one argument, never spliced into a command line, and `-e`
+ * keeps a pattern that begins with a dash from being read as an option.
+ */
+export async function grep(
+  root: string,
+  pattern: string,
+  rev: string | null
+): Promise<GrepResult> {
+  if (!pattern) return { hits: [], truncated: false }
+  const args = ['grep', '-n', '-z', '-I', '--no-color', '-e', pattern]
+  if (rev) args.push(rev)
+  args.push('--')
+  let raw: string
+  try {
+    raw = await searchLog(root, args, 'grep')
+  } catch {
+    // git grep exits 1 when nothing matched, which is not an error here.
+    return { hits: [], truncated: false }
+  }
+  const all = parseGrep(raw, rev)
+  return { hits: all.slice(0, MAX_GREP_HITS), truncated: all.length > MAX_GREP_HITS }
 }
 
 /** Files changed between two commits. */

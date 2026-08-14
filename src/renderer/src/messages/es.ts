@@ -56,7 +56,10 @@ export const es: RendererMessages = {
     rangeFile: (path: string, from: string, to: string) =>
       `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     blame: (label: string) => `blame: ${label}`,
-    fileHistory: (label: string) => `historial: ${label}`
+    fileHistory: (label: string) => `historial: ${label}`,
+    lineHistory: (path: string, start: number, end: number) =>
+      `líneas ${start}–${end} de ${path}`,
+    search: (pattern: string) => `búsqueda: ${pattern}`
   },
   branch: {
     noBranchesYet: 'Aún no hay ramas',
@@ -85,7 +88,12 @@ export const es: RendererMessages = {
     commitWithAgentEmpty: 'Pon algo en el índice primero: está vacío',
     agentNoCommand:
       'No hay ningún comando de agente configurado. Ajustes ▸ Sesión ▸ Comando del agente.',
-    agentNoTerminal: 'No hay ninguna shell en esta pestaña donde ejecutarlo.'
+    agentNoTerminal: 'No hay ninguna shell en esta pestaña donde ejecutarlo.',
+    search: 'Buscar',
+    searchTitle: 'Buscar en el repositorio con git grep',
+    searchPlaceholder: 'Buscar en el repositorio…',
+    searchInRevision: (short: string) => `buscando en ${short}`,
+    searchInWorktree: 'buscando en el árbol de trabajo'
   },
   diff: {
     titleFallback: 'Diff',
@@ -128,6 +136,13 @@ export const es: RendererMessages = {
     docTabClose: 'Cerrar',
     docTabBlame: 'blame',
     docTabHistory: 'historial',
+    docTabLines: 'líneas',
+    docTabSearch: 'búsqueda',
+    emptyLineHistory: 'Ningún commit ha tocado estas líneas.',
+    emptySearch: 'Sin coincidencias.',
+    searchHits: (n: number, files: number) =>
+      `${n} coincidencia${n === 1 ? '' : 's'} en ${files} archivo${files === 1 ? '' : 's'}`,
+    searchTruncated: (n: number) => `Detenido en ${n} coincidencias: acota la búsqueda.`,
     dblClickFullScreen: 'Doble clic para alternar pantalla completa',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nHaz clic para ${collapsed ? 'expandir' : 'contraer'}\nCtrl+clic para abrir en una pestaña nueva\nClic derecho para más opciones`,
@@ -288,6 +303,7 @@ export const es: RendererMessages = {
     diffAgainstAccel: 'Ctrl+clic',
     blameFile: 'Blame',
     fileHistory: 'Historial del archivo',
+    lineHistory: 'Historial de estas líneas',
     browseWorktree: 'Explorar el árbol de trabajo'
   },
   paneChrome: {

@@ -39,6 +39,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   matches). That is the question blame cannot answer: which commit introduced
   this line. The box reports that it is searching, and changing the query kills
   the search still running rather than letting it finish for nobody.
+- **History of These Lines** on a blame row: `git log -L` over the selected
+  lines (or the clicked one), as a document showing each commit that touched
+  them and what it did. Blame says who last; this says how it got this way.
+- **Search** in the working-tree header runs `git grep` and opens the hits as a
+  document grouped by file. Clicking one opens that file at that line, marked.
+  The search follows the revision on screen — the work tree, or the commit or
+  snapshot being read — and stops at 2000 hits like an oversized diff.
 - A README section on what Gitty does not do — rebase, merge, cherry-pick,
   conflicts, branch surgery — and why the shell in the same window is the
   answer rather than half a button.

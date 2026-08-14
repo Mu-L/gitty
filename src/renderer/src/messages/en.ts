@@ -56,7 +56,10 @@ export const en: RendererMessages = {
     rangeFile: (path: string, from: string, to: string) =>
       `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     blame: (label: string) => `blame: ${label}`,
-    fileHistory: (label: string) => `history: ${label}`
+    fileHistory: (label: string) => `history: ${label}`,
+    lineHistory: (path: string, start: number, end: number) =>
+      `lines ${start}–${end} of ${path}`,
+    search: (pattern: string) => `search: ${pattern}`
   },
   branch: {
     noBranchesYet: 'No branches yet',
@@ -85,7 +88,12 @@ export const en: RendererMessages = {
     commitWithAgentEmpty: 'Stage something first — the index is empty',
     agentNoCommand:
       'No agent command is set. Settings ▸ Session ▸ Agent command is where it goes.',
-    agentNoTerminal: 'No shell in this tab to run it in.'
+    agentNoTerminal: 'No shell in this tab to run it in.',
+    search: 'Search',
+    searchTitle: 'Search the repository with git grep',
+    searchPlaceholder: 'Search the repository…',
+    searchInRevision: (short: string) => `searching ${short}`,
+    searchInWorktree: 'searching the working tree'
   },
   diff: {
     titleFallback: 'Diff',
@@ -128,6 +136,13 @@ export const en: RendererMessages = {
     docTabClose: 'Close',
     docTabBlame: 'blame',
     docTabHistory: 'history',
+    docTabLines: 'lines',
+    docTabSearch: 'search',
+    emptyLineHistory: 'No commit has touched these lines.',
+    emptySearch: 'Nothing matched.',
+    searchHits: (n: number, files: number) =>
+      `${n} match${n === 1 ? '' : 'es'} in ${files} file${files === 1 ? '' : 's'}`,
+    searchTruncated: (n: number) => `Stopped at ${n} matches — narrow the search.`,
     dblClickFullScreen: 'Double-click to toggle full screen',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nClick to ${collapsed ? 'expand' : 'collapse'}\nCtrl+click to open it in a new tab\nRight-click for more`,
@@ -285,6 +300,7 @@ export const en: RendererMessages = {
     diffAgainstAccel: 'Ctrl+Click',
     blameFile: 'Blame File',
     fileHistory: 'File History',
+    lineHistory: 'History of These Lines',
     browseWorktree: 'Browse Working Tree'
   },
   paneChrome: {

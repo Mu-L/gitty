@@ -14,6 +14,7 @@ export function CodePane({
   path,
   wrap,
   active,
+  gotoLine,
   onMenu
 }: {
   source: string
@@ -24,6 +25,8 @@ export function CodePane({
   wrap: boolean
   /** On screen in the active tab, so Ctrl+F belongs to this view. */
   active: boolean
+  /** 1-based line to open at, when the file was opened from a search hit. */
+  gotoLine?: number
   onMenu: (state: MenuState) => void
 }): JSX.Element {
   const { msg } = useMsg()
@@ -47,6 +50,23 @@ export function CodePane({
     setShown(CHUNK)
     if (hostRef.current) hostRef.current.scrollTop = 0
   }, [docKey])
+
+  // Opened from a search hit: render far enough to hold the line, then put it
+  // in the middle of the pane and mark it. Once only — scrolling away from it
+  // afterwards is the reader's business, and re-running on every render would
+  // drag them back.
+  const jumped = useRef('')
+  useLayoutEffect(() => {
+    if (!gotoLine || jumped.current === docKey) return
+    if (gotoLine > shown) {
+      setShown(Math.min(lines.length, gotoLine + CHUNK))
+      return
+    }
+    jumped.current = docKey
+    hostRef.current
+      ?.querySelector(`[data-line="${gotoLine}"]`)
+      ?.scrollIntoView({ block: 'center' })
+  }, [gotoLine, docKey, shown, lines.length])
 
   // Re-rendering the lines clamps the scroll when the file got shorter; put
   // the reader back. The reset above has already zeroed the remembered
@@ -92,7 +112,11 @@ export function CodePane({
         }}
       >
         {lines.slice(0, shown).map((_, i) => (
-          <div key={i} className="code-line">
+          <div
+            key={i}
+            className={`code-line${gotoLine === i + 1 ? ' hit' : ''}`}
+            data-line={i + 1}
+          >
             <span className="code-gutter">{i + 1}</span>
             <span className="code-text" dangerouslySetInnerHTML={bodies[i]} />
           </div>

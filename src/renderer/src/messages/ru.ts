@@ -71,7 +71,10 @@ export const ru: RendererMessages = {
     rangeFile: (path: string, from: string, to: string) =>
       `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     blame: (label: string) => `blame: ${label}`,
-    fileHistory: (label: string) => `история: ${label}`
+    fileHistory: (label: string) => `история: ${label}`,
+    lineHistory: (path: string, start: number, end: number) =>
+      `строки ${start}–${end} файла ${path}`,
+    search: (pattern: string) => `поиск: ${pattern}`
   },
   branch: {
     noBranchesYet: 'Веток пока нет',
@@ -100,7 +103,12 @@ export const ru: RendererMessages = {
     commitWithAgentEmpty: 'Сначала добавьте что-нибудь в индекс — он пуст',
     agentNoCommand:
       'Команда агента не задана. Настройки ▸ Сеанс ▸ Команда агента.',
-    agentNoTerminal: 'В этой вкладке нет оболочки, где её запустить.'
+    agentNoTerminal: 'В этой вкладке нет оболочки, где её запустить.',
+    search: 'Поиск',
+    searchTitle: 'Искать по репозиторию через git grep',
+    searchPlaceholder: 'Искать по репозиторию…',
+    searchInRevision: (short: string) => `поиск в ${short}`,
+    searchInWorktree: 'поиск в рабочем дереве'
   },
   diff: {
     titleFallback: 'Diff',
@@ -143,6 +151,13 @@ export const ru: RendererMessages = {
     docTabClose: 'Закрыть',
     docTabBlame: 'blame',
     docTabHistory: 'история',
+    docTabLines: 'строки',
+    docTabSearch: 'поиск',
+    emptyLineHistory: 'Эти строки не трогал ни один коммит.',
+    emptySearch: 'Совпадений нет.',
+    searchHits: (n: number, files: number) =>
+      `${n} ${plural(n, 'совпадение', 'совпадения', 'совпадений')} в ${files} ${plural(files, 'файле', 'файлах', 'файлах')}`,
+    searchTruncated: (n: number) => `Остановлено на ${n} совпадениях — сузьте поиск.`,
     dblClickFullScreen: 'Двойной щелчок переключает полноэкранный режим',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nЩелчок — ${collapsed ? 'развернуть' : 'свернуть'}\nCtrl+щелчок — открыть в новой вкладке\nПравый щелчок — ещё действия`,
@@ -304,6 +319,7 @@ export const ru: RendererMessages = {
     diffAgainstAccel: 'Ctrl+щелчок',
     blameFile: 'Blame',
     fileHistory: 'История файла',
+    lineHistory: 'История этих строк',
     browseWorktree: 'Просмотреть рабочее дерево'
   },
   paneChrome: {

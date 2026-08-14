@@ -4,7 +4,7 @@
  * a repository. `git.ts` shells out to git and feeds the results in, joining
  * on the things only it knows (the repository root, `absPath`).
  */
-import { UNCOMMITTED_SHA, type BlameLine, type Branch, type Commit, type FileChurn, type FileStatusCode } from '../shared/types'
+import { UNCOMMITTED_SHA, type BlameLine, type Branch, type Commit, type FileChurn, type FileStatusCode, type GrepHit } from '../shared/types'
 
 export { UNCOMMITTED_SHA }
 
@@ -208,4 +208,30 @@ export function parseBlame(raw: string): BlameLine[] {
     else if (line.startsWith('summary ')) rec.summary = line.slice(8)
   }
   return out
+}
+
+/**
+ * Parse `git grep -n -z`. Each record is one matching line, NUL-separated:
+ * `path`, line number, then the line itself — and with a revision named, the
+ * path arrives as `<rev>:<path>`, which is the prefix stripped here.
+ *
+ * NUL separators rather than colons because a path may contain a colon and a
+ * matched line certainly may; the line's own text is rejoined in case it holds
+ * one of the separators too.
+ */
+export function parseGrep(raw: string, rev: string | null): GrepHit[] {
+  const hits: GrepHit[] = []
+  for (const record of raw.split('\n')) {
+    if (record === '') continue
+    const parts = record.split('\0')
+    if (parts.length < 3) continue
+    const [where, lineNo, ...rest] = parts
+    const prefix = rev ? `${rev}:` : ''
+    hits.push({
+      path: prefix && where.startsWith(prefix) ? where.slice(prefix.length) : where,
+      line: Number(lineNo),
+      text: rest.join('\0')
+    })
+  }
+  return hits
 }

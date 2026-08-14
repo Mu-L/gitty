@@ -229,6 +229,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const [sideOverride, setSideOverride] = useState<DiffSide | null>(null)
   // An apply is in flight; the hunk buttons go quiet rather than queueing.
   const [staging, setStaging] = useState(false)
+  // The repository search box, above the file list. Open is a state of its own
+  // rather than a document, so the pattern can be edited before anything runs.
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchText, setSearchText] = useState('')
   const [remoteMsg, setRemoteMsg] = useState<{ ok: boolean; text: string } | null>(null)
   // gource is optional: the button exists only where the binary does.
   const [hasGource, setHasGource] = useState(false)
@@ -480,6 +484,59 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   )
 
   const openFileDoc = useCallback((path: string) => addDoc('file', path), [addDoc])
+
+  /** Put a document in the strip and show it, unless it is already there. */
+  const showDoc = useCallback((doc: FileDocState) => {
+    setDocs((prev) =>
+      prev.some((d) => d.id === doc.id)
+        ? prev.map((d) => (d.id === doc.id ? doc : d))
+        : [...prev, doc]
+    )
+    setActiveDoc(doc.id)
+  }, [])
+
+  /** `git log -L` over a range of one file's lines, from a blame row. */
+  const openLineHistory = useCallback(
+    (path: string, start: number, end: number) => {
+      const rev = revForView()
+      showDoc({
+        kind: 'lines',
+        id: `lines:${rev ?? 'work'}:${path}:${start}-${end}`,
+        path,
+        rev,
+        preview: false,
+        range: { start, end }
+      })
+    },
+    [revForView, showDoc]
+  )
+
+  /** A repository-wide search, at whatever revision is being read. */
+  const openSearch = useCallback(
+    (pattern: string) => {
+      const rev = revForView()
+      showDoc({
+        kind: 'grep',
+        id: `grep:${rev ?? 'work'}:${pattern}`,
+        path: pattern,
+        rev,
+        preview: false
+      })
+    },
+    [revForView, showDoc]
+  )
+
+  /**
+   * Open the file a search hit names, at the line it names. Source rather than
+   * a rendered preview even for markdown: the line is the point.
+   */
+  const openHit = useCallback(
+    (path: string, line: number) => {
+      const rev = revForView()
+      showDoc({ kind: 'file', id: `${rev ?? 'work'}:${path}`, path, rev, preview: false, line })
+    },
+    [revForView, showDoc]
+  )
   const openBlame = useCallback((path: string) => addDoc('blame', path), [addDoc])
   const openHistory = useCallback((path: string) => addDoc('history', path), [addDoc])
 
@@ -1052,11 +1109,49 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       {msg.files.commitWithAgent}
                     </button>
                   )}
+                  {/* Searching is about the whole repository, so it belongs to
+                      the pane that lists it — and it follows the revision on
+                      screen rather than always asking about the disk. */}
+                  <button
+                    className={`toggle${searchOpen ? ' on' : ''}`}
+                    title={msg.files.searchTitle}
+                    onClick={() => setSearchOpen((o) => !o)}
+                  >
+                    {msg.files.search}
+                  </button>
                   {view.mode !== 'worktree' && (
                     <button onClick={backToWorkTree}>{msg.files.backToWorkTree}</button>
                   )}
                   {hideButton('files')}
                 </div>
+                {searchOpen && (
+                  <div className="log-filter">
+                    <input
+                      type="text"
+                      autoFocus
+                      value={searchText}
+                      placeholder={msg.files.searchPlaceholder}
+                      spellCheck={false}
+                      onChange={(e) => setSearchText(e.target.value)}
+                      onKeyDown={(e) => {
+                        // Enter runs it; Escape puts the box away without
+                        // disturbing the view behind it.
+                        if (e.key === 'Enter' && searchText.trim()) {
+                          e.stopPropagation()
+                          openSearch(searchText.trim())
+                        } else if (e.key === 'Escape') {
+                          e.stopPropagation()
+                          setSearchOpen(false)
+                        }
+                      }}
+                    />
+                    <span className="log-filter-busy">
+                      {revForView()
+                        ? msg.files.searchInRevision((revForView() as string).slice(0, 8))
+                        : msg.files.searchInWorktree}
+                    </span>
+                  </div>
+                )}
                 <div className="pane-body">
                   {commitMeta && <CommitInfo meta={commitMeta} />}
                   <FilesPane
@@ -1291,10 +1386,18 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       >
                         {d.kind !== 'file' && (
                           <span className="doc-kind">
-                            {d.kind === 'blame' ? msg.diff.docTabBlame : msg.diff.docTabHistory}
+                            {d.kind === 'blame'
+                              ? msg.diff.docTabBlame
+                              : d.kind === 'history'
+                                ? msg.diff.docTabHistory
+                                : d.kind === 'lines'
+                                  ? msg.diff.docTabLines
+                                  : msg.diff.docTabSearch}
                           </span>
                         )}
-                        <span className="doc-name">{d.path.split('/').pop()}</span>
+                        <span className="doc-name">
+                          {d.kind === 'grep' ? d.path : d.path.split('/').pop()}
+                        </span>
                         <span
                           className="doc-close"
                           title={msg.diff.docTabClose}
@@ -1333,6 +1436,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       onMenu={diffMenu}
                       setMenu={setMenu}
                       onOpenCommit={showCommit}
+                      range={doc.range}
+                      gotoLine={doc.line}
+                      onOpenHit={openHit}
+                      onLineHistory={(start, end) => openLineHistory(doc.path, start, end)}
                     />
                   </Suspense>
                 ) : (

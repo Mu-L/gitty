@@ -55,7 +55,10 @@ export const ja: RendererMessages = {
     rangeFile: (path: string, from: string, to: string) =>
       `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     blame: (label: string) => `blame: ${label}`,
-    fileHistory: (label: string) => `履歴: ${label}`
+    fileHistory: (label: string) => `履歴: ${label}`,
+    lineHistory: (path: string, start: number, end: number) =>
+      `${path} の ${start}–${end} 行`,
+    search: (pattern: string) => `検索: ${pattern}`
   },
   branch: {
     noBranchesYet: 'ブランチはまだありません',
@@ -83,7 +86,12 @@ export const ja: RendererMessages = {
       `ステージ済みの内容に対して、ターミナルで "${command}" を実行します`,
     commitWithAgentEmpty: 'まず何かをステージしてください——インデックスが空です',
     agentNoCommand: 'agent コマンドが未設定です。設定 ▸ セッション ▸ Agent コマンド にあります。',
-    agentNoTerminal: 'このタブには実行できるシェルがありません。'
+    agentNoTerminal: 'このタブには実行できるシェルがありません。',
+    search: '検索',
+    searchTitle: 'git grep でリポジトリを検索',
+    searchPlaceholder: 'リポジトリを検索…',
+    searchInRevision: (short: string) => `${short} を検索`,
+    searchInWorktree: 'ワークツリーを検索'
   },
   diff: {
     titleFallback: '差分',
@@ -126,6 +134,12 @@ export const ja: RendererMessages = {
     docTabClose: '閉じる',
     docTabBlame: 'blame',
     docTabHistory: '履歴',
+    docTabLines: '行の履歴',
+    docTabSearch: '検索',
+    emptyLineHistory: 'これらの行に触れたコミットはありません。',
+    emptySearch: '一致するものがありません。',
+    searchHits: (n: number, files: number) => `${files} ファイルで ${n} 件一致`,
+    searchTruncated: (n: number) => `${n} 件で打ち切りました——検索を絞ってください。`,
     dblClickFullScreen: 'ダブルクリックで全画面を切り替え',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nクリックで${collapsed ? '展開' : '折りたたみ'}\nCtrl+クリックで新しいタブに開く\n右クリックでその他の操作`,
@@ -283,6 +297,7 @@ export const ja: RendererMessages = {
     diffAgainstAccel: 'Ctrl+クリック',
     blameFile: 'Blame ファイル',
     fileHistory: 'ファイル履歴',
+    lineHistory: 'これらの行の履歴',
     browseWorktree: 'ワークツリーを閲覧'
   },
   paneChrome: {

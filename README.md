@@ -489,6 +489,24 @@ viewer, with an em dash where a line is not committed yet — at the revision yo
 are viewing. File History lists every commit
 that touched the file, follows renames, and clicking a commit opens it.
 
+Right-clicking a blame row offers **History of These Lines**: `git log -L` over
+the lines the selection covers — or the clicked line, with no selection — which
+opens as its own document showing each commit that touched them together with
+what it did to them. Blame answers *who last*; this answers *how it got this
+way*. It tracks the range across renames by itself.
+
+#### Searching the repository
+
+**Search** in the working-tree pane's header opens a box above the file list
+and runs `git grep`. The results are a document grouped by file, line numbers
+down the left; clicking one opens that file at that line, with the line marked.
+
+The search follows the revision on screen: in the work tree it reads what is on
+disk, uncommitted work and all, and in a commit or a snapshot it reads that
+revision — the box says which. Above 2000 hits it stops and says so, the way an
+oversized diff does. The pattern reaches git as a single argument, so a regular
+expression is not eaten on the way.
+
 ### Commits (bottom left)
 
 The log of the current branch, loaded 300 at a time and extended as you scroll.

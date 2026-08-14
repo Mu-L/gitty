@@ -16,8 +16,12 @@ import type { RendererMessages } from '../../shared/messages'
 
 /** A file opened in the diff pane, beside (not instead of) the diff. */
 export interface FileDocState {
-  /** What this document shows: the file, whole-file blame, or its history. */
-  kind: 'file' | 'blame' | 'history'
+  /**
+   * What this document shows: the file, whole-file blame, its history, the
+   * history of a range of its lines, or — the one that is not about a single
+   * file — the hits of a search, where `path` holds the pattern.
+   */
+  kind: 'file' | 'blame' | 'history' | 'lines' | 'grep'
   /** Kind + revision + path; opening the same document twice reuses it. */
   id: string
   path: string
@@ -25,6 +29,10 @@ export interface FileDocState {
   rev: string | null
   /** Markdown documents open rendered, with a toggle back to the source. */
   preview: boolean
+  /** The lines `kind: 'lines'` follows; 1-based and inclusive, as git counts. */
+  range?: { start: number; end: number }
+  /** The line a file document was opened at, when a search hit opened it. */
+  line?: number
 }
 
 /** One entry in the history: a view, a selection within it, and a document. */
@@ -109,5 +117,9 @@ export function navLabel(p: NavPlace, msg: RendererMessages): string {
   }
   if (p.doc?.kind === 'blame') return msg.nav.blame(label)
   if (p.doc?.kind === 'history') return msg.nav.fileHistory(label)
+  if (p.doc?.kind === 'lines' && p.doc.range) {
+    return msg.nav.lineHistory(p.doc.path, p.doc.range.start, p.doc.range.end)
+  }
+  if (p.doc?.kind === 'grep') return msg.nav.search(p.doc.path)
   return label
 }

@@ -56,7 +56,10 @@ export const pt: RendererMessages = {
     rangeFile: (path: string, from: string, to: string) =>
       `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     blame: (label: string) => `blame: ${label}`,
-    fileHistory: (label: string) => `histórico: ${label}`
+    fileHistory: (label: string) => `histórico: ${label}`,
+    lineHistory: (path: string, start: number, end: number) =>
+      `linhas ${start}–${end} de ${path}`,
+    search: (pattern: string) => `procura: ${pattern}`
   },
   branch: {
     noBranchesYet: 'Ainda não há ramos',
@@ -85,7 +88,12 @@ export const pt: RendererMessages = {
     commitWithAgentEmpty: 'Ponha algo no índice primeiro — está vazio',
     agentNoCommand:
       'Não há nenhum comando de agente definido. Definições ▸ Sessão ▸ Comando do agente.',
-    agentNoTerminal: 'Não há nenhuma shell neste separador para o correr.'
+    agentNoTerminal: 'Não há nenhuma shell neste separador para o correr.',
+    search: 'Procurar',
+    searchTitle: 'Procurar no repositório com git grep',
+    searchPlaceholder: 'Procurar no repositório…',
+    searchInRevision: (short: string) => `a procurar em ${short}`,
+    searchInWorktree: 'a procurar na árvore de trabalho'
   },
   diff: {
     titleFallback: 'Diff',
@@ -128,6 +136,13 @@ export const pt: RendererMessages = {
     docTabClose: 'Fechar',
     docTabBlame: 'blame',
     docTabHistory: 'histórico',
+    docTabLines: 'linhas',
+    docTabSearch: 'procura',
+    emptyLineHistory: 'Nenhum commit tocou nestas linhas.',
+    emptySearch: 'Nada corresponde.',
+    searchHits: (n: number, files: number) =>
+      `${n} correspondência${n === 1 ? '' : 's'} em ${files} ficheiro${files === 1 ? '' : 's'}`,
+    searchTruncated: (n: number) => `Parou às ${n} correspondências — restrinja a procura.`,
     dblClickFullScreen: 'Duplo clique alterna o ecrã inteiro',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nClique para ${collapsed ? 'expandir' : 'recolher'}\nCtrl+clique para abrir num novo separador\nClique com o botão direito para mais`,
@@ -288,6 +303,7 @@ export const pt: RendererMessages = {
     diffAgainstAccel: 'Ctrl+clique',
     blameFile: 'Blame',
     fileHistory: 'Histórico do arquivo',
+    lineHistory: 'Histórico destas linhas',
     browseWorktree: 'Explorar a árvore de trabalho'
   },
   paneChrome: {

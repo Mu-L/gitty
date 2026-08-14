@@ -1,11 +1,32 @@
 import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import type { BlameLine } from '../../../shared/types'
 import { UNCOMMITTED_SHA } from '../../../shared/types'
-import type { MenuState } from './ContextMenu'
+import type { MenuItem, MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
 import { highlightLines, languageFor } from '../highlight'
 import { fmtDateTimeZone, fmtShortDate, useTime } from '../time'
 import { useFind } from './useFind'
+
+/**
+ * The line numbers a text selection covers, or null when there is none. Read
+ * from the two ends of the range rather than by testing every row: the rows
+ * carry their line number, and everything between two of them is between them.
+ */
+function selectedRange(host: HTMLElement | null): [number, number] | null {
+  const sel = document.getSelection()
+  if (!host || !sel || sel.isCollapsed || sel.rangeCount === 0) return null
+  const range = sel.getRangeAt(0)
+  if (!host.contains(range.commonAncestorContainer)) return null
+  const at = (node: Node): number | null => {
+    const el = node instanceof Element ? node : node.parentElement
+    const row = el?.closest('[data-line]')
+    return row ? Number((row as HTMLElement).dataset.line) : null
+  }
+  const a = at(range.startContainer)
+  const b = at(range.endContainer)
+  if (a === null || b === null) return null
+  return a <= b ? [a, b] : [b, a]
+}
 
 /** Hash a string to a stable integer for hue assignment. */
 function hashStr(s: string): number {
@@ -30,7 +51,8 @@ export function BlamePane({
   path,
   rev,
   active,
-  setMenu
+  setMenu,
+  onLineHistory
 }: {
   root: string
   path: string
@@ -39,6 +61,8 @@ export function BlamePane({
   active: boolean
   /** Sets the context menu directly — a blame row's menu is its own, not the diff's. */
   setMenu: (state: MenuState) => void
+  /** Open `git log -L` for a range of these lines, as a document of its own. */
+  onLineHistory?: (start: number, end: number) => void
 }): JSX.Element {
   const { msg, locale } = useMsg()
   const time = useTime()
@@ -112,25 +136,31 @@ export function BlamePane({
             <div
               className={hue != null ? 'blame-row' : 'blame-row uncommitted'}
               key={i}
+              data-line={i + 1}
               title={`${l.sha}\n${l.author}${iso ? `\n${fmtDateTimeZone(iso, locale, time)}` : ''}\n${l.summary}`}
               style={hue != null ? { '--blame-hue': hue } as React.CSSProperties : undefined}
               onContextMenu={(e) => {
                 e.preventDefault()
-                // The sha is the one thing a right-click is for: it was on the
-                // screen as a column and now lives in the tooltip instead.
-                setMenu({
-                  x: e.clientX,
-                  y: e.clientY,
-                  items:
-                    l.sha === UNCOMMITTED_SHA
-                      ? []
-                      : [
-                          {
-                            label: msg.contextMenu.copyCommitHash,
-                            action: () => void window.gitty.clipboard.write(l.sha)
-                          }
-                        ]
-                })
+                // The lines the question is about: whatever the selection
+                // covers, and the clicked line when there is no selection.
+                const [from, to] = selectedRange(hostRef.current) ?? [i + 1, i + 1]
+                const items: MenuItem[] = []
+                if (onLineHistory) {
+                  items.push({
+                    label: msg.contextMenu.lineHistory,
+                    action: () => onLineHistory(from, to)
+                  })
+                }
+                // The sha is the other thing a right-click is for: it was on
+                // the screen as a column and now lives in the tooltip instead.
+                if (l.sha !== UNCOMMITTED_SHA) {
+                  items.push({
+                    label: msg.contextMenu.copyCommitHash,
+                    separatorBefore: items.length > 0,
+                    action: () => void window.gitty.clipboard.write(l.sha)
+                  })
+                }
+                setMenu({ x: e.clientX, y: e.clientY, items })
               }}
             >
               <span className="blame-num">{i + 1}</span>

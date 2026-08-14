@@ -439,6 +439,71 @@ button:disabled:hover {
   font-size: 11px;
 }
 
+/* Search results, grouped by file: a path heading, then its matching lines. */
+.grep-summary {
+  padding: 4px 8px;
+  color: var(--fg-dim);
+  border-bottom: 1px solid var(--border);
+}
+
+.grep-path {
+  padding: 4px 8px 2px;
+  color: var(--blue);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  background: var(--bg-pane);
+}
+
+.grep-hit {
+  display: flex;
+  gap: 8px;
+  padding: 0 8px 0 16px;
+  min-height: var(--row-h);
+  white-space: pre;
+  cursor: pointer;
+}
+
+.grep-hit:hover {
+  background: var(--bg-hover);
+}
+
+.grep-line {
+  flex: none;
+  width: 46px;
+  text-align: right;
+  color: var(--fg-faint);
+}
+
+.grep-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* `git log -L`: a log and a patch interleaved, which is the point of it. */
+.line-history .lh-commit {
+  margin-top: 8px;
+  padding: 2px 8px;
+  color: var(--fg-strong);
+  background: var(--bg-header);
+  font-weight: 600;
+}
+
+.line-history .lh-header {
+  padding: 0 8px;
+  color: var(--fg-dim);
+}
+
+.line-history .diff-line {
+  padding-left: 8px;
+}
+
+/* The line a search hit opened the file at. */
+.code-line.hit {
+  background: var(--find-bg);
+}
+
 /* Says why the list is empty while a pickaxe search walks the history. */
 .log-filter-busy {
   flex: none;

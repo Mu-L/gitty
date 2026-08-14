@@ -3,6 +3,8 @@ import { useMsg } from '../locale'
 import { BlamePane } from './BlamePane'
 import { CodePane } from './CodePane'
 import { FileHistoryPane } from './FileHistoryPane'
+import { GrepPane } from './GrepPane'
+import { LineHistoryPane } from './LineHistoryPane'
 import { HtmlPane } from './HtmlPane'
 import { ImagePane } from './ImagePane'
 import { MarkdownPane } from './MarkdownPane'
@@ -11,7 +13,7 @@ import type { MenuState } from './ContextMenu'
 import type { Commit } from '../../../shared/types'
 
 /** What kind of document a diff-pane tab holds. */
-export type FileDocKind = 'file' | 'blame' | 'history'
+export type FileDocKind = 'file' | 'blame' | 'history' | 'lines' | 'grep'
 
 /**
  * One document in the diff pane. `kind` picks the reader: `file` is a whole
@@ -33,7 +35,11 @@ export function FileDoc({
   onSource,
   onMenu,
   setMenu,
-  onOpenCommit
+  onOpenCommit,
+  range,
+  onOpenHit,
+  gotoLine,
+  onLineHistory
 }: {
   root: string
   path: string
@@ -57,6 +63,14 @@ export function FileDoc({
   setMenu: (state: MenuState) => void
   /** History rows hand the picked commit back here. */
   onOpenCommit?: (c: Commit) => void
+  /** The lines a `lines` document follows; unused by every other kind. */
+  range?: { start: number; end: number }
+  /** A search hit opens the file it names, at the line it names. */
+  onOpenHit?: (path: string, line: number) => void
+  /** 1-based line this file was opened at, from a search hit. */
+  gotoLine?: number
+  /** A blame row asks for the history of the lines under the selection. */
+  onLineHistory?: (start: number, end: number) => void
 }): JSX.Element {
   const { msg } = useMsg()
   const [source, setSource] = useState<string | null>(null)
@@ -71,7 +85,8 @@ export function FileDoc({
 
   useEffect(() => {
     // An image is never read as text: `readWorking` would only call it binary.
-    if (image) return
+    // Nor is anything but a file document — the others fetch their own.
+    if (image || kind !== 'file') return
     let cancelled = false
     void (async () => {
       try {
@@ -96,8 +111,43 @@ export function FileDoc({
   // An image has no text to copy from the context menu.
   useEffect(() => onSource(image ? null : source), [image, source, onSource])
 
+  if (kind === 'lines') {
+    return (
+      <LineHistoryPane
+        root={root}
+        path={path}
+        rev={rev}
+        start={range?.start ?? 1}
+        end={range?.end ?? range?.start ?? 1}
+        wrap={wrap}
+        active={active}
+        onMenu={onMenu}
+      />
+    )
+  }
+  if (kind === 'grep') {
+    return (
+      <GrepPane
+        root={root}
+        pattern={path}
+        rev={rev}
+        active={active}
+        onOpen={onOpenHit ?? (() => undefined)}
+        onMenu={onMenu}
+      />
+    )
+  }
   if (kind === 'blame') {
-    return <BlamePane root={root} path={path} rev={rev} active={active} setMenu={setMenu} />
+    return (
+      <BlamePane
+        root={root}
+        path={path}
+        rev={rev}
+        active={active}
+        setMenu={setMenu}
+        onLineHistory={onLineHistory}
+      />
+    )
   }
   if (kind === 'history') {
     return (
@@ -151,6 +201,7 @@ export function FileDoc({
       path={path}
       wrap={wrap}
       active={active}
+      gotoLine={gotoLine}
       onMenu={onMenu}
     />
   )

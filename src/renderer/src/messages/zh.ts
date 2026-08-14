@@ -55,7 +55,10 @@ export const zh: RendererMessages = {
     rangeFile: (path: string, from: string, to: string) =>
       `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     blame: (label: string) => `blame：${label}`,
-    fileHistory: (label: string) => `历史：${label}`
+    fileHistory: (label: string) => `历史：${label}`,
+    lineHistory: (path: string, start: number, end: number) =>
+      `${path} 第 ${start}–${end} 行`,
+    search: (pattern: string) => `搜索：${pattern}`
   },
   branch: {
     noBranchesYet: '暂无分支',
@@ -81,7 +84,12 @@ export const zh: RendererMessages = {
     commitWithAgentTitle: (command: string) => `在终端里对暂存区运行 "${command}"`,
     commitWithAgentEmpty: '先暂存一些改动——暂存区是空的',
     agentNoCommand: '尚未设置 agent 命令。位置在 设置 ▸ 会话 ▸ Agent 命令。',
-    agentNoTerminal: '该标签页里没有可运行它的 shell。'
+    agentNoTerminal: '该标签页里没有可运行它的 shell。',
+    search: '搜索',
+    searchTitle: '用 git grep 搜索整个仓库',
+    searchPlaceholder: '搜索仓库…',
+    searchInRevision: (short: string) => `搜索 ${short}`,
+    searchInWorktree: '搜索工作树'
   },
   diff: {
     titleFallback: '差异',
@@ -124,6 +132,12 @@ export const zh: RendererMessages = {
     docTabClose: '关闭',
     docTabBlame: '追溯',
     docTabHistory: '历史',
+    docTabLines: '行历史',
+    docTabSearch: '搜索',
+    emptyLineHistory: '没有提交动过这几行。',
+    emptySearch: '没有匹配。',
+    searchHits: (n: number, files: number) => `${files} 个文件中 ${n} 处匹配`,
+    searchTruncated: (n: number) => `已在 ${n} 处匹配处停止——请缩小搜索范围。`,
     dblClickFullScreen: '双击切换全屏',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\n单击${collapsed ? '展开' : '折叠'}\nCtrl+单击在新标签页中打开\n右键查看更多`,
@@ -281,6 +295,7 @@ export const zh: RendererMessages = {
     diffAgainstAccel: 'Ctrl+单击',
     blameFile: '追溯文件',
     fileHistory: '文件历史',
+    lineHistory: '这几行的历史',
     browseWorktree: '浏览工作树'
   },
   paneChrome: {

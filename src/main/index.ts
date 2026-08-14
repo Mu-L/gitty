@@ -310,6 +310,14 @@ function registerIpc(): void {
     (_e, root: string, rev: string | null, filePath: string) =>
       git.fileHistory(root, rev, filePath)
   )
+  ipcMain.handle(
+    'git:lineHistory',
+    (_e, root: string, rev: string | null, filePath: string, start: number, end: number) =>
+      git.lineHistory(root, rev, filePath, start, end)
+  )
+  ipcMain.handle('git:grep', (_e, root: string, pattern: string, rev: string | null) =>
+    git.grep(root, pattern, rev)
+  )
   ipcMain.handle('git:rangeFiles', (_e, root: string, from: string, to: string) =>
     git.rangeFiles(root, from, to)
   )

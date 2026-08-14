@@ -56,7 +56,10 @@ export const de: RendererMessages = {
     rangeFile: (path: string, from: string, to: string) =>
       `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     blame: (label: string) => `blame: ${label}`,
-    fileHistory: (label: string) => `Verlauf: ${label}`
+    fileHistory: (label: string) => `Verlauf: ${label}`,
+    lineHistory: (path: string, start: number, end: number) =>
+      `Zeilen ${start}–${end} von ${path}`,
+    search: (pattern: string) => `Suche: ${pattern}`
   },
   branch: {
     noBranchesYet: 'Noch keine Branches',
@@ -85,7 +88,12 @@ export const de: RendererMessages = {
     commitWithAgentEmpty: 'Erst etwas vormerken — der Index ist leer',
     agentNoCommand:
       'Es ist kein Agent-Befehl gesetzt. Einstellungen ▸ Sitzung ▸ Agent-Befehl.',
-    agentNoTerminal: 'In diesem Tab läuft keine Shell, in der er laufen könnte.'
+    agentNoTerminal: 'In diesem Tab läuft keine Shell, in der er laufen könnte.',
+    search: 'Suchen',
+    searchTitle: 'Das Repository mit git grep durchsuchen',
+    searchPlaceholder: 'Repository durchsuchen…',
+    searchInRevision: (short: string) => `durchsucht ${short}`,
+    searchInWorktree: 'durchsucht den Arbeitsbaum'
   },
   diff: {
     titleFallback: 'Diff',
@@ -128,6 +136,12 @@ export const de: RendererMessages = {
     docTabClose: 'Schließen',
     docTabBlame: 'blame',
     docTabHistory: 'Verlauf',
+    docTabLines: 'Zeilen',
+    docTabSearch: 'Suche',
+    emptyLineHistory: 'Kein Commit hat diese Zeilen angefasst.',
+    emptySearch: 'Nichts gefunden.',
+    searchHits: (n: number, files: number) => `${n} Treffer in ${files} Dateien`,
+    searchTruncated: (n: number) => `Bei ${n} Treffern abgebrochen — Suche eingrenzen.`,
     dblClickFullScreen: 'Doppelklick schaltet Vollbild um',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nKlicken zum ${collapsed ? 'Ausklappen' : 'Einklappen'}\nStrg+Klick öffnet in einem neuen Tab\nRechtsklick für mehr`,
@@ -287,6 +301,7 @@ export const de: RendererMessages = {
     diffAgainstAccel: 'Strg+Klick',
     blameFile: 'Blame',
     fileHistory: 'Dateiverlauf',
+    lineHistory: 'Geschichte dieser Zeilen',
     browseWorktree: 'Arbeitsverzeichnis durchsuchen'
   },
   paneChrome: {

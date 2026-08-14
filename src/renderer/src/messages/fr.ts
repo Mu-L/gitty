@@ -56,7 +56,10 @@ export const fr: RendererMessages = {
     rangeFile: (path: string, from: string, to: string) =>
       `${path} @ ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     blame: (label: string) => `blame : ${label}`,
-    fileHistory: (label: string) => `historique : ${label}`
+    fileHistory: (label: string) => `historique : ${label}`,
+    lineHistory: (path: string, start: number, end: number) =>
+      `lignes ${start}–${end} de ${path}`,
+    search: (pattern: string) => `recherche : ${pattern}`
   },
   branch: {
     noBranchesYet: 'Aucune branche pour l’instant',
@@ -85,7 +88,12 @@ export const fr: RendererMessages = {
     commitWithAgentEmpty: 'Indexez d’abord quelque chose — l’index est vide',
     agentNoCommand:
       'Aucune commande d’agent n’est définie. Réglages ▸ Session ▸ Commande de l’agent.',
-    agentNoTerminal: 'Aucun shell dans cet onglet pour la lancer.'
+    agentNoTerminal: 'Aucun shell dans cet onglet pour la lancer.',
+    search: 'Rechercher',
+    searchTitle: 'Chercher dans le dépôt avec git grep',
+    searchPlaceholder: 'Chercher dans le dépôt…',
+    searchInRevision: (short: string) => `recherche dans ${short}`,
+    searchInWorktree: 'recherche dans la copie de travail'
   },
   diff: {
     titleFallback: 'Diff',
@@ -128,6 +136,13 @@ export const fr: RendererMessages = {
     docTabClose: 'Fermer',
     docTabBlame: 'blame',
     docTabHistory: 'historique',
+    docTabLines: 'lignes',
+    docTabSearch: 'recherche',
+    emptyLineHistory: 'Aucun commit n’a touché ces lignes.',
+    emptySearch: 'Aucune correspondance.',
+    searchHits: (n: number, files: number) =>
+      `${n} correspondance${n === 1 ? '' : 's'} dans ${files} fichier${files === 1 ? '' : 's'}`,
+    searchTruncated: (n: number) => `Arrêté à ${n} correspondances — affinez la recherche.`,
     dblClickFullScreen: 'Double-cliquer pour basculer en plein écran',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nCliquer pour ${collapsed ? 'déplier' : 'replier'}\nCtrl+clic pour ouvrir dans un nouvel onglet\nClic droit pour plus d’options`,
@@ -288,6 +303,7 @@ export const fr: RendererMessages = {
     diffAgainstAccel: 'Ctrl+clic',
     blameFile: 'Blâme',
     fileHistory: 'Historique du fichier',
+    lineHistory: 'Historique de ces lignes',
     browseWorktree: 'Parcourir la copie de travail'
   },
   paneChrome: {

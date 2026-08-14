@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   parseBranches,
   parseBlame,
+  parseGrep,
   parseLog,
   parseNameStatus,
   parseNumstat,
@@ -197,5 +198,31 @@ describe('parseBlame', () => {
 
   it('returns nothing for an empty string', () => {
     expect(parseBlame('')).toEqual([])
+  })
+})
+
+describe('parseGrep', () => {
+  const Z = '\u0000'
+
+  it('reads path, line and text from NUL-separated records', () => {
+    const raw = `src/a.ts${Z}189${Z}export function x(): void {\nsrc/b.ts${Z}2${Z}  const y = 1\n`
+    expect(parseGrep(raw, null)).toEqual([
+      { path: 'src/a.ts', line: 189, text: 'export function x(): void {' },
+      { path: 'src/b.ts', line: 2, text: '  const y = 1' }
+    ])
+  })
+
+  it('strips the revision git prefixes each path with', () => {
+    expect(parseGrep(`HEAD:src/a.ts${Z}12${Z}hit\n`, 'HEAD')).toEqual([
+      { path: 'src/a.ts', line: 12, text: 'hit' }
+    ])
+  })
+
+  it('keeps a matched line that holds the separator itself', () => {
+    expect(parseGrep(`a.txt${Z}3${Z}one${Z}two\n`, null)[0].text).toBe(`one${Z}two`)
+  })
+
+  it('ignores empty and malformed records', () => {
+    expect(parseGrep('\nnot-a-record\n', null)).toEqual([])
   })
 })
