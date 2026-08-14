@@ -36,7 +36,8 @@ They are **snapshots, not a second source of truth** — each carries the date i
 was translated and a line saying the English README is the official version and
 the only one kept current. Do not update a translation as part of changing
 behaviour; the English README is what has to stay right. They live under `ref/`
-rather than `docs/`, which GitHub Pages would claim. Because translated headings
+rather than beside the manual in `docs/`, so that turning GitHub Pages on would
+publish one manual and not nine dated snapshots. Because translated headings
 would produce unpredictable anchors, each section carries an explicit
 `<a id="…">` with the English slug, so the cross-links match the English file's.
 
@@ -52,8 +53,19 @@ same change; the other tables catch up afterwards.
 ./run.sh --dev [repo]    # electron-vite dev with hot reload
 npm run typecheck        # tsc over both tsconfigs — the only automated check
 npm run build            # electron-vite build into out/
+npm run dist             # build, then electron-builder → release/ (.deb, AppImage)
 ./setup.sh               # symlink run.sh as `gitty` into ~/.local/bin
 ```
+
+`npm run dist` is the *packaged* product and behaves differently from the
+scripts above on purpose: it has its own executable, so its desktop entry
+matches on `gitty` rather than the `electron` window class, and the `.deb`'s
+postinst sets `chrome-sandbox` up, so the sandbox is on. `run.sh` and
+`setup.sh` are the developer path and keep both workarounds — they really are
+running an unpackaged Electron. `electron` therefore sits in
+`optionalDependencies`: electron-builder refuses to package a project that
+lists it as a dependency, and npm installs optional ones anyway, so the global
+`npm i -g gitty-desktop` route still gets a runtime.
 
 A detached run writes everything to
 `${XDG_STATE_HOME:-~/.local/state}/gitty/gitty.log`; use `--fg` when you want
@@ -61,8 +73,10 @@ the output inline.
 
 There is **no linter configured**. The automated safety net is `npm run
 typecheck` plus `npm test`; run both after every change. The test suite lives
-in `test/` — one vitest file per parser, feeding `parse.ts` fixtures without a
-repository — so the folder is a readable index of what is tested. Verification
+in `test/` — one vitest file per pure module (`parse.ts`, `patch.ts`,
+`paths.ts`, `lanes.ts`), fed fixtures without a repository — so the folder is a
+readable index of what is tested. Anything that can be wrong *quietly* belongs
+there: the patch builder above all. Verification
 beyond that is visual — see below.
 
 `npm install` runs `electron-rebuild -f -w node-pty` via `postinstall`; node-pty
@@ -158,6 +172,62 @@ that outlived its zone name looks like. And "today" is a calendar day *in the
 displayed zone*, so `stamp` reads both the commit and now through it, or a
 midnight-adjacent commit shows a time on the wrong day.
 
+### Staging, and the patch surgery
+
+Gitty stages; it does not commit. The message is written by an agent, so a
+subject/body box would solve a problem nobody has — what is missing is a place
+to decide *which changes are one commit*, which is reading and selecting, which
+is what the four panes are for. **Commit with agent** then types a configured
+command into the terminal pane and stops there: no model is called from inside
+the app, which is what keeps "nothing leaves the machine" true.
+
+`src/main/patch.ts` is the whole of the risky part, and it is pure string work
+over `git diff` output so `test/patch.test.ts` can hold it — a wrong patch does
+not throw, it writes a wrong index silently. Four rules, and the first is the
+one that is easy to get backwards:
+
+- **The direction decides which unselected lines are dropped and which become
+  context.** Staging applies to the index against the *a* side, so an
+  unselected `-` line is still there (context) and an unselected `+` line never
+  was (dropped). Unstaging applies the cached diff in reverse against the *b*
+  side, so it is the other way round.
+- Only the pre-image side's `@@` position is exact; the other one moves by the
+  net line delta of the hunks emitted before it in the same patch.
+- A `\ No newline at end of file` marker travels with the line it describes and
+  is dropped when that line is.
+- Hunk counts are recomputed from the lines that survived, never carried over.
+
+`git.applyHunks` fetches the patch itself, with the **same context count the
+pane drew**, or the hunk the user clicked is not the hunk that gets staged.
+`--unidiff-zero` is added only at context 0. Hunk staging is withdrawn entirely
+while **Ignore whitespace** is on: that diff does not hold every change it would
+apply. The UI offers it only for a single tracked file's diff, where the
+displayed patch *is* `git diff -- <path>`; a whole-work-tree diff is against
+HEAD and merges both sides.
+
+### Searching, and the graph
+
+Three reads that share the log's machinery. The filter box has a
+`LogFilterMode`: message/author as before, or git's pickaxe (`-S` literal,
+`-G` regex) over the diffs. Those walk the whole history, so `searchLog` keeps
+one child process per root **per kind** — a grep must not cancel the log — and
+kills the previous one instead of letting it finish for a reader who has moved
+on. Every pattern is an array element, never text in a command line.
+
+`git grep` and `git log -L` open as documents beside the diff (`FileDocState`
+kinds `grep` and `lines`), so they inherit the find strip and the doc tabs. A
+grep follows the revision on screen, which is the point of it: in a snapshot it
+answers about the snapshot.
+
+`src/renderer/src/lanes.ts` computes the commit graph — deliberately not by
+parsing `git log --graph`, whose ASCII is typeset for a terminal. A lane holds
+the hash it expects next; a commit takes the first lane expecting it or opens
+one; its first parent stays, the others take lanes of their own. The layout is
+recomputed over the whole loaded list rather than continued from a saved state
+at the page boundary: it is a left-to-right fold, so the first 300 rows come
+out identical when the next 300 arrive, which is the property paging needs and
+is cheaper than keeping boundary state right. `test/lanes.test.ts` pins that.
+
 ### Git access
 
 `src/main/git.ts` shells out to `git` via `execFile` — no git library. Parsing
@@ -175,6 +245,18 @@ nowhere to appear. For the same reason it returns `{ ok, output }` rather than
 throwing — the pane shows git's own words, and anything needing an answer is
 finished in the terminal pane. `pull` is `--ff-only`: a merge that needs a
 decision or an editor is not something a button should start.
+
+### The local web server
+
+`src/main/web.ts` serves commits as plain HTML, and binding `127.0.0.1` is not
+on its own a boundary: it keeps other machines out, not other pages in this
+machine's browser, any of which can fetch the port — and behind it is every
+open repository's contents. So every URL carries a token minted at startup,
+as a path prefix (`/t/<token>/…`) rather than a query string. A wrong token is
+a **404, not a 403** — a 403 confirms the resource exists. The `Host` header
+must be loopback, which is what makes DNS rebinding pointless. And
+`Referrer-Policy: no-referrer` is required, not decoration: the pages link
+outward, and one click would otherwise put the token in a stranger's `Referer`.
 
 ### Gource
 
@@ -334,7 +416,13 @@ Manager", which would have nothing to reveal.
 
 ### DiffPane
 
-Takes raw unified-diff text and parses it itself. Rows render in chunks of 1500
+Takes raw unified-diff text and parses it itself. Its parse also numbers each
+line with the hunk it belongs to and its position inside that hunk, counted
+exactly as `main/patch.ts` counts — nothing may be skipped between the two, the
+`\ No newline` marker included, or a pick made here names different lines
+there. Line selection is read from the **document's own text selection**
+(the two range endpoints, not a scan of the rows), so dragging over a diff
+still copies and there is no second click semantics to learn. Rows render in chunks of 1500
 that grow as the end nears, rather than a fixed-height virtual window: word wrap
 and the side-by-side grid both make row heights variable. Inline rows carry
 `content-visibility: auto` so off-screen ones cost nothing. Side-by-side zips
