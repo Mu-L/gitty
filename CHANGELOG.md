@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a tree to descend into, where a list of changes is one to read, and the
   latter still opens expanded. What you open stays open while that tree is on
   screen; showing another one starts from the default again.
+- The file tree lists directories before files at every level, so a folder is
+  never buried among the names of its siblings.
 - **File sorting** in Settings: natural (the default) or git's byte order, for
   anyone who wants the tree to match what `git ls-files` prints.
 - The file tree sorts names naturally. Git orders paths by byte, which puts

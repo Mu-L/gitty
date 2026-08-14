@@ -46,6 +46,19 @@ describe('comparePaths', () => {
     expect(sorted(['src.ts', 'src/index.ts'])).toEqual(['src/index.ts', 'src.ts'])
   })
 
+  it('lists directories before files at every level', () => {
+    expect(sorted(['skills/README.md', 'skills/butler/notes.md', 'skills/W1.md'])).toEqual([
+      'skills/butler/notes.md',
+      'skills/README.md',
+      'skills/W1.md'
+    ])
+  })
+
+  it('sorts directories before files under byte order too', () => {
+    const byByte = (a: string, b: string): number => comparePaths(a, b, false)
+    expect(['zzz/a.md', 'aaa.md'].sort(byByte)).toEqual(['zzz/a.md', 'aaa.md'])
+  })
+
   it('is a total order — ties in the collator still separate', () => {
     expect(comparePaths('a.md', 'A.md')).not.toBe(0)
     expect(comparePaths('a.md', 'A.md')).toBe(-comparePaths('A.md', 'a.md'))

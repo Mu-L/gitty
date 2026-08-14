@@ -30,7 +30,8 @@ export function isImagePath(path: string): boolean {
 const NAMES = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
 
 /**
- * Order two repo-relative paths for the file tree, segment by segment.
+ * Order two repo-relative paths for the file tree: directories before files at
+ * each level, then by name, segment by segment.
  *
  * `natural` reads the digits in a name as a number and puts case second, which
  * is how a reader sorts; without it the comparison is git's own — by code
@@ -47,6 +48,12 @@ export function comparePaths(a: string, b: string, natural = true): number {
   const B = b.split('/')
   const n = Math.min(A.length, B.length)
   for (let i = 0; i < n; i++) {
+    // Everything before this segment matched, so the two paths are siblings at
+    // this depth: a segment with more behind it is a directory, and those come
+    // first — the tree reads as folders then files, whichever way names sort.
+    const aDir = i < A.length - 1
+    const bDir = i < B.length - 1
+    if (aDir !== bDir) return aDir ? -1 : 1
     if (natural) {
       const c = NAMES.compare(A[i], B[i])
       if (c !== 0) return c
