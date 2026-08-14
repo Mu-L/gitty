@@ -31,6 +31,11 @@ export interface MainMessages {
     readonly deletePermanentConfirm: (name: string) => string
     readonly deletePermanentDetail: string
     readonly deletePermanentButton: string
+    /** Confirming that a file's uncommitted changes are to be thrown away. */
+    readonly discardTitle: string
+    readonly discardConfirm: (name: string) => string
+    readonly discardDetail: string
+    readonly discardButton: string
   }
   readonly window: {
     readonly title: string
@@ -43,6 +48,8 @@ export interface MainMessages {
     readonly imageTooLarge: string
     readonly done: string
     readonly gitFailed: string
+    /** A hunk selection that came out empty — nothing was left to stage. */
+    readonly nothingToApply: string
     readonly pathEscapesRepo: string
     readonly changesCount: (n: number) => string
     /** Parenthetical labels used in diff titles. */
@@ -140,6 +147,15 @@ export interface RendererMessages {
     readonly emptyDiff: string
     /** Suffix displayed after a file name, e.g. "142 lines". */
     readonly lines: (n: number) => string
+    /** Clicking a file's status marks moves it in or out of the index. */
+    readonly toggleStage: (staged: boolean) => string
+    /** Hands the curated index to whatever agent the user has configured. */
+    readonly commitWithAgent: string
+    readonly commitWithAgentTitle: (command: string) => string
+    readonly commitWithAgentEmpty: string
+    /** Why nothing happened: no command configured, or nowhere to run it. */
+    readonly agentNoCommand: string
+    readonly agentNoTerminal: string
   }
   readonly diff: {
     readonly titleFallback: string
@@ -191,6 +207,20 @@ export interface RendererMessages {
     readonly fileHeadingTooltip: (collapsed: boolean) => string
     /** "N more lines — scroll or click to load". */
     readonly loadMoreLines: (n: number) => string
+    /** Staging from the diff: a whole hunk, or the lines under the selection. */
+    readonly stageHunk: string
+    readonly unstageHunk: string
+    readonly stageHunkTitle: string
+    readonly unstageHunkTitle: string
+    readonly stageSelection: (n: number) => string
+    readonly unstageSelection: (n: number) => string
+    readonly stageSelectionTitle: string
+    readonly unstageSelectionTitle: string
+    /** The unstaged / staged switch over a work-tree file's diff. */
+    readonly sideUnstaged: string
+    readonly sideStaged: string
+    readonly sideUnstagedTitle: string
+    readonly sideStagedTitle: string
   }
   readonly log: {
     readonly commits: string
@@ -288,6 +318,9 @@ export interface RendererMessages {
     readonly restoreTabs: string
     readonly shell: string
     readonly loginShell: string
+    /** The command "Commit with agent" types into the terminal. */
+    readonly agentCommand: string
+    readonly agentCommandPlaceholder: string
     readonly restoreDefaults: string
     readonly done: string
   }
@@ -320,6 +353,11 @@ export interface RendererMessages {
     readonly revealInFileManager: string
     /** Work-tree only: sends the file to the system trash. */
     readonly deleteFile: string
+    /** Work-tree only: the index. */
+    readonly stageFile: string
+    readonly unstageFile: string
+    readonly discardChanges: string
+    readonly copyStagedDiff: string
     // file tree
     readonly viewFileAccel: string
     // commit log

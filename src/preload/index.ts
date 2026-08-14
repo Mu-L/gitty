@@ -2,6 +2,7 @@ import os from 'node:os'
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
   AboutInfo,
+  ApplyDirection,
   BlameLine,
   Branch,
   ChurnSpec,
@@ -14,6 +15,7 @@ import type {
   DiffResult,
   FileChurn,
   GitOpResult,
+  HunkPick,
   ImageFileContent,
   PtyExit,
   RepoChanged,
@@ -89,6 +91,28 @@ const api = {
       ipcRenderer.invoke('git:rangeFiles', root, from, to),
     diff: (root: string, req: DiffRequest, opts: DiffOptions): Promise<DiffResult> =>
       ipcRenderer.invoke('git:diff', root, req, opts),
+    /** Put a whole file into the index. */
+    stageFile: (root: string, filePath: string): Promise<GitOpResult> =>
+      ipcRenderer.invoke('git:stageFile', root, filePath),
+    /** Take a whole file back out of the index; the work tree is untouched. */
+    unstageFile: (root: string, filePath: string): Promise<GitOpResult> =>
+      ipcRenderer.invoke('git:unstageFile', root, filePath),
+    /** Throw away a tracked file's uncommitted changes, after a native
+     *  confirmation. Null when the confirmation was declined. No undo. */
+    discardFile: (root: string, filePath: string): Promise<GitOpResult | null> =>
+      ipcRenderer.invoke('git:discardFile', root, filePath),
+    /** The whole index as a patch, for handing to something outside Gitty. */
+    stagedDiff: (root: string): Promise<string> => ipcRenderer.invoke('git:stagedDiff', root),
+    /** Stage or unstage picked hunks and lines of one file. `opts` must be the
+     *  options the pane drew the diff with, or the hunks would not line up. */
+    applyHunks: (
+      root: string,
+      filePath: string,
+      picks: HunkPick[],
+      direction: ApplyDirection,
+      opts: DiffOptions
+    ): Promise<GitOpResult> =>
+      ipcRenderer.invoke('git:applyHunks', root, filePath, picks, direction, opts),
     snapshotFiles: (root: string, hash: string): Promise<string[]> =>
       ipcRenderer.invoke('git:snapshotFiles', root, hash),
     /** Every file on disk now — tracked and untracked — for browsing the work tree. */

@@ -12,6 +12,8 @@ export interface FileEntry {
   deleted: boolean
   /** Work tree only: the change is in the index, whole or in part. */
   staged?: boolean
+  /** Work tree only: git has never seen this file. */
+  untracked?: boolean
   /** Present for renames: the previous path. */
   origPath?: string
   /** Number of lines, when counted. */
@@ -82,6 +84,7 @@ export function FilesPane({
   onSelect,
   onOpen,
   onMenu,
+  onToggleStage,
   emptyText
 }: {
   entries: FileEntry[]
@@ -97,6 +100,10 @@ export function FilesPane({
   onSelect: (entry: FileEntry) => void
   onOpen: (entry: FileEntry) => void
   onMenu: (entry: FileEntry, state: MenuState) => void
+  /** Work tree only: clicking the status marks moves the file in or out of
+   *  the index. Absent in every other mode, where there is no index to move
+   *  it to and the marks are just a status. */
+  onToggleStage?: (entry: FileEntry) => void
   emptyText: string
 }): JSX.Element {
   const { msg } = useMsg()
@@ -162,7 +169,21 @@ export function FilesPane({
           >
             <span className="tree-indent" style={{ width: row.depth * 12 + 10 }} />
             {row.entry!.marks.map((m, i) => (
-              <span key={i} className={`status-code ${m.cls}`}>
+              <span
+                key={i}
+                className={`status-code ${m.cls}${onToggleStage ? ' stageable' : ''}`}
+                title={onToggleStage ? msg.files.toggleStage(!!row.entry!.staged) : undefined}
+                onClick={
+                  onToggleStage
+                    ? (e) => {
+                        // The row's own click selects the file; the marks are
+                        // a control of their own.
+                        e.stopPropagation()
+                        onToggleStage(row.entry!)
+                      }
+                    : undefined
+                }
+              >
                 {m.char}
               </span>
             ))}

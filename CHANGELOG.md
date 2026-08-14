@@ -16,6 +16,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `chrome-sandbox` up and installs an AppArmor profile. The AppImage can do
   neither and may need `--no-sandbox`; it is the second choice.
 - CI on pull requests: typecheck, tests and a build.
+- **Staging.** Click a file's status column in the work tree to stage or
+  unstage it; the context menu has **Stage** / **Unstage** and **Discard
+  Changes…**, which confirms natively and says there is no undo. Every hunk
+  header in a one-file diff carries a **Stage** button, and selecting lines
+  turns it into **Stage 3 lines** — unselected additions leave the patch,
+  unselected deletions become context, the header is recomputed. The patch is
+  `git diff` for staging and `git diff --cached -R` for unstaging, never the
+  HEAD diff the pane shows for a whole work tree, which merges both. Zero
+  context adds `--unidiff-zero`; a whitespace-ignoring diff withdraws the hunk
+  buttons rather than applying a patch that does not hold every change.
+  A failed apply shows git's own stderr.
+- **Commit with agent**, in the work-tree header: types a command you configure
+  (Settings ▸ Session ▸ Agent command) into the focused shell and presses
+  Enter. No model is called from inside Gitty and nothing leaves the machine;
+  the agent runs where there is a real tty, so its prompts, hooks and gpg
+  signing all work. **Copy Staged Diff** on the work-tree row's menu covers the
+  case where the conversation is in another window.
+- A README section on what Gitty does not do — rebase, merge, cherry-pick,
+  conflicts, branch surgery — and why the shell in the same window is the
+  answer rather than half a button.
 - README translations for 한국어, Русский and Português; the five existing
   translations updated to match the English README.
 

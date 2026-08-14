@@ -502,6 +502,17 @@ button:disabled:hover {
   font-weight: 600;
 }
 
+/* In the work tree the two status columns are also the switch that moves the
+   file in and out of the index. */
+.status-code.stageable {
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.status-code.stageable:hover {
+  background: var(--bg-select);
+}
+
 .st-M {
   color: var(--yellow);
 }
@@ -796,6 +807,31 @@ button:disabled:hover {
 .dl-hunk {
   background: transparent;
   color: var(--fg-faint);
+}
+
+/* The one control that acts on a hunk sits in the hunk's own header, where
+   the line range already is. It stays dim until the pointer is in the diff,
+   so a hunk header is still first of all a label. */
+.hunk-stage {
+  margin-left: auto;
+  align-self: center;
+  padding: 0 6px;
+  font-size: 0.85em;
+  line-height: 1.6;
+  opacity: 0.45;
+  transition: opacity 0.1s;
+}
+
+.diff:hover .hunk-stage {
+  opacity: 0.75;
+}
+
+.diff .dl-hunk:hover .hunk-stage {
+  opacity: 1;
+}
+
+.hunk-stage:disabled {
+  opacity: 0.3;
 }
 
 /* File heading: the anchor when several files run together in one diff,
@@ -1763,6 +1799,20 @@ button:disabled:hover {
 .setting-row input[type='range'] {
   flex: 1;
   accent-color: var(--border-active);
+}
+
+/* A command is read as a command: monospace, and wide enough to see the end
+   of one. */
+.setting-text {
+  flex: 1;
+  min-width: 0;
+  max-width: 60%;
+  padding: 2px 6px;
+  color: var(--fg);
+  font-family: var(--font-mono);
+  background: var(--bg-header);
+  border: 1px solid var(--border);
+  border-radius: 3px;
 }
 
 .setting-value {

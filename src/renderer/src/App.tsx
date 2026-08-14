@@ -103,6 +103,12 @@ export default function App(): JSX.Element {
   const [termLogin, setTermLogin] = useState(
     () => localStorage.getItem('gitty.termLogin') !== 'off'
   )
+  // What "Commit with agent" runs. A placeholder rather than a working
+  // default: which agent is installed is not something the app can know, and
+  // a command that silently does nothing would be worse than an empty box.
+  const [agentCommand, setAgentCommand] = useState(
+    () => localStorage.getItem('gitty.agentCommand') ?? 'claude "commit the staged changes"'
+  )
   const [recent, setRecent] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
@@ -396,6 +402,7 @@ export default function App(): JSX.Element {
     setRestoreTabs(true)
     setTermShell('')
     setTermLogin(true)
+    setAgentCommand('claude "commit the staged changes"')
     setTheme('dark')
     setFontSize(12.5)
     setRowHeight(20)
@@ -440,6 +447,7 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.restoreTabs', restoreTabs ? 'on' : 'off')
     localStorage.setItem('gitty.termShell', termShell)
     localStorage.setItem('gitty.termLogin', termLogin ? 'on' : 'off')
+    localStorage.setItem('gitty.agentCommand', agentCommand)
   }, [
     wrap,
     diffView,
@@ -458,7 +466,8 @@ export default function App(): JSX.Element {
     ignoreWhitespace,
     restoreTabs,
     termShell,
-    termLogin
+    termLogin,
+    agentCommand
   ])
 
   // Persist locale and tell the main process.
@@ -719,6 +728,7 @@ export default function App(): JSX.Element {
                   fontFamily={monoFont}
                   diffOptions={diffOptions}
                   terminalOptions={terminalOptions}
+                  agentCommand={agentCommand}
                   panes={panes}
                   onHidePane={togglePane}
                   browsing={browsingByRoot[r] ?? null}
@@ -805,6 +815,8 @@ export default function App(): JSX.Element {
         setTermShell={setTermShell}
         termLogin={termLogin}
         setTermLogin={setTermLogin}
+        agentCommand={agentCommand}
+        setAgentCommand={setAgentCommand}
       />
       <AboutPane open={aboutOpen} onClose={() => setAboutOpen(false)} appIcon={appIcon} />
     </div>

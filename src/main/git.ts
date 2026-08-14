@@ -31,6 +31,7 @@ import {
   RS,
   US
 } from './parse'
+import { buildPatch, parseFilePatch, type ApplyDirection, type HunkPick } from './patch'
 import { msg } from './messages'
 
 const exec = promisify(execFile)
@@ -594,6 +595,125 @@ export function push(root: string, branch?: string): Promise<GitOpResult> {
  */
 export function pull(root: string): Promise<GitOpResult> {
   return remoteOp(root, ['pull', '--ff-only'])
+}
+
+/* ---------- staging ---------- */
+
+/**
+ * Run a git command that changes the repository and report what it said.
+ *
+ * Same shape as `remoteOp` and for the same reason: the pane shows git's own
+ * words rather than a sentence of ours. Nothing here talks to a remote, so
+ * there is no prompt to refuse and no deadline to keep.
+ */
+async function localOp(root: string, args: string[], input?: string): Promise<GitOpResult> {
+  try {
+    const { stdout, stderr } = await run(root, args, input)
+    return { ok: true, output: `${stdout}\n${stderr}`.trim() || msg.git.done }
+  } catch (e) {
+    const err = e as { stdout?: string; stderr?: string; message?: string }
+    const said = `${err.stdout ?? ''}\n${err.stderr ?? ''}`.trim()
+    return { ok: false, output: said || err.message || msg.git.gitFailed }
+  }
+}
+
+/**
+ * `execFile`, plus the ability to feed the command something on stdin —
+ * `git apply` reads its patch from there, and a patch written to a temp file
+ * would be one more thing to clean up after a crash.
+ */
+function run(
+  root: string,
+  args: string[],
+  input?: string
+): Promise<{ stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    const child = execFile(
+      'git',
+      args,
+      {
+        cwd: root,
+        maxBuffer: 64 * 1024 * 1024,
+        windowsHide: true,
+        env: { ...process.env, GIT_OPTIONAL_LOCKS: '0', LC_ALL: 'C' }
+      },
+      (err, stdout, stderr) => {
+        if (err) reject(Object.assign(err, { stdout, stderr }))
+        else resolve({ stdout, stderr })
+      }
+    )
+    if (input !== undefined) {
+      child.stdin?.end(input)
+    }
+  })
+}
+
+/** Put a whole file into the index — new, modified or deleted alike. */
+export function stageFile(root: string, filePath: string): Promise<GitOpResult> {
+  return localOp(root, ['add', '--', filePath])
+}
+
+/**
+ * Take a whole file back out of the index, leaving the work tree alone.
+ * `restore --staged` needs a HEAD to restore from; in a repository whose first
+ * commit has not happened yet there is none, and removing the index entry is
+ * what "unstage" means there.
+ */
+export async function unstageFile(root: string, filePath: string): Promise<GitOpResult> {
+  const restored = await localOp(root, ['restore', '--staged', '--', filePath])
+  if (restored.ok) return restored
+  return localOp(root, ['rm', '--cached', '--quiet', '--', filePath])
+}
+
+/** Throw away a tracked file's uncommitted changes. There is no undo. */
+export function discardFile(root: string, filePath: string): Promise<GitOpResult> {
+  return localOp(root, ['restore', '--', filePath])
+}
+
+/** The whole index as a patch, for handing to something outside Gitty. */
+export async function stagedDiff(root: string): Promise<string> {
+  try {
+    return await git(root, ['diff', '--cached', '--no-color', '--no-ext-diff'])
+  } catch {
+    return ''
+  }
+}
+
+/**
+ * Stage or unstage part of a file.
+ *
+ * The patch is fetched here rather than taken from the renderer, and it is the
+ * right one for the direction: staging works from `git diff` — the work tree
+ * against the index — because the diff the pane shows for a whole work tree is
+ * against HEAD, which merges staged and unstaged work and would stage things
+ * twice. Unstaging works from `git diff --cached` and is applied in reverse.
+ *
+ * The context count has to match the one the pane drew, or the hunk the user
+ * clicked is not the hunk that gets staged. At zero context git needs
+ * `--unidiff-zero` to apply the result — and only there: given unconditionally
+ * it also turns off the check that keeps an ambiguous hunk from landing in the
+ * wrong place.
+ */
+export async function applyHunks(
+  root: string,
+  filePath: string,
+  picks: HunkPick[],
+  direction: ApplyDirection,
+  opts: DiffOptions = DEFAULT_DIFF_OPTIONS
+): Promise<GitOpResult> {
+  const context = Math.min(100, Math.max(0, Math.round(opts.context)))
+  const args = ['diff', '--no-color', '--no-ext-diff', `-U${context}`]
+  if (direction === 'unstage') args.push('--cached')
+  args.push('--', filePath)
+
+  const patch = buildPatch(parseFilePatch(await git(root, args)), picks, direction)
+  if (!patch) return { ok: false, output: msg.git.nothingToApply }
+
+  const apply = ['apply', '--cached', '--whitespace=nowarn']
+  if (direction === 'unstage') apply.push('-R')
+  if (context === 0) apply.push('--unidiff-zero')
+  apply.push('-')
+  return localOp(root, apply, patch)
 }
 
 /** Count the number of newlines in a buffer. The last line is counted even when

@@ -75,7 +75,15 @@ export const ja: RendererMessages = {
     emptyWorktree: 'ワークツリーはクリーンです。',
     emptySnapshot: 'このスナップショットにファイルはありません。',
     emptyDiff: 'この差分にファイルはありません。',
-    lines: (n: number) => `${n} 行`
+    lines: (n: number) => `${n} 行`,
+    toggleStage: (staged: boolean) =>
+      staged ? 'クリックでこのファイルをステージ解除' : 'クリックでこのファイルをステージ',
+    commitWithAgent: 'agent にコミットさせる',
+    commitWithAgentTitle: (command: string) =>
+      `ステージ済みの内容に対して、ターミナルで "${command}" を実行します`,
+    commitWithAgentEmpty: 'まず何かをステージしてください——インデックスが空です',
+    agentNoCommand: 'agent コマンドが未設定です。設定 ▸ セッション ▸ Agent コマンド にあります。',
+    agentNoTerminal: 'このタブには実行できるシェルがありません。'
   },
   diff: {
     titleFallback: '差分',
@@ -121,7 +129,19 @@ export const ja: RendererMessages = {
     dblClickFullScreen: 'ダブルクリックで全画面を切り替え',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nクリックで${collapsed ? '展開' : '折りたたみ'}\nCtrl+クリックで新しいタブに開く\n右クリックでその他の操作`,
-    loadMoreLines: (n: number) => `あと ${n} 行 — スクロールまたはクリックで読み込み`
+    loadMoreLines: (n: number) => `あと ${n} 行 — スクロールまたはクリックで読み込み`,
+    stageHunk: 'ステージ',
+    unstageHunk: 'ステージ解除',
+    stageHunkTitle: 'このハンクをインデックスに入れる',
+    unstageHunkTitle: 'このハンクをインデックスから戻す',
+    stageSelection: (n: number) => `${n} 行をステージ`,
+    unstageSelection: (n: number) => `${n} 行をステージ解除`,
+    stageSelectionTitle: '選択した行だけをインデックスに入れる',
+    unstageSelectionTitle: '選択した行だけをインデックスから戻す',
+    sideUnstaged: '未ステージ',
+    sideStaged: 'ステージ済み',
+    sideUnstagedTitle: 'まだステージしていない部分を表示',
+    sideStagedTitle: 'すでにステージした部分を表示'
   },
   log: {
     commits: 'コミット',
@@ -209,6 +229,8 @@ export const ja: RendererMessages = {
     restoreTabs: '前回のセッションを復元',
     shell: 'シェル',
     loginShell: 'ログインシェル',
+    agentCommand: 'Agent コマンド',
+    agentCommandPlaceholder: 'ターミナルで実行するコマンド',
     restoreDefaults: '既定値に戻す',
     done: '完了'
   },
@@ -238,6 +260,10 @@ export const ja: RendererMessages = {
     openInSystemApp: 'システムのアプリで開く',
     revealInFileManager: 'ファイルマネージャーで表示',
     deleteFile: 'ファイルを削除…',
+    stageFile: 'ファイルをステージ',
+    unstageFile: 'ファイルをステージ解除',
+    discardChanges: '変更を破棄…',
+    copyStagedDiff: 'ステージ済み diff をコピー',
     viewFileAccel: 'ダブルクリック',
     showCommitDiff: 'コミットの差分を表示',
     showCommitDiffAccel: 'Enter',

@@ -108,6 +108,20 @@ export const UNCOMMITTED_SHA = '0'.repeat(40)
 /** Which side of the index a working-tree diff should be read from. */
 export type DiffSide = 'worktree' | 'index'
 
+/** Putting part of a file into the index, or taking it back out. */
+export type ApplyDirection = 'stage' | 'unstage'
+
+/**
+ * Which hunk of a file's diff to apply, and — when the user picked lines
+ * rather than the whole thing — which of its lines. Both indices are into the
+ * patch the main process fetches, which is the same one the pane drew: the
+ * context setting travels with the request so the two cannot disagree.
+ */
+export interface HunkPick {
+  hunk: number
+  lines?: number[]
+}
+
 /**
  * How git is asked to compute a diff, rather than which diff is wanted — a
  * preference the renderer carries with every request, since the main process

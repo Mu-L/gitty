@@ -7,7 +7,15 @@ import { availableShells, createTerminal, type TerminalSession } from './pty'
 import { addRecent, clearRecent, listRecent, removeRecent } from './recent'
 import { watchRepo, type RepoWatcher } from './watcher'
 import * as web from './web'
-import type { AboutInfo, ChurnSpec, DiffOptions, DiffRequest, TerminalOptions } from '../shared/types'
+import type {
+  AboutInfo,
+  ApplyDirection,
+  ChurnSpec,
+  DiffOptions,
+  DiffRequest,
+  HunkPick,
+  TerminalOptions
+} from '../shared/types'
 import { msg, setMainLocale } from './messages'
 
 // Fixes the userData directory (~/.config/Gitty) rather than inheriting
@@ -300,6 +308,43 @@ function registerIpc(): void {
   ipcMain.handle('git:diff', (_e, root: string, req: DiffRequest, opts?: DiffOptions) =>
     git.diff(root, req, opts)
   )
+  // Staging. Everything that writes to the index reports what git said rather
+  // than throwing: a rejected patch is git's sentence to say, not ours.
+  ipcMain.handle('git:stageFile', (_e, root: string, filePath: string) =>
+    git.stageFile(root, filePath)
+  )
+  ipcMain.handle('git:unstageFile', (_e, root: string, filePath: string) =>
+    git.unstageFile(root, filePath)
+  )
+  // Confirmed here rather than in the renderer, like deleting a file: the
+  // window cannot be clicked past while a native dialog is up, and there is
+  // nothing to undo afterwards — the changes were never in git.
+  ipcMain.handle('git:discardFile', async (_e, root: string, filePath: string) => {
+    const answer = await dialog.showMessageBox(win!, {
+      type: 'warning',
+      title: msg.dialog.discardTitle,
+      message: msg.dialog.discardConfirm(path.basename(filePath)),
+      detail: msg.dialog.discardDetail,
+      buttons: [msg.dialog.cancelButton, msg.dialog.discardButton],
+      defaultId: 0,
+      cancelId: 0
+    })
+    if (answer.response !== 1) return null
+    return git.discardFile(root, filePath)
+  })
+  ipcMain.handle('git:stagedDiff', (_e, root: string) => git.stagedDiff(root))
+  ipcMain.handle(
+    'git:applyHunks',
+    (
+      _e,
+      root: string,
+      filePath: string,
+      picks: HunkPick[],
+      direction: ApplyDirection,
+      opts?: DiffOptions
+    ) => git.applyHunks(root, filePath, picks, direction, opts)
+  )
+
   ipcMain.handle('git:snapshotFiles', (_e, root: string, hash: string) =>
     git.snapshotFiles(root, hash)
   )

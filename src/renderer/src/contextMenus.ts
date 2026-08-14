@@ -58,6 +58,12 @@ export interface ContextMenuDeps {
   setMenu: (state: MenuState) => void
   /** Browse the whole repository as it is on disk right now, read-only. */
   browseWorktree: () => void
+  /** Work tree only: move a whole file in or out of the index. */
+  toggleStage: (path: string, staged: boolean) => void
+  /** Work tree only: throw a tracked file's changes away, after confirming. */
+  discardChanges: (path: string) => void
+  /** The whole index as a patch, for a conversation happening elsewhere. */
+  copyStagedDiff: () => void
 }
 
 /** The four context-menu builders, in one factory so RepoTab calls it once. */
@@ -96,7 +102,10 @@ export function createContextMenus(deps: ContextMenuDeps): {
     setSelectedFile,
     setActiveDoc,
     setMenu,
-    browseWorktree
+    browseWorktree,
+    toggleStage,
+    discardChanges,
+    copyStagedDiff
   } = deps
 
   const diffMenu = (at: MenuState): void => {
@@ -255,6 +264,23 @@ export function createContextMenus(deps: ContextMenuDeps): {
       label: msg.contextMenu.copyFileName,
       action: () => void window.gitty.clipboard.write(rel.split('/').pop() ?? rel)
     })
+    // The index, and the two ways of leaving it: only in the work tree, which
+    // is the only mode that has one.
+    if (view.mode === 'worktree') {
+      items.push({
+        label: entry.staged ? msg.contextMenu.unstageFile : msg.contextMenu.stageFile,
+        separatorBefore: true,
+        action: () => toggleStage(rel, !!entry.staged)
+      })
+      // Discarding restores from the index, so it needs something to restore
+      // from: an untracked file has no such thing and is deleted instead.
+      if (!entry.untracked) {
+        items.push({
+          label: msg.contextMenu.discardChanges,
+          action: () => discardChanges(rel)
+        })
+      }
+    }
     // Deleting is about the file on disk, so it belongs to the work tree alone:
     // a commit's file list and a snapshot describe revisions, where there is
     // nothing to delete. A file already gone from the tree is not offered either.
@@ -321,6 +347,13 @@ export function createContextMenus(deps: ContextMenuDeps): {
         {
           label: msg.contextMenu.browseWorktree,
           action: browseWorktree
+        },
+        {
+          // For the case the terminal pane cannot serve: an agent being
+          // talked to in another window entirely.
+          label: msg.contextMenu.copyStagedDiff,
+          separatorBefore: true,
+          action: copyStagedDiff
         }
       ]
     })

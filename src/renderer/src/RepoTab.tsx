@@ -24,7 +24,7 @@ import { FilesPane, type FileEntry } from './components/FilesPane'
 import { CommitInfo } from './components/CommitInfo'
 import { useMsg } from './locale'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
-import { destroyTerminals } from './terminals'
+import { destroyTerminals, runInTerminal } from './terminals'
 import { isHtmlPath, isImagePath, isMarkdownPath } from './paths'
 import { FullButton, HideButton } from './components/PaneChrome'
 import type { Theme } from './components/SettingsPane'
@@ -47,6 +47,7 @@ import {
   type PaneVisibility
 } from './panes'
 import type {
+  ApplyDirection,
   ChurnSpec,
   Commit,
   CommitFile,
@@ -54,7 +55,9 @@ import type {
   DiffOptions,
   DiffRequest,
   DiffResult,
+  DiffSide,
   FileChurn,
+  HunkPick,
   RepoStatus,
   TerminalOptions,
   WorkingFile
@@ -123,6 +126,8 @@ export interface RepoTabProps {
   diffOptions: DiffOptions
   /** Which shell a terminal in this tab starts, and how. */
   terminalOptions: TerminalOptions
+  /** The command "Commit with agent" types into this tab's focused shell. */
+  agentCommand: string
   /** Which panes are on screen; hidden ones are not rendered at all. */
   panes: PaneVisibility
   /** Hide a pane from its own header button. */
@@ -171,6 +176,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     fontFamily,
     diffOptions,
     terminalOptions,
+    agentCommand,
     panes,
     onHidePane,
     browsing,
@@ -216,6 +222,12 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // push, pull or gource; the strip below the header is the one place any of
   // them gets to speak in its own words.
   const [remoteOp, setRemoteOp] = useState<'push' | 'pull' | null>(null)
+  // Which side of the index a work-tree file's diff is read from, when the
+  // reader has said. Null follows the file's own state, which is what it did
+  // before there was anything to stage.
+  const [sideOverride, setSideOverride] = useState<DiffSide | null>(null)
+  // An apply is in flight; the hunk buttons go quiet rather than queueing.
+  const [staging, setStaging] = useState(false)
   const [remoteMsg, setRemoteMsg] = useState<{ ok: boolean; text: string } | null>(null)
   // gource is optional: the button exists only where the binary does.
   const [hasGource, setHasGource] = useState(false)
@@ -318,6 +330,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
           // Anything the index carries, whether or not the work tree has more
           // on top of it. Only the work tree has an index to speak of.
           staged: !f.untracked && f.index !== ' ',
+          untracked: f.untracked,
           origPath: f.origPath
         }))
       } else if (view.mode === 'snapshot') {
@@ -474,6 +487,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const previewing =
     viewingFile && doc.preview && (isMarkdownPath(doc.path) || isHtmlPath(doc.path))
 
+  // Which side to read is a choice about the file in front of you; another
+  // file starts from its own state again.
+  useEffect(() => setSideOverride(null), [selectedFile, view])
+
   // Snapshots have no diff, so a file selected there opens as a document.
   useEffect(() => {
     if (view.mode === 'snapshot' && selectedFile) openFileDoc(selectedFile)
@@ -578,7 +595,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       void loadDiff({
         kind: 'working',
         path: f.path,
-        side: f.worktree === ' ' && f.index !== ' ' ? 'index' : 'worktree',
+        side: sideOverride ?? (f.worktree === ' ' && f.index !== ' ' ? 'index' : 'worktree'),
         untracked: f.untracked
       })
     } else if (view.mode === 'commit') {
@@ -594,7 +611,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       // Snapshot has no diff; the file view renders its contents instead.
       clearDiff()
     }
-  }, [view, selectedFile, status, tick, loadDiff, clearDiff])
+  }, [view, selectedFile, status, tick, sideOverride, loadDiff, clearDiff])
 
   /* ---------- commit interactions ---------- */
 
@@ -711,6 +728,107 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     }
   }, [root, browsing, commits.length, debouncedFilter])
 
+  /* ---------- staging ---------- */
+
+  /** The work-tree file the diff is showing, if that is what it is showing. */
+  const workingFile = useMemo(
+    () =>
+      view.mode === 'worktree' && selectedFile
+        ? (status?.files.find((f) => f.path === selectedFile) ?? null)
+        : null,
+    [view, selectedFile, status]
+  )
+
+  const stagedCount = useMemo(
+    () => status?.files.filter((f) => f.index !== ' ').length ?? 0,
+    [status]
+  )
+
+  /**
+   * Which way staging goes for the diff on screen — and whether it can be
+   * offered at all. It cannot when the diff is not exactly one tracked file's
+   * work (a whole work tree merges staged and unstaged changes, and the hunks
+   * of a many-file diff are not numbered the way git numbers one file's), and
+   * it must not when whitespace is being ignored: that diff does not hold
+   * every change it would apply, so applying it would drop the rest silently.
+   */
+  const stageDirection: ApplyDirection | null = useMemo(() => {
+    if (!workingFile || workingFile.untracked || viewingFile) return null
+    if (diffOptions.ignoreWhitespace !== 'none') return null
+    const side = sideOverride ?? (workingFile.worktree === ' ' && workingFile.index !== ' ' ? 'index' : 'worktree')
+    return side === 'index' ? 'unstage' : 'stage'
+  }, [workingFile, viewingFile, diffOptions, sideOverride])
+
+  /** Report what git said; a success is only worth a line when it failed to be one. */
+  const said = useCallback((res: { ok: boolean; output: string } | null) => {
+    if (res && !res.ok) setRemoteMsg({ ok: false, text: res.output })
+  }, [])
+
+  const applyPicks = useCallback(
+    async (picks: HunkPick[]) => {
+      if (!workingFile || !stageDirection) return
+      setStaging(true)
+      try {
+        said(
+          await window.gitty.git.applyHunks(
+            root,
+            workingFile.path,
+            picks,
+            stageDirection,
+            diffOptions
+          )
+        )
+      } finally {
+        setStaging(false)
+        void refresh()
+      }
+    },
+    [root, workingFile, stageDirection, diffOptions, refresh, said]
+  )
+
+  const toggleStage = useCallback(
+    async (path: string, staged: boolean) => {
+      said(
+        staged
+          ? await window.gitty.git.unstageFile(root, path)
+          : await window.gitty.git.stageFile(root, path)
+      )
+      void refresh()
+    },
+    [root, refresh, said]
+  )
+
+  const discardChanges = useCallback(
+    async (path: string) => {
+      said(await window.gitty.git.discardFile(root, path))
+      void refresh()
+    },
+    [root, refresh, said]
+  )
+
+  const copyStagedDiff = useCallback(() => {
+    void window.gitty.git.stagedDiff(root).then((text) => window.gitty.clipboard.write(text))
+  }, [root])
+
+  /**
+   * Hand the curated index over. Gitty writes one line into the shell that is
+   * already in the window and stops there: no model is called from inside the
+   * app, so nothing about the repository leaves the machine that the user did
+   * not send themselves.
+   */
+  const commitWithAgent = useCallback(() => {
+    const command = agentCommand.trim()
+    if (!command) {
+      setRemoteMsg({ ok: false, text: msg.files.agentNoCommand })
+      return
+    }
+    if (!runInTerminal(root, command)) {
+      setRemoteMsg({ ok: false, text: msg.files.agentNoTerminal })
+      return
+    }
+    setRemoteMsg(null)
+  }, [agentCommand, root, msg])
+
   /* ---------- push and pull ---------- */
 
   const runRemote = useCallback(
@@ -792,7 +910,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setSelectedFile,
     setActiveDoc,
     setMenu,
-    browseWorktree
+    browseWorktree,
+    toggleStage: (path, staged) => void toggleStage(path, staged),
+    discardChanges: (path) => void discardChanges(path),
+    copyStagedDiff
   })
 
   /* ---------- headers ---------- */
@@ -903,6 +1024,22 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     {filesTitle}
                   </Tooltip>
                   <span className="spacer" />
+                  {/* The index is curated here, so this is where it is handed
+                      over. Only ever text into the shell below. */}
+                  {view.mode === 'worktree' && (
+                    <button
+                      className="toggle"
+                      disabled={stagedCount === 0}
+                      title={
+                        stagedCount === 0
+                          ? msg.files.commitWithAgentEmpty
+                          : msg.files.commitWithAgentTitle(agentCommand)
+                      }
+                      onClick={commitWithAgent}
+                    >
+                      {msg.files.commitWithAgent}
+                    </button>
+                  )}
                   {view.mode !== 'worktree' && (
                     <button onClick={backToWorkTree}>{msg.files.backToWorkTree}</button>
                   )}
@@ -939,6 +1076,11 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       openFileDoc(f.path)
                     }}
                     onMenu={fileMenu}
+                    onToggleStage={
+                      view.mode === 'worktree'
+                        ? (f) => void toggleStage(f.path, !!f.staged)
+                        : undefined
+                    }
                     emptyText={
                       view.mode === 'worktree' ||
                       (view.mode === 'snapshot' && view.hash === null)
@@ -990,6 +1132,30 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       {msg.diff.showWholeDiff}
                     </button>
                   )}
+                  {/* Which side of the index this file is being read from.
+                      Only where both sides hold something: with one of them
+                      empty the diff already says which it is. */}
+                  {workingFile &&
+                    !viewingFile &&
+                    workingFile.index !== ' ' &&
+                    workingFile.worktree !== ' ' && (
+                      <div className="seg">
+                        {(['worktree', 'index'] as const).map((side) => (
+                          <button
+                            key={side}
+                            className={`toggle${(sideOverride ?? 'worktree') === side ? ' on' : ''}`}
+                            title={
+                              side === 'worktree'
+                                ? msg.diff.sideUnstagedTitle
+                                : msg.diff.sideStagedTitle
+                            }
+                            onClick={() => setSideOverride(side)}
+                          >
+                            {side === 'worktree' ? msg.diff.sideUnstaged : msg.diff.sideStaged}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   {selectedFile && view.mode !== 'snapshot' && !viewingFile && (
                     <button
                       className="toggle"
@@ -1164,6 +1330,11 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     onOpenFile={openFileDoc}
                     onFileMenu={diffFileMenu}
                     onCollapseState={setCollapseState}
+                    stage={
+                      stageDirection
+                        ? { direction: stageDirection, busy: staging, onApply: applyPicks }
+                        : undefined
+                    }
                     patch={diff?.patch ?? ''}
                     notice={diff?.notice}
                     wrap={wrap}

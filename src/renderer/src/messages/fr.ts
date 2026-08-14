@@ -76,7 +76,16 @@ export const fr: RendererMessages = {
     emptyWorktree: 'Copie de travail propre.',
     emptySnapshot: 'Aucun fichier dans cet instantané.',
     emptyDiff: 'Aucun fichier dans ce diff.',
-    lines: (n: number) => `${n} ligne${n === 1 ? '' : 's'}`
+    lines: (n: number) => `${n} ligne${n === 1 ? '' : 's'}`,
+    toggleStage: (staged: boolean) =>
+      staged ? 'Cliquer pour retirer ce fichier de l’index' : 'Cliquer pour indexer ce fichier',
+    commitWithAgent: 'Commiter avec l’agent',
+    commitWithAgentTitle: (command: string) =>
+      `Lancer « ${command} » dans le terminal, sur ce qui est indexé`,
+    commitWithAgentEmpty: 'Indexez d’abord quelque chose — l’index est vide',
+    agentNoCommand:
+      'Aucune commande d’agent n’est définie. Réglages ▸ Session ▸ Commande de l’agent.',
+    agentNoTerminal: 'Aucun shell dans cet onglet pour la lancer.'
   },
   diff: {
     titleFallback: 'Diff',
@@ -123,7 +132,19 @@ export const fr: RendererMessages = {
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nCliquer pour ${collapsed ? 'déplier' : 'replier'}\nCtrl+clic pour ouvrir dans un nouvel onglet\nClic droit pour plus d’options`,
     loadMoreLines: (n: number) =>
-      `${n} ligne${n === 1 ? '' : 's'} de plus — faites défiler ou cliquez pour charger`
+      `${n} ligne${n === 1 ? '' : 's'} de plus — faites défiler ou cliquez pour charger`,
+    stageHunk: 'Indexer',
+    unstageHunk: 'Désindexer',
+    stageHunkTitle: 'Mettre cette section dans l’index',
+    unstageHunkTitle: 'Retirer cette section de l’index',
+    stageSelection: (n: number) => `Indexer ${n} ligne${n === 1 ? '' : 's'}`,
+    unstageSelection: (n: number) => `Désindexer ${n} ligne${n === 1 ? '' : 's'}`,
+    stageSelectionTitle: 'Ne mettre dans l’index que les lignes sélectionnées',
+    unstageSelectionTitle: 'Ne retirer de l’index que les lignes sélectionnées',
+    sideUnstaged: 'Non indexé',
+    sideStaged: 'Indexé',
+    sideUnstagedTitle: 'Montrer ce qui n’est pas encore indexé',
+    sideStagedTitle: 'Montrer ce qui est déjà indexé'
   },
   log: {
     commits: 'Commits',
@@ -213,6 +234,8 @@ export const fr: RendererMessages = {
     restoreTabs: 'Rouvrir la session précédente',
     shell: 'Shell',
     loginShell: 'Shell de connexion',
+    agentCommand: 'Commande de l’agent',
+    agentCommandPlaceholder: 'commande lancée dans le terminal',
     restoreDefaults: 'Rétablir les valeurs par défaut',
     done: 'Terminé'
   },
@@ -242,6 +265,10 @@ export const fr: RendererMessages = {
     openInSystemApp: 'Ouvrir dans l’application système',
     revealInFileManager: 'Afficher dans le gestionnaire de fichiers',
     deleteFile: 'Supprimer le fichier…',
+    stageFile: 'Indexer le fichier',
+    unstageFile: 'Désindexer le fichier',
+    discardChanges: 'Abandonner les modifications…',
+    copyStagedDiff: 'Copier le diff indexé',
     viewFileAccel: 'Double-clic',
     showCommitDiff: 'Afficher le diff du commit',
     showCommitDiffAccel: 'Entrée',

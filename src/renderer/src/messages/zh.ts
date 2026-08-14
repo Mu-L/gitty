@@ -75,7 +75,13 @@ export const zh: RendererMessages = {
     emptyWorktree: '工作树干净。',
     emptySnapshot: '此快照中没有文件。',
     emptyDiff: '此差异中没有文件。',
-    lines: (n: number) => `${n} 行`
+    lines: (n: number) => `${n} 行`,
+    toggleStage: (staged: boolean) => (staged ? '单击取消暂存该文件' : '单击暂存该文件'),
+    commitWithAgent: '交给 agent 提交',
+    commitWithAgentTitle: (command: string) => `在终端里对暂存区运行 "${command}"`,
+    commitWithAgentEmpty: '先暂存一些改动——暂存区是空的',
+    agentNoCommand: '尚未设置 agent 命令。位置在 设置 ▸ 会话 ▸ Agent 命令。',
+    agentNoTerminal: '该标签页里没有可运行它的 shell。'
   },
   diff: {
     titleFallback: '差异',
@@ -121,7 +127,19 @@ export const zh: RendererMessages = {
     dblClickFullScreen: '双击切换全屏',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\n单击${collapsed ? '展开' : '折叠'}\nCtrl+单击在新标签页中打开\n右键查看更多`,
-    loadMoreLines: (n: number) => `还有 ${n} 行 — 滚动或单击加载`
+    loadMoreLines: (n: number) => `还有 ${n} 行 — 滚动或单击加载`,
+    stageHunk: '暂存',
+    unstageHunk: '取消暂存',
+    stageHunkTitle: '把这一块放进暂存区',
+    unstageHunkTitle: '把这一块从暂存区取出',
+    stageSelection: (n: number) => `暂存 ${n} 行`,
+    unstageSelection: (n: number) => `取消暂存 ${n} 行`,
+    stageSelectionTitle: '只把选中的行放进暂存区',
+    unstageSelectionTitle: '只把选中的行从暂存区取出',
+    sideUnstaged: '未暂存',
+    sideStaged: '已暂存',
+    sideUnstagedTitle: '显示尚未暂存的部分',
+    sideStagedTitle: '显示已经暂存的部分'
   },
   log: {
     commits: '提交',
@@ -209,6 +227,8 @@ export const zh: RendererMessages = {
     restoreTabs: '恢复上次会话',
     shell: 'Shell',
     loginShell: '登录 Shell',
+    agentCommand: 'Agent 命令',
+    agentCommandPlaceholder: '在终端里运行的命令',
     restoreDefaults: '恢复默认',
     done: '完成'
   },
@@ -238,6 +258,10 @@ export const zh: RendererMessages = {
     openInSystemApp: '在系统应用中打开',
     revealInFileManager: '在文件管理器中显示',
     deleteFile: '删除文件…',
+    stageFile: '暂存文件',
+    unstageFile: '取消暂存文件',
+    discardChanges: '丢弃更改…',
+    copyStagedDiff: '复制暂存区 diff',
     viewFileAccel: '双击',
     showCommitDiff: '显示提交差异',
     showCommitDiffAccel: 'Enter',

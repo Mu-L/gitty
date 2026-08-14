@@ -9,6 +9,7 @@ import {
   type JSX
 } from 'react'
 import type { MenuState } from './ContextMenu'
+import type { ApplyDirection, HunkPick } from '../../../shared/types'
 import { useMsg } from '../locale'
 import { useFind } from './useFind'
 import type { RendererMessages } from '../../../shared/messages'
@@ -27,8 +28,27 @@ interface DiffLine {
   newNo: number | null
   /** Heading of the file this line belongs to, so files can be collapsed. */
   file: string
+  /** Position in the parsed patch, so a text selection can be read as a range. */
+  n: number
+  /** Which hunk this line belongs to, and where inside it; -1 before the
+   *  first `@@`. Both count exactly as `main/patch.ts` counts, so a pick made
+   *  here names the same lines there. */
+  hunk: number
+  hi: number
   /** Word-level segments for add/del rows, when a finer highlight is available. */
   wd?: WordDiffInfo
+}
+
+/**
+ * What the pane needs to offer staging: which way it goes (the diff on screen
+ * is either unstaged work or the index), and where a pick is sent. Absent
+ * whenever staging would be a lie — another mode, several files at once, a
+ * whitespace-ignoring diff that does not hold every change it would apply.
+ */
+export interface StageControls {
+  direction: ApplyDirection
+  busy: boolean
+  onApply: (picks: HunkPick[]) => void
 }
 
 export interface DiffPaneHandle {
@@ -114,18 +134,30 @@ function parsePatch(patch: string): DiffLine[] {
   // heading and must never be hidden by a collapse.
   let file = ''
 
+  // Which hunk we are inside, and how many of its body lines have gone past.
+  // The count has to match `main/patch.ts`, which keeps every line after the
+  // `@@` — the "\ No newline" marker included — so nothing may be skipped
+  // between here and there.
+  let hunk = -1
+  let hi = -1
+
+  const push = (l: Omit<DiffLine, 'n' | 'hunk' | 'hi'>): void => {
+    out.push({ ...l, n: out.length, hunk, hi: hunk < 0 ? -1 : hi++ })
+  }
+
   for (const text of patch.split('\n')) {
     if (text.startsWith('diff --git') || text.startsWith('diff --cc')) {
       inHeader = true
+      hunk = -1
       file = fileLabel(text)
-      out.push({ kind: 'file', text: file, oldNo: null, newNo: null, file })
+      push({ kind: 'file', text: file, oldNo: null, newNo: null, file })
     } else if (text.startsWith('\\ No newline')) {
       // Belongs to the hunk it follows, not to any header.
-      out.push({ kind: 'meta', text, oldNo: null, newNo: null , file })
+      push({ kind: 'meta', text, oldNo: null, newNo: null , file })
     } else if (inHeader && HEADER_NOISE.some((p) => text.startsWith(p))) {
       continue
     } else if (inHeader && HEADER_FACTS.some((p) => text.startsWith(p))) {
-      out.push({ kind: 'meta', text, oldNo: null, newNo: null , file })
+      push({ kind: 'meta', text, oldNo: null, newNo: null , file })
     } else if (text.startsWith('@@')) {
       inHeader = false
       const m = /^@@+ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(text)
@@ -133,13 +165,16 @@ function parsePatch(patch: string): DiffLine[] {
         oldNo = Number(m[1])
         newNo = Number(m[2])
       }
-      out.push({ kind: 'hunk', text, oldNo: null, newNo: null , file })
+      // The header itself is not one of the hunk's body lines.
+      hunk++
+      hi = 0
+      out.push({ kind: 'hunk', text, oldNo: null, newNo: null, file, n: out.length, hunk, hi: -1 })
     } else if (text.startsWith('+')) {
-      out.push({ kind: 'add', text, oldNo: null, newNo: newNo++ , file })
+      push({ kind: 'add', text, oldNo: null, newNo: newNo++ , file })
     } else if (text.startsWith('-')) {
-      out.push({ kind: 'del', text, oldNo: oldNo++, newNo: null , file })
+      push({ kind: 'del', text, oldNo: oldNo++, newNo: null , file })
     } else {
-      out.push({ kind: 'ctx', text, oldNo: oldNo++, newNo: newNo++ , file })
+      push({ kind: 'ctx', text, oldNo: oldNo++, newNo: newNo++ , file })
     }
   }
 
@@ -296,6 +331,73 @@ export function headingPath(name: string): string {
   return arrow < 0 ? name : name.slice(arrow + 3)
 }
 
+/**
+ * A hunk header, with the one control that acts on the hunk it heads.
+ *
+ * The button says "Stage" while nothing inside the hunk is selected and
+ * "Stage N lines" once something is — which is why the label is where the
+ * selection is read rather than in the pane header: a selection can run across
+ * two hunks, and each of them then offers its own part of it.
+ *
+ * `onMouseDown` is prevented because pressing a button clears the document
+ * selection, and the selection is the argument.
+ */
+function HunkRow({
+  msg,
+  line,
+  stage,
+  picked,
+  full
+}: {
+  msg: RendererMessages
+  line: DiffLine
+  stage?: StageControls
+  picked?: number[]
+  /** Side-by-side draws the header across both columns. */
+  full: boolean
+}): JSX.Element {
+  const staging = stage?.direction === 'stage'
+  const n = picked?.length ?? 0
+  return (
+    <div className={`diff-line ${CLS.hunk}${full ? ' diff-full' : ''}`}>
+      {!full && (
+        <>
+          <span className="diff-gutter" />
+          <span className="diff-gutter" />
+        </>
+      )}
+      <span className="diff-text">{line.text || ' '}</span>
+      {stage && (
+        <button
+          className="hunk-stage"
+          disabled={stage.busy}
+          title={
+            n > 0
+              ? staging
+                ? msg.diff.stageSelectionTitle
+                : msg.diff.unstageSelectionTitle
+              : staging
+                ? msg.diff.stageHunkTitle
+                : msg.diff.unstageHunkTitle
+          }
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() =>
+            stage.onApply([n > 0 ? { hunk: line.hunk, lines: picked } : { hunk: line.hunk }])
+          }
+        >
+          {n > 0
+            ? staging
+              ? msg.diff.stageSelection(n)
+              : msg.diff.unstageSelection(n)
+            : staging
+              ? msg.diff.stageHunk
+              : msg.diff.unstageHunk}
+        </button>
+      )}
+    </div>
+  )
+}
+
 /** Clickable file heading: the anchor of a multi-file diff, and its fold. */
 function FileHeading({
   msg,
@@ -346,6 +448,9 @@ export const DiffPane = forwardRef<
     onFileMenu?: (path: string, state: MenuState) => void
     /** Reported so the pane header can offer Collapse All / Expand All. */
     onCollapseState?: (state: CollapseState) => void
+    /** Present only where this diff is exactly one file's staged or unstaged
+     *  work, so a hunk here is the same hunk git would apply. */
+    stage?: StageControls
   }
 >(function DiffPane(
   {
@@ -359,7 +464,8 @@ export const DiffPane = forwardRef<
     onMenu,
     onOpenFile,
     onFileMenu,
-    onCollapseState
+    onCollapseState,
+    stage
   },
   ref
 ): JSX.Element {
@@ -407,6 +513,63 @@ export const DiffPane = forwardRef<
     [parsed, collapsed]
   )
   const rows = useMemo(() => (view === 'split' ? pairLines(lines) : []), [lines, view])
+
+  // Which changed lines the text selection covers, grouped by hunk. Read from
+  // the selection rather than from clicks of our own: dragging over the lines
+  // is what a reader already does, and it leaves the diff a document that can
+  // still be copied out of. Only the two ends are inspected — everything
+  // between them is taken from the parsed lines, so a drag over a long diff
+  // costs the same as a drag over a short one.
+  const [picked, setPicked] = useState<Map<number, number[]>>(new Map())
+  useEffect(() => {
+    if (!stage) {
+      setPicked((prev) => (prev.size === 0 ? prev : new Map()))
+      return
+    }
+    const read = (): void => {
+      const sel = document.getSelection()
+      const host = hostRef.current
+      if (!sel || sel.isCollapsed || sel.rangeCount === 0 || !host) {
+        setPicked((prev) => (prev.size === 0 ? prev : new Map()))
+        return
+      }
+      const range = sel.getRangeAt(0)
+      if (!host.contains(range.commonAncestorContainer)) return
+      // An endpoint is usually inside a line, but a select-all or a drag that
+      // ends past the last row lands on a container instead — so descend into
+      // it and take the first or last line it holds.
+      const at = (node: Node, offset: number, fromEnd: boolean): number | null => {
+        let el: Element | null = node instanceof Element ? node : node.parentElement
+        if (node instanceof Element) {
+          const child = node.childNodes[fromEnd ? offset - 1 : offset]
+          if (child) el = child instanceof Element ? child : child.parentElement
+        }
+        const own = el?.closest('[data-n]')
+        if (own) return Number((own as HTMLElement).dataset.n)
+        const inside = el?.querySelectorAll('[data-n]')
+        if (inside && inside.length > 0) {
+          return Number((inside[fromEnd ? inside.length - 1 : 0] as HTMLElement).dataset.n)
+        }
+        return null
+      }
+      const a = at(range.startContainer, range.startOffset, false)
+      const b = at(range.endContainer, range.endOffset, true)
+      if (a === null || b === null) return
+      const [lo, hi] = a <= b ? [a, b] : [b, a]
+      const next = new Map<number, number[]>()
+      for (const l of lines) {
+        if (l.n < lo || l.n > hi) continue
+        if (l.kind !== 'add' && l.kind !== 'del') continue
+        const list = next.get(l.hunk)
+        if (list) list.push(l.hi)
+        else next.set(l.hunk, [l.hi])
+      }
+      setPicked(next)
+    }
+    document.addEventListener('selectionchange', read)
+    read()
+    return () => document.removeEventListener('selectionchange', read)
+  }, [stage, lines])
   const total = view === 'split' ? rows.length : lines.length
   const hostRef = useRef<HTMLDivElement>(null)
   const [shown, setShown] = useState(CHUNK)
@@ -487,8 +650,17 @@ export const DiffPane = forwardRef<
                 onOpen={() => onOpenFile?.(headingPath(l.text))}
                 onMenu={(at) => onFileMenu?.(headingPath(l.text), at)}
               />
+            ) : l.kind === 'hunk' ? (
+              <HunkRow
+                key={i}
+                msg={msg}
+                line={l}
+                stage={stage}
+                picked={picked.get(l.hunk)}
+                full={false}
+              />
             ) : (
-              <div key={i} className={`diff-line ${CLS[l.kind]}`}>
+              <div key={i} className={`diff-line ${CLS[l.kind]}`} data-n={l.n}>
                 <span className="diff-gutter">{l.oldNo ?? ''}</span>
                 <span className="diff-gutter">{l.newNo ?? ''}</span>
                 <span className="diff-text">
@@ -516,14 +688,26 @@ export const DiffPane = forwardRef<
                   onOpen={() => onOpenFile?.(headingPath(r.full!.text))}
                   onMenu={(at) => onFileMenu?.(headingPath(r.full!.text), at)}
                 />
+              ) : r.full.kind === 'hunk' ? (
+                <HunkRow
+                  key={i}
+                  msg={msg}
+                  line={r.full}
+                  stage={stage}
+                  picked={picked.get(r.full.hunk)}
+                  full
+                />
               ) : (
-                <div key={i} className={`diff-line diff-full ${CLS[r.full.kind]}`}>
+                <div key={i} className={`diff-line diff-full ${CLS[r.full.kind]}`} data-n={r.full.n}>
                   <span className="diff-text">{r.full.text || ' '}</span>
                 </div>
               )
             ) : (
               <div key={i} className="diff-pair">
-                <div className={`diff-line ${r.left ? CLS[r.left.kind] : 'dl-empty'}`}>
+                <div
+                  className={`diff-line ${r.left ? CLS[r.left.kind] : 'dl-empty'}`}
+                  data-n={r.left?.n}
+                >
                   <span className="diff-gutter">{r.left?.oldNo ?? ''}</span>
                   <span className="diff-text">
                     {r.left
@@ -533,7 +717,10 @@ export const DiffPane = forwardRef<
                       : ''}
                   </span>
                 </div>
-                <div className={`diff-line ${r.right ? CLS[r.right.kind] : 'dl-empty'}`}>
+                <div
+                  className={`diff-line ${r.right ? CLS[r.right.kind] : 'dl-empty'}`}
+                  data-n={r.right?.n}
+                >
                   <span className="diff-gutter">{r.right?.newNo ?? ''}</span>
                   <span className="diff-text">
                     {r.right

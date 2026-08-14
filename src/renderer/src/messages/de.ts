@@ -76,7 +76,16 @@ export const de: RendererMessages = {
     emptyWorktree: 'Arbeitsverzeichnis ist sauber.',
     emptySnapshot: 'Keine Dateien in diesem Snapshot.',
     emptyDiff: 'Keine Dateien in diesem Diff.',
-    lines: (n: number) => `${n} Zeilen`
+    lines: (n: number) => `${n} Zeilen`,
+    toggleStage: (staged: boolean) =>
+      staged ? 'Klicken, um die Datei aus dem Index zu nehmen' : 'Klicken, um die Datei vorzumerken',
+    commitWithAgent: 'Mit Agent committen',
+    commitWithAgentTitle: (command: string) =>
+      `„${command}“ im Terminal ausführen, gegen das, was vorgemerkt ist`,
+    commitWithAgentEmpty: 'Erst etwas vormerken — der Index ist leer',
+    agentNoCommand:
+      'Es ist kein Agent-Befehl gesetzt. Einstellungen ▸ Sitzung ▸ Agent-Befehl.',
+    agentNoTerminal: 'In diesem Tab läuft keine Shell, in der er laufen könnte.'
   },
   diff: {
     titleFallback: 'Diff',
@@ -122,7 +131,19 @@ export const de: RendererMessages = {
     dblClickFullScreen: 'Doppelklick schaltet Vollbild um',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nKlicken zum ${collapsed ? 'Ausklappen' : 'Einklappen'}\nStrg+Klick öffnet in einem neuen Tab\nRechtsklick für mehr`,
-    loadMoreLines: (n: number) => `${n} weitere Zeilen — scrollen oder klicken zum Laden`
+    loadMoreLines: (n: number) => `${n} weitere Zeilen — scrollen oder klicken zum Laden`,
+    stageHunk: 'Vormerken',
+    unstageHunk: 'Zurücknehmen',
+    stageHunkTitle: 'Diesen Block in den Index legen',
+    unstageHunkTitle: 'Diesen Block aus dem Index nehmen',
+    stageSelection: (n: number) => `${n} Zeilen vormerken`,
+    unstageSelection: (n: number) => `${n} Zeilen zurücknehmen`,
+    stageSelectionTitle: 'Nur die markierten Zeilen in den Index legen',
+    unstageSelectionTitle: 'Nur die markierten Zeilen aus dem Index nehmen',
+    sideUnstaged: 'Nicht vorgemerkt',
+    sideStaged: 'Vorgemerkt',
+    sideUnstagedTitle: 'Zeigen, was noch nicht vorgemerkt ist',
+    sideStagedTitle: 'Zeigen, was schon vorgemerkt ist'
   },
   log: {
     commits: 'Commits',
@@ -212,6 +233,8 @@ export const de: RendererMessages = {
     restoreTabs: 'Letzte Sitzung wiederherstellen',
     shell: 'Shell',
     loginShell: 'Login-Shell',
+    agentCommand: 'Agent-Befehl',
+    agentCommandPlaceholder: 'Befehl, der im Terminal läuft',
     restoreDefaults: 'Standard wiederherstellen',
     done: 'Fertig'
   },
@@ -241,6 +264,10 @@ export const de: RendererMessages = {
     openInSystemApp: 'In der Systemanwendung öffnen',
     revealInFileManager: 'Im Dateimanager anzeigen',
     deleteFile: 'Datei löschen…',
+    stageFile: 'Datei vormerken',
+    unstageFile: 'Datei zurücknehmen',
+    discardChanges: 'Änderungen verwerfen…',
+    copyStagedDiff: 'Vorgemerkten Diff kopieren',
     viewFileAccel: 'Doppelklick',
     showCommitDiff: 'Commit-Diff anzeigen',
     showCommitDiffAccel: 'Eingabe',

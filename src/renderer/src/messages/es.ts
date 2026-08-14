@@ -76,7 +76,16 @@ export const es: RendererMessages = {
     emptyWorktree: 'El árbol de trabajo está limpio.',
     emptySnapshot: 'No hay archivos en esta instantánea.',
     emptyDiff: 'No hay archivos en este diff.',
-    lines: (n: number) => `${n} línea${n === 1 ? '' : 's'}`
+    lines: (n: number) => `${n} línea${n === 1 ? '' : 's'}`,
+    toggleStage: (staged: boolean) =>
+      staged ? 'Clic para sacar el archivo del índice' : 'Clic para poner el archivo en el índice',
+    commitWithAgent: 'Confirmar con el agente',
+    commitWithAgentTitle: (command: string) =>
+      `Ejecutar «${command}» en la terminal, sobre lo que está en el índice`,
+    commitWithAgentEmpty: 'Pon algo en el índice primero: está vacío',
+    agentNoCommand:
+      'No hay ningún comando de agente configurado. Ajustes ▸ Sesión ▸ Comando del agente.',
+    agentNoTerminal: 'No hay ninguna shell en esta pestaña donde ejecutarlo.'
   },
   diff: {
     titleFallback: 'Diff',
@@ -123,7 +132,19 @@ export const es: RendererMessages = {
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nHaz clic para ${collapsed ? 'expandir' : 'contraer'}\nCtrl+clic para abrir en una pestaña nueva\nClic derecho para más opciones`,
     loadMoreLines: (n: number) =>
-      `${n} línea${n === 1 ? '' : 's'} más — desplázate o haz clic para cargar`
+      `${n} línea${n === 1 ? '' : 's'} más — desplázate o haz clic para cargar`,
+    stageHunk: 'Añadir',
+    unstageHunk: 'Quitar',
+    stageHunkTitle: 'Poner este bloque en el índice',
+    unstageHunkTitle: 'Sacar este bloque del índice',
+    stageSelection: (n: number) => `Añadir ${n} línea${n === 1 ? '' : 's'}`,
+    unstageSelection: (n: number) => `Quitar ${n} línea${n === 1 ? '' : 's'}`,
+    stageSelectionTitle: 'Poner en el índice solo las líneas seleccionadas',
+    unstageSelectionTitle: 'Sacar del índice solo las líneas seleccionadas',
+    sideUnstaged: 'Sin añadir',
+    sideStaged: 'En el índice',
+    sideUnstagedTitle: 'Mostrar lo que todavía no está en el índice',
+    sideStagedTitle: 'Mostrar lo que ya está en el índice'
   },
   log: {
     commits: 'Commits',
@@ -213,6 +234,8 @@ export const es: RendererMessages = {
     restoreTabs: 'Reabrir la sesión anterior',
     shell: 'Shell',
     loginShell: 'Shell de inicio de sesión',
+    agentCommand: 'Comando del agente',
+    agentCommandPlaceholder: 'comando que se ejecuta en la terminal',
     restoreDefaults: 'Restaurar valores predeterminados',
     done: 'Hecho'
   },
@@ -242,6 +265,10 @@ export const es: RendererMessages = {
     openInSystemApp: 'Abrir en la aplicación del sistema',
     revealInFileManager: 'Mostrar en el gestor de archivos',
     deleteFile: 'Eliminar archivo…',
+    stageFile: 'Añadir archivo al índice',
+    unstageFile: 'Quitar archivo del índice',
+    discardChanges: 'Descartar cambios…',
+    copyStagedDiff: 'Copiar diff del índice',
     viewFileAccel: 'Doble clic',
     showCommitDiff: 'Mostrar el diff del commit',
     showCommitDiffAccel: 'Intro',

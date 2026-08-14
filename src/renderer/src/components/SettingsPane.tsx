@@ -95,6 +95,33 @@ function withValue(
   return options.some((o) => o.value === value) ? options : [...options, { value, label: value }]
 }
 
+/** A free-text setting: a label and a single-line input. */
+function TextRow({
+  label,
+  value,
+  placeholder,
+  onChange
+}: {
+  label: string
+  value: string
+  placeholder: string
+  onChange: (v: string) => void
+}): JSX.Element {
+  return (
+    <label className="setting-row">
+      <span>{label}</span>
+      <input
+        type="text"
+        className="setting-text"
+        value={value}
+        placeholder={placeholder}
+        spellCheck={false}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </label>
+  )
+}
+
 /** A labelled slider with a numeric read-out. */
 function Slider({
   label,
@@ -174,6 +201,8 @@ export function SettingsPane(props: {
   setTermShell: (v: string) => void
   termLogin: boolean
   setTermLogin: (v: boolean) => void
+  agentCommand: string
+  setAgentCommand: (v: string) => void
 }): JSX.Element | null {
   const { msg } = useMsg()
   // Reset to the first tab between openings: the dialog is short-lived, and
@@ -348,6 +377,15 @@ export function SettingsPane(props: {
               label={msg.settings.loginShell}
               checked={props.termLogin}
               onChange={props.setTermLogin}
+            />
+            {/* What "Commit with agent" types into the focused shell. There is
+                no default that is known to work anywhere, so it is the user's
+                own command or nothing. */}
+            <TextRow
+              label={msg.settings.agentCommand}
+              value={props.agentCommand}
+              placeholder={msg.settings.agentCommandPlaceholder}
+              onChange={props.setAgentCommand}
             />
           </div>
         </div>

@@ -24,7 +24,12 @@ const en: MainMessages = {
     deletePermanentConfirm: (name: string) => `Delete ${name} permanently?`,
     deletePermanentDetail:
       'This system has no trash to move it to. A tracked file can still be restored with git; an untracked one cannot.',
-    deletePermanentButton: 'Delete Permanently'
+    deletePermanentButton: 'Delete Permanently',
+    discardTitle: 'Discard Changes',
+    discardConfirm: (name: string) => `Discard the changes to ${name}?`,
+    discardDetail:
+      'The file goes back to what the index holds. This cannot be undone — the changes are not in git anywhere.',
+    discardButton: 'Discard'
   },
   window: {
     title: 'Gitty'
@@ -37,6 +42,7 @@ const en: MainMessages = {
     imageTooLarge: 'Image too large to preview.',
     done: 'Done.',
     gitFailed: 'git failed',
+    nothingToApply: 'Nothing to apply.',
     pathEscapesRepo: 'path escapes the repository',
     changesCount: (n: number) => `${n} changed`,
     untrackedLabel: 'untracked',
@@ -70,7 +76,12 @@ const zh: MainMessages = {
     deletePermanentConfirm: (name: string) => `永久删除 ${name}？`,
     deletePermanentDetail:
       '本系统没有可用的回收站。已跟踪的文件仍可用 git 恢复，未跟踪的则无法恢复。',
-    deletePermanentButton: '永久删除'
+    deletePermanentButton: '永久删除',
+    discardTitle: '丢弃更改',
+    discardConfirm: (name: string) => `丢弃对 ${name} 的更改？`,
+    discardDetail:
+      '文件将回到暂存区中的内容。此操作无法撤销——这些更改并未记录在 git 的任何地方。',
+    discardButton: '丢弃'
   },
   window: {
     title: 'Gitty'
@@ -83,6 +94,7 @@ const zh: MainMessages = {
     imageTooLarge: '图片过大，无法预览。',
     done: '完成。',
     gitFailed: 'git 执行失败',
+    nothingToApply: '没有可应用的内容。',
     pathEscapesRepo: '路径超出仓库范围',
     changesCount: (n: number) => `${n} 个变更`,
     untrackedLabel: '未跟踪',
@@ -117,7 +129,12 @@ const ja: MainMessages = {
     deletePermanentConfirm: (name: string) => `${name} を完全に削除しますか？`,
     deletePermanentDetail:
       'このシステムには移動先のゴミ箱がありません。追跡されているファイルは git で復元できますが、追跡されていないファイルは復元できません。',
-    deletePermanentButton: '完全に削除'
+    deletePermanentButton: '完全に削除',
+    discardTitle: '変更を破棄',
+    discardConfirm: (name: string) => `${name} への変更を破棄しますか？`,
+    discardDetail:
+      'ファイルはインデックスの内容に戻ります。取り消せません——この変更は git のどこにも残っていません。',
+    discardButton: '破棄'
   },
   window: {
     title: 'Gitty'
@@ -130,6 +147,7 @@ const ja: MainMessages = {
     imageTooLarge: '画像が大きすぎてプレビューできません。',
     done: '完了しました。',
     gitFailed: 'git の実行に失敗しました',
+    nothingToApply: '適用するものがありません。',
     pathEscapesRepo: 'パスがリポジトリの外を指しています',
     changesCount: (n: number) => `${n} 件の変更`,
     untrackedLabel: '未追跡',
@@ -163,7 +181,12 @@ const ko: MainMessages = {
     deletePermanentConfirm: (name: string) => `${name}을(를) 영구히 삭제할까요?`,
     deletePermanentDetail:
       '이 시스템에는 옮길 휴지통이 없습니다. 추적되는 파일은 git으로 되돌릴 수 있지만, 추적되지 않는 파일은 되돌릴 수 없습니다.',
-    deletePermanentButton: '영구 삭제'
+    deletePermanentButton: '영구 삭제',
+    discardTitle: '변경 사항 버리기',
+    discardConfirm: (name: string) => `${name}의 변경 사항을 버릴까요?`,
+    discardDetail:
+      '파일은 인덱스의 내용으로 돌아갑니다. 되돌릴 수 없습니다 — 이 변경 사항은 git 어디에도 남아 있지 않습니다.',
+    discardButton: '버리기'
   },
   window: {
     title: 'Gitty'
@@ -176,6 +199,7 @@ const ko: MainMessages = {
     imageTooLarge: '이미지가 너무 커서 미리 볼 수 없습니다.',
     done: '완료했습니다.',
     gitFailed: 'git 실행 실패',
+    nothingToApply: '적용할 내용이 없습니다.',
     pathEscapesRepo: '경로가 저장소를 벗어납니다',
     changesCount: (n: number) => `${n}개 변경됨`,
     untrackedLabel: '추적 안 함',
@@ -210,7 +234,12 @@ const fr: MainMessages = {
     deletePermanentConfirm: (name: string) => `Supprimer ${name} définitivement ?`,
     deletePermanentDetail:
       "Ce système n'a pas de corbeille où le déplacer. Un fichier suivi reste récupérable avec git ; un fichier non suivi, non.",
-    deletePermanentButton: 'Supprimer définitivement'
+    deletePermanentButton: 'Supprimer définitivement',
+    discardTitle: 'Abandonner les modifications',
+    discardConfirm: (name: string) => `Abandonner les modifications de ${name} ?`,
+    discardDetail:
+      "Le fichier revient au contenu de l'index. Irréversible — ces modifications ne sont nulle part dans git.",
+    discardButton: 'Abandonner'
   },
   window: {
     title: 'Gitty'
@@ -224,6 +253,7 @@ const fr: MainMessages = {
     imageTooLarge: 'Image trop grande pour un aperçu.',
     done: 'Terminé.',
     gitFailed: 'échec de git',
+    nothingToApply: 'Rien à appliquer.',
     pathEscapesRepo: 'le chemin sort du dépôt',
     changesCount: (n: number) => `${n} modifié${n === 1 ? '' : 's'}`,
     untrackedLabel: 'non suivi',
@@ -258,7 +288,12 @@ const de: MainMessages = {
     deletePermanentConfirm: (name: string) => `${name} endgültig löschen?`,
     deletePermanentDetail:
       'Dieses System hat keinen Papierkorb, in den sie verschoben werden könnte. Eine versionierte Datei lässt sich mit git wiederherstellen, eine unversionierte nicht.',
-    deletePermanentButton: 'Endgültig löschen'
+    deletePermanentButton: 'Endgültig löschen',
+    discardTitle: 'Änderungen verwerfen',
+    discardConfirm: (name: string) => `Die Änderungen an ${name} verwerfen?`,
+    discardDetail:
+      'Die Datei fällt auf den Stand des Index zurück. Das lässt sich nicht rückgängig machen — diese Änderungen stehen nirgends in git.',
+    discardButton: 'Verwerfen'
   },
   window: {
     title: 'Gitty'
@@ -272,6 +307,7 @@ const de: MainMessages = {
     imageTooLarge: 'Bild zu groß für eine Vorschau.',
     done: 'Fertig.',
     gitFailed: 'git fehlgeschlagen',
+    nothingToApply: 'Nichts anzuwenden.',
     pathEscapesRepo: 'Pfad verlässt das Repository',
     changesCount: (n: number) => `${n} geändert`,
     untrackedLabel: 'nicht verfolgt',
@@ -306,7 +342,12 @@ const es: MainMessages = {
     deletePermanentConfirm: (name: string) => `¿Eliminar ${name} de forma permanente?`,
     deletePermanentDetail:
       'Este sistema no tiene papelera a la que moverlo. Un archivo versionado se puede recuperar con git; uno sin seguimiento, no.',
-    deletePermanentButton: 'Eliminar permanentemente'
+    deletePermanentButton: 'Eliminar permanentemente',
+    discardTitle: 'Descartar cambios',
+    discardConfirm: (name: string) => `¿Descartar los cambios de ${name}?`,
+    discardDetail:
+      'El archivo vuelve a lo que contiene el índice. No se puede deshacer: esos cambios no están en ninguna parte de git.',
+    discardButton: 'Descartar'
   },
   window: {
     title: 'Gitty'
@@ -320,6 +361,7 @@ const es: MainMessages = {
     imageTooLarge: 'La imagen es demasiado grande para previsualizarla.',
     done: 'Hecho.',
     gitFailed: 'git falló',
+    nothingToApply: 'Nada que aplicar.',
     pathEscapesRepo: 'la ruta se sale del repositorio',
     changesCount: (n: number) => `${n} cambiado${n === 1 ? '' : 's'}`,
     untrackedLabel: 'sin seguimiento',
@@ -354,7 +396,12 @@ const ru: MainMessages = {
     deletePermanentConfirm: (name: string) => `Удалить ${name} безвозвратно?`,
     deletePermanentDetail:
       'В этой системе нет корзины, куда его переместить. Отслеживаемый файл можно вернуть через git, неотслеживаемый — нет.',
-    deletePermanentButton: 'Удалить безвозвратно'
+    deletePermanentButton: 'Удалить безвозвратно',
+    discardTitle: 'Отменить изменения',
+    discardConfirm: (name: string) => `Отменить изменения в ${name}?`,
+    discardDetail:
+      'Файл вернётся к содержимому индекса. Это необратимо — этих изменений нигде нет в git.',
+    discardButton: 'Отменить'
   },
   window: {
     title: 'Gitty'
@@ -367,6 +414,7 @@ const ru: MainMessages = {
     imageTooLarge: 'Изображение слишком велико для предпросмотра.',
     done: 'Готово.',
     gitFailed: 'git завершился с ошибкой',
+    nothingToApply: 'Нечего применять.',
     pathEscapesRepo: 'путь выходит за пределы репозитория',
     changesCount: (n: number) => `${n} изменено`,
     untrackedLabel: 'не отслеживается',
@@ -401,7 +449,12 @@ const pt: MainMessages = {
     deletePermanentConfirm: (name: string) => `Eliminar ${name} definitivamente?`,
     deletePermanentDetail:
       'Este sistema não tem lixo para onde o mover. Um ficheiro versionado ainda pode ser recuperado com git; um não versionado, não.',
-    deletePermanentButton: 'Eliminar definitivamente'
+    deletePermanentButton: 'Eliminar definitivamente',
+    discardTitle: 'Descartar alterações',
+    discardConfirm: (name: string) => `Descartar as alterações de ${name}?`,
+    discardDetail:
+      'O ficheiro volta ao que o índice contém. Não há como desfazer — estas alterações não estão em lado nenhum do git.',
+    discardButton: 'Descartar'
   },
   window: {
     title: 'Gitty'
@@ -415,6 +468,7 @@ const pt: MainMessages = {
     imageTooLarge: 'Imagem demasiado grande para pré-visualizar.',
     done: 'Concluído.',
     gitFailed: 'o git falhou',
+    nothingToApply: 'Nada a aplicar.',
     pathEscapesRepo: 'o caminho sai do repositório',
     changesCount: (n: number) => `${n} alterado${n === 1 ? '' : 's'}`,
     untrackedLabel: 'não seguido',

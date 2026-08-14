@@ -75,7 +75,15 @@ export const ko: RendererMessages = {
     emptyWorktree: '작업 트리가 깨끗합니다.',
     emptySnapshot: '이 스냅숏에 파일이 없습니다.',
     emptyDiff: '이 diff에 파일이 없습니다.',
-    lines: (n: number) => `${n}줄`
+    lines: (n: number) => `${n}줄`,
+    toggleStage: (staged: boolean) =>
+      staged ? '클릭하면 이 파일을 스테이지에서 내립니다' : '클릭하면 이 파일을 스테이지합니다',
+    commitWithAgent: 'agent에게 커밋 맡기기',
+    commitWithAgentTitle: (command: string) =>
+      `스테이지된 내용을 두고 터미널에서 "${command}"를 실행합니다`,
+    commitWithAgentEmpty: '먼저 무언가를 스테이지하세요 — 인덱스가 비어 있습니다',
+    agentNoCommand: 'agent 명령이 설정되지 않았습니다. 설정 ▸ 세션 ▸ Agent 명령에 있습니다.',
+    agentNoTerminal: '이 탭에는 실행할 셸이 없습니다.'
   },
   diff: {
     titleFallback: 'Diff',
@@ -121,7 +129,19 @@ export const ko: RendererMessages = {
     dblClickFullScreen: '더블 클릭하면 전체 화면 전환',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\n클릭하면 ${collapsed ? '펼치기' : '접기'}\nCtrl+클릭하면 새 탭에서 열기\n오른쪽 클릭하면 더 많은 항목`,
-    loadMoreLines: (n: number) => `${n}줄 더 — 스크롤하거나 클릭해 불러오기`
+    loadMoreLines: (n: number) => `${n}줄 더 — 스크롤하거나 클릭해 불러오기`,
+    stageHunk: '스테이지',
+    unstageHunk: '스테이지 해제',
+    stageHunkTitle: '이 헝크를 인덱스에 넣습니다',
+    unstageHunkTitle: '이 헝크를 인덱스에서 뺍니다',
+    stageSelection: (n: number) => `${n}줄 스테이지`,
+    unstageSelection: (n: number) => `${n}줄 스테이지 해제`,
+    stageSelectionTitle: '선택한 줄만 인덱스에 넣습니다',
+    unstageSelectionTitle: '선택한 줄만 인덱스에서 뺍니다',
+    sideUnstaged: '스테이지 안 됨',
+    sideStaged: '스테이지됨',
+    sideUnstagedTitle: '아직 스테이지하지 않은 것을 봅니다',
+    sideStagedTitle: '이미 스테이지한 것을 봅니다'
   },
   log: {
     commits: '커밋',
@@ -209,6 +229,8 @@ export const ko: RendererMessages = {
     restoreTabs: '지난 세션 복원',
     shell: '셸',
     loginShell: '로그인 셸',
+    agentCommand: 'Agent 명령',
+    agentCommandPlaceholder: '터미널에서 실행할 명령',
     restoreDefaults: '기본값 복원',
     done: '완료'
   },
@@ -238,6 +260,10 @@ export const ko: RendererMessages = {
     openInSystemApp: '시스템 앱으로 열기',
     revealInFileManager: '파일 관리자에서 보기',
     deleteFile: '파일 삭제…',
+    stageFile: '파일 스테이지',
+    unstageFile: '파일 스테이지 해제',
+    discardChanges: '변경 사항 버리기…',
+    copyStagedDiff: '스테이지된 diff 복사',
     viewFileAccel: '더블 클릭',
     showCommitDiff: '커밋 diff 표시',
     showCommitDiffAccel: 'Enter',

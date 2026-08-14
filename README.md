@@ -307,9 +307,26 @@ combined diff attributes nothing.
 - **Double-click** — open the whole file as a document beside the diff, with
   line numbers and syntax highlighting (a rendered document for markdown, the
   picture itself for an image).
+- **Click a status column** — stage the file, or unstage it if it is staged.
 - **Right-click** — View File, Open in System App, Reveal in File Manager, Copy
-  Relative Path, Copy Absolute Path, Copy File Name, Blame File, File History.
+  Relative Path, Copy Absolute Path, Copy File Name, Blame File, File History,
+  Stage / Unstage File, Discard Changes, Delete File.
 - **Click a folder** — collapse or expand it.
+
+**Discard Changes** puts the file back to what the index holds, after a native
+confirmation that says plainly there is no undo; an untracked file has no index
+version to go back to, so it offers **Delete File** instead, which goes to the
+system trash.
+
+**Commit with agent** in the header hands the index over. It types a command of
+your choosing — Settings ▸ Session ▸ Agent command — into the shell in the
+bottom-right pane and presses Enter, and that is all it does: no model is
+called from inside Gitty, nothing leaves the machine that you did not send. The
+agent's prompts and output appear in the terminal, where there is a real tty,
+so hooks and gpg signing work as they always do. There is no default that is
+known to run anywhere, so an unset command says where to set it rather than
+failing quietly. Right-clicking the work-tree row in the commit log also offers
+**Copy Staged Diff**, for a conversation happening in another window.
 
 When a commit or a commit range is selected, this pane lists that commit's files
 instead; **Back to Work Tree** (or <kbd>Esc</kbd>) returns to the working tree.
@@ -340,6 +357,20 @@ uncommitted change in the work tree, or every file in the selected commit.
   path copies and — in the work tree, where the file on disk is the version
   shown — **Open in System App** and **Reveal in File Manager**. A rename
   opens its new path.
+- **Stage / Unstage** — while the diff is one tracked file's work, every hunk
+  header carries a button that puts that hunk into the index, or takes it back
+  out. Select lines first and the button becomes **Stage 3 lines**: an
+  unselected addition is left out of the patch, an unselected deletion is
+  demoted to a context line, and the hunk header is recomputed — the same split
+  `git add -p` makes, from a window where the whole file is in front of you.
+  The selection is the ordinary text selection, so a drag still copies. A
+  selection spanning two hunks gives each of them its own part of it.
+- **Unstaged / Staged** — which side of the index a file is being read from,
+  shown once both sides hold something. Staging acts on whichever is on screen.
+  Binary files, mode changes and renames have no hunks to pick and are staged
+  whole from the file list; hunk buttons also disappear while **Ignore
+  whitespace** is on, because that diff does not hold every change it would
+  apply.
 - **Right-click** — Copy Selection, Copy Whole Diff, and the same toggles.
 
 Changed words inside a changed line are highlighted where that reads better than
@@ -590,6 +621,7 @@ order.
 | **Reopen last session** | Reopen the repositories that were open when the app last exited. The repository Gitty was started with is still the active tab; ones that have since been deleted are quietly dropped. |
 | **Shell** | The shell a terminal starts, listed from `/etc/shells` plus the usual paths (`COMSPEC` and PowerShell on Windows). **System default** is `$SHELL`. A path that has since gone falls back to it rather than leaving a dead pane. |
 | **Login shell** | Start it with `-l`, so the user's profile is sourced. Turn it off for a faster, quieter shell — no profile output, no login-time checks. Windows shells have no such flag and ignore this. |
+| **Agent command** | What **Commit with agent** types into the focused shell. The default is a placeholder, not a command known to work here: which agent is installed is not something Gitty can know, so an unset or wrong command fails in the terminal where you can see it, rather than inside the app where you cannot. |
 
 **Shell** and **Login shell** are read when a terminal is created, so they take
 effect on the next split or the next repository tab, not in the shells already
@@ -614,6 +646,21 @@ highlight** lives here only.
 | <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> | Hide or show Files, Diff, Commits, Terminal |
 | <kbd>Ctrl+Shift+0</kbd> | Show all four panes again |
 | <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> | Fill the window with that pane |
+
+## What Gitty does not do
+
+Gitty reads history, and stages what you decide belongs together. It does not
+rebase, merge, cherry-pick, resolve conflicts, or create, delete and switch
+branches — and it will not learn to. Those are stateful, several-step
+operations whose interesting moments are the ones where something goes wrong,
+and a shell that handles all of them is docked in the same window, already in
+the right directory. Half a rebase button is worse than none.
+
+There is no commit box either, which is a smaller claim than it sounds. The
+message is not the missing piece: what is missing is somewhere to decide *which
+changes are one commit*, and that is what the staging above is for. Once the
+index says one thing, **Commit with agent** hands it to whatever writes your
+messages.
 
 ## Architecture
 

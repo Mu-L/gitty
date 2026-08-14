@@ -76,7 +76,16 @@ export const en: RendererMessages = {
     emptyWorktree: 'Working tree clean.',
     emptySnapshot: 'No files in this snapshot.',
     emptyDiff: 'No files in this diff.',
-    lines: (n: number) => `${n} lines`
+    lines: (n: number) => `${n} lines`,
+    toggleStage: (staged: boolean) =>
+      staged ? 'Click to unstage this file' : 'Click to stage this file',
+    commitWithAgent: 'Commit with agent',
+    commitWithAgentTitle: (command: string) =>
+      `Run "${command}" in the terminal, against what is staged`,
+    commitWithAgentEmpty: 'Stage something first — the index is empty',
+    agentNoCommand:
+      'No agent command is set. Settings ▸ Session ▸ Agent command is where it goes.',
+    agentNoTerminal: 'No shell in this tab to run it in.'
   },
   diff: {
     titleFallback: 'Diff',
@@ -122,7 +131,19 @@ export const en: RendererMessages = {
     dblClickFullScreen: 'Double-click to toggle full screen',
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nClick to ${collapsed ? 'expand' : 'collapse'}\nCtrl+click to open it in a new tab\nRight-click for more`,
-    loadMoreLines: (n: number) => `${n} more lines — scroll or click to load`
+    loadMoreLines: (n: number) => `${n} more lines — scroll or click to load`,
+    stageHunk: 'Stage',
+    unstageHunk: 'Unstage',
+    stageHunkTitle: 'Put this hunk into the index',
+    unstageHunkTitle: 'Take this hunk back out of the index',
+    stageSelection: (n: number) => `Stage ${n} line${n === 1 ? '' : 's'}`,
+    unstageSelection: (n: number) => `Unstage ${n} line${n === 1 ? '' : 's'}`,
+    stageSelectionTitle: 'Put only the selected lines into the index',
+    unstageSelectionTitle: 'Take only the selected lines back out of the index',
+    sideUnstaged: 'Unstaged',
+    sideStaged: 'Staged',
+    sideUnstagedTitle: 'Show what is not staged yet',
+    sideStagedTitle: 'Show what is already staged'
   },
   log: {
     commits: 'Commits',
@@ -210,6 +231,8 @@ export const en: RendererMessages = {
     restoreTabs: 'Reopen last session',
     shell: 'Shell',
     loginShell: 'Login shell',
+    agentCommand: 'Agent command',
+    agentCommandPlaceholder: 'command run in the terminal',
     restoreDefaults: 'Restore Defaults',
     done: 'Done'
   },
@@ -239,6 +262,10 @@ export const en: RendererMessages = {
     openInSystemApp: 'Open in System App',
     revealInFileManager: 'Reveal in File Manager',
     deleteFile: 'Delete File…',
+    stageFile: 'Stage File',
+    unstageFile: 'Unstage File',
+    discardChanges: 'Discard Changes…',
+    copyStagedDiff: 'Copy Staged Diff',
     viewFileAccel: 'Double click',
     showCommitDiff: 'Show Commit Diff',
     showCommitDiffAccel: 'Enter',

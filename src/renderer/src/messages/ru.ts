@@ -91,7 +91,16 @@ export const ru: RendererMessages = {
     emptyWorktree: 'Рабочее дерево чистое.',
     emptySnapshot: 'В этом снимке нет файлов.',
     emptyDiff: 'В этом diff нет файлов.',
-    lines: (n: number) => `${n} ${plural(n, 'строка', 'строки', 'строк')}`
+    lines: (n: number) => `${n} ${plural(n, 'строка', 'строки', 'строк')}`,
+    toggleStage: (staged: boolean) =>
+      staged ? 'Щёлкните, чтобы убрать файл из индекса' : 'Щёлкните, чтобы добавить файл в индекс',
+    commitWithAgent: 'Коммит агентом',
+    commitWithAgentTitle: (command: string) =>
+      `Выполнить «${command}» в терминале — по тому, что лежит в индексе`,
+    commitWithAgentEmpty: 'Сначала добавьте что-нибудь в индекс — он пуст',
+    agentNoCommand:
+      'Команда агента не задана. Настройки ▸ Сеанс ▸ Команда агента.',
+    agentNoTerminal: 'В этой вкладке нет оболочки, где её запустить.'
   },
   diff: {
     titleFallback: 'Diff',
@@ -138,7 +147,19 @@ export const ru: RendererMessages = {
     fileHeadingTooltip: (collapsed: boolean) =>
       `\n\nЩелчок — ${collapsed ? 'развернуть' : 'свернуть'}\nCtrl+щелчок — открыть в новой вкладке\nПравый щелчок — ещё действия`,
     loadMoreLines: (n: number) =>
-      `Ещё ${n} ${plural(n, 'строка', 'строки', 'строк')} — прокрутите или щёлкните для загрузки`
+      `Ещё ${n} ${plural(n, 'строка', 'строки', 'строк')} — прокрутите или щёлкните для загрузки`,
+    stageHunk: 'В индекс',
+    unstageHunk: 'Из индекса',
+    stageHunkTitle: 'Положить этот фрагмент в индекс',
+    unstageHunkTitle: 'Забрать этот фрагмент из индекса',
+    stageSelection: (n: number) => `В индекс: ${n} ${plural(n, 'строка', 'строки', 'строк')}`,
+    unstageSelection: (n: number) => `Из индекса: ${n} ${plural(n, 'строка', 'строки', 'строк')}`,
+    stageSelectionTitle: 'Положить в индекс только выделенные строки',
+    unstageSelectionTitle: 'Забрать из индекса только выделенные строки',
+    sideUnstaged: 'Не в индексе',
+    sideStaged: 'В индексе',
+    sideUnstagedTitle: 'Показать то, что ещё не в индексе',
+    sideStagedTitle: 'Показать то, что уже в индексе'
   },
   log: {
     commits: 'Коммиты',
@@ -229,6 +250,8 @@ export const ru: RendererMessages = {
     restoreTabs: 'Восстановить прошлый сеанс',
     shell: 'Оболочка',
     loginShell: 'Login-оболочка',
+    agentCommand: 'Команда агента',
+    agentCommandPlaceholder: 'команда, запускаемая в терминале',
     restoreDefaults: 'Восстановить по умолчанию',
     done: 'Готово'
   },
@@ -258,6 +281,10 @@ export const ru: RendererMessages = {
     openInSystemApp: 'Открыть в системном приложении',
     revealInFileManager: 'Показать в файловом менеджере',
     deleteFile: 'Удалить файл…',
+    stageFile: 'Добавить файл в индекс',
+    unstageFile: 'Убрать файл из индекса',
+    discardChanges: 'Отменить изменения…',
+    copyStagedDiff: 'Скопировать diff индекса',
     viewFileAccel: 'Двойной щелчок',
     showCommitDiff: 'Показать diff коммита',
     showCommitDiffAccel: 'Enter',

@@ -81,6 +81,28 @@ export function layoutFor(root: string): { tree: TermNode; focused: string } {
   return fresh
 }
 
+/**
+ * Type a command into a repository's focused shell and press Enter.
+ *
+ * This is the whole of "hand the index to an agent": Gitty writes text into a
+ * pty and stops there. Whatever runs then has a real terminal, so its prompts,
+ * its confirmations and its streaming output appear where the user is already
+ * looking, and hooks or gpg signing that want a tty find one. False when there
+ * is no shell to write to — the terminal pane has never been opened in this
+ * tab — which the caller reports rather than swallowing.
+ */
+export function runInTerminal(root: string, command: string): boolean {
+  const layout = layouts.get(root)
+  if (!layout) return false
+  const id = sessions.has(layout.focused)
+    ? layout.focused
+    : leaves(layout.tree).find((leaf) => sessions.has(leaf))
+  if (!id) return false
+  window.gitty.terminal.input(id, `${command}\r`)
+  focusSession(id)
+  return true
+}
+
 /** End every shell of a repository, and forget its layout. */
 export function destroyTerminals(root: string): void {
   const layout = layouts.get(root)
