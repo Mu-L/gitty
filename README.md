@@ -1,6 +1,6 @@
 # Gitty
 
-**English** · [简体中文](ref/readme/README.zh-CN.md) · [日本語](ref/readme/README.ja.md) · [Español](ref/readme/README.es.md) · [Français](ref/readme/README.fr.md) · [Deutsch](ref/readme/README.de.md)
+**English** · [简体中文](ref/readme/README.zh-CN.md) · [日本語](ref/readme/README.ja.md) · [한국어](ref/readme/README.ko.md) · [Français](ref/readme/README.fr.md) · [Deutsch](ref/readme/README.de.md) · [Español](ref/readme/README.es.md) · [Русский](ref/readme/README.ru.md) · [Português](ref/readme/README.pt.md)
 
 *This English README is the official version and the only one kept up to date.
 The translations are snapshots, each stamped with the date it was made; where

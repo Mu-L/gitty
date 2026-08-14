@@ -1,8 +1,8 @@
 # Gitty
 
-[English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Español](README.es.md) · **Français** · [Deutsch](README.de.md)
+[English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · **Français** · [Deutsch](README.de.md) · [Español](README.es.md) · [Русский](README.ru.md) · [Português](README.pt.md)
 
-> **Traduit le 2026-08-10.**
+> **Traduit le 2026-08-14.**
 > Le [README en anglais](../../README.md) est la version officielle et la seule
 > tenue à jour. Ce document en est un instantané ; en cas de divergence, c'est
 > l'anglais qui fait foi. L'interface est en anglais, donc les noms de boutons et
@@ -26,35 +26,50 @@ comparer.
 Tous les volets se redimensionnent en tirant les séparateurs, et chacun se cache
 puis revient — voir [Plein écran et masquage](#full-screen-and-hiding).
 
-Rare chez les autres navigateurs git :
+Ce que les autres navigateurs git ne font pour la plupart pas :
 
-- **Un vrai shell amarré à l'historique.** Pas un widget qui appelle git, mais un
-  véritable shell de connexion (`$SHELL`) enraciné dans le dépôt, dans la même
-  fenêtre que le diff. La plupart des navigateurs git laissent le terminal
-  dehors, si bien que vérifier une intuition oblige à changer de fenêtre. Ici il
-  est là, et tous les autres volets se rafraîchissent à mesure que le dépôt
-  change.
-- **Deux commits à la fois.** Cliquez-en un, puis <kbd>Ctrl+clic</kbd> /
-  <kbd>Maj+clic</kbd> sur un second, et comparez la paire sur place — la plupart
-  des navigateurs ne comparent un commit qu'à son parent ou à un arbre choisi
-  dans une boîte de dialogue.
-- **Parcourir n'importe quelle branche sans la sortir.** Choisissez une branche
-  et tout son historique est là à lire ; l'arbre de travail, les diffs et les
-  terminaux restent exactement où git les a laissés. Rien ne bouge dans le
-  répertoire de travail.
-- **Aperçu Markdown intégré.** Sélectionner une modification `.md` rend le
-  document — code coloré, plan qui suit votre défilement — à la révision où vous
-  êtes, et pas seulement dans la copie de travail.
-- **Un diff entier avec le titre de chaque fichier épinglé.** Sans rien de
-  sélectionné vous voyez toutes les modifications d'un coup, et l'en-tête du
-  fichier que vous lisez reste collé en haut du volet jusqu'à ce que celui du
-  fichier suivant le pousse dehors.
-- **Sélection et copie de texte qui marchent, tout simplement** — pas de mode
-  souris, pas de registre, pas de gymnastique au clavier ; sélectionnez et copiez
-  n'importe quoi, n'importe où dans la fenêtre.
-- **Chaque volet redimensionnable, masquable ou en plein écran** — une
-  disposition à quatre volets qui se réduit au seul diff, ou au seul journal, et
-  revient.
+- **Un vrai shell amarré à l'historique.** Pas un widget qui appelle git, mais
+  un véritable shell de connexion (`$SHELL`) enraciné dans le dépôt, dans la même
+  fenêtre que le diff, et scindable en plusieurs. La plupart des navigateurs git
+  n'ont pas de terminal ou en lancent un externe, si bien que vérifier une
+  intuition oblige à changer de fenêtre. Ici il est juste là, et tous les autres
+  volets se rafraîchissent à mesure que le dépôt change.
+- **Des documents, pas seulement des diffs.** Le markdown est rendu, le HTML
+  s'affiche dans un cadre isolé, les images se montrent comme des images — le
+  tout à la révision où vous êtes. Un README d'il y a deux ans se rend avec les
+  captures que *ce* commit a livrées, lues directement dans la base d'objets —
+  rien sur le disque n'entre en jeu, et rien n'est récupéré depuis le web, car
+  lire le README de quelqu'un d'autre ne devrait pas vous annoncer à l'hôte vers
+  lequel il pointe.
+- **Du markdown rendu qui sait encore vous dire où vous êtes dans le fichier.**
+  Activez **Markdown source lines** et chaque titre, paragraphe, élément de
+  liste, tableau, bloc délimité et image est numéroté dans la gouttière avec la
+  ligne où il commence dans la source — si bien qu'un passage trouvé en lisant
+  peut être édité par ligne.
+- **Un diff, un blame, l'historique d'un fichier et un README rendu, ouverts à
+  la fois.** Les fichiers s'ouvrent comme leurs propres onglets *à côté* du diff
+  plutôt que par-dessus, chacun se souvenant de la révision à laquelle il a été
+  ouvert. Lire un fichier ne vous coûte jamais la modification que vous
+  regardiez.
+- **Un <kbd>Ctrl+F</kbd> qui marche dans tout ce que montre le volet** — y
+  compris le markdown rendu, où une phrase est trouvée à travers les portées de
+  gras et de code parce que la recherche lit le texte rendu, et à l'intérieur du
+  cadre de l'aperçu HTML.
+- **L'historique, servi à votre navigateur.** **Open in Browser** remet un commit
+  — ses métadonnées, ses fichiers, ses diffs — au navigateur du système, depuis
+  un serveur web à l'intérieur de l'application lié à `127.0.0.1` — votre
+  navigateur et personne d'autre. Les commits sont de vraies URL, donc
+  l'historique peut se lire en onglets, rester ouvert et se chercher avec la
+  recherche du navigateur, tant que le dépôt est ouvert.
+- **[gource](https://gource.io/) en un clic**, quand il est installé : tout
+  l'historique du dépôt en animation, dans sa propre fenêtre. Là où gource est
+  absent, le bouton n'est pas dessiné — rien n'est téléchargé ni proposé qui ne
+  puisse tourner.
+- **Neuf langues d'interface et un fuseau horaire explicite.** Git enregistre
+  chaque commit avec le décalage de son auteur, si bien qu'un horodatage est
+  toujours un choix de fuseau ; ici c'est vous qui le faites, et toute l'UI —
+  journal, blame, historique de fichier, la frontière entre « aujourd'hui » et
+  une date — suit.
 
 ![Gitty 0.1.6](../../ref/gitty-0.1.6.png)
 
@@ -102,17 +117,17 @@ ou, depuis une copie du dépôt, liez-la dans votre PATH avec :
 La voie `setup.sh` installe aussi un lanceur cliquable, selon la plateforme.
 
 Sous **Linux**, l'icône est ajoutée au thème hicolor et une entrée `gitty.desktop`
-apparaît dans le menu des applications (et sur le bureau, quand la session en a un).
-Le cache d'icônes et la base de données de bureau sont ensuite rafraîchis, de sorte
-que l'entrée apparaît tout de suite avec son icône. Elle porte un contournement et
-l'application tourne avec un interrupteur de bac à sable désactivé — voir
-[Intégration au bureau Linux](#linux-desktop-integration).
+apparaît dans le menu des applications (et sur le bureau, quand la session en a
+un). Le cache d'icônes et la base de données de bureau sont ensuite rafraîchis,
+de sorte que l'entrée apparaît tout de suite avec son icône. Elle porte un
+contournement et l'application tourne avec un interrupteur de bac à sable
+désactivé — voir [Intégration au bureau Linux](#linux-desktop-integration).
 
 Sous **macOS**, un `Gitty.app` minimal est écrit dans `~/Applications` (avec un
 lien symbolique sur le Bureau) qui enveloppe le même `run.sh`. Rien n'est
-empaqueté : le bundle existe pour donner au Finder et au Dock un nom et une icône.
-Le Dock n'est pas touché — glissez-le vous-même si vous voulez l'épingler. Voir
-[Bundle applicatif macOS](#macos-app-bundle).
+empaqueté : le bundle existe pour donner au Finder et au Dock un nom et une
+icône. Le Dock n'est pas touché — glissez-le vous-même si vous voulez
+l'épingler. Voir [Bundle applicatif macOS](#macos-app-bundle).
 
 Puis ouvrez un dépôt depuis n'importe où :
 
@@ -148,14 +163,21 @@ dessous.
 
 De gauche à droite, elle décrit le dépôt actif puis agit dessus :
 
+- **Gitty** — l'icône et le nom à l'extrême gauche ouvrent la boîte de dialogue
+  **About** : la version, l'heure de construction, l'auteur, et les versions
+  d'Electron, Chromium et Node, avec un lien vers la page d'accueil.
 - **‹ › ▾** — où vous êtes allé dans ce dépôt. Voir
   [Revenir en arrière](#going-back).
 - **Le chemin du dépôt** est un bouton : il ouvre le menu des
   [dépôts récents](#recent-repositories).
+- **+** à côté de lui — un sélecteur de répertoire, ouvrant le dépôt que vous
+  choisissez dans un nouvel onglet (<kbd>Ctrl+O</kbd>). Il est placé avec le
+  bouton du dépôt parce que les deux traitent du même sujet : quel dépôt vous
+  regardez, et en ouvrir un autre.
 - **⎇ branche** est un bouton aussi — la branche que git a sortie, et un menu de
-  toutes les autres à lire. Voir
+  toutes les autres branches à lire. Voir
   [parcourir une autre branche](#browsing-another-branch).
-- **`origin/main ↑2 ↓0`** — l'amont de la branche courante et de combien elle est
+- **`origin/main ↑2 ↓0`** — l'amont de la branche sortie et de combien elle est
   en avance ou en retard. Absent sur une branche qui ne suit rien.
 - **`3 changed`** — combien de fichiers l'arbre de travail a de non validés, le
   même compte que porte la ligne **Working Tree** du volet des commits.
@@ -163,8 +185,6 @@ De gauche à droite, elle décrit le dépôt actif puis agit dessus :
   [Plein écran et masquage](#full-screen-and-hiding).
 - **Settings** — la boîte de dialogue des préférences ([Réglages](#settings)),
   également par <kbd>Ctrl+,</kbd>.
-- **Open Repository** — un sélecteur de répertoire, ouvrant dans un nouvel onglet
-  (<kbd>Ctrl+O</kbd>).
 - **Refresh** — relire l'état et le journal à la main (<kbd>F5</kbd> /
   <kbd>Ctrl+R</kbd>). Gitty surveille le dépôt et se rafraîchit tout seul ; ceci
   est pour les fois où la surveillance ne voit pas un changement.
@@ -241,8 +261,8 @@ remplit la fenêtre avec ce volet, et **×** à sa droite le masque.
 
 Le plein écran couvre tout le reste, barres de titre et d'onglets comprises, et
 les volets en dessous continuent de fonctionner — le terminal tourne toujours
-pendant qu'il est couvert. **⤡** dans le même coin, <kbd>Échap</kbd>, un
-double-clic sur l'en-tête, ou <kbd>Ctrl+Maj+1</kbd> … <kbd>Ctrl+Maj+4</kbd>
+pendant qu'il est couvert. **⤡** dans le même coin, <kbd>Esc</kbd>, un
+double-clic sur l'en-tête, ou <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd>
 restaurent la disposition. Un seul volet est en plein écran à la fois.
 
 Le masquage est l'autre direction — n'importe quel volet peut être rangé puis
@@ -253,8 +273,8 @@ rappelé :
   disposition à quatre volets.
 - <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> basculent Files, Diff, Commits et
   Terminal, dans cet ordre.
-- <kbd>Ctrl+Maj+0</kbd> les ramène tous les quatre — zéro pour « tous », une
-  touche après les quatre qui basculent chacun. Elle prend Maj parce que
+- <kbd>Ctrl+Shift+0</kbd> les ramène tous les quatre — zéro pour « tous », une
+  touche après les quatre qui basculent chacun. Elle prend Shift parce que
   <kbd>Ctrl+0</kbd> est le zoom par défaut du moteur du navigateur, que le menu
   View conserve.
 
@@ -269,16 +289,24 @@ continuent de tourner et reviennent avec leur historique de défilement.
 ### Working Tree (en haut à gauche) <a id="working-tree-top-left"></a>
 
 Les fichiers modifiés en arbre repliable, chacun avec son nombre de lignes à côté
-du nom. Deux colonnes d'état sont affichées : l'état de l'index (vert) et celui
-de l'arbre de travail (jaune / rouge) ; les fichiers non suivis sont `??`. Le
-compte est lu sur le disque dans l'arbre de travail et dans la révision partout
-ailleurs ; les fichiers binaires, les fichiers supprimés et tout ce qui dépasse
-8 Mo n'en affichent simplement aucun. Vient ensuite le brassage — combien de
-lignes cette modification a ajoutées et supprimées dans ce fichier, `+12 −3`,
-par rapport à HEAD dans l'arbre de travail et par rapport au parent pour un
-commit ou une plage. Un instantané est un arbre plutôt qu'une modification, donc
-il n'a pas de brassage ; pas plus que les fichiers binaires ou un commit de
-fusion, dont le diff combiné n'attribue rien.
+du nom. Parcourir tout un dépôt — l'arbre de travail ou l'instantané d'un commit
+— s'ouvre avec chaque répertoire fermé, puisque c'est un arbre dans lequel
+descendre plutôt qu'une liste de modifications à lire ; une liste de
+modifications s'ouvre dépliée. Les répertoires viennent avant les fichiers à
+chaque niveau, et dans chaque groupe les noms sont triés comme un lecteur
+l'attend plutôt que comme le ferait une comparaison d'octets : les chiffres d'un
+nom comptent comme un nombre, si bien que `W9` vient avant `W10`, et la casse
+n'est pas une différence de premier ordre, si bien que `butler/` se range avec
+les b au lieu d'après toutes les majuscules. Deux colonnes d'état sont affichées :
+l'état de l'index (vert) et celui de l'arbre de travail (jaune / rouge) ; les
+fichiers non suivis sont `??`. Le compte est lu sur le disque dans l'arbre de
+travail et dans la révision partout ailleurs ; les fichiers binaires, les
+fichiers supprimés et tout ce qui dépasse 8 Mo n'en affichent simplement aucun.
+Vient ensuite le brassage — combien de lignes cette modification a ajoutées et
+supprimées dans ce fichier, `+12 −3`, par rapport à HEAD dans l'arbre de travail
+et par rapport au parent pour un commit ou une plage. Un instantané est un arbre
+plutôt qu'une modification, donc il n'a pas de brassage ; pas plus que les
+fichiers binaires ou un commit de fusion, dont le diff combiné n'attribue rien.
 
 - **Clic** — afficher le diff du fichier à droite.
 - **Double-clic** — ouvrir le fichier entier comme document à côté du diff, avec
@@ -289,7 +317,7 @@ fusion, dont le diff combiné n'attribue rien.
 - **Clic sur un dossier** — le replier ou le déplier.
 
 Quand un commit ou une plage de commits est sélectionné, ce volet liste les
-fichiers de ce commit ; **Back to Work Tree** (ou <kbd>Échap</kbd>) revient à
+fichiers de ce commit ; **Back to Work Tree** (ou <kbd>Esc</kbd>) revient à
 l'arbre de travail. Dans un [instantané](#snapshots), il liste l'arbre entier à ce
 commit, pas seulement ce qui a changé.
 
@@ -343,8 +371,9 @@ l'on était. L'onglet **Diff** est toujours premier et un simple clic dans l'arb
 continue de parcourir les diffs sur place. Chaque document retient la révision à
 laquelle il a été ouvert, se ferme avec sa propre **×**, et relit un fichier de
 l'arbre de travail quand le dépôt change. Les fichiers source reçoivent numéros
-de ligne et coloration syntaxique ; le markdown s'ouvre [rendu](#markdown-preview),
-avec une bascule vers la source ; une image s'ouvre comme [l'image](#images).
+de ligne et coloration syntaxique ; le markdown s'ouvre
+[rendu](#markdown-preview), avec une bascule vers la source ; le HTML s'ouvre
+[rendu aussi](#html-preview) ; une image s'ouvre comme [l'image](#images).
 
 La révision obtenue suit le volet : le fichier sur le disque dans l'arbre de
 travail, le fichier tel qu'il était au commit sélectionné partout ailleurs. Ouvrir
@@ -363,7 +392,7 @@ là-bas chaque fichier est un document.
 Les fichiers d'un instantané n'ont jamais existé sur le disque à cette révision,
 c'est pourquoi **Open in System App** en remet une copie temporaire et que
 **Reveal in File Manager** n'est pas proposé. **Back to Work Tree** (ou
-<kbd>Échap</kbd>) en sort.
+<kbd>Esc</kbd>) en sort.
 
 #### Aperçu Markdown <a id="markdown-preview"></a>
 
@@ -382,7 +411,20 @@ pour que la structure se lise d'un coup d'œil.
   tableaux larges et les longues chaînes en ligne y passent aussi, au lieu de
   défiler latéralement.
 - **Outline** — la structure des titres à côté du document, indentée par niveau,
-  suivant le titre auquel vous avez défilé. Cliquez une entrée pour y sauter.
+  suivant le titre auquel vous avez défilé. Cliquez une entrée pour y sauter, et
+  tirez le séparateur entre elle et le document pour donner plus de place à l'un
+  ou l'autre côté. La largeur est partagée par tous les documents du dépôt —
+  c'est une préférence de lecture, pas une propriété d'un seul fichier — et dure
+  autant que la fenêtre, comme les tailles des autres volets.
+- **Source lines** — désactivé par défaut, et activé dans
+  [Réglages](#settings) : chaque titre, paragraphe, élément de liste, tableau,
+  bloc délimité et image est numéroté dans la gouttière de gauche avec la ligne
+  où il commence dans la source. Les numéros sont dessinés plutôt qu'insérés, si
+  bien qu'ils restent hors d'une sélection que vous copiez et hors de ce que
+  <kbd>Ctrl+F</kbd> cherche. Une image écrite à l'intérieur d'une phrase prend la
+  ligne de son paragraphe, n'en ayant pas à elle.
+- **<kbd>Ctrl+F</kbd>** — chercher dans le document ; voir
+  [Recherche de texte](#finding-text).
 - **Clic droit** — Copy Selection, Copy Markdown Source, les bascules de retour à
   la ligne et de plan, et Show Diff Instead.
 
@@ -394,6 +436,25 @@ sorti. Une que le dépôt n'a pas à cet endroit laisse un cadre pointillé port
 son texte alternatif. Les images du web ne sont pas récupérées du tout : lire le
 README d'un inconnu ne devrait pas vous annoncer à l'hôte vers lequel il pointe.
 
+![Markdown preview](../../ref/gitty-0.1.5-markdown.png)
+
+#### Aperçu HTML <a id="html-preview"></a>
+
+Un fichier `.html`, `.htm` ou `.xhtml` reçoit le même bouton **Preview**, et le
+document est rendu plutôt que montré comme source — la version sur le disque dans
+l'arbre de travail, la version au commit sélectionné partout ailleurs.
+
+Il s'affiche dans un cadre isolé chargé par `srcdoc`, si bien que la page ne peut
+jamais faire naviguer l'application loin d'elle-même. Ses propres feuilles de
+style s'appliquent — la disposition, les couleurs, les polices sont celles du
+document. Les scripts ne tournent pas et les images distantes ne sont pas
+récupérées : le cadre hérite de la politique de sécurité du contenu de
+l'application, qui n'admet ni l'un ni l'autre. Une page est montrée, pas
+exécutée. **Wrap** décide si le cadre défile par lui-même ou grandit jusqu'à son
+contenu pour que la page entière défile d'un bloc. <kbd>Ctrl+F</kbd> et
+<kbd>Ctrl+Shift+C</kbd> fonctionnent à l'intérieur du cadre, dont les touches
+n'atteignent jamais le reste de la fenêtre.
+
 #### Images <a id="images"></a>
 
 Un `.png`, `.jpg`, `.gif`, `.webp`, `.bmp`, `.ico`, `.avif` ou `.svg` s'ouvre
@@ -404,14 +465,17 @@ volet sur un damier, pour que la transparence se lise comme de la transparence ;
 l'ajuster. Ses dimensions en pixels et sa taille sur le disque sont en dessous.
 Les images de plus de 12 Mo ne sont pas intégrées.
 
+![Image preview](../../ref/gitty-0.1.5-image.png)
+
 #### Blame et historique de fichier <a id="blame-and-file-history"></a>
 
 Faites un clic droit sur n'importe quel fichier de l'arbre et choisissez **Blame
 File** ou **File History** ; les deux s'ouvrent comme documents à côté du diff.
-Blame montre une ligne par ligne source — le commit, son auteur et la ligne
-elle-même, avec un tiret cadratin quand une ligne n'est pas encore validée — à la
-révision que vous consultez. File History liste chaque commit qui a touché le
-fichier, suit les renommages, et cliquer un commit l'ouvre.
+Blame montre une ligne par ligne source — le commit, son auteur, sa date et la
+ligne elle-même, mis en évidence comme le visualiseur de code, avec un tiret
+cadratin quand une ligne n'est pas encore validée — à la révision que vous
+consultez. File History liste chaque commit qui a touché le fichier, suit les
+renommages, et cliquer un commit l'ouvre.
 
 ### Commits (en bas à gauche) <a id="commits-bottom-left"></a>
 
@@ -422,13 +486,13 @@ de travail. Un champ de filtre au-dessus du journal réduit la liste aux commits
 dont le message ou l'auteur contient le texte saisi — avec un délai, et un ✕ pour
 effacer — et la liste se pagine de la même façon.
 
-- **Clic** ou <kbd>Entrée</kbd> — montrer ce commit : ses fichiers remplissent le
+- **Clic** ou <kbd>Enter</kbd> — montrer ce commit : ses fichiers remplissent le
   volet en haut à gauche et son diff complet celui en haut à droite. Le sujet,
   l'auteur, la date et le corps complet du commit apparaissent dans un bandeau
   au-dessus de la liste des fichiers ; quand le corps est long, un bouton ▸ le
   replie pour que la liste des fichiers garde la place.
-- **Ctrl+clic** (<kbd>Cmd</kbd> sur macOS), <kbd>Maj+clic</kbd> ou
-  <kbd>Espace</kbd> — choisir un second commit et comparer les deux, le plus
+- **Ctrl+clic** (<kbd>Cmd</kbd> sur macOS), <kbd>Shift+Click</kbd> ou
+  <kbd>Space</kbd> — choisir un second commit et comparer les deux, le plus
   ancien d'abord.
 - **↑ ↓ / j k / PgUp / PgDn / Home / End** — déplacer le curseur.
 - **Clic droit** — montrer le diff, copier le hash, le hash court ou le sujet,
@@ -442,6 +506,8 @@ effacer — et la liste se pagine de la même façon.
   à un clic. Les URL fonctionnent tant que le dépôt est ouvert.
 - Sélectionner un fichier dans le volet en haut à gauche restreint le diff à ce
   fichier ; **Show Whole Diff** le rélargit.
+
+![Diff against any two commits](../../ref/gitty-0.1.5-range.png)
 
 #### Gource <a id="gource"></a>
 
@@ -488,8 +554,14 @@ terminal, qui est juste là.
 ### Terminal (en bas à droite) <a id="terminal-bottom-right"></a>
 
 Un vrai shell de connexion interactif (`$SHELL`) enraciné dans le dépôt, si bien
-que toute commande git peut être lancée directement. Les autres volets se
-rafraîchissent automatiquement quand le dépôt change sur le disque.
+que toute commande git peut être lancée directement. <kbd>Ctrl+Shift+C</kbd>
+copie la sélection du terminal — <kbd>Ctrl+C</kbd> là-bas est l'interruption, et
+reste l'interruption. La même combinaison copie aussi dans tous les autres
+volets, si bien qu'elle ne change pas de sens quand le focus se déplace. Les
+autres volets se rafraîchissent automatiquement quand le dépôt change sur le
+disque. Quel shell il démarre, et s'il démarre comme shell de connexion,
+relèvent des [Réglages](#settings) ; les deux sont lus quand un terminal est
+créé, si bien qu'un changement prend effet à la prochaine division.
 
 Le volet se divise en autant de shells que vous voulez : **Split →** en place un
 nouveau à côté du terminal actif, **Split ↓** en dessous, et les séparateurs
@@ -503,26 +575,57 @@ uns contre les autres.
 tout seul. Le dernier terminal reste toujours : en sortir laisse l'avis à l'écran
 au lieu d'un volet vide.
 
+## Recherche de texte <a id="finding-text"></a>
+
+<kbd>Ctrl+F</kbd> cherche dans tout ce que montre le volet de droite : un diff,
+un fichier, un document markdown rendu, un [aperçu HTML](#html-preview), un
+blame, ou l'historique d'un fichier. Chaque correspondance est mise en évidence
+avec l'actuelle distinguée, <kbd>Enter</kbd> et <kbd>Shift+Enter</kbd> (ou les
+flèches) les parcourent et rebouclent à chaque extrémité, le compte dit où vous
+êtes, et <kbd>Esc</kbd> ferme.
+
+La recherche est insensible à la casse et lit le texte tel qu'il est rendu, pas
+le balisage derrière — si bien qu'une phrase est trouvée à travers les portées de
+gras et de code que le markdown laisse à l'intérieur, et qu'un diff est cherché
+comme les lignes que vous voyez. Les vues qui se rendent par blocs au défilement
+(un long fichier, un grand diff) rendent le reste quand la bande s'ouvre, si bien
+que le compte couvre le tout plutôt que la partie défilée jusqu'ici. Un fichier
+replié dans un diff à plusieurs fichiers reste replié et n'est pas cherché.
+
 ## Réglages <a id="settings"></a>
 
 **Settings** dans la barre de titre, ou <kbd>Ctrl+,</kbd>. Tout ici s'applique à
 tous les onglets et est retenu d'un lancement à l'autre ; **Restore Defaults**
-remet tout en place.
+remet tout en place. La boîte de dialogue est en trois onglets — **Appearance**,
+**View** et **Session** — si bien qu'elle reste sur un seul écran à mesure
+qu'elle grandit ; le tableau ci-dessous les liste dans cet ordre.
 
 | | |
 | --- | --- |
 | **Theme** | Dark ou Light. |
 | **Language** | English, 简体中文, 日本語, 한국어, Français, Deutsch, Español, Русский ou Português — l'interface, les menus et les boîtes de dialogue changent tous ensemble sans redémarrer. |
-| **Font size** | 11 – 16, par demi-points. S'applique à tous les volets, terminal compris. |
+| **Time zone** | Le fuseau dans lequel chaque date et heure à l'écran est rendue : celui de la machine par défaut, ou UTC, ou n'importe quel fuseau que le système connaît. Git enregistre chaque commit avec le décalage de son auteur, si bien qu'un horodatage est toujours un choix de fuseau — c'est ici qu'il se fait. La colonne de date du journal le suit, ce qui veut dire que la frontière entre « aujourd'hui » et une date bouge avec lui. |
+| **Time format** | Absolute (une heure d'horloge ou une date) ou Relative (`28m ago`, `2h ago`). Relative contourne entièrement la question du fuseau ; l'infobulle au survol d'une ligne reste absolue dans les deux cas, et nomme son fuseau. |
+| **Font size** | 9 – 20, par demi-points. S'applique à tous les volets, terminal compris. |
+| **Monospace font** | La famille dans laquelle les volets et le terminal sont dessinés, choisie parmi les polices à chasse fixe trouvées sur cette machine. **System default** est la pile intégrée (JetBrains Mono, Fira Code, DejaVu Sans Mono, …). |
 | **Row height** | 18 – 26 pixels — la hauteur de ligne sur laquelle chaque liste est bâtie : l'arbre des fichiers, le journal et le diff. Plus serré fait tenir davantage à l'écran, plus aéré se lit mieux. |
 | **Diff layout** | Inline ou Side-by-Side, la même bascule que porte l'en-tête du diff. |
+| **Context lines** | 0 – 25 lignes inchangées autour de chaque hunk — le `-U` de git, dont le propre défaut est 3. Élargissez-le pour voir dans quoi s'inscrit une modification, resserrez-le pour faire tenir davantage d'un grand diff à l'écran. |
+| **Ignore whitespace** | Off, Amount (le `-b` de git : une suite d'espaces qui change de longueur n'est pas une modification) ou All (`-w` : aucune différence d'espace n'en est une). Du code réindenté ou remis à la ligne se lit comme inchangé plutôt que comme un mur de rouge et de vert. Les comptes `+12 −3` de la liste de fichiers suivent le même réglage, si bien qu'elle ne peut pas revendiquer des lignes que le diff refuse ensuite de montrer. |
 | **Word wrap** | Retour à la ligne au lieu du défilement horizontal. |
 | **Word highlight** | Marquer les mots qui ont changé dans une ligne modifiée, pas seulement la ligne. |
 | **Markdown outline** | Afficher le plan à côté d'un document rendu. |
+| **Markdown source lines** | Numéroter chaque bloc d'un document rendu avec la ligne où il commence dans la source. Les titres, paragraphes, éléments de liste, tableaux, codes délimités et images en portent tous un, dans une gouttière en bas à gauche. Désactivé par défaut. |
+| **File sorting** | Natural ou Byte order. Natural lit les chiffres d'un nom comme un nombre (`W9` avant `W10`) et met la casse en second ; l'ordre d'octets est celui de git, où chaque majuscule se range devant chaque minuscule. |
+| **Reopen last session** | Rouvrir les dépôts qui étaient ouverts quand l'application a quitté la dernière fois. Le dépôt avec lequel Gitty a été lancé reste l'onglet actif ; ceux qui ont depuis été supprimés sont discrètement écartés. |
+| **Shell** | Le shell qu'un terminal démarre, listé depuis `/etc/shells` plus les chemins habituels (`COMSPEC` et PowerShell sous Windows). **System default** est `$SHELL`. Un chemin qui a depuis disparu y retombe plutôt que de laisser un volet mort. |
+| **Login shell** | Le démarrer avec `-l`, pour que le profil de l'utilisateur soit sourcé. Désactivez-le pour un shell plus rapide et plus silencieux — pas de sortie de profil, pas de vérifications de connexion. Les shells Windows n'ont pas un tel drapeau et ignorent ceci. |
 
-**Word wrap**, **Diff layout** et **Markdown outline** sont les mêmes bascules
-que celles de l'en-tête du diff : en changer une d'un côté la change des deux.
-**Word highlight** n'existe qu'ici.
+**Shell** et **Login shell** sont lus quand un terminal est créé, si bien qu'ils
+prennent effet à la prochaine division ou au prochain onglet de dépôt, pas dans
+les shells déjà en cours. **Word wrap**, **Diff layout** et **Markdown outline**
+sont les mêmes bascules que celles de l'en-tête du diff : en changer une d'un côté
+la change des deux. **Word highlight** n'existe qu'ici.
 
 ## Raccourcis clavier <a id="keyboard-shortcuts"></a>
 
@@ -531,6 +634,8 @@ que celles de l'en-tête du diff : en changer une d'un côté la change des deux
 | <kbd>Enter</kbd> | Montrer le commit sélectionné |
 | <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Marquer un second commit et comparer la paire |
 | <kbd>Ctrl+Click</kbd> sur un titre de fichier | Ouvrir ce fichier dans un nouvel onglet de document |
+| <kbd>Ctrl+F</kbd> | Chercher dans le diff, le fichier, ou tout ce que montre le volet |
+| <kbd>Ctrl+C</kbd> / <kbd>Ctrl+Shift+C</kbd> | Copier la sélection, n'importe où dans la fenêtre |
 | <kbd>Esc</kbd> | Retour à l'arbre de travail |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Reculer et avancer parmi les endroits consultés |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Rafraîchir l'état et le journal |

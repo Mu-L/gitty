@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- README translations for 한국어, Русский and Português; the five existing
+  translations updated to match the English README.
+
 ## [0.1.6] - 2026-08-14
 
 ### Added
