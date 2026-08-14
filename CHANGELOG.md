@@ -39,6 +39,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README translations for 한국어, Русский and Português; the five existing
   translations updated to match the English README.
 
+### Security
+
+- Every local web-server URL now carries a per-session token, `/t/<token>/…`,
+  which **Open in Browser** and **Copy Commit URL** include. Binding
+  `127.0.0.1` keeps other machines out but not other pages in your own browser,
+  and behind that port is the full contents and diffs of every open repository.
+  A wrong token gets a 404, not a 403; a request whose `Host` is not loopback
+  is refused, which is what stops DNS rebinding; and the pages carry
+  `Referrer-Policy: no-referrer` so an outward link cannot leak the token,
+  plus `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`. The
+  token changes each launch, so old URLs stop working — the README's "while the
+  repository is open" is now "while this session is running", and the claim
+  that the server was "your own browser and nobody else's" is gone with it.
+
 ### Changed
 
 - The packaged desktop entry matches its window on `gitty`, so another

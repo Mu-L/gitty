@@ -1,18 +1,43 @@
 import http from 'node:http'
-import { createHash } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
 import * as git from './git'
 
 /**
- * A local web server that renders commits as plain HTML. It only listens on
- * 127.0.0.1 — the URLs are for the user's own browser, never the network.
- * The server is stateless about the UI: it reads git directly through the
- * same `git.ts` helpers the renderer uses.
+ * A local web server that renders commits as plain HTML, reading git through
+ * the same `git.ts` helpers the renderer uses.
+ *
+ * Binding 127.0.0.1 is not on its own a boundary worth claiming. It keeps
+ * other machines out; it keeps nothing out of *this* machine's browser, where
+ * any page you have open can `fetch('http://127.0.0.1:<port>/')` and the port
+ * range is small enough to sweep in seconds. Behind that port is the full
+ * contents and diffs of every repository open in the app.
+ *
+ * So every URL carries a token minted at startup and never written down. Three
+ * things follow from that, and each of them matters:
+ *
+ * - It is a path prefix rather than a query parameter, because a query string
+ *   is what logs and error reports truncate least carefully.
+ * - A wrong token is a 404, not a 403: a 403 confirms that the thing exists.
+ * - The `Host` header has to be loopback too. Without that check an attacker
+ *   points his own domain at 127.0.0.1, the browser sends *his* Host, and the
+ *   page he serves is same-origin with this one — DNS rebinding, which a token
+ *   alone does not stop until it has already been sent.
+ *
+ * And `Referrer-Policy: no-referrer` is not optional decoration: these pages
+ * link outward — URLs inside commit messages, links in a rendered README — and
+ * one click would otherwise hand the token to a stranger in the `Referer`.
  */
 
 let server: http.Server | null = null
 let baseUrl = ''
 /** repoId (short hash of the root) → absolute path of the repo root. */
 const repos = new Map<string, string>()
+
+/**
+ * This run's token. New every launch, so yesterday's URLs are dead — which is
+ * the honest version of "the URL works while the repository is open".
+ */
+const token = randomBytes(16).toString('hex')
 
 const PAGE = 100
 
@@ -47,40 +72,61 @@ export function unregisterRepo(root: string): void {
   repos.delete(repoId(root))
 }
 
+/** The prefix every link and every URL handed out shares. */
+const prefix = `/t/${token}`
+
 /** The repo index page URL, or null when the server/repo is not available. */
 export function repoUrl(root: string): string | null {
-  return server && repos.has(repoId(root)) ? `${baseUrl}/${repoId(root)}/` : null
+  return server && repos.has(repoId(root)) ? `${baseUrl}${prefix}/${repoId(root)}/` : null
 }
 
 /** The commit page URL, or null when the server/repo is not available. */
 export function commitUrl(root: string, hash: string): string | null {
-  return server && repos.has(repoId(root)) ? `${baseUrl}/${repoId(root)}/commit/${hash}` : null
+  return server && repos.has(repoId(root))
+    ? `${baseUrl}${prefix}/${repoId(root)}/commit/${hash}`
+    : null
 }
 
 /* ---------- routing ---------- */
+
+/**
+ * The address the browser thinks it is talking to. Anything but loopback is a
+ * page that resolved someone else's name to 127.0.0.1, so it is refused before
+ * the token is even looked at.
+ */
+function hostAllowed(req: http.IncomingMessage): boolean {
+  const host = req.headers.host ?? ''
+  const port = (server?.address() as { port?: number } | null)?.port
+  return host === `127.0.0.1:${port}` || host === `localhost:${port}`
+}
 
 async function handler(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
   try {
     const url = new URL(req.url ?? '/', 'http://localhost')
     const parts = url.pathname.split('/').filter(Boolean)
 
-    if (parts.length === 0) return send(res, indexPage())
-    if (parts.length === 1) {
-      const html = await repoPage(parts[0], url)
+    // Everything below the token is served; everything else is not here.
+    if (!hostAllowed(req)) return notFound(res)
+    if (parts.length < 2 || parts[0] !== 't' || !sameToken(parts[1])) return notFound(res)
+    const rest = parts.slice(2)
+
+    if (rest.length === 0) return send(res, indexPage())
+    if (rest.length === 1) {
+      const html = await repoPage(rest[0], url)
       if (html === null) return notFound(res)
       return send(res, html)
     }
 
-    if (parts[1] === 'commit' && parts.length >= 3) {
-      const root = repos.get(parts[0])
+    if (rest[1] === 'commit' && rest.length >= 3) {
+      const root = repos.get(rest[0])
       if (!root) return notFound(res)
-      const hash = parts[2]
+      const hash = rest[2]
       // A commit page: commit + its files + the whole diff. With an extra path
       // segment it is the diff of one file inside that commit.
-      if (parts.length === 3) return send(res, await commitPage(root, parts[0], hash))
-      const filePath = decodeURIComponent(parts.slice(3).join('/'))
+      if (rest.length === 3) return send(res, await commitPage(root, rest[0], hash))
+      const filePath = decodeURIComponent(rest.slice(3).join('/'))
       if (filePath.split('/').some((s) => s === '..')) return notFound(res)
-      return send(res, await filePage(root, parts[0], hash, filePath))
+      return send(res, await filePage(root, rest[0], hash, filePath))
     }
 
     return notFound(res)
@@ -89,13 +135,33 @@ async function handler(req: http.IncomingMessage, res: http.ServerResponse): Pro
   }
 }
 
+/** Constant-time-ish compare; the length check alone leaks nothing useful. */
+function sameToken(given: string): boolean {
+  if (given.length !== token.length) return false
+  let diff = 0
+  for (let i = 0; i < token.length; i++) diff |= given.charCodeAt(i) ^ token.charCodeAt(i)
+  return diff === 0
+}
+
+/**
+ * `no-referrer` keeps the token out of the `Referer` of every outward link
+ * these pages carry, `no-store` keeps the pages out of the disk cache, and
+ * `nosniff` keeps a file's contents from being run as something else.
+ */
+const HEADERS = {
+  'Content-Type': 'text/html; charset=utf-8',
+  'Referrer-Policy': 'no-referrer',
+  'Cache-Control': 'no-store',
+  'X-Content-Type-Options': 'nosniff'
+}
+
 function send(res: http.ServerResponse, html: string): void {
-  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
+  res.writeHead(200, HEADERS)
   res.end(html)
 }
 
 function notFound(res: http.ServerResponse): void {
-  res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' })
+  res.writeHead(404, HEADERS)
   res.end(layout('Not found', '<p class="muted">Nothing here.</p>'))
 }
 
@@ -105,7 +171,7 @@ function indexPage(): string {
   const items = [...repos.entries()]
     .map(
       ([id, root]) =>
-        `<li><a href="/${id}/">${esc(root)}</a></li>`
+        `<li><a href="${prefix}/${id}/">${esc(root)}</a></li>`
     )
     .join('\n')
   return layout(
@@ -125,7 +191,7 @@ async function repoPage(id: string, url: URL): Promise<string | null> {
   const rows = commits
     .map(
       (c) => `<tr>
-        <td class="hash"><a href="/${id}/commit/${c.hash}">${esc(c.short)}</a></td>
+        <td class="hash"><a href="${prefix}/${id}/commit/${c.hash}">${esc(c.short)}</a></td>
         <td class="muted">${esc(stamp(c.date))}</td>
         <td>${esc(c.author)}</td>
         <td class="subject">${esc(c.subject)}</td>
@@ -133,9 +199,10 @@ async function repoPage(id: string, url: URL): Promise<string | null> {
     )
     .join('\n')
 
-  const prev = skip > 0 ? `<a href="/${id}/?skip=${Math.max(0, skip - PAGE)}">‹ Newer</a>` : ''
+  const prev =
+    skip > 0 ? `<a href="${prefix}/${id}/?skip=${Math.max(0, skip - PAGE)}">‹ Newer</a>` : ''
   const next =
-    commits.length === PAGE ? `<a href="/${id}/?skip=${skip + PAGE}">Older ›</a>` : ''
+    commits.length === PAGE ? `<a href="${prefix}/${id}/?skip=${skip + PAGE}">Older ›</a>` : ''
 
   return layout(
     root.split('/').pop() || root,
@@ -157,7 +224,7 @@ async function commitPage(root: string, id: string, hash: string): Promise<strin
     .map(
       (f) => `<li>
         <span class="st">${esc(f.status)}</span>
-        <a href="/${id}/commit/${hash}/${encodeURIComponent(f.path)}">${esc(f.path)}</a>
+        <a href="${prefix}/${id}/commit/${hash}/${encodeURIComponent(f.path)}">${esc(f.path)}</a>
         ${f.origPath ? `<span class="muted">from ${esc(f.origPath)}</span>` : ''}
       </li>`
     )
@@ -165,7 +232,7 @@ async function commitPage(root: string, id: string, hash: string): Promise<strin
 
   return layout(
     `${commit.short} ${commit.subject}`,
-    `<p><a href="/${id}/">← back to log</a></p>
+    `<p><a href="${prefix}/${id}/">← back to log</a></p>
      <h1>${esc(commit.subject)}</h1>
      <p class="muted">
        ${esc(commit.author)} &lt;${esc(commit.email)}&gt; · ${esc(stamp(commit.date))} ·
@@ -190,7 +257,7 @@ async function filePage(
   const diff = await git.diff(root, { kind: 'commit', hash, path: filePath })
   return layout(
     filePath.split('/').pop() ?? filePath,
-    `<p><a href="/${id}/commit/${hash}">← back to commit</a></p>
+    `<p><a href="${prefix}/${id}/commit/${hash}">← back to commit</a></p>
      <h1>${esc(filePath)}</h1>
      <p class="muted">${esc(hash.slice(0, 8))}</p>
      ${diff.notice ? `<p class="notice">${esc(diff.notice)}</p>` : ''}

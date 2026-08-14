@@ -49,9 +49,10 @@ Things the other git browsers mostly do not do:
   the search reads the rendered text, and inside the HTML preview's frame.
 - **The history, served to your browser.** **Open in Browser** hands a commit —
   its metadata, its files, its diffs — to the system browser, from a web server
-  inside the app bound to `127.0.0.1` — your own browser and nobody else's.
-  Commits are real URLs, so the history can be read in tabs, kept open, and
-  searched with the browser's own find, for as long as the repository is open.
+  inside the app on `127.0.0.1` whose URLs carry a token minted for this
+  session. Commits are real URLs, so the history can be read in tabs, kept
+  open, and searched with the browser's own find, for as long as the app is
+  running.
 - **[gource](https://gource.io/) in one click**, when it is installed: the
   repository's whole history as an animation, in its own window. Where gource is
   absent the button is not drawn — nothing is downloaded or offered that cannot
@@ -507,11 +508,20 @@ text you type — debounced, with a ✕ to clear — and the list pages the same
   [browse the snapshot](#snapshots), or diff against the currently selected
   commit.
 - **Right-click → Open in Browser** — render this commit in the system browser;
-  **Copy Commit URL** copies the link. A web server inside the app (listening on
-  `127.0.0.1` only, for your own browser) serves every open repository as a
-  browsable commit list — the commits pane's **Open in Browser** button lands
-  there — with each commit's metadata, files and diff, and per-file diffs one
-  click away. The URLs work while the repository is open.
+  **Copy Commit URL** copies the link. A web server inside the app serves every
+  open repository as a browsable commit list — the commits pane's **Open in
+  Browser** button lands there — with each commit's metadata, files and diff,
+  and per-file diffs one click away.
+
+  It listens on `127.0.0.1`, and that alone would not be much: loopback keeps
+  other machines out, not other pages in your own browser, any of which could
+  fetch it. So every URL carries a token generated at startup and kept in
+  memory — `/t/<token>/…` — which the links Gitty hands you already have. A
+  wrong token is a 404 rather than a 403, a request whose `Host` is not
+  loopback is refused (that is what makes DNS rebinding pointless), and the
+  pages are served `Referrer-Policy: no-referrer`, so following a link out of
+  a commit message does not take the token with it. The token is new each
+  launch, so the URLs work while this session is running.
 - Selecting a file in the top-left pane narrows the diff to that file;
   **Show Whole Diff** widens it back out.
 
