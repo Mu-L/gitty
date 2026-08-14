@@ -2,6 +2,7 @@ import { useMemo, useState, type JSX } from 'react'
 import { useMsg } from '../locale'
 import type { FileChurn } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
+import { comparePaths } from '../paths'
 
 export interface FileEntry {
   path: string
@@ -89,7 +90,13 @@ export function FilesPane({
 }): JSX.Element {
   const { msg } = useMsg()
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
-  const rows = useMemo(() => buildRows(entries, collapsed), [entries, collapsed])
+  // Sorted here rather than by each producer: git orders by byte, which puts
+  // W10 before W9 and every capital before every lowercase letter, and the
+  // entries arrive from five different commands.
+  const rows = useMemo(
+    () => buildRows([...entries].sort((x, y) => comparePaths(x.path, y.path)), collapsed),
+    [entries, collapsed]
+  )
 
   const toggle = (key: string): void =>
     setCollapsed((prev) => {

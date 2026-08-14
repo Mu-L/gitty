@@ -501,7 +501,10 @@ export async function snapshotFiles(root: string, hash: string): Promise<string[
  */
 export async function worktreeFiles(root: string): Promise<string[]> {
   const raw = await git(root, ['ls-files', '-c', '-o', '--exclude-standard', '-z'])
-  const paths = raw.split('\0').filter((p) => p.length > 0)
+  // A path in conflict has three index entries — one per merge stage — and
+  // `-c` prints one line each, so a Set is what makes it one file again. The
+  // tree keys its rows by path; three rows would share a key.
+  const paths = [...new Set(raw.split('\0').filter((p) => p.length > 0))]
   const existing = await Promise.all(
     paths.map((p) =>
       fs.promises

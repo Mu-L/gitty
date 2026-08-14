@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The file tree sorts names naturally. Git orders paths by byte, which puts
+  `SKILL_W10` between `SKILL_W0` and `SKILL_W1`, and every capital before every
+  lowercase letter; the tree now reads the digits in a name as a number and
+  treats case as a tiebreak rather than the first question. It sorts in one
+  place for all five commands the entries can come from, and by path segment
+  rather than by whole string — `/` is punctuation, and a whole-string compare
+  could drop `a.txt` between two files in `a/`, which would make the tree draw
+  the `a/` heading twice.
+
 - The markdown outline is now a resizable panel: the line between it and the
   document is a separator to drag, where it used to be a fixed 210 pixels. A
   long heading no longer has to be read through an ellipsis, and a document
