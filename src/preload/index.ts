@@ -136,6 +136,8 @@ const api = {
     commitUrl: (root: string, hash: string): Promise<WebUrl> =>
       ipcRenderer.invoke('web:commitUrl', root, hash)
   },
+  /** The shells this machine offers, for the settings list. */
+  shells: (): Promise<string[]> => ipcRenderer.invoke('settings:shells'),
   clipboard: {
     write: (text: string): Promise<void> => ipcRenderer.invoke('clipboard:write', text)
   },

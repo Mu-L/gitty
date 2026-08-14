@@ -29,6 +29,44 @@ function chosenShell(want: string): string {
 }
 
 /**
+ * The shells this machine offers, for the settings list. `/etc/shells` is the
+ * system's own answer on Linux and macOS; Windows has no such file, so the
+ * usual three are probed by name. Anything not on disk is dropped, and $SHELL
+ * is included even when the file does not list it.
+ */
+export async function availableShells(): Promise<string[]> {
+  const found = new Set<string>()
+  if (process.platform === 'win32') {
+    for (const c of [process.env.COMSPEC, 'powershell.exe', 'pwsh.exe', 'cmd.exe']) {
+      if (c) found.add(c)
+    }
+    return [...found]
+  }
+  try {
+    const text = await fs.promises.readFile('/etc/shells', 'utf8')
+    for (const line of text.split('\n')) {
+      const p = line.trim()
+      if (p && !p.startsWith('#')) found.add(p)
+    }
+  } catch {
+    // No /etc/shells (a minimal container, say); the probes below still answer.
+  }
+  for (const p of ['/bin/bash', '/bin/zsh', '/bin/sh', '/usr/bin/fish', '/bin/dash']) {
+    found.add(p)
+  }
+  if (process.env.SHELL) found.add(process.env.SHELL)
+  const existing = await Promise.all(
+    [...found].map((p) =>
+      fs.promises
+        .access(p, fs.constants.X_OK)
+        .then(() => p)
+        .catch(() => null)
+    )
+  )
+  return existing.filter((p): p is string => p !== null).sort()
+}
+
+/**
  * Spawn an interactive login shell rooted at the repository, streaming its
  * output to the renderer over `terminal:data`. Every message carries the
  * session id, since the renderer may hold several split terminals at once.

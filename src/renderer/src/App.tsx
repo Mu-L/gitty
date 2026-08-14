@@ -75,7 +75,7 @@ export default function App(): JSX.Element {
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem('gitty.theme') === 'light' ? 'light' : 'dark')
   )
-  const [fontSize, setFontSize] = useState(() => num('gitty.fontSize', 12.5, 11, 16))
+  const [fontSize, setFontSize] = useState(() => num('gitty.fontSize', 12.5, 9, 20))
   const [rowHeight, setRowHeight] = useState(() => num('gitty.rowHeight', 20, 18, 26))
   const [timeZone, setTimeZone] = useState<TimeZone>(loadTimeZone)
   const [relativeTime, setRelativeTime] = useState(

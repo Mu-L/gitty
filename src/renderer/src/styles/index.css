@@ -1728,18 +1728,6 @@ button:disabled:hover {
   font: inherit;
 }
 
-.setting-text {
-  flex: 1;
-  min-width: 0;
-  max-width: 60%;
-  padding: 2px 6px;
-  color: var(--fg);
-  background: var(--bg-header);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  font: inherit;
-}
-
 .setting-row input[type='range'] {
   flex: 1;
   accent-color: var(--border-active);

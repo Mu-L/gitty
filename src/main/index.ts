@@ -3,7 +3,7 @@ import path from 'node:path'
 import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, shell } from 'electron'
 import * as git from './git'
 import * as gource from './gource'
-import { createTerminal, type TerminalSession } from './pty'
+import { availableShells, createTerminal, type TerminalSession } from './pty'
 import { addRecent, clearRecent, listRecent, removeRecent } from './recent'
 import { watchRepo, type RepoWatcher } from './watcher'
 import * as web from './web'
@@ -398,6 +398,8 @@ function registerIpc(): void {
 
   ipcMain.handle('web:repoUrl', (_e, root: string) => web.repoUrl(root))
   ipcMain.handle('web:commitUrl', (_e, root: string, hash: string) => web.commitUrl(root, hash))
+  ipcMain.handle('settings:shells', () => availableShells())
+
   ipcMain.handle('clipboard:write', (_e, text: string) => {
     clipboard.writeText(text)
   })

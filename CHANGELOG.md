@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Font size** goes from 9 to 20, where it was 11 to 16.
+- **Monospace font** and **Shell** are dropdowns rather than text fields.
+  Fonts are the monospace families installed on this machine, measured by
+  probing; shells come from `/etc/shells` plus the usual paths, `COMSPEC` and
+  PowerShell on Windows. A stored value the machine no longer offers stays in
+  the list.
+
 - Settings is three tabs — Appearance, View, Session — rather than one column
   that had grown long enough to scroll. The panels stay mounted behind the
   tabs, so every control keeps its state and the dialog is sized by its tallest

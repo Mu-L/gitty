@@ -4,6 +4,7 @@ import { ALL_LOCALES, type Locale } from '../locale'
 import type { JSX } from 'react'
 import type { DiffView } from './DiffPane'
 import { allZones, systemZone, SYSTEM_TZ, type TimeZone } from '../time'
+import { monoFonts } from '../fonts'
 import type { DiffOptions } from '../../../shared/types'
 
 export type Theme = 'dark' | 'light'
@@ -82,31 +83,16 @@ function Dropdown<T extends string>({
   )
 }
 
-/** A free-text row, for a setting no list can enumerate (a font, a shell). */
-function TextRow({
-  label,
-  value,
-  placeholder,
-  onChange
-}: {
-  label: string
+/**
+ * Keep a stored value in the list even when this machine does not offer it —
+ * a font uninstalled since, or a shell from another machine. Dropping it would
+ * silently show the first entry instead and lose the setting on the next edit.
+ */
+function withValue(
+  options: Array<{ value: string; label: string }>,
   value: string
-  placeholder: string
-  onChange: (v: string) => void
-}): JSX.Element {
-  return (
-    <label className="setting-row">
-      <span>{label}</span>
-      <input
-        type="text"
-        className="setting-text"
-        value={value}
-        placeholder={placeholder}
-        spellCheck={false}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    </label>
-  )
+): Array<{ value: string; label: string }> {
+  return options.some((o) => o.value === value) ? options : [...options, { value, label: value }]
 }
 
 /** A labelled slider with a numeric read-out. */
@@ -191,6 +177,10 @@ export function SettingsPane(props: {
   // Reset to the first tab between openings: the dialog is short-lived, and
   // coming back to where you were last time is not what a reader expects.
   const [tab, setTab] = useState<Tab>('appearance')
+  const [shells, setShells] = useState<string[]>([])
+  useEffect(() => {
+    if (props.open) void window.gitty.shells().then(setShells)
+  }, [props.open])
   useEffect(() => {
     if (props.open) setTab('appearance')
   }, [props.open])
@@ -266,15 +256,21 @@ export function SettingsPane(props: {
             <Slider
               label={msg.settings.fontSize}
               value={props.fontSize}
-              min={11}
-              max={16}
+              min={9}
+              max={20}
               step={0.5}
               onChange={props.setFontSize}
             />
-            <TextRow
+            <Dropdown
               label={msg.settings.monoFont}
               value={props.monoFont}
-              placeholder={msg.settings.systemDefault}
+              options={withValue(
+                [
+                  { value: '', label: msg.settings.systemDefault },
+                  ...monoFonts().map((f) => ({ value: f, label: f }))
+                ],
+                props.monoFont
+              )}
               onChange={props.setMonoFont}
             />
             <Slider
@@ -333,10 +329,16 @@ export function SettingsPane(props: {
               checked={props.restoreTabs}
               onChange={props.setRestoreTabs}
             />
-            <TextRow
+            <Dropdown
               label={msg.settings.shell}
               value={props.termShell}
-              placeholder={msg.settings.systemDefault}
+              options={withValue(
+                [
+                  { value: '', label: msg.settings.systemDefault },
+                  ...shells.map((sh) => ({ value: sh, label: sh }))
+                ],
+                props.termShell
+              )}
               onChange={props.setTermShell}
             />
             <CheckRow
