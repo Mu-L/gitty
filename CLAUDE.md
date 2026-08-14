@@ -352,6 +352,14 @@ emits one blob whose spans run across newlines (block comments, template
 literals): it walks the output keeping the stack of open spans, so each line can
 be its own element without broken markup.
 
+`MarkdownPane`'s outline is a `Group` of its own, so the two rules that govern
+every other group apply here too: the id carries the repository (sizes are
+per-Group-id, and several tabs are mounted at once), and it is `disabled` while
+its tab is hidden, since the library hit-tests every registered group and a
+`display: none` one reports a zero-sized rect. Sizes live as long as the
+window — nothing in the app calls `useDefaultLayout`, which is what v4 needs to
+persist them.
+
 In `MarkdownPane`, markdown-it runs with `html: false` so raw HTML stays inert
 without a sanitiser; heading ids are assigned on the token stream before
 rendering, so the outline and the document cannot disagree; front matter is

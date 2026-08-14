@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from 'react'
 import MarkdownIt from 'markdown-it'
+import { Group, Panel, Separator } from 'react-resizable-panels'
 import { hljs } from '../highlight'
 import { useMsg } from '../locale'
 import type { MenuState } from './ContextMenu'
@@ -298,41 +299,67 @@ export function MarkdownPane({
     setActiveHeading(id)
   }
 
+  const nav = (
+    <nav className="md-outline">
+      <div className="md-outline-title">{msg.diff.outline}</div>
+      {headings.map((h) => (
+        <div
+          key={h.id}
+          className={`md-toc-item lvl-${h.level}${activeHeading === h.id ? ' active' : ''}`}
+          title={h.text}
+          onClick={() => goto(h.id)}
+        >
+          {h.text}
+        </div>
+      ))}
+    </nav>
+  )
+
+  const body = (
+    <div
+      className={`md-body${wrap ? ' wrap' : ''}${find.open ? ' finding' : ''}`}
+      ref={bodyRef}
+      onClick={(e) => {
+        // Links must never navigate the window away from the app.
+        const a = (e.target as HTMLElement).closest('a')
+        if (!a) return
+        e.preventDefault()
+        const href = a.getAttribute('href') ?? ''
+        if (/^https?:\/\//i.test(href)) void window.gitty.file.openExternal(href)
+        else if (href.startsWith('#')) goto(href.slice(1))
+      }}
+      dangerouslySetInnerHTML={htmlProp}
+    />
+  )
+
   return (
     <div className="md-host" onContextMenu={(e) => {
       e.preventDefault()
       onMenu({ x: e.clientX, y: e.clientY, items: [] })
     }}>
       {find.bar}
-      {outline && headings.length > 0 && (
-        <nav className="md-outline">
-          <div className="md-outline-title">{msg.diff.outline}</div>
-          {headings.map((h) => (
-            <div
-              key={h.id}
-              className={`md-toc-item lvl-${h.level}${activeHeading === h.id ? ' active' : ''}`}
-              title={h.text}
-              onClick={() => goto(h.id)}
-            >
-              {h.text}
-            </div>
-          ))}
-        </nav>
+      {outline && headings.length > 0 ? (
+        // The width is shared by every document in this repository rather than
+        // kept per file: it is a reading preference, not a property of the text.
+        // Disabled while the tab is hidden — the library hit-tests every
+        // registered group, and a display:none one reports a zero-sized rect.
+        <Group
+          orientation="horizontal"
+          className="md-split"
+          id={`md-outline-${root.replace(/[^A-Za-z0-9_-]/g, '_')}`}
+          disabled={!active}
+        >
+          <Panel className="md-pane" defaultSize="22%" minSize="8%" maxSize="50%">
+            {nav}
+          </Panel>
+          <Separator className="sep-v" />
+          <Panel className="md-pane" minSize="30%">
+            {body}
+          </Panel>
+        </Group>
+      ) : (
+        body
       )}
-      <div
-        className={`md-body${wrap ? ' wrap' : ''}${find.open ? ' finding' : ''}`}
-        ref={bodyRef}
-        onClick={(e) => {
-          // Links must never navigate the window away from the app.
-          const a = (e.target as HTMLElement).closest('a')
-          if (!a) return
-          e.preventDefault()
-          const href = a.getAttribute('href') ?? ''
-          if (/^https?:\/\//i.test(href)) void window.gitty.file.openExternal(href)
-          else if (href.startsWith('#')) goto(href.slice(1))
-        }}
-        dangerouslySetInnerHTML={htmlProp}
-      />
     </div>
   )
 }

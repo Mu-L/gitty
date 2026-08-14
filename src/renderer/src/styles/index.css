@@ -1079,9 +1079,21 @@ button:disabled:hover {
   color: var(--find-current-fg);
 }
 
+/* The outline and the document are two panels of a draggable group, so the
+   width comes from the panel; both fill the one they are in. */
+.md-split {
+  flex: 1;
+  min-width: 0;
+}
+
+.md-pane {
+  display: flex;
+  min-width: 0;
+}
+
 .md-outline {
-  flex: none;
-  width: 210px;
+  flex: 1;
+  min-width: 0;
   padding: 6px 0;
   overflow: auto;
   background: var(--bg-pane);

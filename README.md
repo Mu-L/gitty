@@ -354,7 +354,11 @@ glance.
   a preview this decides whether fenced code blocks, wide tables and long inline
   strings wrap too, rather than scrolling sideways.
 - **Outline** — the heading structure beside the document, indented by level,
-  tracking the heading you have scrolled to. Click an entry to jump.
+  tracking the heading you have scrolled to. Click an entry to jump, and drag
+  the separator between it and the document to give either side more room. The
+  width is shared by every document in the repository — it is a reading
+  preference, not a property of one file — and lasts as long as the window,
+  like the other panes' sizes.
 - **<kbd>Ctrl+F</kbd>** — find in the document; see
   [Finding text](#finding-text).
 - **Right-click** — Copy Selection, Copy Markdown Source, the wrap and outline

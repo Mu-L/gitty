@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The markdown outline is now a resizable panel: the line between it and the
+  document is a separator to drag, where it used to be a fixed 210 pixels. A
+  long heading no longer has to be read through an ellipsis, and a document
+  full of short ones can give the width back. The size is shared by every
+  document in the repository and lasts as long as the window, the same as the
+  four main panes.
+
 - **Open Repository** has left the right-hand end of the title bar for a **+**
   beside the repository button. The two are the same subject — which repository
   is on screen, and opening another — and the button they now sit next to is
