@@ -56,7 +56,7 @@ Rare chez les autres navigateurs git :
   disposition à quatre volets qui se réduit au seul diff, ou au seul journal, et
   revient.
 
-![Gitty 0.1.5](../../ref/gitty-0.1.5.png)
+![Gitty 0.1.6](../../ref/gitty-0.1.6.png)
 
 ## Pourquoi un de plus ? <a id="why-another-one"></a>
 

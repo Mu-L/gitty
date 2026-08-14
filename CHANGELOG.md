@@ -7,8 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-08-14
+
 ### Added
 
+- <kbd>Ctrl+F</kbd> finds text in whatever the right-hand pane is showing: a
+  diff, a file, rendered markdown, an HTML preview, a blame or a file's history.
+  Matches are highlighted with the current one picked out; <kbd>Enter</kbd> /
+  <kbd>Shift+Enter</kbd> and the arrows walk them, wrapping at either end;
+  <kbd>Esc</kbd> closes; the count says where you are. The search reads the
+  rendered text, so a phrase is found across markdown's bold and code spans.
+  Views that render in chunks render the rest as the strip opens, so the count
+  covers the whole file or diff; a collapsed file in a multi-file diff is not
+  searched.
+- <kbd>Ctrl+Shift+C</kbd> copies as well as <kbd>Ctrl+C</kbd>, everywhere in
+  the window. In a terminal it takes xterm's own selection instead of reaching
+  the shell as an interrupt; in an HTML preview, the selection inside the frame.
+  With nothing selected, the key is left alone.
+- Clicking the **Gitty** brand in the title bar opens an **About** dialog: the
+  version, build time, author, and the Electron, Chromium and Node versions. It
+  is drawn by the renderer, so the home-page link opens in the system browser.
+- Whole-file blame is syntax-highlighted like the code viewer, so the lines in
+  the blame pane carry the same token colours as the diff and the file.
+- Each blame row shows the date of the commit that last touched the line, read
+  through the same time-zone and relative-time settings as the rest of the UI.
 - **Markdown source lines**, a View setting: each block of a rendered document
   is numbered in the left gutter with the line it starts on in the source.
   Headings, paragraphs, list items, tables, fenced code and images all get one,
@@ -22,13 +44,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   probing; shells come from `/etc/shells` plus the usual paths, `COMSPEC` and
   PowerShell on Windows. A stored value the machine no longer offers stays in
   the list.
-
 - Settings is three tabs — Appearance, View, Session — rather than one column
   that had grown long enough to scroll. The panels stay mounted behind the
   tabs, so every control keeps its state and the dialog is sized by its tallest
   section rather than jumping as you switch. It opens on Appearance each time:
   a short-lived dialog that resumes where it was left is a small puzzle.
-
 - Browsing a whole repository — the work tree, or a commit's snapshot — starts
   with every directory collapsed, while a list of changes still opens expanded.
   What you expand stays open while that tree is on screen; showing another tree
@@ -54,32 +74,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   contents read from the work tree. It used to say **Browse Snapshot** and open
   the tree at HEAD, omitting uncommitted work. A commit's **Browse Snapshot**
   still browses that revision.
-
-### Added
-
-- <kbd>Ctrl+Shift+C</kbd> copies as well as <kbd>Ctrl+C</kbd>, everywhere in
-  the window. In a terminal it takes xterm's own selection instead of reaching
-  the shell as an interrupt; in an HTML preview, the selection inside the frame.
-  With nothing selected, the key is left alone.
-- <kbd>Ctrl+F</kbd> finds text in whatever the right-hand pane is showing: a
-  diff, a file, rendered markdown, an HTML preview, a blame or a file's history.
-  Matches are highlighted with the current one picked out; <kbd>Enter</kbd> /
-  <kbd>Shift+Enter</kbd> and the arrows walk them, wrapping at either end;
-  <kbd>Esc</kbd> closes; the count says where you are. The search reads the
-  rendered text, so a phrase is found across markdown's bold and code spans.
-  Views that render in chunks render the rest as the strip opens, so the count
-  covers the whole file or diff; a collapsed file in a multi-file diff is not
-  searched.
-- Whole-file blame is syntax-highlighted like the code viewer, so the lines in
-  the blame pane carry the same token colours as the diff and the file.
-- Each blame row shows the date of the commit that last touched the line, read
-  through the same time-zone and relative-time settings as the rest of the UI.
-- Clicking the **Gitty** brand in the title bar opens an **About** dialog: the
-  version, build time, author, and the Electron, Chromium and Node versions. It
-  is drawn by the renderer, so the home-page link opens in the system browser.
-
-### Changed
-
 - The blame pane's rows now show just the author and a compact date — the SHA
   column is gone. A date from the current year drops the year ("Jul 1"); an
   older one keeps it ("Jan 15, 2025"). The author and date carry the colour the
@@ -512,7 +506,8 @@ Initial release.
   `chrome-sandbox` cannot keep its root-owned setuid bit inside `node_modules`.
 - README shows a screenshot of the interface (`ref/gitty-0.1.0.png`).
 
-[Unreleased]: https://github.com/baojie/gitty/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/baojie/gitty/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/baojie/gitty/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/baojie/gitty/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/baojie/gitty/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/baojie/gitty/compare/v0.1.2...v0.1.3

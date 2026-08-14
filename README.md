@@ -47,7 +47,7 @@ Uncommon in other git browsers:
 - **Every pane resizable, hidable, or full screen** — a four-pane layout that
   shrinks to just the diff, or just the log, and comes back.
 
-![Gitty 0.1.5](ref/gitty-0.1.5.png)
+![Gitty 0.1.6](ref/gitty-0.1.6.png)
 
 ## Why another one?
 
@@ -136,6 +136,9 @@ Four panes in the middle, a title bar above them and a tab bar below.
 
 Left to right, it describes the active repository and then acts on it:
 
+- **Gitty** — the icon and name at the far left open the **About** dialog: the
+  version, build time, author, and the Electron, Chromium and Node versions,
+  with a link to the home page.
 - **‹ › ▾** — where you have been in this repository. See
   [Going back](#going-back).
 - **The repository path** is a button: it opens the
