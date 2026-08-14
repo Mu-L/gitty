@@ -113,6 +113,8 @@ export interface RepoTabProps {
   setWordDiff: Dispatch<SetStateAction<boolean>>
   mdOutline: boolean
   setMdOutline: Dispatch<SetStateAction<boolean>>
+  /** Sort file names the way a reader does, rather than by code unit. */
+  naturalSort: boolean
   /** The monospace font setting, passed through to the terminal. */
   fontFamily: string
   /** How git is asked to compute every diff this tab shows. */
@@ -162,6 +164,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setWordDiff,
     mdOutline,
     setMdOutline,
+    naturalSort,
     fontFamily,
     diffOptions,
     terminalOptions,
@@ -906,6 +909,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {commitMeta && <CommitInfo meta={commitMeta} />}
                   <FilesPane
                     entries={viewFiles}
+                    naturalSort={naturalSort}
                     // A whole repository — browsing the work tree or a commit's
                     // snapshot — opens shut: it is a tree to descend into, not
                     // a list of changes to read.

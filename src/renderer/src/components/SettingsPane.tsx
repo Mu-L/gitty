@@ -161,6 +161,8 @@ export function SettingsPane(props: {
   setWordDiff: (v: boolean) => void
   mdOutline: boolean
   setMdOutline: (v: boolean) => void
+  naturalSort: boolean
+  setNaturalSort: (v: boolean) => void
   onReset: () => void
   locale: Locale
   setLocale: (v: Locale) => void
@@ -290,6 +292,15 @@ export function SettingsPane(props: {
             <CheckRow label={msg.settings.wordWrap} checked={props.wrap} onChange={props.setWrap} />
             <CheckRow label={msg.settings.wordHighlight} checked={props.wordDiff} onChange={props.setWordDiff} />
             <CheckRow label={msg.settings.markdownOutline} checked={props.mdOutline} onChange={props.setMdOutline} />
+            <Segmented
+              label={msg.settings.fileSort}
+              value={props.naturalSort ? 'natural' : 'byte'}
+              options={[
+                { value: 'natural', label: msg.settings.sortNatural },
+                { value: 'byte', label: msg.settings.sortByte }
+              ]}
+              onChange={(v) => props.setNaturalSort(v === 'natural')}
+            />
           </div>
           <div className="settings-group">
             <h3 className="settings-group-title">{msg.settings.session}</h3>

@@ -64,6 +64,11 @@ export default function App(): JSX.Element {
   const [mdOutline, setMdOutline] = useState(
     () => localStorage.getItem('gitty.mdOutline') !== 'off'
   )
+  // Natural by default: it is what a reader expects. Off gives git's own byte
+  // order, which is what the command line shows.
+  const [naturalSort, setNaturalSort] = useState(
+    () => localStorage.getItem('gitty.naturalSort') !== 'off'
+  )
   const [panes, setPanes] = useState<PaneVisibility>(loadPanes)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [aboutOpen, setAboutOpen] = useState(false)
@@ -393,6 +398,7 @@ export default function App(): JSX.Element {
     setDiffView('inline')
     setWordDiff(true)
     setMdOutline(true)
+    setNaturalSort(true)
   }, [])
 
   // Push the visual knobs onto <html> as layout effects, so child passive
@@ -414,6 +420,7 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.diffView', diffView)
     localStorage.setItem('gitty.wordDiff', wordDiff ? 'on' : 'off')
     localStorage.setItem('gitty.mdOutline', mdOutline ? 'on' : 'off')
+    localStorage.setItem('gitty.naturalSort', naturalSort ? 'on' : 'off')
     localStorage.setItem('gitty.theme', theme)
     localStorage.setItem('gitty.fontSize', String(fontSize))
     localStorage.setItem('gitty.rowHeight', String(rowHeight))
@@ -431,6 +438,7 @@ export default function App(): JSX.Element {
     diffView,
     wordDiff,
     mdOutline,
+    naturalSort,
     theme,
     fontSize,
     rowHeight,
@@ -697,6 +705,7 @@ export default function App(): JSX.Element {
                   wordDiff={wordDiff}
                   setWordDiff={setWordDiff}
                   mdOutline={mdOutline}
+                  naturalSort={naturalSort}
                   setMdOutline={setMdOutline}
                   fontFamily={monoFont}
                   diffOptions={diffOptions}
@@ -764,6 +773,8 @@ export default function App(): JSX.Element {
         setWordDiff={setWordDiff}
         mdOutline={mdOutline}
         setMdOutline={setMdOutline}
+        naturalSort={naturalSort}
+        setNaturalSort={setNaturalSort}
         onReset={resetSettings}
         locale={locale}
         setLocale={setLocale}

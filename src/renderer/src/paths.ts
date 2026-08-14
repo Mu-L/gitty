@@ -32,21 +32,27 @@ const NAMES = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' 
 /**
  * Order two repo-relative paths for the file tree, segment by segment.
  *
+ * `natural` reads the digits in a name as a number and puts case second, which
+ * is how a reader sorts; without it the comparison is git's own — by code
+ * unit, where W10 precedes W9 and every capital precedes every lowercase.
+ *
  * Comparing the strings whole would be shorter and wrong: `/` is punctuation
  * and sorts unpredictably against `.` or `-`, so `a.txt` could land between
  * `a/one.txt` and `a/two.txt` — and the tree builder, which emits a directory
  * heading whenever the path's parent changes, would then draw `a/` twice.
  * Segment order keeps everything under one directory together.
  */
-export function comparePaths(a: string, b: string): number {
+export function comparePaths(a: string, b: string, natural = true): number {
   const A = a.split('/')
   const B = b.split('/')
   const n = Math.min(A.length, B.length)
   for (let i = 0; i < n; i++) {
-    const c = NAMES.compare(A[i], B[i])
-    if (c !== 0) return c
-    // Same text at this depth but a tie in the collator's eyes (case alone, for
-    // instance) still has to be a stable, total order.
+    if (natural) {
+      const c = NAMES.compare(A[i], B[i])
+      if (c !== 0) return c
+    }
+    // Byte order, and also the tiebreak for names the collator calls equal
+    // (case alone, for instance): the order has to be total either way.
     if (A[i] !== B[i]) return A[i] < B[i] ? -1 : 1
   }
   return A.length - B.length

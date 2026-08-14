@@ -257,6 +257,10 @@ export interface RendererMessages {
     readonly wordWrap: string
     readonly wordHighlight: string
     readonly markdownOutline: string
+    /** How the file tree orders names. */
+    readonly fileSort: string
+    readonly sortNatural: string
+    readonly sortByte: string
     readonly language: string
     /** The zone every date and time in the interface is shown in. */
     readonly timeZone: string

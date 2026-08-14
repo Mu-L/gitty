@@ -75,6 +75,7 @@ function buildRows(entries: FileEntry[], collapsed: (key: string) => boolean): T
 
 export function FilesPane({
   entries,
+  naturalSort,
   startCollapsed,
   treeKey,
   selected,
@@ -84,6 +85,8 @@ export function FilesPane({
   emptyText
 }: {
   entries: FileEntry[]
+  /** Sort names the way a reader does rather than by code unit. */
+  naturalSort: boolean
   /** Start with every directory shut: a whole repository is a list to open
    *  into, where a list of changes is one to read. */
   startCollapsed: boolean
@@ -112,8 +115,12 @@ export function FilesPane({
   // W10 before W9 and every capital before every lowercase letter, and the
   // entries arrive from five different commands.
   const rows = useMemo(
-    () => buildRows([...entries].sort((x, y) => comparePaths(x.path, y.path)), collapsed),
-    [entries, collapsed]
+    () =>
+      buildRows(
+        [...entries].sort((x, y) => comparePaths(x.path, y.path, naturalSort)),
+        collapsed
+      ),
+    [entries, collapsed, naturalSort]
   )
 
   const toggle = (key: string): void =>

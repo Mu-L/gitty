@@ -526,6 +526,7 @@ back.
 | **Word wrap** | Wrap long lines instead of scrolling sideways. |
 | **Word highlight** | Mark the words that changed inside a changed line, not just the line. |
 | **Markdown outline** | Show the outline beside a rendered document. |
+| **File sorting** | Natural or Byte order. Natural reads the digits in a name as a number (`W9` before `W10`) and puts case second; byte order is git's own, where every capital sorts ahead of every lowercase letter. |
 | **Reopen last session** | Reopen the repositories that were open when the app last exited. The repository Gitty was started with is still the active tab; ones that have since been deleted are quietly dropped. |
 | **Shell** | The shell a terminal starts. Empty means the system's own — `$SHELL`, or `COMSPEC` on Windows. A path that does not exist falls back to it rather than leaving a dead pane. |
 | **Login shell** | Start it with `-l`, so the user's profile is sourced. Turn it off for a faster, quieter shell — no profile output, no login-time checks. Windows shells have no such flag and ignore this. |
