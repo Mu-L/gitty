@@ -9,206 +9,157 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Browsing a whole repository starts with every directory collapsed — the work
-  tree browsed from the worktree row, and a commit's snapshot. A repository is
-  a tree to descend into, where a list of changes is one to read, and the
-  latter still opens expanded. What you open stays open while that tree is on
-  screen; showing another one starts from the default again.
+- Settings is three tabs — Appearance, View, Session — rather than one column
+  that had grown long enough to scroll. The panels stay mounted behind the
+  tabs, so every control keeps its state and the dialog is sized by its tallest
+  section rather than jumping as you switch. It opens on Appearance each time:
+  a short-lived dialog that resumes where it was left is a small puzzle.
+
+- Browsing a whole repository — the work tree, or a commit's snapshot — starts
+  with every directory collapsed, while a list of changes still opens expanded.
+  What you expand stays open while that tree is on screen; showing another tree
+  starts from the default again.
 - The file tree lists directories before files at every level, so a folder is
   never buried among the names of its siblings.
 - **File sorting** in Settings: natural (the default) or git's byte order, for
   anyone who wants the tree to match what `git ls-files` prints.
 - The file tree sorts names naturally. Git orders paths by byte, which puts
-  `SKILL_W10` between `SKILL_W0` and `SKILL_W1`, and every capital before every
-  lowercase letter; the tree now reads the digits in a name as a number and
-  treats case as a tiebreak rather than the first question. It sorts in one
-  place for all five commands the entries can come from, and by path segment
-  rather than by whole string — `/` is punctuation, and a whole-string compare
-  could drop `a.txt` between two files in `a/`, which would make the tree draw
-  the `a/` heading twice.
-
-- The markdown outline is now a resizable panel: the line between it and the
-  document is a separator to drag, where it used to be a fixed 210 pixels. A
-  long heading no longer has to be read through an ellipsis, and a document
-  full of short ones can give the width back. The size is shared by every
-  document in the repository and lasts as long as the window, the same as the
-  four main panes.
-
-- **Open Repository** has left the right-hand end of the title bar for a **+**
-  beside the repository button. The two are the same subject — which repository
-  is on screen, and opening another — and the button they now sit next to is
-  the recent-repositories menu, where opening one is what you came for. It is
-  drawn in the accent colour rather than as another grey button: with a single
-  repository open it is the one control the window still needs to offer.
-
-- The work tree row's right-click menu offers **Browse Working Tree** where it
-  used to say **Browse Snapshot** — and it now means what it says. Browsing
-  used to open the repository tree at HEAD, a snapshot of a revision: a file
-  you had just created or edited was simply missing from it. Browsing the work
-  tree reads the disk itself, listing tracked and untracked files alike, so an
-  uncommitted change is right there alongside everything else and a file opened
-  from it shows what is on disk right now. A commit's **Browse Snapshot** still
-  browses that revision.
+  `SKILL_W10` between `SKILL_W0` and `SKILL_W1` and every capital before every
+  lowercase letter; the tree reads the digits in a name as a number and treats
+  case as a tiebreak. It sorts in one place for all five commands the entries
+  come from, by path segment — a whole-string compare could drop `a.txt`
+  between two files in `a/`, drawing the `a/` heading twice.
+- The markdown outline is a resizable panel: drag the line between it and the
+  document (it used to be a fixed 210 pixels). The size is shared by every
+  document in the repository and lasts as long as the window.
+- **Open Repository** moved from the right-hand end of the title bar to a **+**
+  beside the repository button, drawn in the accent colour — with one repository
+  open it is the control the window still needs to offer.
+- The work tree row's right-click menu offers **Browse Working Tree**: the
+  repository as it is on disk right now, tracked and untracked files alike,
+  contents read from the work tree. It used to say **Browse Snapshot** and open
+  the tree at HEAD, omitting uncommitted work. A commit's **Browse Snapshot**
+  still browses that revision.
 
 ### Added
 
 - <kbd>Ctrl+Shift+C</kbd> copies as well as <kbd>Ctrl+C</kbd>, everywhere in
-  the window. It is the chord a terminal has always meant by copy, because
-  <kbd>Ctrl+C</kbd> there is the interrupt — and it now means copy in the diff,
-  a file and a rendered document too, so it does not change meaning as the
-  focus moves. In a terminal it takes xterm's own selection (which the document
-  cannot see) and is no longer passed to the shell as an interrupt; in an HTML
-  preview it takes the selection inside the frame. With nothing selected the
-  key is left alone rather than swallowed.
-
+  the window. In a terminal it takes xterm's own selection instead of reaching
+  the shell as an interrupt; in an HTML preview, the selection inside the frame.
+  With nothing selected, the key is left alone.
 - <kbd>Ctrl+F</kbd> finds text in whatever the right-hand pane is showing: a
-  diff, a file, a rendered markdown document, an HTML preview, a blame or a
-  file's history. Every match is highlighted with the current one picked out,
-  <kbd>Enter</kbd> / <kbd>Shift+Enter</kbd> and the arrows walk them (wrapping
-  at either end), <kbd>Esc</kbd> closes, and the count says where you are. The
-  search reads the text as rendered rather than the markup behind it, so a
-  phrase is found across the bold and code spans markdown leaves inside it.
-  Views that render in chunks while scrolling render the rest as the strip
-  opens, so the count covers the whole file or diff; a collapsed file in a
-  multi-file diff stays collapsed and is not searched.
-
-
+  diff, a file, rendered markdown, an HTML preview, a blame or a file's history.
+  Matches are highlighted with the current one picked out; <kbd>Enter</kbd> /
+  <kbd>Shift+Enter</kbd> and the arrows walk them, wrapping at either end;
+  <kbd>Esc</kbd> closes; the count says where you are. The search reads the
+  rendered text, so a phrase is found across markdown's bold and code spans.
+  Views that render in chunks render the rest as the strip opens, so the count
+  covers the whole file or diff; a collapsed file in a multi-file diff is not
+  searched.
 - Whole-file blame is syntax-highlighted like the code viewer, so the lines in
   the blame pane carry the same token colours as the diff and the file.
 - Each blame row shows the date of the commit that last touched the line, read
   through the same time-zone and relative-time settings as the rest of the UI.
-- Clicking the **Gitty** brand at the left of the title bar opens an **About**
-  dialog: the version, when it was built, the author, and the Electron,
-  Chromium and Node versions the app is built on. The dialog is drawn by the
-  renderer rather than as a native message box — a native box's text cannot be
-  clicked — so the link to the project's home page opens in the system browser.
+- Clicking the **Gitty** brand in the title bar opens an **About** dialog: the
+  version, build time, author, and the Electron, Chromium and Node versions. It
+  is drawn by the renderer, so the home-page link opens in the system browser.
 
 ### Changed
 
-- The blame pane is less crowded: each row now shows just the author and a
-  compact date — the SHA column is gone. A date from the current year drops the
-  year ("Jul 1"); an older one keeps it ("Jan 15, 2025"). The author and date
-  carry the colour the SHA used to carry, so adjacent commits are still told
-  apart by hue. The full SHA lives in the row's tooltip, and right-clicking a
-  row offers to copy it.
+- The blame pane's rows now show just the author and a compact date — the SHA
+  column is gone. A date from the current year drops the year ("Jul 1"); an
+  older one keeps it ("Jan 15, 2025"). The author and date carry the colour the
+  SHA used to carry, so adjacent commits are still told apart by hue. The full
+  SHA is in the row's tooltip; right-clicking a row copies it.
 
 ### Fixed
 
-- Two user-visible strings bypassed the message tables: the loading fallback of
-  the lazily loaded chunks and the oversized-image notice when a committed
-  image is too large to preview. Both now read through the tables like the rest
-  of the UI, so they show the active language instead of English.
+- Two user-visible strings bypassed the message tables — the lazy-chunk loading
+  fallback and the oversized-image notice. Both now read through the tables.
 - Rendered markdown, the code viewer and blame rebuilt their DOM on every state
-  change —
-  for markdown the whole document, for the other two every line, and for
-  markdown on every scroll, since tracking the outline is a state change. React
-  sets innerHTML whenever the `dangerouslySetInnerHTML` prop is a different
-  object, and a fresh `{__html}` literal per render is always a different
-  object. Memoising them leaves the nodes alone, which large files feel and
-  which the find highlights need to survive at all.
+  change — markdown the whole document on every scroll, the others every line.
+  React sets innerHTML whenever the `dangerouslySetInnerHTML` prop is a different
+  object, and a fresh `{__html}` per render always is; the `{__html}` is now
+  memoised, leaving the nodes alone — which large files feel and which the find
+  highlights need to survive.
 
 ## [0.1.5] - 2026-08-12
 
 ### Added
 
-- Six new settings, and a third **Session** group in the dialog to hold the
-  ones that are not about a pane:
+- Six new settings, and a third **Session** group in the dialog:
   - **Context lines** — 0 to 25 lines of context around each hunk (git's `-U`,
-    whose default is 3), so a change can be read in as much or as little of its
-    surroundings as it needs.
+    default 3).
   - **Ignore whitespace** — Off, Amount (`-b`) or All (`-w`). Reindented or
-    rewrapped code reads as unchanged instead of as a wall of red and green.
-    The file list's churn counts follow the same setting, so `+12 −3` cannot
-    claim lines the diff beside it then refuses to show.
+    rewrapped code reads as unchanged. The file list's churn counts follow the
+    same setting, so `+12 −3` cannot claim lines the diff refuses to show.
   - **Reopen last session** — the repositories open at exit come back as tabs
-    at the next launch. The repository Gitty was started with stays the active
-    one; any that have since been deleted are quietly dropped.
+    at the next launch; the one Gitty started with stays active, and any that
+    have since been deleted are dropped.
   - **Monospace font** — the family the panes and the terminal are drawn in.
-    Empty keeps the built-in stack, and a font the system lacks falls through
-    to it.
-  - **Time format** — Absolute or Relative (`28m ago`), a companion to the
-    time-zone setting. Hover tips stay absolute either way.
-  - **Shell** and **Login shell** — which shell a terminal starts and whether
-    it sources the user's profile. Both are read when a session is created, so
-    they apply to the next split rather than to running shells. A shell path
-    that does not exist falls back to the system's rather than leaving a dead
-    pane.
-
+    Empty keeps the built-in stack; a font the system lacks falls through to it.
+  - **Time format** — Absolute or Relative (`28m ago`). Hover tips stay absolute
+    either way.
+  - **Shell** and **Login shell** — which shell a terminal starts and whether it
+    sources the user's profile. Both apply to the next split, not to running
+    shells; an unknown shell path falls back to the system's.
 - **Time zone** in Settings: the zone every date and time on screen is rendered
-  in — the machine's own by default, UTC, or any zone the system knows. Git
-  stores a commit with its author's own offset, so a stamp was always a choice
-  of zone; now it is one that can be made. The commit log, a file's history and
-  the commit header all follow it, and so does the cutoff between a row showing
-  a time and one showing a date, which is a calendar day in the chosen zone.
-  A row's hover tip now spells the time out with the zone it is in, in place of
-  the raw ISO stamp.
-
+  in — the machine's own by default, UTC, or any zone the system knows. The
+  commit log, a file's history and the commit header follow it, as does the
+  cutoff between a time and a date, which is a calendar day in the chosen zone.
+  Hover tips spell the time out with its zone.
 - A staged file's name is green in the work tree, the colour its index column
   already carried. Partly staged counts — the index has something either way —
   and a staged deletion keeps the line through its name as well.
-- **Delete File…** in the work tree's file context menu. It asks first, in a
-  native dialog, and moves the file to the system trash — recoverable outside
-  git as well as inside it. Where there is no trash to move it to (a mount
-  without one, a system with none at all) it asks a second time and says
-  plainly that the file leaves the disk. The entry belongs to the work tree
-  alone: a commit's file list and a snapshot describe revisions, where there is
-  nothing on disk to delete, and a file already deleted is not offered either.
+- **Delete File…** in the work tree's file context menu: it asks first in a
+  native dialog, then moves the file to the system trash, recoverable outside
+  git as well as inside it. Where there is no trash it asks a second time and
+  says plainly that the file leaves the disk. The entry belongs to the work tree
+  alone — a commit's file list and a snapshot describe revisions, with nothing
+  on disk to delete.
 - Per-file churn in the file tree, after the line count: `+12 −3`, the lines
   this change added and removed in that file. Measured against HEAD in the work
   tree and against the parent for a commit or a range. A snapshot is a tree
   rather than a change and shows none, as do binary files and merge commits.
-- <kbd>Ctrl+Shift+0</kbd> shows all four panes again, so a layout hidden down to
-  one pane can be restored without going through the **Panes** menu. The menu
-  entry now names the key. Zero belongs with <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd>
-  but takes the Shift, since <kbd>Ctrl+0</kbd> is reset-zoom.
-- **Gource**, in the commits pane, where [gource](https://gource.io/) is on
-  `PATH`: an animation of the repository growing, commit by commit. It runs in
-  its own window and outlives Gitty; a day of history per half second, idle
-  files kept on screen and long gaps skipped, so a real history reads as
-  something happening. Where gource is not installed the button is not
-  rendered — nothing is downloaded, suggested or installed on your behalf.
-
-- Browsing history, with **‹** and **›** at the left of the title bar
-  (<kbd>Alt+←</kbd> / <kbd>Alt+→</kbd>) and a **▾** listing the places viewed,
-  most recent first, with a dot on the current one. A place is the whole of what
-  the top panes were showing — the view, the file selected in it and the
-  document open beside the diff — so going back to `src/main/git.ts @ 7bb7787`
-  puts that file back on screen at that revision, not merely the commit.
-  Hovering a button names where it leads. Each tab keeps its own fifty most
-  recent places; they are not remembered across restarts.
-
-- A macOS launcher. `setup.sh` now picks the shortcut by platform and writes a
-  minimal `Gitty.app` to `~/Applications`, with a symlink on the Desktop,
-  wrapping the same `run.sh`. Nothing is packaged — the bundle is there to give
-  Finder and the Dock a name and an icon, built from `build/icon.png` via `sips`
-  and `iconutil`. The Dock itself is left alone, as on Linux. Because a bundle
-  launched from Finder inherits launchd's minimal `PATH`, `node` and `npm` are
-  resolved at install time and prepended, so the build-if-stale step still
-  works; re-run `setup.sh` after switching Node versions. Requested by
-  @OrangeViolin ([#2]).
+- <kbd>Ctrl+Shift+0</kbd> shows all four panes again, restoring a layout hidden
+  down to one pane. It belongs with <kbd>Ctrl+1</kbd>…<kbd>Ctrl+4</kbd> but
+  takes the Shift, since <kbd>Ctrl+0</kbd> is reset-zoom.
+- **Gource**, in the commits pane when [gource](https://gource.io/) is on
+  `PATH`: an animation of the repository growing, commit by commit, in its own
+  window. A day of history per half second, idle files kept on screen, long gaps
+  skipped. Where gource is not installed the button is not rendered — nothing is
+  downloaded or installed.
+- Browsing history: **‹** and **›** at the left of the title bar (<kbd>Alt+←</kbd>
+  / <kbd>Alt+→</kbd>) and a **▾** listing the places viewed, most recent first,
+  with a dot on the current one. A place is the whole of what the top panes were
+  showing — view, selected file, open document — so going back to
+  `src/main/git.ts @ 7bb7787` puts that file back at that revision. Each tab
+  keeps its own fifty places; not remembered across restarts.
+- A macOS launcher: `setup.sh` now writes a minimal `Gitty.app` to
+  `~/Applications` (with a Desktop symlink) wrapping the same `run.sh` —
+  unpackaged, but giving Finder and the Dock a name and an icon built from
+  `build/icon.png` via `sips` and `iconutil`. Because a Finder-launched bundle
+  inherits launchd's minimal `PATH`, `node` and `npm` are resolved at install
+  time and prepended; re-run `setup.sh` after switching Node versions. Requested
+  by @OrangeViolin ([#2]).
 
 ### Fixed
 
 - Font size and row height started at their minimums (11 and 18) on a fresh
-  install rather than at their defaults (12.5 and 20): the stored value was
-  read through `Number(localStorage.getItem(…))`, and `Number(null)` is 0,
-  which is finite — so the fallback never ran and the clamp took over.
-
-- A long file name pushed its line count and churn out of the file tree. The
-  name is a flex item beside fixed-width ones, and those were shrinking first:
-  the indent and the status codes collapsed while the name kept its full length,
-  so the row overran the pane and the numbers at its end went with it. Only the
-  name gives way now, ellipsised to whatever room the rest of the row leaves.
+  install rather than their defaults (12.5 and 20): the stored value was read
+  as `Number(localStorage.getItem(…))`, and `Number(null)` is 0, which is
+  finite — so the fallback never ran and the clamp took over.
+- A long file name no longer pushes its line count and churn out of the file
+  tree: only the name gives way now, ellipsised to whatever room the rest of the
+  row leaves.
 - `setup.sh` wrote a `gitty.desktop` entry on macOS, where nothing would ever
   read it. The shortcut now follows `uname`.
 - `run.sh` now says so when Electron's binary was never downloaded, instead of
-  launching a broken install that hangs on "Downloading Electron binary…" with
-  nothing to act on. The old check looked for `dist/electron`, the Linux
-  layout, and otherwise fell back to `.bin/electron` — a symlink to the
-  package's `cli.js`, which is executable whether or not a binary exists. The
-  path now comes from the package's own `path.txt`, so macOS resolves too, and
-  a missing binary reports how to reinstall it, `ELECTRON_MIRROR` included.
-  Reported and fixed by @OrangeViolin ([#1], [#4]).
+  launching an install that hangs on "Downloading Electron binary…". The path
+  comes from the package's own `path.txt`, so macOS resolves too (the old
+  `dist/electron` check was Linux-only, and `.bin/electron` is a symlink that
+  exists regardless). A missing binary reports how to reinstall,
+  `ELECTRON_MIRROR` included. Reported and fixed by @OrangeViolin ([#1], [#4]).
 - `package.json` read `0.1.3` at the `v0.1.4` tag, so the release described
   itself as the one before it. Thanks @OrangeViolin ([#3]).
 
@@ -221,157 +172,130 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Every file in the tree now shows its line count beside the name (e.g.
-  "142 lines"), counted from disk for the work tree and from the revision
-  wherever else. Binary files, deleted files and files larger than 8 MB are
-  skipped and show no count.
+- Every file in the tree now shows its line count beside the name ("142
+  lines"), counted from disk for the work tree and from the revision wherever
+  else. Binary files, deleted files and files over 8 MB show none.
 - Images are shown, not reported as binary. Opening a `.png`, `.jpg`, `.gif`,
   `.webp`, `.bmp`, `.ico`, `.avif` or `.svg` — from the file tree, the header
   button or a snapshot — gives the picture itself, fitted to the pane over a
-  checkerboard so transparency reads as transparency, with its pixel dimensions
-  and size underneath. Click it for actual size and scroll around; click again
-  to fit. The bytes come from disk in the work tree and from the commit
-  everywhere else, so an image can be looked at as it was.
-- Markdown previews show the images they reference. A relative path is resolved
-  against the document and read out of the repository at the document's own
+  checkerboard, with its pixel dimensions and size underneath. Click for actual
+  size and scroll around; click again to fit. The bytes come from disk in the
+  work tree and from the commit everywhere else.
+- Markdown previews show the images they reference: a relative path is resolved
+  against the document and read from the repository at the document's own
   revision, so an old commit renders with the screenshots it shipped with; one
-  that is not there at that revision leaves a placeholder carrying its alt text.
-  Images from the web are still not fetched — reading a stranger's README should
-  not announce you to whatever host it points at. Selecting an image also
-  renames the header's **View File** to **View Image**.
-
+  missing at that revision leaves a placeholder carrying its alt text. Images
+  from the web are still not fetched. Selecting an image renames the header's
+  **View File** to **View Image**.
 - A **Language** setting in the Settings dialog switches the interface without
-  restarting: the panes, the menus, the dialogs and the application menu's own
-  labels all change together. Nine languages are listed — English, 简体中文,
-  日本語, 한국어, Français, Deutsch, Español, Русский and Português, all of them
-  translated in full — the interface, the application menu and the notices git's
-  output is wrapped in. English remains the source the others are translated
-  from.
-- The commit log filters. A box above it narrows the list to commits whose
+  restarting: panes, menus, dialogs and the application menu's labels all change
+  together. Nine languages — English, 简体中文, 日本語, 한국어, Français, Deutsch,
+  Español, Русский, Português — all translated in full; English is the source
+  the others are translated from.
+- The commit log filters: a box above it narrows the list to commits whose
   message or author contains the text, with a ✕ to clear; typing is debounced
   and the result pages like the unfiltered log. The filter is a union of a
-  message match and an author match — git would AND `--grep` with `--author`,
-  so the two passes are merged by hash and shaped in one date-ordered pass.
-- Selecting a commit shows its full message. The subject, author, date and the
+  message match and an author match — git would AND `--grep` with `--author` —
+  so the two passes are merged by hash in one date-ordered pass.
+- Selecting a commit shows its full message: the subject, author, date and the
   whole body sit above the file list whenever a commit or a snapshot is
-  selected, so a long commit message no longer has to be guessed at from the
-  one-line log. When the message has a body, a ▸ toggle folds it away to the
-  subject and the metadata row, giving the file list the room.
-- Blame and file history, from any file's context menu. **Blame File** opens
-  one row per source line — the commit, its author and the line itself, with an
-  em dash where a line is not committed yet; **File History** lists every
-  commit that touched the file and clicking one opens it. Both open as
-  documents beside the diff, blame the revision being viewed (a commit-mode
-  file blames that commit, a snapshot file the snapshot's tree), and the
-  history follows renames.
+  selected. A ▸ toggle folds a message with a body back to the subject and the
+  metadata row.
+- **Blame File** and **File History** from any file's context menu. Blame opens
+  one row per source line — the commit, its author and the line itself, an em
+  dash where a line is not yet committed; history lists every commit that
+  touched the file, one click opening it. Both open as documents beside the
+  diff, blame the revision being viewed (a commit-mode file blames that commit,
+  a snapshot file the snapshot's tree), and history follows renames.
 - A vitest suite for the git parsers, the only part of the app that is pure
-  functions over text: the `status`, `log`, `name-status`, branch and blame
-  formats are parsed from fixtures without a repository. `npm test` joins
-  `npm run typecheck` as the automated safety net.
+  functions over text: `status`, `log`, `name-status`, branch and blame formats
+  are parsed from fixtures without a repository. `npm test` joins `npm run
+  typecheck` as the automated safety net.
 
 ### Changed
 
 - A repository tab's tooltip now says when that repository has uncommitted
-  changes, so the yellow dot beside its name does not have to be guessed at.
+  changes.
 - The README is available in five more languages — 简体中文, 日本語, Español,
-  Français and Deutsch — under `ref/readme/`, linked from the top of the English
-  one. Each translation is stamped with the date it was made and says plainly
-  that the English README is the official version and the only one kept up to
-  date; where a translation disagrees with it, the English is right.
-- README restructured around the window rather than the panes. The title bar —
-  every button and counter in it — now has a section of its own instead of
-  being split across four unrelated ones, tabs and recent repositories sit under
-  it, and opening a file whole is documented beside the diff rather than inside
-  it. Newly written up: the Settings dialog, snapshots (**Browse Snapshot**),
-  and the **Word highlight** option, none of which the README mentioned.
+  Français, Deutsch — under `ref/readme/`, linked from the English one. Each
+  translation is stamped with the date it was made and says the English README
+  is the official version and the only one kept up to date.
+- README restructured around the window rather than the panes: the title bar —
+  every button and counter in it — has a section of its own, tabs and recent
+  repositories sit under it, and opening a file whole is documented beside the
+  diff. Newly written up: the Settings dialog, snapshots (**Browse Snapshot**)
+  and the **Word highlight** option.
 - The window opens faster: the renderer bundle is split, so the app shell and
   the four panes no longer wait on the libraries only some of them need. The
   terminal (xterm), opened files and markdown previews (highlight.js,
-  markdown-it) load as their own chunks only when they first appear, instead of
-  gating the first paint.
-- The pane-title tooltips now spell out the double-click gesture: hovering any
-  of the four pane titles shows **Double-click the title toggles full screen**
-  under its shortcut, so the mouse gesture is discoverable without a docs hunt.
+  markdown-it) load as their own chunks only when they first appear.
+- Hovering any of the four pane titles now shows **Double-click the title
+  toggles full screen** alongside its shortcut.
 - README screenshot updated for this release (`ref/gitty-0.1.4.png`).
 
 ### Fixed
 
-- Yesterday evening's commits read as times still to come. The commit log shows
-  a bare time for today's rows and a date for everything else, but "everything
-  else" was measured as the last 24 hours: at 3 PM, a commit from 9:45 the
-  previous night was labelled "9:45 PM" with no date, sitting directly under
-  1:43 PM. The cutoff is now the calendar day. The file history pane shares the
-  same stamp and was wrong the same way.
-- The window could stay hidden forever on Wayland. It is created hidden and
+- Yesterday evening's commits read as times still to come. The log shows a bare
+  time for today's rows and a date for everything else, but "everything else"
+  was the last 24 hours — at 3 PM, a commit from 9:45 the previous night showed
+  "9:45 PM" with no date. The cutoff is now the calendar day. The file history
+  pane shares the same stamp and was wrong the same way.
+- The window could stay hidden forever on Wayland: it is created hidden and
   shown at its first paint, but an unmapped window's renderer can hold that
-  frame back — and showing the window is what would have released it. Gitty
-  appeared to start and then leave nothing on screen. The load event now arms a
-  fallback that shows the window a second later if the first paint has not
-  already done it.
+  frame back, and showing the window is what would release it. The load event
+  now arms a fallback that shows the window a second later if the first paint
+  has not.
 - Around twenty strings never followed the language setting, because they were
-  still written into the components rather than read from a message table —
-  **Show Whole Diff**, **Wrap**, **Outline**, **Preview**, **Open in Browser**,
-  the document tabs, the work-tree row of the commit log and a dozen tooltips.
-  They now come from the tables like everything else.
+  written into the components rather than read from a message table — **Show
+  Whole Diff**, **Wrap**, **Outline**, **Preview**, **Open in Browser**, the
+  document tabs, the work-tree row of the commit log and a dozen tooltips. They
+  now come from the tables like everything else.
 
 ## [0.1.3] - 2026-08-07
 
 ### Added
 
-- **Push** and **Pull** in the commits pane header, acting on the checked-out
-  branch. **Push** carries the count of unpushed commits (**Push 3**) and greys
-  out when there is nothing to send; on a branch that tracks nothing it
-  publishes to `origin` and sets the upstream. **Pull** fast-forwards from the
-  upstream and greys out when there is none. Git's own output appears above the
-  log, clicked away when read — failures stay until dismissed. Neither can
-  answer a credential prompt (there is no terminal behind them), so one that
-  needs a password fails with git's message instead of hanging, and the
-  terminal pane is where it gets finished.
-
-- Every pane hides and comes back. Each pane header ends in a **×** that hides
-  it, **Panes** in the title bar lists all four with a dot on the visible ones,
-  and <kbd>Ctrl+1</kbd>…<kbd>Ctrl+4</kbd> toggle them in layout order. The
-  remaining panes share out the space; the last visible pane keeps its **×**
-  hidden, so the window is never empty. What is hidden is remembered across
-  restarts, and hiding the terminal pane leaves its shells running — they come
-  back with their scrollback intact.
-- The file heading stays in view while scrolling a whole-file diff. Once the
-  heading you are reading under scrolls past the top of the pane, it pins itself
-  to the top until the next file's heading scrolls up and pushes it away, so the
-  name of the file the lines belong to is never more than one glance up. A
-  single-file diff is unaffected — nothing would ever push its heading off.
+- **Push** and **Pull** in the commits pane header, on the checked-out branch.
+  **Push** carries the count of unpushed commits (**Push 3**) and greys out
+  when there is nothing to send; on a branch that tracks nothing it publishes
+  to `origin` and sets the upstream. **Pull** fast-forwards from the upstream
+  and greys out when there is none. Git's own output appears above the log,
+  clicked away when read — failures stay until dismissed. A push or pull that
+  needs a credential prompt fails with git's message instead of hanging (there
+  is no terminal behind them); the terminal pane is where it gets finished.
+- Every pane hides and comes back: a **×** at each pane header's end hides it,
+  **Panes** in the title bar lists all four with a dot on the visible ones, and
+  <kbd>Ctrl+1</kbd>…<kbd>Ctrl+4</kbd> toggle them in layout order. The remaining
+  panes share the space; the last visible pane keeps its **×** hidden, so the
+  window is never empty. What is hidden is remembered across restarts, and
+  hiding the terminal pane leaves its shells running, scrollback intact.
+- The file heading stays in view while scrolling a whole-file diff: when it
+  scrolls past the top of the pane it pins itself there until the next file's
+  heading pushes it away. A single-file diff is unaffected.
 - Every pane goes full screen, not just the diff. **⤢** at the left of each pane
-  header fills the window with that pane; **⤡**, <kbd>Esc</kbd>, a double-click
-  on the header or <kbd>Ctrl+Shift+1</kbd>…<kbd>Ctrl+Shift+4</kbd> restores the
-  layout. The diff's **Full Screen** / **Restore** button is gone, its corner
-  button replacing it.
-- Hovering a pane title shows its shortcuts. The browser's `title` tooltip is
-  drawn by the OS in a fixed face and cannot match the app, so each pane header
-  now carries a styled tooltip that spells the pane's own gestures — the keys
-  that hide it and fill the window — with the key labels colour-coded so the
-  shortcut reads at a glance.
+  header fills the window; **⤡**, <kbd>Esc</kbd>, a header double-click or
+  <kbd>Ctrl+Shift+1</kbd>…<kbd>Ctrl+Shift+4</kbd> restores the layout. The
+  diff's **Full Screen** / **Restore** button is gone, its corner button
+  replacing it.
+- Hovering a pane title shows a styled tooltip spelling the pane's own gestures
+  — the keys that hide it and fill the window — with the key labels
+  colour-coded.
 
 ### Fixed
 
 - Reading a long file no longer jumps back to the top when the file changes on
-  disk. A markdown preview or a source view is re-read on every repository
-  change, and the scroll reset that belongs to opening another document was
-  firing on the new text as well — editing a file elsewhere while reading it
-  here threw the reader back to line one. The position is kept across a reload
-  now (and with it the lines already loaded in the source view), and only
-  opening a different document rewinds.
-- The running window shows Gitty's icon in the window list and the dock instead
-  of a generic placeholder. The desktop entry now carries
-  `StartupWMClass=electron`: an unpackaged Electron app reports `electron` as
-  its window class (its Wayland `app_id`) whatever `app.setName`, `--class`,
-  `CHROME_DESKTOP` or a renamed binary say, so that is the name the entry has to
-  match. Re-run `./setup.sh` and restart Gitty to pick it up.
+  disk. The position is kept across a reload, with the lines already loaded in
+  the source view; only opening a different document rewinds.
+- The window list and the dock show Gitty's icon instead of a generic
+  placeholder. The desktop entry now carries `StartupWMClass=electron`: an
+  unpackaged Electron app reports `electron` as its window class (its Wayland
+  `app_id`) whatever `app.setName`, `--class`, `CHROME_DESKTOP` or a renamed
+  binary say. Re-run `./setup.sh` and restart Gitty to pick it up.
 - The work tree pane no longer gets stuck listing changes that are already
   committed. A burst of file-system events could start several refreshes at
   once, and a slow earlier `git status` landing after a newer one put its stale
-  file list back on screen — while the diff pane, which re-runs git for every
-  render, showed the real state. Replies that a newer refresh has overtaken are
-  now discarded, for the diff pane as well.
+  file list back on screen while the diff pane showed the real state. Replies a
+  newer refresh has overtaken are now discarded, for the diff pane as well.
 
 ### Changed
 
@@ -381,100 +305,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- The diff pane holds several documents at once. A single click still browses
+- The diff pane holds several documents at once: a single click still browses
   diffs in place, but double-clicking a file (or **View File** / **Preview**)
-  opens it in a strip beside the diff rather than over it, so a diff can stay on
-  screen while a file is read. Each document remembers the revision it was
-  opened at, closes with its own **×**, and reloads on its own when the work
+  opens it in a strip beside the diff. Each document remembers the revision it
+  was opened at, closes with its own **×**, and reloads on its own when the work
   tree changes.
 - A file heading inside a diff opens that file: **Ctrl+click** it, or use its
-  context menu, which also copies the path and — for the work tree, where the
-  file on disk is still the version shown — hands it to the system application.
-  A rename opens the new path.
+  context menu, which also copies the path and — for the work tree — hands the
+  on-disk file to the system application. A rename opens the new path.
 - Files in a multi-file diff fold: a triangle on each file heading collapses it
-  to its name, and **Collapse All** / **Expand All** in the header does the lot.
-  Everything starts expanded, and a new diff arrives expanded.
+  to its name, and **Collapse All** / **Expand All** does the lot. Everything
+  starts expanded.
 - Every commit has a local URL: a web server inside the app (127.0.0.1 only)
   renders commits for the system browser. Right-click a commit for **Open in
-  Browser** or **Copy Commit URL**; the commits pane's **Open in Browser**
-  button lands on the repository's commit list, where each row links into its
-  commit page — metadata, message, file list and diff, with per-file diffs one
-  click away. URLs work while the repository is open.
+  Browser** or **Copy Commit URL**; the commits pane's button lands on the
+  repository's commit list, where each row links into its commit page —
+  metadata, message, file list and diff. URLs work while the repository is
+  open.
 - The diff pane shows everything at once when no file is selected: in the work
   tree that is every uncommitted change — staged and unstaged together, with
-  untracked files inlined (up to 50, then a notice) since `git diff` omits them
-  — and in a commit it is the full commit diff, as before. The work tree used
-  to show nothing there but a prompt to pick a file.
-- Browse any branch's history: the branch in the title bar is now a menu of
-  every local and remote-tracking branch, newest first, and picking one points
-  the commit log at it. Nothing is checked out — the work tree, its diffs and
-  the shells stay on the branch git is actually on — so the title bar reads
-  `⎇ main › other-branch` and the commit pane carries the branch it is
-  listing. **Back to <branch>** returns to the checked-out one, and each tab
-  browses independently.
+  untracked files inlined (up to 50, then a notice, since `git diff` omits
+  them); in a commit, the full commit diff. The work tree used to show nothing
+  there but a prompt to pick a file.
+- Browse any branch's history: the branch in the title bar is a menu of every
+  local and remote-tracking branch, newest first, and picking one points the
+  commit log at it. Nothing is checked out — the work tree, its diffs and the
+  shells stay on the branch git is actually on — so the title bar reads
+  `⎇ main › other-branch`. **Back to <branch>** returns to the checked-out one;
+  each tab browses independently.
 - Repository tabs: a bar along the bottom holds every open repository, each with
   its own four panes and terminal. **+** or **Ctrl+O** opens another repository
-  into a new tab instead of replacing the current one, a dot marks tabs whose
-  working tree has uncommitted changes, and **×** closes one (leaving an empty
-  window to open the next when the last closes). Switching tabs never disturbs
-  the other repository's view state or shells. Tabs are not persisted across
-  restarts.
+  into a new tab, a dot marks tabs with uncommitted changes, and **×** closes
+  one. Switching tabs never disturbs another repository's view state or shells.
+  Tabs are not persisted across restarts.
 - A split terminal pane: **Split →** opens a shell beside the focused one,
-  **Split ↓** below it, and a small round **×** at each terminal's top right
-  closes it — the last one has none, since an empty pane would have no way
-  back. Splits nest and their separators drag like every other pane; splitting
-  the same way twice extends the row or column rather than nesting again.
-  Clicking a terminal focuses it, and the focused one is outlined once there
-  is more than one. A shell that exits closes its own split, except the last
-  one, which keeps the pane and its notice.
+  **Split ↓** below it, and a round **×** at each terminal's top right closes it
+  — the last one has none. Splits nest and their separators drag; splitting the
+  same way twice extends the row or column rather than nesting again. A shell
+  that exits closes its own split, except the last one, which keeps the pane and
+  its notice.
 - Recent repositories are remembered: the title bar's repository name opens a
-  menu of the last twelve opened, most recent first; picking one opens it in a
-  new tab, **Ctrl/Cmd+click** or a middle-click opens it in the current tab
-  instead, and a **right-click** drops the entry from the list without closing
-  the menu, so several can go in a row. Each entry's tooltip spells the
-  gestures out, and **Open Repository…** and **Clear Recent** sit below. The
-  list is kept by the main process in
-  `~/.config/Gitty/recent-repos.json` and entries that no longer exist are
-  skipped. Launching from a directory outside any work tree now falls back to
-  the last repository opened rather than only reporting the error.
-- An application icon, used as the window icon on Linux and Windows and as a
-  small mark next to the **Gitty** name in the title bar: a dark rounded square
-  split into the four panes, each tinted with its accent colour (green work
-  tree, red diff, cyan commit log, blue terminal) and carrying a small glyph for
-  what it shows — a file block, added and removed lines, a commit timeline and
-  a shell prompt. The SVG source lives in `build/` next to the rendered PNG.
+  menu of the last twelve, most recent first; picking one opens a new tab,
+  **Ctrl/Cmd+click** or a middle-click opens in the current tab, and a
+  **right-click** drops the entry. **Open Repository…** and **Clear Recent** sit
+  below. The list is kept in `~/.config/Gitty/recent-repos.json`, and entries
+  that no longer exist are skipped. Launching outside a work tree now falls back
+  to the last repository opened.
+- An application icon — the window icon on Linux and Windows, a small mark
+  beside the **Gitty** name in the title bar: a dark rounded square split into
+  the four panes, each tinted with its accent colour and carrying a glyph for
+  what it shows. The SVG source lives in `build/` next to the rendered PNG.
 - A desktop launcher from `./setup.sh`: the icon is installed into the hicolor
-  theme and a `gitty.desktop` entry lands in the application menu (and on the
-  desktop when the session has one), launching with a new `gitty --any` flag
-  that lets it start from outside a work tree and open the last repositories
-  instead of failing. The icon theme cache is refreshed afterwards, so the
-  entry appears with its icon rather than a blank one until the next login.
+  theme and a `gitty.desktop` entry lands in the application menu, launching
+  with a new `gitty --any` flag that starts from outside a work tree and opens
+  the last repositories instead of failing. The icon theme cache is refreshed
+  afterwards.
 - Gitty installs from npm as `gitty-desktop`: the package ships the built
-  bundle (`out/`), the icon and a `gitty` binary that launches the app in the
-  bundled Electron, so `npm install -g gitty-desktop` needs no checkout. To
-  make that possible, Electron and the `node-pty` ABI rebuild moved from
-  development to runtime dependencies.
+  bundle (`out/`), the icon and a `gitty` binary launching the app in the
+  bundled Electron, so `npm install -g gitty-desktop` needs no checkout. Electron
+  and the `node-pty` ABI rebuild moved to runtime dependencies to make it
+  possible.
 
 ### Changed
 
 - The diff pane reads as a list of files: the `diff --git a/x b/x` line is
   replaced by the path itself (`old → new` for a rename) as a full-width
-  heading, files are separated by a blank line, and the hunk header — a line
-  range, not the thing to look at first — is dimmed rather than highlighted.
-- Blob hashes and the `---` / `+++` path lines are folded away, since the
-  heading already names the file. Headers that carry meaning — `new file`,
-  `deleted file`, `rename from` / `to`, `Binary files` — stay.
-- **Show Whole Diff** no longer comes and goes: it stays in the diff header for
-  the work tree, a commit and a range alike, lit while the whole diff is on
-  screen, and it now also appears while viewing a file — returning to the whole
-  diff took two clicks before.
+  heading, files are separated by a blank line, and the hunk header is dimmed
+  rather than highlighted.
+- Blob hashes and the `---` / `+++` path lines are folded away; headers that
+  carry meaning — `new file`, `deleted file`, `rename from` / `to`, `Binary
+  files` — stay.
+- **Show Whole Diff** stays in the diff header for the work tree, a commit and
+  a range alike, lit while the whole diff is on screen, and also appears while
+  viewing a file.
 - README screenshot updated for this release (`ref/gitty-0.1.2.png`).
 
 ### Fixed
 
-- A deleted line beginning with `-- ` (rendered as `--- ` in a diff) was
-  mistaken for a file header and vanished from the pane. Header prefixes now
-  only count between `diff --git` and the first hunk.
+- A deleted line beginning with `-- ` (rendered `--- ` in a diff) was mistaken
+  for a file header and vanished from the pane. Header prefixes now only count
+  between `diff --git` and the first hunk.
 
 ## [0.1.1] - 2026-08-05
 
@@ -483,39 +393,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Whole-file view beyond markdown: **View File** — a double-click in the file
   tree, the context menu, or the header toggle — shows any file's full contents
   with line numbers and syntax highlighting instead of its diff, from disk in
-  the work tree and at the selected revision elsewhere. It is a one-off action
-  rather than a remembered mode: selecting another file or another commit goes
-  straight back to the diff. Snapshots are the exception and always view files,
-  having no diff to show.
+  the work tree and at the selected revision elsewhere. It is a one-off action:
+  selecting another file or commit goes back to the diff. Snapshots are the
+  exception and always view files, having no diff.
 - A settings dialog (**Settings** in the title bar, File ▸ Settings, or
-  <kbd>Cmd/Ctrl+,</kbd>) collects every preference in one place: a **theme**
-  toggle (dark, the default, and light), the font size and row height as
-  sliders, and the existing diff layout, word wrap, word highlight and markdown
-  outline switches, each with a **Restore Defaults** button. The terminal
-  palette follows the theme, reading the same CSS variables as the rest of the
-  UI.
+  <kbd>Cmd/Ctrl+,</kbd>) collects every preference: a **theme** toggle (dark by
+  default, and light), font size and row height sliders, and the existing diff
+  layout, word wrap, word highlight and markdown outline switches, each with a
+  **Restore Defaults** button. The terminal palette follows the theme.
 - Markdown preview for `.md` files, off by default: the **Preview** button
   renders the whole file — from disk in the work tree, from the selected commit
   elsewhere — with an **Outline** of its headings that indents by level, follows
-  the reading position and jumps on click. Raw HTML is left inert and links open
-  in the system browser.
+  the reading position and jumps on click. Raw HTML is left inert; links open in
+  the system browser.
 - Colour in the markdown preview: fenced code blocks are syntax-highlighted
-  through highlight.js when they name a language (22 common ones are
-  registered), YAML front matter is lifted out of the document and shown as its
-  own highlighted block, and heading levels, list markers, blockquotes, table
-  headers, links and inline code are colour-coded. Token colours are mapped onto
-  the app's own palette rather than imported from a highlight.js theme, so code
-  matches the diff and the terminal.
-- Word wrap now applies to the markdown preview as well, on by default and
-  sharing the diff's toggle: fenced code blocks, wide tables and long inline
-  strings wrap instead of scrolling sideways.
-- Full-screen mode for the diff / preview pane, from its button, a double-click
-  on its header, or <kbd>Esc</kbd> to leave. The pane is drawn over the layout,
+  through highlight.js when they name a language (22 common ones registered),
+  YAML front matter is lifted out and shown as its own highlighted block, and
+  headings, list markers, blockquotes, table headers, links and inline code are
+  colour-coded onto the app's own palette.
+- Word wrap now applies to the markdown preview too, on by default and sharing
+  the diff's toggle: fenced code blocks, wide tables and long inline strings
+  wrap instead of scrolling sideways.
+- Full-screen mode for the diff / preview pane: its button, a header
+  double-click, or <kbd>Esc</kbd> to leave. The pane is drawn over the layout,
   so the terminal underneath keeps its shell and scrollback.
 - Word wrap in the diff pane, on by default, toggled from the header or the
   context menu and remembered between runs.
 - Side-by-side diff view alongside the inline one: deletions are zipped with the
-  additions that follow them, and each pair is a grid row so wrapped halves stay
+  additions that follow them, each pair a grid row so wrapped halves stay
   aligned. Also remembered between runs.
 - Context menu in the diff pane: Copy Selection, Copy Whole Diff, and the wrap
   and view toggles.
@@ -531,34 +436,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `gitty` now detaches from the terminal instead of holding it: it prints the
   pid and returns, the window survives the shell closing, and output goes to
-  `${XDG_STATE_HOME:-~/.local/state}/gitty/gitty.log` (trimmed to its last
-  megabyte past 4 MB). `--fg` keeps the old attached behaviour, and `--dev` is
-  unaffected.
+  `${XDG_STATE_HOME:-~/.local/state}/gitty/gitty.log` (trimmed past 4 MB).
+  `--fg` keeps the old attached behaviour.
 - The diff pane renders in chunks of 1500 rows that grow as you scroll, instead
-  of a fixed-height virtual window. Variable row heights are what wrapping and
-  the side-by-side grid need.
+  of a fixed-height virtual window.
 - Selected commit rows are more prominent: the cursor row gets a brighter
-  background with a blue accent bar and a bold white hash, and the compared
-  (second) row a wider magenta accent bar.
+  background with a blue accent bar and a bold white hash, the compared (second)
+  row a wider magenta accent bar.
 - Word-level highlighting in the diff, on by default: changed words within a
-  line are diffed against their paired counterpart and get a brighter block
-  than the row around them, in both inline and side-by-side views. Toggle it
-  from the diff's context menu, and very long or single-token lines fall back
-  to the row-level highlight.
+  line get a brighter block than the row around them, in both views. Toggle it
+  from the diff's context menu; very long or single-token lines fall back to the
+  row-level highlight.
 - Double-clicking a file views it in the pane beside the tree instead of handing
-  it to the system application, which moved to the context menu as "Open in
-  System App".
+  it to the system application, which moved to the context menu as **Open in
+  System App**.
 - README screenshot updated for this release (`ref/gitty-0.1.1.png`).
 
 ### Fixed
 
 - A replaced terminal session (window reload, repository switch) no longer
   writes its exit notice into the terminal that succeeded it.
-- Hovering a diff-pane button showed the header's own tooltip ("Double-click to
-  toggle full screen") whenever the button had none of its own. Tooltips now sit
-  on the individual parts, and every button carries its own.
-- "Show Whole Diff" no longer appears while browsing a snapshot, where there is
-  no whole diff to widen back to — clicking it just emptied the pane.
+- A diff-pane button with no tooltip of its own showed the header's
+  "Double-click to toggle full screen" tip. Tooltips now sit on the individual
+  parts; every button carries its own.
+- **Show Whole Diff** no longer appears while browsing a snapshot, where there
+  is no whole diff to widen back to — clicking it just emptied the pane.
 
 ## [0.1.0] - 2026-08-05
 

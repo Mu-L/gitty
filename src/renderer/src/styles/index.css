@@ -1660,6 +1660,40 @@ button:disabled:hover {
   margin-bottom: 16px;
 }
 
+/* One tab per section, so the dialog stays a screenful however many settings a
+   section grows. The panels stay mounted and are hidden, which keeps every
+   control's state and lets the dialog size itself to the tallest one. */
+.settings-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-tab {
+  padding: 3px 12px;
+  border-color: transparent;
+  border-bottom: 0;
+  border-radius: 4px 4px 0 0;
+  color: var(--fg-dim);
+  margin-bottom: -1px;
+}
+
+.settings-tab:hover {
+  color: var(--fg);
+}
+
+.settings-tab.on {
+  color: var(--fg-strong);
+  background: var(--bg-pane);
+  border-color: var(--border);
+  border-bottom: 1px solid var(--bg-pane);
+}
+
+.settings-group.hidden {
+  display: none;
+}
+
 .settings-group-title {
   margin: 0 0 6px;
   font-size: 11px;

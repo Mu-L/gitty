@@ -510,7 +510,9 @@ far. A collapsed file in a multi-file diff stays collapsed and is not searched.
 
 **Settings** in the title bar, or <kbd>Ctrl+,</kbd>. Everything here applies to
 every tab and is remembered across restarts; **Restore Defaults** puts it all
-back.
+back. The dialog is in three tabs — **Appearance**, **View** and **Session** —
+so it stays one screenful as it grows; the table below lists them in that
+order.
 
 | | |
 | --- | --- |

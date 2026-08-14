@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useMsg } from '../locale'
 import { ALL_LOCALES, type Locale } from '../locale'
 import type { JSX } from 'react'
@@ -144,6 +145,9 @@ function Slider({
  * Modal settings dialog. Escape is handled by the App (which owns the open
  * state), so this component does not register its own key listeners.
  */
+/** The dialog's sections, each its own tab. */
+type Tab = 'appearance' | 'view' | 'session'
+
 export function SettingsPane(props: {
   open: boolean
   onClose: () => void
@@ -184,7 +188,19 @@ export function SettingsPane(props: {
   setTermLogin: (v: boolean) => void
 }): JSX.Element | null {
   const { msg } = useMsg()
+  // Reset to the first tab between openings: the dialog is short-lived, and
+  // coming back to where you were last time is not what a reader expects.
+  const [tab, setTab] = useState<Tab>('appearance')
+  useEffect(() => {
+    if (props.open) setTab('appearance')
+  }, [props.open])
   if (!props.open) return null
+
+  const tabs: Array<{ id: Tab; label: string }> = [
+    { id: 'appearance', label: msg.settings.appearance },
+    { id: 'view', label: msg.settings.view },
+    { id: 'session', label: msg.settings.session }
+  ]
 
   return (
     <div
@@ -201,9 +217,19 @@ export function SettingsPane(props: {
             ×
           </button>
         </div>
+        <div className="settings-tabs">
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              className={`settings-tab${tab === t.id ? ' on' : ''}`}
+              onClick={() => setTab(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
         <div className="settings-body">
-          <div className="settings-group">
-            <h3 className="settings-group-title">{msg.settings.appearance}</h3>
+          <div className={`settings-group${tab === 'appearance' ? '' : ' hidden'}`}>
             <Segmented
               label={msg.settings.language}
               value={props.locale}
@@ -260,8 +286,7 @@ export function SettingsPane(props: {
               onChange={props.setRowHeight}
             />
           </div>
-          <div className="settings-group">
-            <h3 className="settings-group-title">{msg.settings.view}</h3>
+          <div className={`settings-group${tab === 'view' ? '' : ' hidden'}`}>
             <Segmented
               label={msg.settings.diffLayout}
               value={props.diffView}
@@ -302,8 +327,7 @@ export function SettingsPane(props: {
               onChange={(v) => props.setNaturalSort(v === 'natural')}
             />
           </div>
-          <div className="settings-group">
-            <h3 className="settings-group-title">{msg.settings.session}</h3>
+          <div className={`settings-group${tab === 'session' ? '' : ' hidden'}`}>
             <CheckRow
               label={msg.settings.restoreTabs}
               checked={props.restoreTabs}
