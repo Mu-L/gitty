@@ -1,12 +1,14 @@
 # The Gitty manual
 
-Everything Gitty does, pane by pane. The [README](../README.md) is the short
+**English** · [简体中文](manual.zh-CN.md) · [日本語](manual.ja.md) · [한국어](manual.ko.md) · [Français](manual.fr.md) · [Deutsch](manual.de.md) · [Español](manual.es.md) · [Русский](manual.ru.md) · [Português](manual.pt.md)
+
+Everything Gitty does, pane by pane. The [README](../../README.md) is the short
 version — what it is, why it exists, how to install it — and stays that way;
 this is where the details live.
 
-*English only, deliberately. The translations listed at the top of the
-[README](../README.md) are snapshots of the README alone — which is what makes
-keeping nine of them affordable now that the manual is not in it.*
+*This English manual is the official version and the only one kept up to date.
+The translations are snapshots, each stamped with the date it was made; where
+one disagrees with this file, this file is right.*
 
 ---
 
@@ -177,8 +179,10 @@ a real tty, so hooks and gpg signing work as they always do.
 The arrow beside the button is where the command is chosen — there is no
 setting for it, because it is a question asked once per hand-over rather than
 once per install. The dropdown lists the commands Gitty remembers, ticks the
-one the button itself runs, and runs the one you pick; right-clicking an entry
-forgets it. **New command…** at the bottom opens a one-line box, prefilled with
+one the button itself runs, and runs the one you pick. The **×** at the right
+of an entry takes it out of the list, after a confirmation — the list is the
+only place a command is written down, and the menu stays open so several can
+go in a row. **New command…** at the bottom opens a one-line box, prefilled with
 the current command, for anything not in the list. The list starts as a few
 suggestions — which agent is installed is not something Gitty can know — and a
 command joins it by having been run, so nothing is remembered on the strength
@@ -302,15 +306,24 @@ glance.
 - **Right-click** — Copy Selection, Copy Markdown Source, the wrap and outline
   toggles, and Show Diff Instead.
 
-Raw HTML inside the markdown is not rendered, and links open in the system
-browser rather than inside the app. Images written relative to the document are
-read out of the repository — at the same revision as the document, so an old
+Raw HTML inside the markdown is not rendered, and a link to the web opens in
+the system browser rather than inside the app. A link to another file in the
+repository — `ref/readme/manual.md`, `../README.md`, `/CHANGELOG.md` — is followed
+here instead: **Ctrl/Cmd+click** opens that file as its own document beside the
+diff, at the same revision as the document holding the link, so a README read at
+an old commit leads to that commit's files. A `#fragment` on the end travels
+with it — `manual.md#the-window` opens the manual at that heading, the way it
+would on a forge — and a heading this document does not have simply opens it at
+the top. Hovering such a link says so. A plain click does nothing, as before,
+and a link that climbs out past the repository root is not one of these.
+
+Images written relative to the document are read out of the repository — at the same revision as the document, so an old
 commit shows the screenshots it shipped with. One the repository does not have
 there leaves a dashed placeholder with its alt text. Images from the web are not
 fetched at all: reading a stranger's README should not announce you to whatever
 host it points at.
 
-![Markdown preview](../ref/gitty-0.1.5-markdown.png)
+![Markdown preview](../../ref/gitty-0.1.5-markdown.png)
 
 #### HTML preview
 
@@ -336,7 +349,7 @@ checkerboard, so transparency reads as transparency; **click** it for actual
 size and scroll around, click again to fit. Its pixel dimensions and size on
 disk sit underneath. Images above 12 MB are not inlined.
 
-![Image preview](../ref/gitty-0.1.5-image.png)
+![Image preview](../../ref/gitty-0.1.5-image.png)
 
 #### Blame and file history
 
@@ -426,7 +439,7 @@ regular expression reaches git as one argument.
 - Selecting a file in the top-left pane narrows the diff to that file;
   **Show Whole Diff** widens it back out.
 
-![Diff against any two commits](../ref/gitty-0.1.5-range.png)
+![Diff against any two commits](../../ref/gitty-0.1.5-range.png)
 
 #### Gource
 

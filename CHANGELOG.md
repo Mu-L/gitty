@@ -31,8 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   shell and presses Enter. No model is called from inside Gitty and nothing
   leaves the machine; the agent runs where there is a real tty, so its prompts,
   hooks and gpg signing all work. The arrow beside it holds the choice of
-  command — the remembered ones, the current one ticked, right-click to forget,
-  and **New command…** for one that is not in the list. The list starts as
+  command — the remembered ones, the current one ticked, an **×** to forget one
+  (confirmed natively), and **New command…** for one that is not in the list. The list starts as
   suggestions and grows from what is actually run. **Copy Staged Diff** on the
   work-tree row's menu covers the case where the conversation is in another
   window.
@@ -87,9 +87,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The README is 660 lines shorter than it was: everything pane-by-pane — the
   window, the panes, finding text, the settings table, the shortcuts and the
-  platform notes — moved to **[docs/manual.md](docs/manual.md)**, which the
-  README links to. A manual and a business card should not be the same file,
-  and the translations now have only the README to track.
+  platform notes — moved to **[ref/readme/manual.md](ref/readme/manual.md)**,
+  which the README links to. A manual and a business card should not be the same
+  file. The manual has translations of its own — `ref/readme/manual.<lang>.md`,
+  in the same eight languages as the README's — and both sets are snapshots:
+  the English README and the English manual are the official versions.
   (The review that asked for the split also asked for a ten-second GIF in the
   screenshot's place. That needs a screen recording of a real session, which
   this change cannot produce; the static screenshot stays.)

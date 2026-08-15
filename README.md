@@ -5,7 +5,8 @@
 *This English README is the official version and the only one kept up to date.
 The translations are snapshots, each stamped with the date it was made; where
 one disagrees with this file, this file is right. They cover this file only —
-the [manual](docs/manual.md) is English.*
+the [manual](ref/readme/manual.md) has translations of its own, and English is
+the official version there too.*
 
 A four-pane git history browser for the desktop, in the spirit of `lazygit` but
 with real mouse interaction: double-click to open a file, right-click to copy
@@ -22,7 +23,7 @@ its path, click two commits to diff them.
 ```
 
 All panes are resizable by dragging the separators, and each one hides and comes
-back — see [Full screen and hiding](docs/manual.md#full-screen-and-hiding).
+back — see [Full screen and hiding](ref/readme/manual.md#full-screen-and-hiding).
 
 Things the other git browsers mostly do not do:
 
@@ -89,7 +90,7 @@ Two more things I wanted and almost nothing offered: a **markdown preview**, and
 - Node.js 20 or newer — only for the npm and source installs below; the `.deb`
   brings its own runtime
 - Optionally [gource](https://gource.io/) on `PATH`, for
-  [the animation](docs/manual.md#gource); nothing changes if it is absent
+  [the animation](ref/readme/manual.md#gource); nothing changes if it is absent
 
 ## Running
 
@@ -104,7 +105,7 @@ sudo dpkg -i gitty-desktop_*_amd64.deb
 
 It installs `/usr/bin/gitty`, an application-menu entry with its icon, and runs
 with Chromium's sandbox **on** — see
-[Linux desktop integration](docs/manual.md#linux-desktop-integration). An `.AppImage` is
+[Linux desktop integration](ref/readme/manual.md#linux-desktop-integration). An `.AppImage` is
 published beside it for distributions without dpkg; it is the second choice,
 because an AppImage cannot install the sandbox helper.
 
@@ -126,7 +127,7 @@ Link it into your PATH with:
 `setup.sh` also installs a clickable launcher — a desktop entry on Linux, a
 minimal `Gitty.app` on macOS. Both wrap the same `run.sh`, and both carry the
 workarounds an unpackaged Electron needs; see
-[Platform notes](docs/manual.md#platform-notes).
+[Platform notes](ref/readme/manual.md#platform-notes).
 
 Then open a repository from anywhere:
 
@@ -170,17 +171,17 @@ messages.
 ## The manual
 
 The rest — every pane, every setting, every shortcut — is in
-**[docs/manual.md](docs/manual.md)**:
+**[the manual](ref/readme/manual.md)**:
 
-- [The window](docs/manual.md#the-window): the title bar, going back, tabs,
+- [The window](ref/readme/manual.md#the-window): the title bar, going back, tabs,
   recent repositories, full screen and hiding panes.
-- [The panes](docs/manual.md#the-panes): the working tree and staging, the
+- [The panes](ref/readme/manual.md#the-panes): the working tree and staging, the
   diff, viewing files and rendered documents, the commit log and its graph,
   the terminal.
-- [Finding text](docs/manual.md#finding-text), the
-  [settings table](docs/manual.md#settings) and the
-  [keyboard shortcuts](docs/manual.md#keyboard-shortcuts).
-- [Platform notes](docs/manual.md#platform-notes): Linux desktop integration
+- [Finding text](ref/readme/manual.md#finding-text), the
+  [settings table](ref/readme/manual.md#settings) and the
+  [keyboard shortcuts](ref/readme/manual.md#keyboard-shortcuts).
+- [Platform notes](ref/readme/manual.md#platform-notes): Linux desktop integration
   and the macOS app bundle.
 
 ## Architecture
