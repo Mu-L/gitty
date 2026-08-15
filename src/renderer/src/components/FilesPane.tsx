@@ -75,10 +75,18 @@ function buildRows(entries: FileEntry[], collapsed: (key: string) => boolean): T
   })
 }
 
+/** Case-insensitive substring of the whole path, which is what makes a
+ *  directory match bring its subtree with it: every file under `src/main`
+ *  has that text in its own path. */
+export function matchesFilter(path: string, needle: string): boolean {
+  return path.toLowerCase().includes(needle.toLowerCase())
+}
+
 export function FilesPane({
   entries,
   naturalSort,
   startCollapsed,
+  filter,
   treeKey,
   selected,
   onSelect,
@@ -93,6 +101,8 @@ export function FilesPane({
   /** Start with every directory shut: a whole repository is a list to open
    *  into, where a list of changes is one to read. */
   startCollapsed: boolean
+  /** Show only the paths holding this text; '' shows the whole tree. */
+  filter: string
   /** Which tree is on screen. A different one starts from the default again;
    *  the same one re-read (a file changed on disk) keeps what is open. */
   treeKey: string
@@ -113,9 +123,11 @@ export function FilesPane({
   const [toggled, setToggled] = useState<Set<string>>(new Set())
   useEffect(() => setToggled(new Set()), [treeKey])
 
+  // While filtering, nothing is shut: a match three directories down is the
+  // whole point of having typed, and reopening the way to it by hand is not.
   const collapsed = useCallback(
-    (key: string): boolean => toggled.has(key) !== startCollapsed,
-    [toggled, startCollapsed]
+    (key: string): boolean => filter === '' && toggled.has(key) !== startCollapsed,
+    [toggled, startCollapsed, filter]
   )
 
   // Sorted here rather than by each producer: git orders by byte, which puts
@@ -124,10 +136,12 @@ export function FilesPane({
   const rows = useMemo(
     () =>
       buildRows(
-        [...entries].sort((x, y) => comparePaths(x.path, y.path, naturalSort)),
+        entries
+          .filter((e) => filter === '' || matchesFilter(e.path, filter))
+          .sort((x, y) => comparePaths(x.path, y.path, naturalSort)),
         collapsed
       ),
-    [entries, collapsed, naturalSort]
+    [entries, collapsed, naturalSort, filter]
   )
 
   const toggle = (key: string): void =>
@@ -139,6 +153,7 @@ export function FilesPane({
     })
 
   if (entries.length === 0) return <div className="empty">{emptyText}</div>
+  if (rows.length === 0) return <div className="empty">{msg.files.filterNone}</div>
 
   return (
     <div>

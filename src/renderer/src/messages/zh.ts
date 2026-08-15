@@ -98,7 +98,11 @@ export const zh: RendererMessages = {
     searchTitle: '用 git grep 搜索整个仓库',
     searchPlaceholder: '搜索仓库…',
     searchInRevision: (short: string) => `搜索 ${short}`,
-    searchInWorktree: '搜索工作树'
+    searchInWorktree: '搜索工作树',
+    filterPlaceholder: '过滤此文件树…',
+    filterCount: (shown: number, total: number) => `${total} 个中的 ${shown} 个`,
+    filterNone: '无匹配',
+    filterClear: '清除过滤'
   },
   diff: {
     titleFallback: '差异',

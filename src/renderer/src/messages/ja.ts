@@ -100,7 +100,11 @@ export const ja: RendererMessages = {
     searchTitle: 'git grep でリポジトリを検索',
     searchPlaceholder: 'リポジトリを検索…',
     searchInRevision: (short: string) => `${short} を検索`,
-    searchInWorktree: 'ワークツリーを検索'
+    searchInWorktree: 'ワークツリーを検索',
+    filterPlaceholder: 'このツリーを絞り込む…',
+    filterCount: (shown: number, total: number) => `${total} 件中 ${shown} 件`,
+    filterNone: '一致なし',
+    filterClear: '絞り込みを消す'
   },
   diff: {
     titleFallback: '差分',

@@ -165,6 +165,14 @@ combined diff attributes nothing.
   Stage / Unstage File, Discard Changes, Delete File.
 - **Click a folder** — collapse or expand it.
 
+<kbd>Ctrl+F</kbd> with this pane focused opens a filter box above the tree and
+narrows it to the paths holding what you type, with the count of how many of
+how many files are left. The text is matched against the whole path, so
+`src/main` keeps everything under that directory, and matching is
+case-insensitive. Nothing stays shut while the box has text — a match five
+directories down is the point of having typed. <kbd>Esc</kbd> or the **✕**
+clears it and puts the whole tree back, and so does moving to another commit.
+
 **Discard Changes** puts the file back to what the index holds, after a native
 confirmation that says plainly there is no undo; an untracked file has no index
 version to go back to, so it offers **Delete File** instead, which goes to the
@@ -506,7 +514,9 @@ screen instead of an empty pane.
 
 <kbd>Ctrl+F</kbd> searches whatever the right-hand pane is showing: a diff, a
 file, a rendered markdown document, an [HTML preview](#html-preview), a blame,
-or a file's history. Every match is highlighted with the current one picked out,
+or a file's history. With the file tree focused it does something else — it
+filters that tree, described in
+[Working Tree](#working-tree-top-left). Every match is highlighted with the current one picked out,
 <kbd>Enter</kbd> and <kbd>Shift+Enter</kbd> (or the arrows) walk them and wrap
 around at either end, the count says where you are, and <kbd>Esc</kbd> closes.
 
@@ -559,7 +569,7 @@ highlight** lives here only.
 | <kbd>Enter</kbd> | Show the selected commit |
 | <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Mark a second commit and diff the pair |
 | <kbd>Ctrl+Click</kbd> on a file heading | Open that file in a new document tab |
-| <kbd>Ctrl+F</kbd> | Find in the diff, the file, or whatever the pane is showing |
+| <kbd>Ctrl+F</kbd> | Find in the diff, the file, or whatever the pane is showing — or filter the file tree, with that pane focused |
 | <kbd>Ctrl+C</kbd> / <kbd>Ctrl+Shift+C</kbd> | Copy the selection, anywhere in the window |
 | <kbd>Esc</kbd> | Back to the working tree |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Back and forward through the places viewed |

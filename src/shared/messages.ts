@@ -181,6 +181,11 @@ export interface RendererMessages {
     readonly searchPlaceholder: string
     readonly searchInRevision: (short: string) => string
     readonly searchInWorktree: string
+    /** Ctrl+F over the listed tree: show only the paths that match. */
+    readonly filterPlaceholder: string
+    readonly filterCount: (shown: number, total: number) => string
+    readonly filterNone: string
+    readonly filterClear: string
   }
   readonly diff: {
     readonly titleFallback: string

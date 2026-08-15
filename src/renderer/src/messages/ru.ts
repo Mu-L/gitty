@@ -116,7 +116,11 @@ export const ru: RendererMessages = {
     searchTitle: 'Искать по репозиторию через git grep',
     searchPlaceholder: 'Искать по репозиторию…',
     searchInRevision: (short: string) => `поиск в ${short}`,
-    searchInWorktree: 'поиск в рабочем дереве'
+    searchInWorktree: 'поиск в рабочем дереве',
+    filterPlaceholder: 'Отфильтровать это дерево…',
+    filterCount: (shown: number, total: number) => `${shown} из ${total}`,
+    filterNone: 'нет совпадений',
+    filterClear: 'Очистить фильтр'
   },
   diff: {
     titleFallback: 'Diff',

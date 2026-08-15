@@ -100,7 +100,11 @@ export const ko: RendererMessages = {
     searchTitle: 'git grep으로 저장소 검색',
     searchPlaceholder: '저장소 검색…',
     searchInRevision: (short: string) => `${short} 검색 중`,
-    searchInWorktree: '작업 트리 검색 중'
+    searchInWorktree: '작업 트리 검색 중',
+    filterPlaceholder: '이 트리 걸러내기…',
+    filterCount: (shown: number, total: number) => `${total}개 중 ${shown}개`,
+    filterNone: '일치 없음',
+    filterClear: '필터 지우기'
   },
   diff: {
     titleFallback: 'Diff',

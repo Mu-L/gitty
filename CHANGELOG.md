@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- <kbd>Ctrl+F</kbd> in the file tree filters it: a box above the tree, the
+  paths holding that text and the count of how many are left. Matching is
+  case-insensitive and against the whole path, so `src/main` keeps that
+  subtree; nothing stays collapsed while the box has text. <kbd>Esc</kbd> or
+  another commit clears it.
+
 ### Changed
 
 - **Send to agent** is no longer disabled when the index is empty; it types its

@@ -101,7 +101,11 @@ export const de: RendererMessages = {
     searchTitle: 'Das Repository mit git grep durchsuchen',
     searchPlaceholder: 'Repository durchsuchen…',
     searchInRevision: (short: string) => `durchsucht ${short}`,
-    searchInWorktree: 'durchsucht den Arbeitsbaum'
+    searchInWorktree: 'durchsucht den Arbeitsbaum',
+    filterPlaceholder: 'Diesen Baum filtern…',
+    filterCount: (shown: number, total: number) => `${shown} von ${total}`,
+    filterNone: 'keine Treffer',
+    filterClear: 'Filter löschen'
   },
   diff: {
     titleFallback: 'Diff',

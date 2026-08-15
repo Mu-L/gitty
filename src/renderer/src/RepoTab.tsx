@@ -21,7 +21,7 @@ import {
   type DiffPaneHandle,
   type DiffView
 } from './components/DiffPane'
-import { FilesPane, type FileEntry } from './components/FilesPane'
+import { FilesPane, matchesFilter, type FileEntry } from './components/FilesPane'
 import { CommitInfo } from './components/CommitInfo'
 import { useMsg } from './locale'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
@@ -254,6 +254,12 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const [allBranches, setAllBranches] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchText, setSearchText] = useState('')
+  // Ctrl+F over the file list narrows the tree rather than searching text: the
+  // pane is a list of paths, and what a reader wants from it is fewer of them.
+  const [treeFilterOpen, setTreeFilterOpen] = useState(false)
+  const [treeFilter, setTreeFilter] = useState('')
+  const treeFilterRef = useRef<HTMLInputElement>(null)
+  const filesBodyRef = useRef<HTMLDivElement>(null)
   const [remoteMsg, setRemoteMsg] = useState<{ ok: boolean; text: string } | null>(null)
   // gource is optional: the button exists only where the binary does.
   const [hasGource, setHasGource] = useState(false)
@@ -477,6 +483,22 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     if (view.mode === 'range') return view.to
     return null
   }, [view])
+
+  // Which tree the file pane is listing. Both the collapsed set and the filter
+  // belong to one tree: another commit's files are not the ones that was typed
+  // against.
+  const treeKey =
+    view.mode === 'snapshot'
+      ? `snapshot:${view.hash ?? 'worktree'}`
+      : view.mode === 'commit'
+        ? `commit:${view.hash}`
+        : view.mode === 'range'
+          ? `range:${view.from}..${view.to}`
+          : 'worktree'
+  useEffect(() => {
+    setTreeFilterOpen(false)
+    setTreeFilter('')
+  }, [treeKey])
 
   // One document per kind+revision+path; a blame of a file and the file itself
   // can sit beside each other, and so can two blame views of different revisions.
@@ -1241,7 +1263,67 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     </span>
                   </div>
                 )}
-                <div className="pane-body">
+                {treeFilterOpen && (
+                  <div className="log-filter">
+                    <input
+                      ref={treeFilterRef}
+                      type="text"
+                      value={treeFilter}
+                      placeholder={msg.files.filterPlaceholder}
+                      spellCheck={false}
+                      onChange={(e) => setTreeFilter(e.target.value)}
+                      onKeyDown={(e) => {
+                        // Escape puts the strip away and the whole tree back;
+                        // the focus goes where the arrow keys are read.
+                        if (e.key === 'Escape') {
+                          e.stopPropagation()
+                          setTreeFilterOpen(false)
+                          setTreeFilter('')
+                          filesBodyRef.current?.focus()
+                        }
+                      }}
+                    />
+                    <span className="log-filter-busy">
+                      {treeFilter === ''
+                        ? ''
+                        : msg.files.filterCount(
+                            viewFiles.filter((f) => matchesFilter(f.path, treeFilter)).length,
+                            viewFiles.length
+                          )}
+                    </span>
+                    <button
+                      className="log-filter-clear"
+                      title={msg.files.filterClear}
+                      onClick={() => {
+                        setTreeFilterOpen(false)
+                        setTreeFilter('')
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+                <div
+                  ref={filesBodyRef}
+                  className="pane-body"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                      // Ctrl+F belongs to whichever view has the focus, and the
+                      // document search listens on the window — so this one
+                      // stops the event before it gets there.
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setTreeFilterOpen(true)
+                      // A second Ctrl+F selects what is in the box, so the next
+                      // thing typed replaces it — as it does in a browser.
+                      requestAnimationFrame(() => {
+                        treeFilterRef.current?.focus()
+                        treeFilterRef.current?.select()
+                      })
+                    }
+                  }}
+                >
                   {commitMeta && <CommitInfo meta={commitMeta} />}
                   <FilesPane
                     entries={viewFiles}
@@ -1250,15 +1332,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     // snapshot — opens shut: it is a tree to descend into, not
                     // a list of changes to read.
                     startCollapsed={view.mode === 'snapshot'}
-                    treeKey={
-                      view.mode === 'snapshot'
-                        ? `snapshot:${view.hash ?? 'worktree'}`
-                        : view.mode === 'commit'
-                          ? `commit:${view.hash}`
-                          : view.mode === 'range'
-                            ? `range:${view.from}..${view.to}`
-                            : 'worktree'
-                    }
+                    filter={treeFilterOpen ? treeFilter : ''}
+                    treeKey={treeKey}
                     selected={selectedFile}
                     onSelect={(f) => {
                       setSelectedFile(f.path)
