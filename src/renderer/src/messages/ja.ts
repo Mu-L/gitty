@@ -84,7 +84,6 @@ export const ja: RendererMessages = {
     sendToAgent: 'agent に送る',
     sendToAgentTitle: (command: string) =>
       `ステージ済みの内容に対して、ターミナルで "${command}" を実行します`,
-    sendToAgentEmpty: 'まず何かをステージしてください——インデックスが空です',
     agentCommandsTitle: '実行するコマンドを選ぶ',
     agentCommandTooltip:
       '\n\nクリックで実行\n× で一覧から削除',

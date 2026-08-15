@@ -160,7 +160,6 @@ export interface RendererMessages {
     /** Hands the curated index to whatever agent the user picks. */
     readonly sendToAgent: string
     readonly sendToAgentTitle: (command: string) => string
-    readonly sendToAgentEmpty: string
     /** The dropdown of remembered commands beside that button. */
     readonly agentCommandsTitle: string
     /** Appended to a command in that dropdown, saying what a click does. */

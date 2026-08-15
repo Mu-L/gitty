@@ -100,7 +100,6 @@ export const ru: RendererMessages = {
     sendToAgent: 'Отправить агенту',
     sendToAgentTitle: (command: string) =>
       `Выполнить «${command}» в терминале — по тому, что лежит в индексе`,
-    sendToAgentEmpty: 'Сначала добавьте что-нибудь в индекс — он пуст',
     agentCommandsTitle: 'Выберите команду для запуска',
     agentCommandTooltip:
       '\n\nЩелчок — запустить\n× убирает её из списка',

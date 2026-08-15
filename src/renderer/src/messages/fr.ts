@@ -85,7 +85,6 @@ export const fr: RendererMessages = {
     sendToAgent: 'Envoyer à l’agent',
     sendToAgentTitle: (command: string) =>
       `Lancer « ${command} » dans le terminal, sur ce qui est indexé`,
-    sendToAgentEmpty: 'Indexez d’abord quelque chose — l’index est vide',
     agentCommandsTitle: 'Choisir la commande à lancer',
     agentCommandTooltip:
       '\n\nCliquer pour la lancer\n× la retire de la liste',

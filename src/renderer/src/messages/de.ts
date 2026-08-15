@@ -85,7 +85,6 @@ export const de: RendererMessages = {
     sendToAgent: 'An Agent senden',
     sendToAgentTitle: (command: string) =>
       `„${command}“ im Terminal ausführen, gegen das, was vorgemerkt ist`,
-    sendToAgentEmpty: 'Erst etwas vormerken — der Index ist leer',
     agentCommandsTitle: 'Befehl zum Ausführen wählen',
     agentCommandTooltip:
       '\n\nKlicken, um ihn auszuführen\n× entfernt ihn aus der Liste',

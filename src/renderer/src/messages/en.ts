@@ -85,7 +85,6 @@ export const en: RendererMessages = {
     sendToAgent: 'Send to agent',
     sendToAgentTitle: (command: string) =>
       `Run "${command}" in the terminal, against what is staged`,
-    sendToAgentEmpty: 'Stage something first — the index is empty',
     agentCommandsTitle: 'Choose which command to run',
     agentCommandTooltip:
       '\n\nClick to run it\n× takes it out of the list',

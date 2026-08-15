@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Send to agent** is no longer disabled when the index is empty; it types its
+  command into the terminal regardless.
+
 ## [0.1.7] - 2026-08-15
 
 ### Added
@@ -118,7 +123,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   an install script of its own, so `postinstall` runs that first — otherwise
   the rebuild looks for a version file nothing wrote. The lockfile's `resolved`
   URLs name the official registry again, rather than the mirror the machine
-  that wrote them was configured for.
+  that wrote them was configured for. CI and the release workflow build on
+  Node 22: Electron 43 declares `engines: node >= 22.12`, and npm *skips* an
+  optional dependency whose engines do not match rather than failing — which is
+  how a checkout ended up with no Electron at all. The README asks for 22.12
+  where it asked for 20.
 
 ## [0.1.6] - 2026-08-14
 

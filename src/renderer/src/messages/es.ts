@@ -85,7 +85,6 @@ export const es: RendererMessages = {
     sendToAgent: 'Enviar al agente',
     sendToAgentTitle: (command: string) =>
       `Ejecutar «${command}» en la terminal, sobre lo que está en el índice`,
-    sendToAgentEmpty: 'Pon algo en el índice primero: está vacío',
     agentCommandsTitle: 'Elige qué comando ejecutar',
     agentCommandTooltip:
       '\n\nHaz clic para ejecutarlo\n× lo quita de la lista',

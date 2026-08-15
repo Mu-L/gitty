@@ -82,7 +82,6 @@ export const zh: RendererMessages = {
     toggleStage: (staged: boolean) => (staged ? '单击取消暂存该文件' : '单击暂存该文件'),
     sendToAgent: '发送给 agent',
     sendToAgentTitle: (command: string) => `在终端里对暂存区运行 "${command}"`,
-    sendToAgentEmpty: '先暂存一些改动——暂存区是空的',
     agentCommandsTitle: '选择要运行的命令',
     agentCommandTooltip:
       '\n\n单击运行\n× 把它从列表中移除',

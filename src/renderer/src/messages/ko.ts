@@ -84,7 +84,6 @@ export const ko: RendererMessages = {
     sendToAgent: 'agent에게 보내기',
     sendToAgentTitle: (command: string) =>
       `스테이지된 내용을 두고 터미널에서 "${command}"를 실행합니다`,
-    sendToAgentEmpty: '먼저 무언가를 스테이지하세요 — 인덱스가 비어 있습니다',
     agentCommandsTitle: '실행할 명령 고르기',
     agentCommandTooltip:
       '\n\n클릭하면 실행\n× 를 누르면 목록에서 제거',

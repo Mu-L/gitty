@@ -850,11 +850,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     [view, selectedFile, status]
   )
 
-  const stagedCount = useMemo(
-    () => status?.files.filter((f) => f.index !== ' ').length ?? 0,
-    [status]
-  )
-
   /**
    * Which way staging goes for the diff on screen — and whether it can be
    * offered at all. It cannot when the diff is not exactly one tracked file's
@@ -1183,12 +1178,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                     <span className="split-button">
                       <button
                         className="toggle"
-                        disabled={stagedCount === 0}
-                        title={
-                          stagedCount === 0
-                            ? msg.files.sendToAgentEmpty
-                            : msg.files.sendToAgentTitle(agentCommand)
-                        }
+                        title={msg.files.sendToAgentTitle(agentCommand)}
                         onClick={() => sendToAgent()}
                       >
                         {msg.files.sendToAgent}
@@ -1198,7 +1188,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                           and the box for one that is not remembered yet. */}
                       <button
                         className="toggle split-more"
-                        disabled={stagedCount === 0}
                         title={msg.files.agentCommandsTitle}
                         onClick={(e) => {
                           const r = e.currentTarget.getBoundingClientRect()
