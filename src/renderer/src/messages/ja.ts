@@ -87,7 +87,8 @@ export const ja: RendererMessages = {
     sendToAgentEmpty: 'まず何かをステージしてください——インデックスが空です',
     agentCommandsTitle: '実行するコマンドを選ぶ',
     agentCommandTooltip:
-      '\n\nクリックで実行\n右クリックで一覧から削除',
+      '\n\nクリックで実行\n× で一覧から削除',
+    agentForget: 'このコマンドを一覧から削除',
     agentNewCommand: '新しいコマンド…',
     agentPromptTitle: 'agent に送る',
     agentPromptRun: '実行',

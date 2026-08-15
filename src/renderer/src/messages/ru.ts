@@ -103,7 +103,8 @@ export const ru: RendererMessages = {
     sendToAgentEmpty: 'Сначала добавьте что-нибудь в индекс — он пуст',
     agentCommandsTitle: 'Выберите команду для запуска',
     agentCommandTooltip:
-      '\n\nЩелчок — запустить\nПравый щелчок — убрать из списка',
+      '\n\nЩелчок — запустить\n× убирает её из списка',
+    agentForget: 'Убрать эту команду из списка',
     agentNewCommand: 'Новая команда…',
     agentPromptTitle: 'Отправить агенту',
     agentPromptRun: 'Запустить',

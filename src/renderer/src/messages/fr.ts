@@ -88,7 +88,8 @@ export const fr: RendererMessages = {
     sendToAgentEmpty: 'Indexez d’abord quelque chose — l’index est vide',
     agentCommandsTitle: 'Choisir la commande à lancer',
     agentCommandTooltip:
-      '\n\nCliquer pour la lancer\nClic droit pour retirer de la liste',
+      '\n\nCliquer pour la lancer\n× la retire de la liste',
+    agentForget: 'Retirer cette commande de la liste',
     agentNewCommand: 'Nouvelle commande…',
     agentPromptTitle: 'Envoyer à l’agent',
     agentPromptRun: 'Lancer',

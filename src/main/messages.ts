@@ -29,7 +29,13 @@ const en: MainMessages = {
     discardConfirm: (name: string) => `Discard the changes to ${name}?`,
     discardDetail:
       'The file goes back to what the index holds. This cannot be undone — the changes are not in git anywhere.',
-    discardButton: 'Discard'
+    discardButton: 'Discard',
+    forgetTitle: 'Forget Command',
+    forgetConfirm: (command: string) =>
+      `Forget "${command}"?`,
+    forgetDetail:
+      'It goes out of the list the Send to agent button offers. Nothing else changes, and you can type it again.',
+    forgetButton: 'Forget'
   },
   window: {
     title: 'Gitty'
@@ -81,7 +87,13 @@ const zh: MainMessages = {
     discardConfirm: (name: string) => `丢弃对 ${name} 的更改？`,
     discardDetail:
       '文件将回到暂存区中的内容。此操作无法撤销——这些更改并未记录在 git 的任何地方。',
-    discardButton: '丢弃'
+    discardButton: '丢弃',
+    forgetTitle: '忘记命令',
+    forgetConfirm: (command: string) =>
+      `忘记 "${command}"？`,
+    forgetDetail:
+      '它会从「发送给 agent」按钮的命令列表里移除。其它什么都不变，你随时可以再输入一次。',
+    forgetButton: '忘记'
   },
   window: {
     title: 'Gitty'
@@ -134,7 +146,13 @@ const ja: MainMessages = {
     discardConfirm: (name: string) => `${name} への変更を破棄しますか？`,
     discardDetail:
       'ファイルはインデックスの内容に戻ります。取り消せません——この変更は git のどこにも残っていません。',
-    discardButton: '破棄'
+    discardButton: '破棄',
+    forgetTitle: 'コマンドを削除',
+    forgetConfirm: (command: string) =>
+      `"${command}" を一覧から削除しますか？`,
+    forgetDetail:
+      '「agent に送る」ボタンが出す一覧から消えます。ほかは何も変わらず、また入力し直せます。',
+    forgetButton: '削除'
   },
   window: {
     title: 'Gitty'
@@ -186,7 +204,13 @@ const ko: MainMessages = {
     discardConfirm: (name: string) => `${name}의 변경 사항을 버릴까요?`,
     discardDetail:
       '파일은 인덱스의 내용으로 돌아갑니다. 되돌릴 수 없습니다 — 이 변경 사항은 git 어디에도 남아 있지 않습니다.',
-    discardButton: '버리기'
+    discardButton: '버리기',
+    forgetTitle: '명령 삭제',
+    forgetConfirm: (command: string) =>
+      `"${command}" 을(를) 목록에서 지울까요?`,
+    forgetDetail:
+      '‘agent에게 보내기’ 버튼이 제공하는 목록에서 빠집니다. 다른 것은 그대로이고, 다시 입력할 수 있습니다.',
+    forgetButton: '삭제'
   },
   window: {
     title: 'Gitty'
@@ -239,7 +263,13 @@ const fr: MainMessages = {
     discardConfirm: (name: string) => `Abandonner les modifications de ${name} ?`,
     discardDetail:
       "Le fichier revient au contenu de l'index. Irréversible — ces modifications ne sont nulle part dans git.",
-    discardButton: 'Abandonner'
+    discardButton: 'Abandonner',
+    forgetTitle: 'Oublier la commande',
+    forgetConfirm: (command: string) =>
+      `Oublier « ${command} » ?`,
+    forgetDetail:
+      'Elle quitte la liste proposée par le bouton Envoyer à l’agent. Rien d’autre ne change, et vous pouvez la retaper.',
+    forgetButton: 'Oublier'
   },
   window: {
     title: 'Gitty'
@@ -293,7 +323,13 @@ const de: MainMessages = {
     discardConfirm: (name: string) => `Die Änderungen an ${name} verwerfen?`,
     discardDetail:
       'Die Datei fällt auf den Stand des Index zurück. Das lässt sich nicht rückgängig machen — diese Änderungen stehen nirgends in git.',
-    discardButton: 'Verwerfen'
+    discardButton: 'Verwerfen',
+    forgetTitle: 'Befehl vergessen',
+    forgetConfirm: (command: string) =>
+      `„${command}“ vergessen?`,
+    forgetDetail:
+      'Er verschwindet aus der Liste der Schaltfläche „An Agent senden“. Sonst ändert sich nichts, und Sie können ihn erneut eingeben.',
+    forgetButton: 'Vergessen'
   },
   window: {
     title: 'Gitty'
@@ -347,7 +383,13 @@ const es: MainMessages = {
     discardConfirm: (name: string) => `¿Descartar los cambios de ${name}?`,
     discardDetail:
       'El archivo vuelve a lo que contiene el índice. No se puede deshacer: esos cambios no están en ninguna parte de git.',
-    discardButton: 'Descartar'
+    discardButton: 'Descartar',
+    forgetTitle: 'Olvidar comando',
+    forgetConfirm: (command: string) =>
+      `¿Olvidar «${command}»?`,
+    forgetDetail:
+      'Sale de la lista que ofrece el botón Enviar al agente. Nada más cambia, y puedes volver a escribirlo.',
+    forgetButton: 'Olvidar'
   },
   window: {
     title: 'Gitty'
@@ -401,7 +443,13 @@ const ru: MainMessages = {
     discardConfirm: (name: string) => `Отменить изменения в ${name}?`,
     discardDetail:
       'Файл вернётся к содержимому индекса. Это необратимо — этих изменений нигде нет в git.',
-    discardButton: 'Отменить'
+    discardButton: 'Отменить',
+    forgetTitle: 'Забыть команду',
+    forgetConfirm: (command: string) =>
+      `Забыть «${command}»?`,
+    forgetDetail:
+      'Она исчезнет из списка кнопки «Отправить агенту». Больше ничего не меняется, её можно ввести снова.',
+    forgetButton: 'Забыть'
   },
   window: {
     title: 'Gitty'
@@ -454,7 +502,13 @@ const pt: MainMessages = {
     discardConfirm: (name: string) => `Descartar as alterações de ${name}?`,
     discardDetail:
       'O ficheiro volta ao que o índice contém. Não há como desfazer — estas alterações não estão em lado nenhum do git.',
-    discardButton: 'Descartar'
+    discardButton: 'Descartar',
+    forgetTitle: 'Esquecer comando',
+    forgetConfirm: (command: string) =>
+      `Esquecer «${command}»?`,
+    forgetDetail:
+      'Sai da lista que o botão Enviar ao agente oferece. Nada mais muda, e pode escrevê-lo outra vez.',
+    forgetButton: 'Esquecer'
   },
   window: {
     title: 'Gitty'

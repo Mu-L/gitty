@@ -88,7 +88,8 @@ export const pt: RendererMessages = {
     sendToAgentEmpty: 'Ponha algo no índice primeiro — está vazio',
     agentCommandsTitle: 'Escolha o comando a correr',
     agentCommandTooltip:
-      '\n\nClique para o correr\nClique com o botão direito para remover da lista',
+      '\n\nClique para o correr\n× remove-o da lista',
+    agentForget: 'Remover este comando da lista',
     agentNewCommand: 'Novo comando…',
     agentPromptTitle: 'Enviar ao agente',
     agentPromptRun: 'Correr',

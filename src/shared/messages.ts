@@ -36,6 +36,11 @@ export interface MainMessages {
     readonly discardConfirm: (name: string) => string
     readonly discardDetail: string
     readonly discardButton: string
+    /** Confirming that a remembered agent command is to be forgotten. */
+    readonly forgetTitle: string
+    readonly forgetConfirm: (command: string) => string
+    readonly forgetDetail: string
+    readonly forgetButton: string
   }
   readonly window: {
     readonly title: string
@@ -160,6 +165,8 @@ export interface RendererMessages {
     readonly agentCommandsTitle: string
     /** Appended to a command in that dropdown, saying what a click does. */
     readonly agentCommandTooltip: string
+    /** The × beside a command there, which takes it out of the list. */
+    readonly agentForget: string
     /** Its last entry, and the one-line dialog that entry opens. */
     readonly agentNewCommand: string
     readonly agentPromptTitle: string

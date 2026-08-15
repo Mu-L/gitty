@@ -186,7 +186,12 @@ const api = {
   /** Settings that live in the main process. */
   settings: {
     /** Switch the application menu and all UI text to `locale`. */
-    setLocale: (locale: string): void => ipcRenderer.send('settings:setLocale', locale)
+    setLocale: (locale: string): void => ipcRenderer.send('settings:setLocale', locale),
+    /** Ask, natively, whether a remembered agent command is to be forgotten.
+     *  The dialog is modal to the window, which a menu the renderer draws is
+     *  not — and forgetting is the one thing in that menu with no undo. */
+    confirmForget: (command: string): Promise<boolean> =>
+      ipcRenderer.invoke('settings:confirmForget', command)
   },
   // Several shells can be alive at once — the pane splits — so every call and
   // every event names the session it belongs to.

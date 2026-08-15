@@ -87,7 +87,8 @@ export const ko: RendererMessages = {
     sendToAgentEmpty: '먼저 무언가를 스테이지하세요 — 인덱스가 비어 있습니다',
     agentCommandsTitle: '실행할 명령 고르기',
     agentCommandTooltip:
-      '\n\n클릭하면 실행\n오른쪽 클릭하면 목록에서 제거',
+      '\n\n클릭하면 실행\n× 를 누르면 목록에서 제거',
+    agentForget: '이 명령을 목록에서 제거',
     agentNewCommand: '새 명령…',
     agentPromptTitle: 'agent에게 보내기',
     agentPromptRun: '실행',

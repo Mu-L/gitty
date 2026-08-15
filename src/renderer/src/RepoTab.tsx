@@ -959,9 +959,18 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         accel: c === agentCommand ? '✓' : undefined,
         title: `${c}${msg.files.agentCommandTooltip}`,
         action: () => sendToAgent(c),
-        altAction: () => {
-          onForgetAgentCommand(c)
-          setMenu((m) => (m ? { ...m, items: agentItems(list.filter((x) => x !== c)) } : m))
+        remove: {
+          title: msg.files.agentForget,
+          // Confirmed in the main process, so the dialog is modal to the
+          // window. The menu is rebuilt rather than closed, so several can be
+          // forgotten in a row.
+          action: () => {
+            void window.gitty.settings.confirmForget(c).then((yes) => {
+              if (!yes) return
+              onForgetAgentCommand(c)
+              setMenu((m) => (m ? { ...m, items: agentItems(list.filter((x) => x !== c)) } : m))
+            })
+          }
         }
       })),
       {

@@ -1046,6 +1046,23 @@ button:disabled:hover {
   color: var(--fg-faint);
 }
 
+/* Takes the entry out of the list. Pushed right whether or not the item has an
+   accelerator beside it, and coloured only on hover — it is one click among
+   several in a menu, not the thing the menu is for. */
+.ctx-item .ctx-remove {
+  margin-left: auto;
+  padding: 0 4px;
+  color: var(--fg-faint);
+  background: transparent;
+  border: 0;
+  line-height: 1;
+}
+
+.ctx-item .ctx-remove:hover {
+  color: var(--red);
+  background: transparent;
+}
+
 .ctx-sep {
   height: 1px;
   margin: 4px 0;

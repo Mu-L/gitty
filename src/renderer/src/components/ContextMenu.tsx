@@ -8,6 +8,10 @@ export interface MenuItem {
   action: (mods?: { ctrl: boolean }) => void
   /** Right-click on the item itself, for a secondary action such as removal. */
   altAction?: () => void
+  /** A × at the right of the item, for taking the entry out of the list it is
+   *  in. Its own button rather than a modifier, because a destructive action
+   *  should be visible; the menu stays open so several can go in a row. */
+  remove?: { title: string; action: () => void }
   /** Middle-click, conventionally "the other place". */
   auxAction?: () => void
   separatorBefore?: boolean
@@ -91,6 +95,19 @@ export function ContextMenu({
           >
             <span>{item.label}</span>
             {item.accel && <span className="accel">{item.accel}</span>}
+            {item.remove && (
+              <button
+                className="ctx-remove"
+                title={item.remove.title}
+                // The item's own click would run the action the × is beside.
+                onClick={(e) => {
+                  e.stopPropagation()
+                  item.remove?.action()
+                }}
+              >
+                ×
+              </button>
+            )}
           </div>
         </div>
       ))}

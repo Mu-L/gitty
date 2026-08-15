@@ -85,7 +85,8 @@ export const zh: RendererMessages = {
     sendToAgentEmpty: '先暂存一些改动——暂存区是空的',
     agentCommandsTitle: '选择要运行的命令',
     agentCommandTooltip:
-      '\n\n单击运行\n右键从列表中移除',
+      '\n\n单击运行\n× 把它从列表中移除',
+    agentForget: '从列表中移除这条命令',
     agentNewCommand: '新命令…',
     agentPromptTitle: '发送给 agent',
     agentPromptRun: '运行',

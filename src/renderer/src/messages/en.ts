@@ -88,7 +88,8 @@ export const en: RendererMessages = {
     sendToAgentEmpty: 'Stage something first — the index is empty',
     agentCommandsTitle: 'Choose which command to run',
     agentCommandTooltip:
-      '\n\nClick to run it\nRight-click to remove from the list',
+      '\n\nClick to run it\n× takes it out of the list',
+    agentForget: 'Forget this command',
     agentNewCommand: 'New command…',
     agentPromptTitle: 'Send to agent',
     agentPromptRun: 'Run',

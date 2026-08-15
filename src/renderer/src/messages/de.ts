@@ -88,7 +88,8 @@ export const de: RendererMessages = {
     sendToAgentEmpty: 'Erst etwas vormerken — der Index ist leer',
     agentCommandsTitle: 'Befehl zum Ausführen wählen',
     agentCommandTooltip:
-      '\n\nKlicken, um ihn auszuführen\nRechtsklick, um aus der Liste zu entfernen',
+      '\n\nKlicken, um ihn auszuführen\n× entfernt ihn aus der Liste',
+    agentForget: 'Diesen Befehl aus der Liste entfernen',
     agentNewCommand: 'Neuer Befehl…',
     agentPromptTitle: 'An Agent senden',
     agentPromptRun: 'Ausführen',

@@ -349,6 +349,21 @@ function registerIpc(): void {
     if (answer.response !== 1) return null
     return git.discardFile(root, filePath)
   })
+  // Forgetting a remembered agent command. Confirmed natively for the reason
+  // discarding is: the window cannot be clicked past while the dialog is up,
+  // and the list is the only place the command was written down.
+  ipcMain.handle('settings:confirmForget', async (_e, command: string) => {
+    const answer = await dialog.showMessageBox(win!, {
+      type: 'question',
+      title: msg.dialog.forgetTitle,
+      message: msg.dialog.forgetConfirm(command),
+      detail: msg.dialog.forgetDetail,
+      buttons: [msg.dialog.cancelButton, msg.dialog.forgetButton],
+      defaultId: 0,
+      cancelId: 0
+    })
+    return answer.response === 1
+  })
   ipcMain.handle('git:stagedDiff', (_e, root: string) => git.stagedDiff(root))
   ipcMain.handle(
     'git:applyHunks',
