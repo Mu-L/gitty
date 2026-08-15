@@ -1263,6 +1263,9 @@ button:disabled:hover {
 .md-split {
   flex: 1;
   min-width: 0;
+  /* The code outline sits in a column flex (`.find-host`), where a flex item
+     defaults to min-height: auto and would be stretched by the whole file. */
+  min-height: 0;
 }
 
 .md-pane {
@@ -1314,6 +1317,23 @@ button:disabled:hover {
 .md-toc-item.lvl-4 { padding-left: 46px; }
 .md-toc-item.lvl-5 { padding-left: 58px; }
 .md-toc-item.lvl-6 { padding-left: 70px; }
+
+/* A symbol is code, so it is set in the code font — and coloured by what it
+   declares, the same way the diff colours a line by what happened to it. */
+.md-toc-item.sym {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.md-toc-item.sym-class,
+.md-toc-item.sym-struct,
+.md-toc-item.sym-interface,
+.md-toc-item.sym-enum { color: var(--cyan); }
+
+.md-toc-item.sym-function { color: var(--blue); }
+.md-toc-item.sym-method { color: var(--fg-dim); }
+.md-toc-item.sym-type { color: var(--magenta); }
+.md-toc-item.sym-module { color: var(--fg-faint); }
 
 .md-body {
   flex: 1;

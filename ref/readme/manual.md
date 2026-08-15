@@ -271,6 +271,24 @@ file as it was at the selected commit everywhere else. Opening a document is an
 action rather than a mode — selecting another file or another commit puts the
 diff back — so the pane is never stuck showing files when you wanted changes.
 
+#### The outline of a source file
+
+A source file carries an **Outline** button, the same one a rendered document
+has: the file's classes, functions and members beside it as a tree, indented by
+nesting and coloured by what each one declares. Click an entry to jump to it —
+the file is drawn far enough to hold it, however deep — and the entry you have
+scrolled into is marked. Drag the separator to give either side more room; the
+width is shared by every file in the repository.
+
+It reads sixteen languages — C, C++, C#, Go, Java, JavaScript, Lua, Perl, PHP,
+Python, Ruby, Rust, shell, Swift, TypeScript and the JSX flavours of the last
+two — and reads them by recognising declarations rather than by parsing:
+comments and strings are blanked out first, nesting comes from brace depth (or
+indentation, where the language is written that way), and a name appears only
+where a keyword put it. Anything else — data formats, stylesheets, a language
+it does not know — shows no panel rather than a guessed list. Markdown has an
+[outline of its own](#markdown-preview), from its headings.
+
 #### Snapshots
 
 Right-click a commit and choose **Browse Snapshot** to read the repository as it
@@ -549,7 +567,7 @@ order.
 | **Ignore whitespace** | Off, Amount (git's `-b`: a run of spaces changing length is not a change) or All (`-w`: no whitespace difference is). Reindented or rewrapped code reads as unchanged rather than as a wall of red and green. The file list's `+12 −3` counts follow the same setting, so it cannot claim lines the diff then refuses to show. |
 | **Word wrap** | Wrap long lines instead of scrolling sideways. |
 | **Word highlight** | Mark the words that changed inside a changed line, not just the line. |
-| **Markdown outline** | Show the outline beside a rendered document. |
+| **Outline** | Show the outline beside a document: headings in a rendered one, classes and functions in a source file. |
 | **Markdown source lines** | Number each block of a rendered document with the line it starts on in the source. Headings, paragraphs, list items, tables, fenced code and images all carry one, in a gutter down the left. Off by default. |
 | **File sorting** | Natural or Byte order. Natural reads the digits in a name as a number (`W9` before `W10`) and puts case second; byte order is git's own, where every capital sorts ahead of every lowercase letter. |
 | **Reopen last session** | Reopen the repositories that were open when the app last exited. The repository Gitty was started with is still the active tab; ones that have since been deleted are quietly dropped. |
@@ -558,7 +576,7 @@ order.
 
 **Shell** and **Login shell** are read when a terminal is created, so they take
 effect on the next split or the next repository tab, not in the shells already
-running. **Word wrap**, **Diff layout** and **Markdown outline** are the same toggles the
+running. **Word wrap**, **Diff layout** and **Outline** are the same toggles the
 diff header carries, so changing one in either place changes both. **Word
 highlight** lives here only.
 

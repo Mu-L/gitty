@@ -458,6 +458,24 @@ emits one blob whose spans run across newlines (block comments, template
 literals): it walks the output keeping the stack of open spans, so each line can
 be its own element without broken markup.
 
+`src/renderer/src/symbols.ts` is the other outline — the declarations in a
+source file, which `CodePane` draws beside it in the same `Group` shape
+`MarkdownPane` uses for headings. It is pure string work over the text, for the
+reason `main/patch.ts` is: a wrong outline does not throw, so
+`test/symbols.test.ts` holds it. Comments and strings are blanked to spaces
+first (columns preserved, or a `{` in a string moves the whole tree), nesting is
+brace depth — indentation for the languages written that way — and a name
+appears only where a keyword put it. Two conventions keep the loose patterns
+honest: `member` rules match only inside a class, where a statement cannot
+appear, and `guard` marks the rules with no declaring keyword in front of the
+name, which are the ones `if (x) {` can fool. A language it cannot read
+produces **no** outline rather than a guessed one.
+
+It imports nothing, deliberately: `RepoTab` calls `hasOutline(outlineLanguage(path))`
+to decide whether to draw the button, and reaching into `highlight.ts` for that
+would drag highlight.js into the main bundle — hence its own small extension
+table beside that module's.
+
 `MarkdownPane`'s outline is a `Group` of its own, so the two rules that govern
 every other group apply here too: the id carries the repository (sizes are
 per-Group-id, and several tabs are mounted at once), and it is `disabled` while

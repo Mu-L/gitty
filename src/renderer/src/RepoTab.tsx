@@ -27,6 +27,9 @@ import { useMsg } from './locale'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { destroyTerminals, runInTerminal } from './terminals'
 import { isHtmlPath, isImagePath, isMarkdownPath } from './paths'
+// A leaf module with no imports of its own; see the note on its extension
+// table. Asking it here does not drag the viewers into the main bundle.
+import { hasOutline, outlineLanguage } from './symbols'
 import { FullButton, HideButton } from './components/PaneChrome'
 import type { Theme } from './components/SettingsPane'
 import { Tooltip } from './components/Tooltip'
@@ -617,6 +620,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const viewingFile = doc !== null
   const previewing =
     viewingFile && doc.preview && (isMarkdownPath(doc.path) || isHtmlPath(doc.path))
+  // Source shown as itself, in a language whose declarations we can read: the
+  // outline button offers a symbol tree there the way it offers headings in a
+  // rendered document.
+  const outlineable = viewingFile && doc.kind === 'file' && !previewing && hasOutline(outlineLanguage(doc.path))
 
   // Which side to read is a choice about the file in front of you; another
   // file starts from its own state again.
@@ -1508,10 +1515,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       {msg.diff.wrap}
                     </button>
                   )}
-                  {previewing && (
+                  {(previewing || outlineable) && (
                     <button
                       className={`toggle${mdOutline ? ' on' : ''}`}
-                      title={msg.diff.showOutline}
+                      title={previewing ? msg.diff.showOutline : msg.diff.showSymbols}
                       onClick={() => setMdOutline((o) => !o)}
                     >
                       {msg.diff.outline}

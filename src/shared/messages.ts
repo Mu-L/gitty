@@ -228,6 +228,7 @@ export interface RendererMessages {
     readonly inline: string
     readonly sideBySide: string
     readonly switchView: string
+    readonly showSymbols: string
     readonly docTabDiff: string
     readonly docTabDiffTitle: string
     readonly docTabClose: string
@@ -340,7 +341,7 @@ export interface RendererMessages {
     readonly wordHighlight: string
     /** Draw the lane graph beside the commit hashes. */
     readonly commitGraph: string
-    readonly markdownOutline: string
+    readonly documentOutline: string
     /** Number each markdown block with the source line it starts on. */
     readonly markdownLineNumbers: string
     /** How the file tree orders names. */

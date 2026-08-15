@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A source file opened whole gets an **Outline** beside it: its classes,
+  functions and members as a tree, indented by nesting and coloured by what
+  each one declares. Click an entry to jump; the entry you have scrolled into
+  is marked. Sixteen languages, read by declaration rather than parsed
+  (`src/renderer/src/symbols.ts`, `test/symbols.test.ts`); a file with nothing
+  to list shows no panel.
+
 - <kbd>Ctrl+F</kbd> in the file tree filters it: a box above the tree, the
   paths holding that text and the count of how many are left. Matching is
   case-insensitive and against the whole path, so `src/main` keeps that
@@ -19,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Send to agent** is no longer disabled when the index is empty; it types its
   command into the terminal regardless.
+- The **Markdown outline** setting is now **Outline**: the one switch governs
+  the headings beside a rendered document and the symbols beside a source file.
 
 ## [0.1.7] - 2026-08-15
 

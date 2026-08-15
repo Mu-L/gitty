@@ -51,6 +51,8 @@ export function FileDoc({
   /** Render markdown instead of showing its source (files only). */
   preview: boolean
   wrap: boolean
+  /** Show the outline beside the document: headings for markdown, symbols for
+   *  source. */
   outline: boolean
   /** Number markdown blocks with their source lines. */
   lineNumbers: boolean
@@ -206,8 +208,10 @@ export function FileDoc({
     <CodePane
       source={source}
       docKey={docKey}
+      root={root}
       path={path}
       wrap={wrap}
+      outline={outline}
       active={active}
       gotoLine={gotoLine}
       onMenu={onMenu}
