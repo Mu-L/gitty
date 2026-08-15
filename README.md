@@ -87,7 +87,7 @@ Two more things I wanted and almost nothing offered: a **markdown preview**, and
 
 - `git` on `PATH`
 - Linux, macOS or Windows with a desktop session
-- Node.js 20 or newer — only for the npm and source installs below; the `.deb`
+- Node.js 22.12 or newer — only for the npm and source installs below; the `.deb`
   brings its own runtime
 - Optionally [gource](https://gource.io/) on `PATH`, for
   [the animation](ref/readme/manual.md#gource); nothing changes if it is absent

@@ -15,7 +15,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Electron 43 declares engines >= 22.12, and npm silently *skips* an
+          # optional dependency whose engines do not match — which is how a
+          # checkout ended up with no Electron and a postinstall that could not
+          # find it.
+          node-version: 22
           cache: npm
       # postinstall rebuilds node-pty against Electron's ABI, which needs the
       # headers electron ships — nothing else here touches native code.
