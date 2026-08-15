@@ -1,7 +1,7 @@
 # Design: splitting RepoTab
 
 **Status:** in progress (2026-08-15) · **Scope:** `src/renderer/src/RepoTab.tsx`
-Cuts 1 (`useDocs`) and 2 (`FilesView`) implemented · cut 3 (`DiffHeader`) pending
+Cuts 1 (`useDocs`), 2 (`FilesView`) and 3 (`DiffHeader`) implemented
 
 `RepoTab.tsx` is 1839 lines. That is long, but the length is not the problem —
 a component that owns one repository's whole session is allowed to be large.
@@ -244,8 +244,17 @@ Each cut lands as its own commit under `[Unreleased]` in `CHANGELOG.md`,
 verified before the next starts:
 
 1. `useDocs` — `npm run typecheck` + `npm test`; pure move.
-2. `FilesView` — typecheck + tests + visual pass.
-3. `DiffHeader` — typecheck + tests + visual pass.
+2. `FilesView` — typecheck + tests + visual pass. **Done**: the pane renders
+   its header, search strip (autofocus, Escape closes) and tree filter (Ctrl+F
+   focuses, Escape closes) and toggles full screen — verified via
+   `capturePage`-style DOM driving on the built bundle.
+3. `DiffHeader` — typecheck + tests + visual pass. **Done**: the header's
+   button set renders in inline and split modes, with and without a file
+   selected, and with a document open. The outline button's two faces
+   confirmed — a source file shown as itself offers "Show the symbol outline"
+   and a rendered document "Show the heading outline" — and `mdOutline`
+   toggling persists across them (toggled off on a `.ts` document, the outline
+   is still off when a markdown document opens).
 
 **Visual verification** follows the CLAUDE.md recipe — build, patch a
 `capturePage` into `out/main/index.js` at `ready-to-show`, drive with

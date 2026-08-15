@@ -23,10 +23,10 @@ import {
 } from './components/DiffPane'
 import type { FileEntry } from './components/FilesPane'
 import { FilesView } from './components/FilesView'
+import { DiffHeader } from './components/DiffHeader'
 import { useMsg } from './locale'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { destroyTerminals, runInTerminal } from './terminals'
-import { isHtmlPath, isImagePath, isMarkdownPath } from './paths'
 // A leaf module with no imports of its own; see the note on its extension
 // table. Asking it here does not drag the viewers into the main bundle.
 import { hasOutline, outlineLanguage } from './symbols'
@@ -511,6 +511,17 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // rendered document.
   const outlineable =
     doc !== null && doc.kind === 'file' && !previewing && hasOutline(outlineLanguage(doc.path))
+
+  /**
+   * The one preview button in the diff header flips whichever face the current
+   * document shows: a rendered markdown/HTML document opens its source, and a
+   * source file shown as itself offers the preview. DiffHeader draws exactly
+   * one of the two, so this is the single flip behind both.
+   */
+  const togglePreview = useCallback(() => {
+    if (!doc) return
+    setDocs((prev) => prev.map((d) => (d.id === doc.id ? { ...d, preview: !d.preview } : d)))
+  }, [doc, setDocs])
 
   // Which side to read is a choice about the file in front of you; another
   // file starts from its own state again.
@@ -1113,213 +1124,35 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
             {panes.diff && (
             <Panel minSize="20%">
               <div className={paneClass('diff')}>
-                <div className="pane-header" onDoubleClick={headerDoubleClick('diff')}>
-                  {fullButton('diff')}
-                  {/* Tooltips live on the individual parts: a title on the
-                      header itself would show up under every button that has
-                      none of its own. */}
-                  <Tooltip className="title" lines={[{ key: '', desc: diffTitle }, ...paneControls('diff', msg)]}>
-                    {diffTitle}
-                  </Tooltip>
-                  <span className="spacer" title={msg.diff.dblClickFullScreen} />
-                  {/* Only commit and range diffs have a "whole" to widen back
-                      to; a snapshot is always one file at a time. */}
-                  {/* Always present for a commit or a range, lit when the
-                      whole diff is what is already on screen: a button that
-                      comes and goes is harder to find than one that stays. */}
-                  {view.mode !== 'snapshot' && (
-                    <button
-                      className={`toggle${selectedFile ? '' : ' on'}`}
-                      title={
-                        selectedFile
-                          ? view.mode === 'worktree'
-                            ? msg.diff.widenWorktree
-                            : msg.diff.widenCommit
-                          : view.mode === 'worktree'
-                            ? msg.diff.allShown
-                            : msg.diff.allCommitShown
-                      }
-                      onClick={() => {
-                        setActiveDoc(null)
-                        setSelectedFile(null)
-                      }}
-                    >
-                      {msg.diff.showWholeDiff}
-                    </button>
-                  )}
-                  {/* Which side of the index this file is being read from.
-                      Only where both sides hold something: with one of them
-                      empty the diff already says which it is. */}
-                  {workingFile &&
-                    !viewingFile &&
-                    workingFile.index !== ' ' &&
-                    workingFile.worktree !== ' ' && (
-                      <div className="seg">
-                        {(['worktree', 'index'] as const).map((side) => (
-                          <button
-                            key={side}
-                            className={`toggle${(sideOverride ?? 'worktree') === side ? ' on' : ''}`}
-                            title={
-                              side === 'worktree'
-                                ? msg.diff.sideUnstagedTitle
-                                : msg.diff.sideStagedTitle
-                            }
-                            onClick={() => setSideOverride(side)}
-                          >
-                            {side === 'worktree' ? msg.diff.sideUnstaged : msg.diff.sideStaged}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  {selectedFile && view.mode !== 'snapshot' && !viewingFile && (
-                    <button
-                      className="toggle"
-                      title={
-                        isMarkdownPath(selectedFile)
-                          ? msg.diff.previewTitle
-                          : isHtmlPath(selectedFile)
-                            ? msg.diff.htmlPreviewTitle
-                            : isImagePath(selectedFile)
-                              ? msg.diff.viewImageTitle
-                              : msg.diff.viewFileTitle
-                      }
-                      onClick={() => openFileDoc(selectedFile)}
-                    >
-                      {isMarkdownPath(selectedFile) || isHtmlPath(selectedFile)
-                        ? msg.diff.preview
-                        : isImagePath(selectedFile)
-                          ? msg.diff.viewImage
-                          : msg.diff.viewFile}
-                    </button>
-                  )}
-                  {previewing && doc && (
-                    <button
-                      className="toggle on"
-                      title={
-                        isHtmlPath(doc.path)
-                          ? msg.diff.htmlSourceTitle
-                          : msg.diff.markdownSourceTitle
-                      }
-                      onClick={() =>
-                        setDocs((prev) =>
-                          prev.map((d) => (d.id === doc.id ? { ...d, preview: false } : d))
-                        )
-                      }
-                    >
-                      {msg.diff.preview}
-                    </button>
-                  )}
-                  {viewingFile &&
-                    doc &&
-                    !previewing &&
-                    (isMarkdownPath(doc.path) || isHtmlPath(doc.path)) && (
-                      <button
-                        className="toggle"
-                        title={
-                          isHtmlPath(doc.path)
-                            ? msg.diff.htmlPreviewTitle
-                            : msg.diff.renderMarkdownTitle
-                        }
-                        onClick={() =>
-                          setDocs((prev) =>
-                            prev.map((d) => (d.id === doc.id ? { ...d, preview: true } : d))
-                          )
-                        }
-                      >
-                        {msg.diff.preview}
-                      </button>
-                    )}
-                  {!viewingFile && collapseState.files > 1 && (
-                    <button
-                      className="toggle"
-                      title={
-                        collapseState.allCollapsed
-                          ? msg.diff.expandAllTitle
-                          : msg.diff.collapseAllTitle
-                      }
-                      onClick={() => diffRef.current?.toggleAll()}
-                    >
-                      {collapseState.allCollapsed ? msg.diff.expandAll : msg.diff.collapseAll}
-                    </button>
-                  )}
-                  {/* An image has no lines to wrap. */}
-                  {!(doc && isImagePath(doc.path)) && (
-                    <button
-                      className={`toggle${wrap ? ' on' : ''}`}
-                      title={previewing ? msg.diff.wrapCode : msg.diff.wrapLong}
-                      onClick={() => setWrap((w) => !w)}
-                    >
-                      {msg.diff.wrap}
-                    </button>
-                  )}
-                  {(previewing || outlineable) && (
-                    <button
-                      className={`toggle${mdOutline ? ' on' : ''}`}
-                      title={previewing ? msg.diff.showOutline : msg.diff.showSymbols}
-                      onClick={() => setMdOutline((o) => !o)}
-                    >
-                      {msg.diff.outline}
-                    </button>
-                  )}
-                  {!viewingFile && (
-                    <button
-                      className="toggle"
-                      title={msg.diff.switchView}
-                      onClick={() => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))}
-                    >
-                      {diffView === 'inline' ? msg.diff.inline : msg.diff.sideBySide}
-                    </button>
-                  )}
-                  {hideButton('diff')}
-                </div>
-                {/* One strip per open document: the diff, then each opened
-                    file. Only shown once there is something to switch to. */}
-                {docs.length > 0 && (
-                  <div className="doc-tabs">
-                    {view.mode !== 'snapshot' && (
-                      <div
-                        className={`doc-tab${activeDoc === null ? ' active' : ''}`}
-                        onClick={() => setActiveDoc(null)}
-                        title={msg.diff.docTabDiffTitle}
-                      >
-                        {msg.diff.docTabDiff}
-                      </div>
-                    )}
-                    {docs.map((d) => (
-                      <div
-                        key={d.id}
-                        className={`doc-tab${activeDoc === d.id ? ' active' : ''}`}
-                        onClick={() => setActiveDoc(d.id)}
-                        title={d.rev ? `${d.path} @ ${d.rev.slice(0, 8)}` : d.path}
-                      >
-                        {d.kind !== 'file' && (
-                          <span className="doc-kind">
-                            {d.kind === 'blame'
-                              ? msg.diff.docTabBlame
-                              : d.kind === 'history'
-                                ? msg.diff.docTabHistory
-                                : d.kind === 'lines'
-                                  ? msg.diff.docTabLines
-                                  : msg.diff.docTabSearch}
-                          </span>
-                        )}
-                        <span className="doc-name">
-                          {d.kind === 'grep' ? d.path : d.path.split('/').pop()}
-                        </span>
-                        <span
-                          className="doc-close"
-                          title={msg.diff.docTabClose}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            closeDoc(d.id)
-                          }}
-                        >
-                          ×
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <DiffHeader
+                  view={view}
+                  diffTitle={diffTitle}
+                  selectedFile={selectedFile}
+                  workingFile={workingFile}
+                  viewingFile={viewingFile}
+                  previewing={previewing}
+                  outlineable={outlineable}
+                  doc={doc}
+                  docs={docs}
+                  activeDoc={activeDoc}
+                  wrap={wrap}
+                  diffView={diffView}
+                  mdOutline={mdOutline}
+                  collapseState={collapseState}
+                  diffRef={diffRef}
+                  sideOverride={sideOverride}
+                  setWrap={setWrap}
+                  setDiffView={setDiffView}
+                  setMdOutline={setMdOutline}
+                  setSelectedFile={setSelectedFile}
+                  setActiveDoc={setActiveDoc}
+                  setSideOverride={setSideOverride}
+                  onTogglePreview={togglePreview}
+                  openFileDoc={openFileDoc}
+                  closeDoc={closeDoc}
+                  header={{ full: fullButton('diff'), hide: hideButton('diff') }}
+                  onDoubleClick={headerDoubleClick('diff')}
+                />
                 {doc ? (
                   <Suspense
                     fallback={
