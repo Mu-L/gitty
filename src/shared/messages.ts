@@ -228,10 +228,10 @@ export interface RendererMessages {
     readonly wrapCode: string
     readonly outline: string
     readonly showOutline: string
+    readonly showSymbols: string
     readonly inline: string
     readonly sideBySide: string
     readonly switchView: string
-    readonly showSymbols: string
     readonly docTabDiff: string
     readonly docTabDiffTitle: string
     readonly docTabClose: string
