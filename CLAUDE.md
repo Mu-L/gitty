@@ -25,19 +25,17 @@ work authored in another language.
 
 The user-facing documentation is two files. `README.md` is the short one —
 what Gitty is, why it exists, how to install it, what it deliberately does not
-do — and is kept under about 200 lines. `docs/manual.md` is the long one: every
-pane, the settings table, the shortcuts, the platform notes. A behaviour change
-usually belongs in the manual; the README changes only when the pitch does.
-The translations track the README alone, which is what keeps nine of them
-affordable.
+do — and is kept under about 200 lines. `ref/readme/manual.md` is the long one:
+every pane, the settings table, the shortcuts, the platform notes. A behaviour
+change usually belongs in the manual; the README changes only when the pitch
+does. Both have translations in `ref/readme/` — `README.<lang>.md` and
+`manual.<lang>.md` — in eight languages (zh-CN, ja, ko, fr, de, es, ru, pt).
 
-`ref/readme/README.<lang>.md` holds README translations (zh-CN, ja, es, fr, de).
-They are **snapshots, not a second source of truth** — each carries the date it
-was translated and a line saying the English README is the official version and
-the only one kept current. Do not update a translation as part of changing
-behaviour; the English README is what has to stay right. They live under `ref/`
-rather than beside the manual in `docs/`, so that turning GitHub Pages on would
-publish one manual and not nine dated snapshots. Because translated headings
+The translations are **snapshots, not a second source of truth**. Each carries
+the date it was translated and a line saying the English file is the official
+version and the only one kept current — the English README and the English manual
+each stand alone as authoritative. Do not update a translation as part of changing
+behaviour; the English file is what has to stay right. Because translated headings
 would produce unpredictable anchors, each section carries an explicit
 `<a id="…">` with the English slug, so the cross-links match the English file's.
 
