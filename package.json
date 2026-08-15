@@ -27,7 +27,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "test": "vitest run",
     "prepack": "npm run build",
-    "postinstall": "electron-rebuild -f -w node-pty"
+    "postinstall": "install-electron && electron-rebuild -f -w node-pty"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",

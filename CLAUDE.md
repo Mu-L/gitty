@@ -77,9 +77,13 @@ readable index of what is tested. Anything that can be wrong *quietly* belongs
 there: the patch builder above all. Verification
 beyond that is visual — see below.
 
-`npm install` runs `electron-rebuild -f -w node-pty` via `postinstall`; node-pty
-is native and must match Electron's ABI, not Node's. If the terminal pane fails
-to start after changing Electron versions, re-run that rebuild.
+`npm install` runs `install-electron && electron-rebuild -f -w node-pty` via
+`postinstall`. Electron 43 no longer downloads its binary from an install script
+of its own — the package ships an `install-electron` bin to be run instead — so
+without that first half a clean `npm ci` has the package and no runtime, and the
+rebuild fails looking for a version file that was never written. node-pty is
+native and must match Electron's ABI, not Node's; if the terminal pane fails to
+start after changing Electron versions, re-run that rebuild.
 
 ## Verifying changes visually
 

@@ -111,6 +111,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README's **Running** section leads with the `.deb`; Node 20 is listed as a
   requirement of the npm and source routes only.
 
+### Fixed
+
+- `npm ci` no longer fails on a clean checkout, which had taken CI with it.
+  Electron 43 downloads its binary from an `install-electron` bin rather than
+  an install script of its own, so `postinstall` runs that first — otherwise
+  the rebuild looks for a version file nothing wrote. The lockfile's `resolved`
+  URLs name the official registry again, rather than the mirror the machine
+  that wrote them was configured for.
+
 ## [0.1.6] - 2026-08-14
 
 ### Added
