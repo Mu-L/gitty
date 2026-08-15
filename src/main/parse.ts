@@ -133,6 +133,38 @@ export function parseNumstat(raw: string): Map<string, FileChurn> {
   return out
 }
 
+/**
+ * Parse `git log --format=%H --numstat -z` over a single path: the churn of
+ * each commit, keyed by hash. A record is either a bare hash or a numstat
+ * entry belonging to the hash before it; git puts a newline in front of the
+ * stats, and a rename leaves the path field empty with two more NUL fields
+ * behind it. A binary revision maps to null — it has counts, but not in lines.
+ */
+export function parseCommitNumstat(raw: string): Map<string, FileChurn | null> {
+  const parts = raw
+    .split('\0')
+    .map((s) => s.replace(/^\n+/, ''))
+    .filter((s) => s.length > 0)
+  const out = new Map<string, FileChurn | null>()
+  let hash: string | null = null
+  for (let i = 0; i < parts.length; i++) {
+    const fields = parts[i].split('\t')
+    if (fields.length < 3) {
+      hash = parts[i]
+      continue
+    }
+    const [addStr, delStr] = fields
+    // A rename's path sits in the two records that follow, not in this one.
+    if (fields.slice(2).join('\t').length === 0) i += 2
+    if (hash === null) continue
+    out.set(
+      hash,
+      addStr === '-' || delStr === '-' ? null : { added: Number(addStr), deleted: Number(delStr) }
+    )
+  }
+  return out
+}
+
 export interface NameStatusEntry {
   path: string
   status: FileStatusCode

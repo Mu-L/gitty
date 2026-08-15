@@ -6,6 +6,7 @@ import {
   parseLog,
   parseNameStatus,
   parseNumstat,
+  parseCommitNumstat,
   parseStatus,
   UNCOMMITTED_SHA,
   RS,
@@ -224,5 +225,31 @@ describe('parseGrep', () => {
 
   it('ignores empty and malformed records', () => {
     expect(parseGrep('\nnot-a-record\n', null)).toEqual([])
+  })
+})
+
+describe('parseCommitNumstat', () => {
+  const HASH = 'a'.repeat(40)
+  const HASH2 = 'b'.repeat(40)
+  const HASH3 = 'c'.repeat(40)
+
+  it('keys each commit churn by hash, across renames', () => {
+    const raw =
+      `${HASH}\0\n25\t8\tsrc/a.ts\0` +
+      `${HASH2}\0\n1\t1\t\0src/old.ts\0src/a.ts\0` +
+      `${HASH3}\0\n80\t0\tsrc/old.ts\0`
+    expect([...parseCommitNumstat(raw)]).toEqual([
+      [HASH, { added: 25, deleted: 8 }],
+      [HASH2, { added: 1, deleted: 1 }],
+      [HASH3, { added: 80, deleted: 0 }]
+    ])
+  })
+
+  it('marks a binary revision null and leaves a commit with no stats out', () => {
+    const raw = `${HASH}\0\n-\t-\timg.png\0` + `${HASH2}\0` + `${HASH3}\0\n2\t0\timg.png\0`
+    const m = parseCommitNumstat(raw)
+    expect(m.get(HASH)).toBeNull()
+    expect(m.has(HASH2)).toBe(false)
+    expect(m.get(HASH3)).toEqual({ added: 2, deleted: 0 })
   })
 })

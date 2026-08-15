@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type JSX } from 'react'
-import type { Commit } from '../../../shared/types'
+import type { Commit, FileHistoryEntry } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
 import { fmtDateTimeZone, stamp, useTime } from '../time'
@@ -29,7 +29,7 @@ export function FileHistoryPane({
   const { msg, locale } = useMsg()
   const time = useTime()
   const hostRef = useRef<HTMLDivElement>(null)
-  const [commits, setCommits] = useState<Commit[] | null>(null)
+  const [commits, setCommits] = useState<FileHistoryEntry[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -81,15 +81,18 @@ export function FileHistoryPane({
       {commits.length === 0 ? (
         <div className="empty">{msg.diff.emptyHistory}</div>
       ) : (
-        commits.map((c) => (
+        commits.map(({ commit: c, lines }) => (
           <div
             className="history-row"
             key={c.hash}
             onClick={() => onOpenCommit(c)}
-            title={`${c.hash}\n${c.author} <${c.email}>\n${fmtDateTimeZone(c.date, locale, time)}\n\n${c.subject}`}
+            title={`${c.hash}\n${c.author} <${c.email}>\n${fmtDateTimeZone(c.date, locale, time)}${lines === null ? '' : `\n${msg.files.lines(lines)}`}\n\n${c.subject}`}
           >
             <span className="history-hash">{c.short}</span>
             <span className="history-time">{stamp(c.date, time, msg.time)}</span>
+            {/* How long the file was once this commit landed; a binary
+                revision, and anything older than one, has no count. */}
+            <span className="history-lines">{lines === null ? '' : lines}</span>
             <span className="history-author">{c.author}</span>
             <span className="history-subject">{c.subject}</span>
           </div>

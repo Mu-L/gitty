@@ -14,6 +14,7 @@ import type {
   DiffRequest,
   DiffResult,
   FileChurn,
+  FileHistoryEntry,
   GitOpResult,
   GrepResult,
   HunkPick,
@@ -90,8 +91,11 @@ const api = {
     /** Which commit last touched each line. `rev` null blames the work tree. */
     blame: (root: string, rev: string | null, filePath: string): Promise<BlameLine[]> =>
       ipcRenderer.invoke('git:blame', root, rev, filePath),
-    /** Every commit that touched this file, newest first, following renames. */
-    fileHistory: (root: string, rev: string | null, filePath: string): Promise<Commit[]> =>
+    /**
+     * Every commit that touched this file, newest first, following renames,
+     * each with the file's line count at that commit.
+     */
+    fileHistory: (root: string, rev: string | null, filePath: string): Promise<FileHistoryEntry[]> =>
       ipcRenderer.invoke('git:fileHistory', root, rev, filePath),
     /** How a range of lines got this way: `git log -L`, raw, headers and all. */
     lineHistory: (

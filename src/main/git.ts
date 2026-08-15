@@ -12,6 +12,7 @@ import type {
   CommitFile,
   CommitMeta,
   FileChurn,
+  FileHistoryEntry,
   DiffOptions,
   DiffRequest,
   DiffResult,
@@ -27,6 +28,7 @@ import {
   parseBlame,
   parseBranches,
   parseLog,
+  parseCommitNumstat,
   parseNameStatus,
   parseGrep,
   parseNumstat,
@@ -257,18 +259,66 @@ export async function blame(
   return parseBlame(raw)
 }
 
-/** Every commit that touched this file, newest first, following renames. */
+/**
+ * Every commit that touched this file, newest first, following renames, each
+ * with the file's length at that point.
+ */
 export async function fileHistory(
   root: string,
   rev: string | null,
   filePath: string
-): Promise<Commit[]> {
+): Promise<FileHistoryEntry[]> {
   const fmt = ['%H', '%h', '%an', '%ae', '%aI', '%s', '%D', '%P'].join(US) + RS
   const args = ['log', '--follow', `--pretty=format:${fmt}`]
   if (rev) args.push(rev)
   args.push('--', filePath)
-  const raw = await git(root, args)
-  return parseLog(raw)
+  const [raw, churnRaw] = await Promise.all([
+    git(root, args),
+    git(root, [
+      'log',
+      '--follow',
+      '--format=%H',
+      '--numstat',
+      '-z',
+      ...(rev ? [rev] : []),
+      '--',
+      filePath
+    ])
+  ])
+  return withLineCounts(root, filePath, parseLog(raw), parseCommitNumstat(churnRaw))
+}
+
+/**
+ * How long the file was at each of its commits. Reading every revision would be
+ * one `git show` per row, so only the newest is counted and the rest are walked
+ * backwards through the churn: what the file was before a commit is what it was
+ * after it, less the lines that commit added, plus the ones it deleted. Only
+ * this direction works — the newest name is the one the caller asked about,
+ * while an older one may have been renamed since. A revision whose churn is not
+ * in lines ends the walk: nothing older than a binary revision can be derived.
+ */
+async function withLineCounts(
+  root: string,
+  filePath: string,
+  commits: Commit[],
+  churn: Map<string, FileChurn | null>
+): Promise<FileHistoryEntry[]> {
+  if (commits.length === 0) return []
+  // Nothing newer touched the file, so at its newest commit it still goes by
+  // the name that was asked for.
+  const [head] = await countFileLines(root, [{ rev: commits[0].hash, filePath }])
+  let lines = head
+  return commits.map((commit) => {
+    const entry = { commit, lines }
+    const c = churn.get(commit.hash)
+    // A merge git kept in the history has no numstat of its own; it changed
+    // nothing about this file, so the count carries over untouched.
+    if (lines !== null && c !== undefined) {
+      lines = c === null ? null : lines - c.added + c.deleted
+      if (lines !== null && lines < 0) lines = null // the walk lost the thread
+    }
+    return entry
+  })
 }
 
 /** Files touched by a commit, plus its message body. */

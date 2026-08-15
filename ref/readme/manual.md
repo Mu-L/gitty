@@ -384,7 +384,10 @@ both open as documents beside the diff. Blame shows one row per source line —
 the commit, its author, its date and the line itself, highlighted like the code
 viewer, with an em dash where a line is not committed yet — at the revision you
 are viewing. File History lists every commit
-that touched the file, follows renames, and clicking a commit opens it.
+that touched the file, follows renames, and clicking a commit opens it; a
+column between the date and the author says how long the file was at that
+commit, and is blank where the count cannot be worked out — a binary revision,
+and anything older than one.
 
 Right-clicking a blame row offers **History of These Lines**: `git log -L` over
 the lines the selection covers — or the clicked line, with no selection — which

@@ -57,6 +57,16 @@ export interface Commit {
   parents: string[]
 }
 
+/**
+ * One row of a file's history: the commit, and how long the file was once that
+ * commit had landed. `lines` is null where the count cannot be derived — a
+ * binary revision, or anything older than one.
+ */
+export interface FileHistoryEntry {
+  commit: Commit
+  lines: number | null
+}
+
 export interface CommitFile {
   path: string
   absPath: string

@@ -2380,6 +2380,15 @@ button:disabled:hover {
   color: var(--fg-dim);
 }
 
+/* Right-aligned, so the digits line up down the column. */
+.history-lines {
+  flex: none;
+  width: 5ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-dim);
+}
+
 .history-author {
   flex: none;
   max-width: 18em;
