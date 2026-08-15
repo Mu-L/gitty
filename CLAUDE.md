@@ -184,7 +184,10 @@ button's own dropdown — remembered commands, plus a prompt for one that is not
 remembered yet — and there is deliberately no settings row for it: it is
 answered once per hand-over, not once per install. `App.tsx` owns the list
 (`gitty.agentCommands`, most recently used first) and a command joins it by
-having been run, never by having been typed.
+having been run, never by having been typed. Leaving it goes through the main
+process (`settings:confirmForget`), so the confirmation is a native modal the
+window cannot be clicked past — the same reason discarding a file asks there
+rather than in the renderer.
 
 `src/main/patch.ts` is the whole of the risky part, and it is pure string work
 over `git diff` output so `test/patch.test.ts` can hold it — a wrong patch does
