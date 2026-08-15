@@ -17,6 +17,7 @@ export const pt: RendererMessages = {
     settings: 'Definições',
     openRepository: 'Abrir repositório',
     refresh: 'Atualizar',
+    refreshTitle: (accel: string) => `Atualiza status e log (${accel})`,
     panes: 'Painéis',
     noRepo: 'sem repositório',
     noReposOpen: 'Nenhum repositório aberto.',

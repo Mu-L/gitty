@@ -54,6 +54,9 @@ const AGENT_COMMANDS = [
 /** How many remembered agent commands to keep, most recently used first. */
 const AGENT_COMMAND_LIMIT = 12
 
+/** Shown in the Refresh button's tooltip; the keys RepoTab's handler refreshes on. */
+const REFRESH_ACCEL = 'F5 / Ctrl+R'
+
 function loadAgentCommands(): string[] {
   try {
     const v = JSON.parse(localStorage.getItem('gitty.agentCommands') ?? 'null')
@@ -760,7 +763,9 @@ export default function App(): JSX.Element {
         >
           {msg.app.settings}
         </button>
-        <button onClick={refreshActive}>{msg.app.refresh}</button>
+        <button onClick={refreshActive} title={msg.app.refreshTitle(REFRESH_ACCEL)}>
+          {msg.app.refresh}
+        </button>
       </div>
 
       {roots.length === 0 ? (

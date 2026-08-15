@@ -17,6 +17,7 @@ export const fr: RendererMessages = {
     settings: 'Paramètres',
     openRepository: 'Ouvrir un dépôt',
     refresh: 'Actualiser',
+    refreshTitle: (accel: string) => `Rafraîchir l'état et le journal (${accel})`,
     panes: 'Volets',
     noRepo: 'aucun dépôt',
     noReposOpen: 'Aucun dépôt ouvert.',

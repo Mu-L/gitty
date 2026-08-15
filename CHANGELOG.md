@@ -53,6 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The diff pane's header — the widen, index-side, preview, collapse, wrap,
   outline and view buttons, plus the document-tab strip — moved out of `RepoTab`
   into a `DiffHeader` component; behaviour is unchanged.
+- The title bar's **Refresh** button hover-tells its shortcut: <kbd>F5</kbd> /
+  <kbd>Ctrl+R</kbd>.
 
 ## [0.1.7] - 2026-08-15
 

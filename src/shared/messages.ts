@@ -93,6 +93,8 @@ export interface RendererMessages {
     readonly settings: string
     readonly openRepository: string
     readonly refresh: string
+    /** Hover tip for the Refresh button, naming the keys that refresh. */
+    readonly refreshTitle: (accel: string) => string
     readonly panes: string
     readonly noRepo: string
     readonly noReposOpen: string
