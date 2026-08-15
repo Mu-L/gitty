@@ -232,11 +232,18 @@ button:disabled:hover {
   flex: 0 1 auto;
 }
 
-/* Within the button, the checked-out branch truncates before the one being
-   browsed: that one is the answer to "what am I looking at". */
+/* The checked-out branch truncates before the one being browsed: that one is
+   the answer to "what am I looking at". */
 .titlebar .branch {
   flex: 0 10 auto;
   color: var(--green);
+}
+
+/* Shown beside the browsed branch rather than inside its button — a label, so
+   it takes the button's spacing without its hover or its pointer. */
+.titlebar .branch-static {
+  padding: 0 0 0 6px;
+  white-space: nowrap;
 }
 
 .titlebar .tracking {
