@@ -33,6 +33,8 @@ export interface FileDocState {
   range?: { start: number; end: number }
   /** The line a file document was opened at, when a search hit opened it. */
   line?: number
+  /** The heading a rendered document was opened at, from a link's `#fragment`. */
+  anchor?: string
 }
 
 /** One entry in the history: a view, a selection within it, and a document. */

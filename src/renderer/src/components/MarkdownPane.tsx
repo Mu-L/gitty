@@ -132,6 +132,26 @@ function markLines(tokens: Token[], offset: number): void {
   }
 }
 
+/**
+ * A link whose target is another file in this repository, i.e. one Ctrl+click
+ * would open. Rendered as a hover title rather than a colour of its own: the
+ * link already looks like a link, and what is worth saying is that this one
+ * leads somewhere Gitty can go.
+ */
+function markRepoLinks(tokens: Token[], docPath: string, hint: string): void {
+  for (const t of tokens) {
+    if (t.children) markRepoLinks(t.children, docPath, hint)
+    if (t.type !== 'link_open') continue
+    const href = String(t.attrGet('href') ?? '')
+    // A scheme (https:, mailto:, file:) or a bare anchor is not a file here.
+    if (!href || href.startsWith('#') || /^[a-z][a-z0-9+.-]*:/i.test(href)) continue
+    if (!resolveInRepo(docPath, href)) continue
+    // Never over a title the author wrote — that one says something this
+    // does not.
+    if (t.attrGet('title') === null) t.attrSet('title', hint)
+  }
+}
+
 /** Images fetched per document, so a gallery cannot spawn git processes forever. */
 const MAX_INLINE_IMAGES = 100
 
@@ -161,6 +181,27 @@ function resolveInRepo(docPath: string, src: string): string | null {
     out.push(p)
   }
   return out.length > 0 ? out.join('/') : null
+}
+
+/**
+ * The heading a link's `#fragment` names, or null. Our slugs and a forge's
+ * agree on ordinary headings; when they do not — or when the fragment names an
+ * anchor written as raw HTML, which is inert here — there is nothing to scroll
+ * to and the document opens at its top rather than somewhere arbitrary.
+ */
+function headingFor(headings: Heading[], fragment: string): Heading | null {
+  let want = fragment
+  try {
+    want = decodeURIComponent(fragment)
+  } catch {
+    /* a malformed escape is not a reason to fail the jump */
+  }
+  const lower = want.toLowerCase()
+  return (
+    headings.find((h) => h.id === want) ??
+    headings.find((h) => h.id.toLowerCase() === lower) ??
+    null
+  )
 }
 
 export interface Heading {
@@ -204,7 +245,9 @@ function renderFrontMatter(yaml: string, lines: boolean): string {
 function render(
   source: string,
   loaded: Map<string, string | null>,
-  lines: boolean
+  lines: boolean,
+  docPath: string,
+  linkHint: string
 ): { html: string; headings: Heading[]; refs: string[] } {
   const fm = FRONT_MATTER.exec(source)
   const body = fm ? source.slice(fm[0].length) : source
@@ -217,6 +260,7 @@ function render(
   const slug = slugger()
 
   if (lines) markLines(tokens, lineOffset)
+  markRepoLinks(tokens, docPath, linkHint)
 
   for (let i = 0; i < tokens.length; i++) {
     const t = tokens[i]
@@ -246,7 +290,9 @@ export function MarkdownPane({
   lineNumbers,
   wrap,
   active,
-  onMenu
+  onMenu,
+  onOpenPath,
+  anchor
 }: {
   source: string
   /** Identifies the document, not its text; changes only on opening another. */
@@ -265,12 +311,19 @@ export function MarkdownPane({
   /** On screen in the active tab — only then does Ctrl+F belong to it. */
   active: boolean
   onMenu: (state: MenuState) => void
+  /** Ctrl+click on a link into this repository opens that file, at this
+   *  document's own revision rather than the view's — the link was written
+   *  about the text it sits in. */
+  onOpenPath?: (path: string, rev: string | null, anchor?: string) => void
+  /** Heading this document was opened at, from the `#fragment` of the link
+   *  that opened it. */
+  anchor?: string
 }): JSX.Element {
   const { msg } = useMsg()
   const [images, setImages] = useState<Map<string, string | null>>(new Map())
   const { html, headings, refs } = useMemo(
-    () => render(source, images, lineNumbers),
-    [source, images, lineNumbers]
+    () => render(source, images, lineNumbers, docPath, msg.diff.openLinkHint),
+    [source, images, lineNumbers, docPath, msg]
   )
   const bodyRef = useRef<HTMLDivElement>(null)
   // Which heading the outline marks — not to be confused with the `active`
@@ -374,6 +427,21 @@ export function MarkdownPane({
     setActiveHeading(id)
   }
 
+  // A link that named a heading opens there. Once per document-and-anchor:
+  // where the reader scrolls afterwards is their own business, and the images
+  // landing later must not drag them back. `html` is a dependency because the
+  // headings have to be in the DOM before there is anything to scroll to.
+  const jumped = useRef('')
+  useLayoutEffect(() => {
+    if (!anchor) return
+    const key = `${docKey}#${anchor}`
+    if (jumped.current === key) return
+    const heading = headingFor(headings, anchor)
+    if (!heading) return
+    jumped.current = key
+    goto(heading.id)
+  }, [anchor, docKey, headings, html])
+
   const nav = (
     <nav className="md-outline">
       <div className="md-outline-title">{msg.diff.outline}</div>
@@ -402,6 +470,15 @@ export function MarkdownPane({
         const href = a.getAttribute('href') ?? ''
         if (/^https?:\/\//i.test(href)) void window.gitty.file.openExternal(href)
         else if (href.startsWith('#')) goto(href.slice(1))
+        else if (e.ctrlKey || e.metaKey) {
+          // A path in the repository, opened as a document of its own. Anything
+          // that escapes the root — or names another scheme — is left alone.
+          if (/^[a-z][a-z0-9+.-]*:/i.test(href)) return
+          const target = resolveInRepo(docPath, href)
+          // The fragment travels with it: `manual.md#the-window` opens the
+          // manual at that heading, the way it would on a forge.
+          if (target) onOpenPath?.(target, rev, href.split('#')[1] || undefined)
+        }
       }}
       dangerouslySetInnerHTML={htmlProp}
     />

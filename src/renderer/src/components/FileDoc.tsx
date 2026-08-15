@@ -39,7 +39,9 @@ export function FileDoc({
   range,
   onOpenHit,
   gotoLine,
-  onLineHistory
+  onLineHistory,
+  onOpenPath,
+  anchor
 }: {
   root: string
   path: string
@@ -71,6 +73,10 @@ export function FileDoc({
   gotoLine?: number
   /** A blame row asks for the history of the lines under the selection. */
   onLineHistory?: (start: number, end: number) => void
+  /** Ctrl+click on a rendered markdown link into this repository. */
+  onOpenPath?: (path: string, rev: string | null, anchor?: string) => void
+  /** Heading to open a rendered document at, from a link's `#fragment`. */
+  anchor?: string
 }): JSX.Element {
   const { msg } = useMsg()
   const [source, setSource] = useState<string | null>(null)
@@ -191,6 +197,8 @@ export function FileDoc({
       wrap={wrap}
       active={active}
       onMenu={onMenu}
+      onOpenPath={onOpenPath}
+      anchor={anchor}
     />
   ) : preview && isHtmlPath(path) ? (
     <HtmlPane source={source} docKey={docKey} wrap={wrap} active={active} onMenu={onMenu} />

@@ -199,6 +199,8 @@ export interface RendererMessages {
     readonly previewTitle: string
     readonly viewImageTitle: string
     readonly viewFileTitle: string
+    /** Hover title on a rendered link that points into the repository. */
+    readonly openLinkHint: string
     readonly markdownSourceTitle: string
     readonly renderMarkdownTitle: string
     readonly htmlPreviewTitle: string

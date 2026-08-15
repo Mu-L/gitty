@@ -138,6 +138,7 @@ export const ru: RendererMessages = {
     previewTitle: 'Открыть этот markdown-файл в отрисованном виде рядом с diff',
     viewImageTitle: 'Показать это изображение рядом с diff',
     viewFileTitle: 'Открыть файл целиком рядом с diff',
+    openLinkHint: 'Ctrl+щелчок — открыть этот файл в Gitty',
     markdownSourceTitle: 'Показать исходный markdown',
     renderMarkdownTitle: 'Отрисовать этот markdown-файл',
     htmlPreviewTitle: 'Открыть этот HTML-файл в режиме рендеринга',

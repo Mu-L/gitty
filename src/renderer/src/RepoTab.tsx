@@ -558,6 +558,26 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     },
     [revForView, showDoc]
   )
+  /**
+   * A link inside a rendered document, Ctrl+clicked. The revision comes from
+   * the document that holds the link rather than from the view: a README read
+   * at a commit links to that commit's files, whatever the log has selected
+   * since.
+   */
+  const openLinkedPath = useCallback(
+    (path: string, rev: string | null, anchor?: string) => {
+      showDoc({
+        kind: 'file',
+        id: `${rev ?? 'work'}:${path}`,
+        path,
+        rev,
+        preview: isMarkdownPath(path) || isHtmlPath(path),
+        anchor
+      })
+    },
+    [showDoc]
+  )
+
   const openBlame = useCallback((path: string) => addDoc('blame', path), [addDoc])
   const openHistory = useCallback((path: string) => addDoc('history', path), [addDoc])
 
@@ -1510,6 +1530,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       range={doc.range}
                       gotoLine={doc.line}
                       onOpenHit={openHit}
+                      onOpenPath={openLinkedPath}
+                      anchor={doc.anchor}
                       onLineHistory={(start, end) => openLineHistory(doc.path, start, end)}
                     />
                   </Suspense>

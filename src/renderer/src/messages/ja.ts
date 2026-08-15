@@ -122,6 +122,7 @@ export const ja: RendererMessages = {
     previewTitle: 'この Markdown ファイルを差分の横にレンダリングして開く',
     viewImageTitle: 'この画像を差分の横に表示',
     viewFileTitle: 'ファイル全体を差分の横に開く',
+    openLinkHint: 'Ctrl+クリックでこのファイルを Gitty で開く',
     markdownSourceTitle: 'Markdown のソースを表示する',
     renderMarkdownTitle: 'この Markdown ファイルをレンダリングする',
     htmlPreviewTitle: 'この HTML ファイルをレンダリングして開く',

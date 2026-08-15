@@ -53,6 +53,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **History of These Lines** on a blame row: `git log -L` over the selected
   lines (or the clicked one), as a document showing each commit that touched
   them and what it did. Blame says who last; this says how it got this way.
+- **Ctrl+click** a link in a rendered markdown document to open the file it
+  names, when that file is in the repository. It opens as its own document
+  beside the diff, at the revision the document itself was read at, so a README
+  at an old commit leads to that commit's files. A `#fragment` opens it at that
+  heading. Hovering the link says so; a link out of the repository, or to the
+  web, is unchanged.
 - **Search** in the working-tree header runs `git grep` and opens the hits as a
   document grouped by file. Clicking one opens that file at that line, marked.
   The search follows the revision on screen — the work tree, or the commit or

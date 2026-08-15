@@ -468,6 +468,19 @@ sliced off first, since markdown-it would read `---` as a horizontal rule; and
 link clicks are intercepted, because a plain `<a>` navigation would replace the
 whole app window.
 
+That interception is also where a link goes *somewhere*: an `http(s)` one to the
+system browser, a `#` one to the heading, and — with Ctrl or Cmd held — a
+relative one to the file it names, opened as a document beside the diff.
+`resolveInRepo` decides what counts as in-repo (the same function the images
+use, so a link and an image resolve alike, and anything climbing out past the
+root resolves to nothing). The revision is the *document's*, not the view's: a
+README read at a commit links to that commit's files. The `#fragment` rides
+along in `FileDocState.anchor` and the opened pane scrolls to the heading whose
+generated id matches it — once per document-and-anchor, or the images landing
+later would drag the reader back up. A hover title says so,
+written onto the token before rendering rather than onto the DOM after it —
+same reason as the images — and never over a title the author wrote.
+
 Images are the one thing the renderer cannot resolve for itself: a relative
 `src` would be fetched against the bundle, and a revision's bytes were never on
 disk at all. `git.readImageFile` returns them as a data: URL (`ImagePane` for a

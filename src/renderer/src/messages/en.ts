@@ -123,6 +123,7 @@ export const en: RendererMessages = {
     previewTitle: 'Open this markdown file rendered, beside the diff',
     viewImageTitle: 'Show this image beside the diff',
     viewFileTitle: 'Open the whole file beside the diff',
+    openLinkHint: 'Ctrl+click to open this file in Gitty',
     markdownSourceTitle: 'Show the markdown source instead',
     renderMarkdownTitle: 'Render this markdown file',
     htmlPreviewTitle: 'Open this HTML file rendered, beside the diff',
