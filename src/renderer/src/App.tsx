@@ -39,6 +39,34 @@ import { copySelection, isCopyChord } from './copy'
 import { ALL_LOCALES } from './locale'
 import { getMessages } from './messages'
 
+/**
+ * The commands "Send to agent" offers to begin with. Which agent is
+ * actually installed is not something the app can know, so these are
+ * suggestions to pick from and edit, not defaults known to work — the list
+ * then grows from whatever the user runs.
+ */
+const AGENT_COMMANDS = [
+  'claude "commit the staged changes"',
+  'codex exec "commit the staged changes"',
+  'gemini -p "commit the staged changes"'
+]
+
+/** How many remembered agent commands to keep, most recently used first. */
+const AGENT_COMMAND_LIMIT = 12
+
+function loadAgentCommands(): string[] {
+  try {
+    const v = JSON.parse(localStorage.getItem('gitty.agentCommands') ?? 'null')
+    if (Array.isArray(v)) {
+      const list = v.filter((c): c is string => typeof c === 'string' && c.trim() !== '')
+      if (list.length) return list
+    }
+  } catch {
+    // A hand-edited or truncated value is not worth a dialog; fall through.
+  }
+  return [...AGENT_COMMANDS]
+}
+
 export default function App(): JSX.Element {
   const [locale, setLocale] = useState<Locale>(loadLocale)
   const msg = getMessages(locale)
@@ -106,12 +134,13 @@ export default function App(): JSX.Element {
   const [termLogin, setTermLogin] = useState(
     () => localStorage.getItem('gitty.termLogin') !== 'off'
   )
-  // What "Commit with agent" runs. A placeholder rather than a working
-  // default: which agent is installed is not something the app can know, and
-  // a command that silently does nothing would be worse than an empty box.
+  // What "Send to agent" runs, and the commands its dropdown offers. There is
+  // no settings row for it: the command is chosen where it is used, which is
+  // once per hand-over rather than once per install.
   const [agentCommand, setAgentCommand] = useState(
-    () => localStorage.getItem('gitty.agentCommand') ?? 'claude "commit the staged changes"'
+    () => localStorage.getItem('gitty.agentCommand') ?? AGENT_COMMANDS[0]
   )
+  const [agentCommands, setAgentCommands] = useState<string[]>(loadAgentCommands)
   const [recent, setRecent] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
@@ -405,7 +434,8 @@ export default function App(): JSX.Element {
     setRestoreTabs(true)
     setTermShell('')
     setTermLogin(true)
-    setAgentCommand('claude "commit the staged changes"')
+    setAgentCommand(AGENT_COMMANDS[0])
+    setAgentCommands([...AGENT_COMMANDS])
     setTheme('dark')
     setFontSize(12.5)
     setRowHeight(20)
@@ -453,6 +483,7 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.termShell', termShell)
     localStorage.setItem('gitty.termLogin', termLogin ? 'on' : 'off')
     localStorage.setItem('gitty.agentCommand', agentCommand)
+    localStorage.setItem('gitty.agentCommands', JSON.stringify(agentCommands))
   }, [
     wrap,
     diffView,
@@ -473,8 +504,25 @@ export default function App(): JSX.Element {
     restoreTabs,
     termShell,
     termLogin,
-    agentCommand
+    agentCommand,
+    agentCommands
   ])
+
+  /**
+   * Select a command and remember it. A command earns its place in the list by
+   * having been run, so typing one into the settings box does not fill the
+   * dropdown with every intermediate keystroke.
+   */
+  const useAgentCommand = useCallback((command: string) => {
+    const c = command.trim()
+    if (!c) return
+    setAgentCommand(c)
+    setAgentCommands((list) => [c, ...list.filter((x) => x !== c)].slice(0, AGENT_COMMAND_LIMIT))
+  }, [])
+
+  const forgetAgentCommand = useCallback((command: string) => {
+    setAgentCommands((list) => list.filter((x) => x !== command))
+  }, [])
 
   // Persist locale and tell the main process.
   useEffect(() => {
@@ -735,6 +783,9 @@ export default function App(): JSX.Element {
                   diffOptions={diffOptions}
                   terminalOptions={terminalOptions}
                   agentCommand={agentCommand}
+                  agentCommands={agentCommands}
+                  onAgentCommand={useAgentCommand}
+                  onForgetAgentCommand={forgetAgentCommand}
                   graph={graph}
                   setGraph={setGraph}
                   panes={panes}
@@ -825,8 +876,6 @@ export default function App(): JSX.Element {
         setTermShell={setTermShell}
         termLogin={termLogin}
         setTermLogin={setTermLogin}
-        agentCommand={agentCommand}
-        setAgentCommand={setAgentCommand}
       />
       <AboutPane open={aboutOpen} onClose={() => setAboutOpen(false)} appIcon={appIcon} />
     </div>

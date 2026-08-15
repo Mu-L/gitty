@@ -82,12 +82,20 @@ export const pt: RendererMessages = {
     lines: (n: number) => `${n} linha${n === 1 ? '' : 's'}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Clique para tirar o ficheiro do índice' : 'Clique para pôr o ficheiro no índice',
-    commitWithAgent: 'Commit com o agente',
-    commitWithAgentTitle: (command: string) =>
+    sendToAgent: 'Enviar ao agente',
+    sendToAgentTitle: (command: string) =>
       `Correr «${command}» no terminal, sobre o que está no índice`,
-    commitWithAgentEmpty: 'Ponha algo no índice primeiro — está vazio',
+    sendToAgentEmpty: 'Ponha algo no índice primeiro — está vazio',
+    agentCommandsTitle: 'Escolha o comando a correr',
+    agentCommandTooltip:
+      '\n\nClique para o correr\nClique com o botão direito para remover da lista',
+    agentNewCommand: 'Novo comando…',
+    agentPromptTitle: 'Enviar ao agente',
+    agentPromptRun: 'Correr',
+    agentPromptCancel: 'Cancelar',
+    agentCommandPlaceholder: 'comando corrido no terminal',
     agentNoCommand:
-      'Não há nenhum comando de agente definido. Definições ▸ Sessão ▸ Comando do agente.',
+      'Não há nenhum comando de agente definido. Escolha um na seta ao lado do botão.',
     agentNoTerminal: 'Não há nenhuma shell neste separador para o correr.',
     search: 'Procurar',
     searchTitle: 'Procurar no repositório com git grep',
@@ -262,8 +270,6 @@ export const pt: RendererMessages = {
     restoreTabs: 'Reabrir a sessão anterior',
     shell: 'Shell',
     loginShell: 'Shell de login',
-    agentCommand: 'Comando do agente',
-    agentCommandPlaceholder: 'comando corrido no terminal',
     restoreDefaults: 'Repor predefinições',
     done: 'Concluído'
   },

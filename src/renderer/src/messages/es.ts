@@ -82,12 +82,20 @@ export const es: RendererMessages = {
     lines: (n: number) => `${n} línea${n === 1 ? '' : 's'}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Clic para sacar el archivo del índice' : 'Clic para poner el archivo en el índice',
-    commitWithAgent: 'Confirmar con el agente',
-    commitWithAgentTitle: (command: string) =>
+    sendToAgent: 'Enviar al agente',
+    sendToAgentTitle: (command: string) =>
       `Ejecutar «${command}» en la terminal, sobre lo que está en el índice`,
-    commitWithAgentEmpty: 'Pon algo en el índice primero: está vacío',
+    sendToAgentEmpty: 'Pon algo en el índice primero: está vacío',
+    agentCommandsTitle: 'Elige qué comando ejecutar',
+    agentCommandTooltip:
+      '\n\nHaz clic para ejecutarlo\nClic derecho para quitar de la lista',
+    agentNewCommand: 'Comando nuevo…',
+    agentPromptTitle: 'Enviar al agente',
+    agentPromptRun: 'Ejecutar',
+    agentPromptCancel: 'Cancelar',
+    agentCommandPlaceholder: 'comando que se ejecuta en la terminal',
     agentNoCommand:
-      'No hay ningún comando de agente configurado. Ajustes ▸ Sesión ▸ Comando del agente.',
+      'No hay ningún comando de agente configurado. Elige uno en la flecha junto al botón.',
     agentNoTerminal: 'No hay ninguna shell en esta pestaña donde ejecutarlo.',
     search: 'Buscar',
     searchTitle: 'Buscar en el repositorio con git grep',
@@ -262,8 +270,6 @@ export const es: RendererMessages = {
     restoreTabs: 'Reabrir la sesión anterior',
     shell: 'Shell',
     loginShell: 'Shell de inicio de sesión',
-    agentCommand: 'Comando del agente',
-    agentCommandPlaceholder: 'comando que se ejecuta en la terminal',
     restoreDefaults: 'Restaurar valores predeterminados',
     done: 'Hecho'
   },

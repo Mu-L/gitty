@@ -82,12 +82,20 @@ export const de: RendererMessages = {
     lines: (n: number) => `${n} Zeilen`,
     toggleStage: (staged: boolean) =>
       staged ? 'Klicken, um die Datei aus dem Index zu nehmen' : 'Klicken, um die Datei vorzumerken',
-    commitWithAgent: 'Mit Agent committen',
-    commitWithAgentTitle: (command: string) =>
+    sendToAgent: 'An Agent senden',
+    sendToAgentTitle: (command: string) =>
       `„${command}“ im Terminal ausführen, gegen das, was vorgemerkt ist`,
-    commitWithAgentEmpty: 'Erst etwas vormerken — der Index ist leer',
+    sendToAgentEmpty: 'Erst etwas vormerken — der Index ist leer',
+    agentCommandsTitle: 'Befehl zum Ausführen wählen',
+    agentCommandTooltip:
+      '\n\nKlicken, um ihn auszuführen\nRechtsklick, um aus der Liste zu entfernen',
+    agentNewCommand: 'Neuer Befehl…',
+    agentPromptTitle: 'An Agent senden',
+    agentPromptRun: 'Ausführen',
+    agentPromptCancel: 'Abbrechen',
+    agentCommandPlaceholder: 'Befehl, der im Terminal läuft',
     agentNoCommand:
-      'Es ist kein Agent-Befehl gesetzt. Einstellungen ▸ Sitzung ▸ Agent-Befehl.',
+      'Es ist kein Agent-Befehl gesetzt. Wählen Sie einen über den Pfeil neben der Schaltfläche.',
     agentNoTerminal: 'In diesem Tab läuft keine Shell, in der er laufen könnte.',
     search: 'Suchen',
     searchTitle: 'Das Repository mit git grep durchsuchen',
@@ -260,8 +268,6 @@ export const de: RendererMessages = {
     restoreTabs: 'Letzte Sitzung wiederherstellen',
     shell: 'Shell',
     loginShell: 'Login-Shell',
-    agentCommand: 'Agent-Befehl',
-    agentCommandPlaceholder: 'Befehl, der im Terminal läuft',
     restoreDefaults: 'Standard wiederherstellen',
     done: 'Fertig'
   },

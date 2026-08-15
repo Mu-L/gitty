@@ -82,12 +82,20 @@ export const fr: RendererMessages = {
     lines: (n: number) => `${n} ligne${n === 1 ? '' : 's'}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Cliquer pour retirer ce fichier de l’index' : 'Cliquer pour indexer ce fichier',
-    commitWithAgent: 'Commiter avec l’agent',
-    commitWithAgentTitle: (command: string) =>
+    sendToAgent: 'Envoyer à l’agent',
+    sendToAgentTitle: (command: string) =>
       `Lancer « ${command} » dans le terminal, sur ce qui est indexé`,
-    commitWithAgentEmpty: 'Indexez d’abord quelque chose — l’index est vide',
+    sendToAgentEmpty: 'Indexez d’abord quelque chose — l’index est vide',
+    agentCommandsTitle: 'Choisir la commande à lancer',
+    agentCommandTooltip:
+      '\n\nCliquer pour la lancer\nClic droit pour retirer de la liste',
+    agentNewCommand: 'Nouvelle commande…',
+    agentPromptTitle: 'Envoyer à l’agent',
+    agentPromptRun: 'Lancer',
+    agentPromptCancel: 'Annuler',
+    agentCommandPlaceholder: 'commande lancée dans le terminal',
     agentNoCommand:
-      'Aucune commande d’agent n’est définie. Réglages ▸ Session ▸ Commande de l’agent.',
+      'Aucune commande d’agent n’est définie. Choisissez-en une dans la flèche à côté du bouton.',
     agentNoTerminal: 'Aucun shell dans cet onglet pour la lancer.',
     search: 'Rechercher',
     searchTitle: 'Chercher dans le dépôt avec git grep',
@@ -262,8 +270,6 @@ export const fr: RendererMessages = {
     restoreTabs: 'Rouvrir la session précédente',
     shell: 'Shell',
     loginShell: 'Shell de connexion',
-    agentCommand: 'Commande de l’agent',
-    agentCommandPlaceholder: 'commande lancée dans le terminal',
     restoreDefaults: 'Rétablir les valeurs par défaut',
     done: 'Terminé'
   },

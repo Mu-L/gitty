@@ -81,11 +81,20 @@ export const ja: RendererMessages = {
     lines: (n: number) => `${n} 行`,
     toggleStage: (staged: boolean) =>
       staged ? 'クリックでこのファイルをステージ解除' : 'クリックでこのファイルをステージ',
-    commitWithAgent: 'agent にコミットさせる',
-    commitWithAgentTitle: (command: string) =>
+    sendToAgent: 'agent に送る',
+    sendToAgentTitle: (command: string) =>
       `ステージ済みの内容に対して、ターミナルで "${command}" を実行します`,
-    commitWithAgentEmpty: 'まず何かをステージしてください——インデックスが空です',
-    agentNoCommand: 'agent コマンドが未設定です。設定 ▸ セッション ▸ Agent コマンド にあります。',
+    sendToAgentEmpty: 'まず何かをステージしてください——インデックスが空です',
+    agentCommandsTitle: '実行するコマンドを選ぶ',
+    agentCommandTooltip:
+      '\n\nクリックで実行\n右クリックで一覧から削除',
+    agentNewCommand: '新しいコマンド…',
+    agentPromptTitle: 'agent に送る',
+    agentPromptRun: '実行',
+    agentPromptCancel: 'キャンセル',
+    agentCommandPlaceholder: 'ターミナルで実行するコマンド',
+    agentNoCommand:
+      'agent コマンドが未設定です。ボタン横の矢印から選んでください。',
     agentNoTerminal: 'このタブには実行できるシェルがありません。',
     search: '検索',
     searchTitle: 'git grep でリポジトリを検索',
@@ -256,8 +265,6 @@ export const ja: RendererMessages = {
     restoreTabs: '前回のセッションを復元',
     shell: 'シェル',
     loginShell: 'ログインシェル',
-    agentCommand: 'Agent コマンド',
-    agentCommandPlaceholder: 'ターミナルで実行するコマンド',
     restoreDefaults: '既定値に戻す',
     done: '完了'
   },

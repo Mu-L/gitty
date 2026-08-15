@@ -97,12 +97,20 @@ export const ru: RendererMessages = {
     lines: (n: number) => `${n} ${plural(n, 'строка', 'строки', 'строк')}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Щёлкните, чтобы убрать файл из индекса' : 'Щёлкните, чтобы добавить файл в индекс',
-    commitWithAgent: 'Коммит агентом',
-    commitWithAgentTitle: (command: string) =>
+    sendToAgent: 'Отправить агенту',
+    sendToAgentTitle: (command: string) =>
       `Выполнить «${command}» в терминале — по тому, что лежит в индексе`,
-    commitWithAgentEmpty: 'Сначала добавьте что-нибудь в индекс — он пуст',
+    sendToAgentEmpty: 'Сначала добавьте что-нибудь в индекс — он пуст',
+    agentCommandsTitle: 'Выберите команду для запуска',
+    agentCommandTooltip:
+      '\n\nЩелчок — запустить\nПравый щелчок — убрать из списка',
+    agentNewCommand: 'Новая команда…',
+    agentPromptTitle: 'Отправить агенту',
+    agentPromptRun: 'Запустить',
+    agentPromptCancel: 'Отмена',
+    agentCommandPlaceholder: 'команда, запускаемая в терминале',
     agentNoCommand:
-      'Команда агента не задана. Настройки ▸ Сеанс ▸ Команда агента.',
+      'Команда агента не задана. Выберите её в стрелке рядом с кнопкой.',
     agentNoTerminal: 'В этой вкладке нет оболочки, где её запустить.',
     search: 'Поиск',
     searchTitle: 'Искать по репозиторию через git grep',
@@ -278,8 +286,6 @@ export const ru: RendererMessages = {
     restoreTabs: 'Восстановить прошлый сеанс',
     shell: 'Оболочка',
     loginShell: 'Login-оболочка',
-    agentCommand: 'Команда агента',
-    agentCommandPlaceholder: 'команда, запускаемая в терминале',
     restoreDefaults: 'Восстановить по умолчанию',
     done: 'Готово'
   },

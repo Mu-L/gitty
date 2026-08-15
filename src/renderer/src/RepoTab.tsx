@@ -13,7 +13,8 @@ import {
   type SetStateAction
 } from 'react'
 import { Group, Panel, Separator } from 'react-resizable-panels'
-import { ContextMenu, type MenuState } from './components/ContextMenu'
+import { ContextMenu, type MenuItem, type MenuState } from './components/ContextMenu'
+import { PromptDialog } from './components/PromptDialog'
 import {
   DiffPane,
   type CollapseState,
@@ -127,8 +128,14 @@ export interface RepoTabProps {
   diffOptions: DiffOptions
   /** Which shell a terminal in this tab starts, and how. */
   terminalOptions: TerminalOptions
-  /** The command "Commit with agent" types into this tab's focused shell. */
+  /** The command "Send to agent" types into this tab's focused shell. */
   agentCommand: string
+  /** The commands its dropdown offers, most recently used first. */
+  agentCommands: string[]
+  /** Make one of them the current command and remember it. */
+  onAgentCommand: (command: string) => void
+  /** Drop one from the remembered list. */
+  onForgetAgentCommand: (command: string) => void
   /** Draw the lane graph beside the commit hashes. */
   graph: boolean
   setGraph: Dispatch<SetStateAction<boolean>>
@@ -181,6 +188,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     diffOptions,
     terminalOptions,
     agentCommand,
+    agentCommands,
+    onAgentCommand,
+    onForgetAgentCommand,
     graph,
     setGraph,
     panes,
@@ -205,6 +215,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const [selectedCommit, setSelectedCommit] = useState<string | null>(WORKTREE_ROW)
   const [compareCommit, setCompareCommit] = useState<string | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
+  // The "New command…" prompt from the agent dropdown.
+  const [agentPrompt, setAgentPrompt] = useState(false)
   // The diff is always the first document; opening a file adds another beside
   // it rather than replacing it, so a diff can stay on screen while a file is
   // read. Snapshots have no diff, so there the first document is a file.
@@ -767,9 +779,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   useEffect(() => {
     if (!active) return
     const onKey = (e: KeyboardEvent): void => {
-      // Escape unwinds one level at a time: settings, full screen, then view.
+      // Escape unwinds one level at a time: a dialog, full screen, then view.
       if (e.key === 'Escape') {
-        if (settingsOpen) return
+        if (settingsOpen || agentPrompt) return
         if (full) setFull(null)
         else backToWorkTree()
       } else if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key === 'r')) {
@@ -785,7 +797,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [active, settingsOpen, full, panes, backToWorkTree, refresh])
+  }, [active, settingsOpen, agentPrompt, full, panes, backToWorkTree, refresh])
 
   const loadMore = useCallback(async () => {
     if (loadingMore.current || exhausted.current) return
@@ -895,18 +907,51 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
    * app, so nothing about the repository leaves the machine that the user did
    * not send themselves.
    */
-  const commitWithAgent = useCallback(() => {
-    const command = agentCommand.trim()
-    if (!command) {
-      setRemoteMsg({ ok: false, text: msg.files.agentNoCommand })
-      return
-    }
-    if (!runInTerminal(root, command)) {
-      setRemoteMsg({ ok: false, text: msg.files.agentNoTerminal })
-      return
-    }
-    setRemoteMsg(null)
-  }, [agentCommand, root, msg])
+  const sendToAgent = useCallback(
+    (pick?: string) => {
+      const command = (pick ?? agentCommand).trim()
+      if (!command) {
+        setRemoteMsg({ ok: false, text: msg.files.agentNoCommand })
+        return
+      }
+      if (!runInTerminal(root, command)) {
+        setRemoteMsg({ ok: false, text: msg.files.agentNoTerminal })
+        return
+      }
+      // Remembered because it ran, not because it was typed: the list is a
+      // record of what this machine actually has.
+      onAgentCommand(command)
+      setRemoteMsg(null)
+    },
+    [agentCommand, root, msg, onAgentCommand]
+  )
+
+  /**
+   * The dropdown beside the button: every remembered command, the current one
+   * ticked, and a way to type one that is not there yet. This is the only
+   * place the command is chosen — a setting would be a second answer to a
+   * question asked once per commit rather than once per install.
+   */
+  const agentItems = useCallback(
+    (list: string[]): MenuItem[] => [
+      ...list.map((c) => ({
+        label: c,
+        accel: c === agentCommand ? '✓' : undefined,
+        title: `${c}${msg.files.agentCommandTooltip}`,
+        action: () => sendToAgent(c),
+        altAction: () => {
+          onForgetAgentCommand(c)
+          setMenu((m) => (m ? { ...m, items: agentItems(list.filter((x) => x !== c)) } : m))
+        }
+      })),
+      {
+        label: msg.files.agentNewCommand,
+        separatorBefore: list.length > 0,
+        action: () => setAgentPrompt(true)
+      }
+    ],
+    [agentCommand, msg, sendToAgent, onForgetAgentCommand]
+  )
 
   /* ---------- push and pull ---------- */
 
@@ -1106,18 +1151,34 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   {/* The index is curated here, so this is where it is handed
                       over. Only ever text into the shell below. */}
                   {view.mode === 'worktree' && (
-                    <button
-                      className="toggle"
-                      disabled={stagedCount === 0}
-                      title={
-                        stagedCount === 0
-                          ? msg.files.commitWithAgentEmpty
-                          : msg.files.commitWithAgentTitle(agentCommand)
-                      }
-                      onClick={commitWithAgent}
-                    >
-                      {msg.files.commitWithAgent}
-                    </button>
+                    <span className="split-button">
+                      <button
+                        className="toggle"
+                        disabled={stagedCount === 0}
+                        title={
+                          stagedCount === 0
+                            ? msg.files.sendToAgentEmpty
+                            : msg.files.sendToAgentTitle(agentCommand)
+                        }
+                        onClick={() => sendToAgent()}
+                      >
+                        {msg.files.sendToAgent}
+                      </button>
+                      {/* Which agent to hand it to is a per-commit decision, so
+                          the whole choice lives here: the remembered commands
+                          and the box for one that is not remembered yet. */}
+                      <button
+                        className="toggle split-more"
+                        disabled={stagedCount === 0}
+                        title={msg.files.agentCommandsTitle}
+                        onClick={(e) => {
+                          const r = e.currentTarget.getBoundingClientRect()
+                          setMenu({ x: r.left, y: r.bottom, items: agentItems(agentCommands) })
+                        }}
+                      >
+                        ▾
+                      </button>
+                    </span>
                   )}
                   {/* Searching is about the whole repository, so it belongs to
                       the pane that lists it — and it follows the revision on
@@ -1659,6 +1720,19 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       </Group>
 
       <ContextMenu state={menu} onClose={() => setMenu(null)} />
+      <PromptDialog
+        open={agentPrompt}
+        title={msg.files.agentPromptTitle}
+        placeholder={msg.files.agentCommandPlaceholder}
+        initial={agentCommand}
+        submitLabel={msg.files.agentPromptRun}
+        cancelLabel={msg.files.agentPromptCancel}
+        onCancel={() => setAgentPrompt(false)}
+        onSubmit={(c) => {
+          setAgentPrompt(false)
+          sendToAgent(c)
+        }}
+      />
     </div>
   )
 })

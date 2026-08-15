@@ -152,10 +152,20 @@ export interface RendererMessages {
     readonly lines: (n: number) => string
     /** Clicking a file's status marks moves it in or out of the index. */
     readonly toggleStage: (staged: boolean) => string
-    /** Hands the curated index to whatever agent the user has configured. */
-    readonly commitWithAgent: string
-    readonly commitWithAgentTitle: (command: string) => string
-    readonly commitWithAgentEmpty: string
+    /** Hands the curated index to whatever agent the user picks. */
+    readonly sendToAgent: string
+    readonly sendToAgentTitle: (command: string) => string
+    readonly sendToAgentEmpty: string
+    /** The dropdown of remembered commands beside that button. */
+    readonly agentCommandsTitle: string
+    /** Appended to a command in that dropdown, saying what a click does. */
+    readonly agentCommandTooltip: string
+    /** Its last entry, and the one-line dialog that entry opens. */
+    readonly agentNewCommand: string
+    readonly agentPromptTitle: string
+    readonly agentPromptRun: string
+    readonly agentPromptCancel: string
+    readonly agentCommandPlaceholder: string
     /** Why nothing happened: no command configured, or nowhere to run it. */
     readonly agentNoCommand: string
     readonly agentNoTerminal: string
@@ -349,9 +359,6 @@ export interface RendererMessages {
     readonly restoreTabs: string
     readonly shell: string
     readonly loginShell: string
-    /** The command "Commit with agent" types into the terminal. */
-    readonly agentCommand: string
-    readonly agentCommandPlaceholder: string
     readonly restoreDefaults: string
     readonly done: string
   }

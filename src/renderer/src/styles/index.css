@@ -885,6 +885,23 @@ button:disabled:hover {
   border-color: var(--border-active);
 }
 
+/* One button with an arrow attached: the action on the left, the list of what
+   else it could do on the right. They read as one control, so the seam between
+   them is a single border rather than two. */
+.split-button {
+  display: inline-flex;
+}
+
+.split-button .toggle {
+  border-radius: 3px 0 0 3px;
+}
+
+.split-button .split-more {
+  padding: 0 4px;
+  margin-left: -1px;
+  border-radius: 0 3px 3px 0;
+}
+
 .dl-add {
   background: var(--diff-add-bg);
   color: var(--green);
@@ -1922,6 +1939,29 @@ button:disabled:hover {
   background: var(--bg-header);
   border: 1px solid var(--border);
   border-radius: 3px;
+}
+
+/* The one-line prompt (a command for the agent). Wider than the settings
+   dialog is tall: it is one field, and a command is long. */
+.prompt {
+  width: 520px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-header);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 12px 32px #000a;
+}
+
+.prompt-body {
+  padding: 12px;
+}
+
+.prompt-input {
+  width: 100%;
+  max-width: none;
+  padding: 4px 6px;
 }
 
 .setting-value {

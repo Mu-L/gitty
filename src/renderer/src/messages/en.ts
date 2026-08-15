@@ -82,12 +82,20 @@ export const en: RendererMessages = {
     lines: (n: number) => `${n} lines`,
     toggleStage: (staged: boolean) =>
       staged ? 'Click to unstage this file' : 'Click to stage this file',
-    commitWithAgent: 'Commit with agent',
-    commitWithAgentTitle: (command: string) =>
+    sendToAgent: 'Send to agent',
+    sendToAgentTitle: (command: string) =>
       `Run "${command}" in the terminal, against what is staged`,
-    commitWithAgentEmpty: 'Stage something first — the index is empty',
+    sendToAgentEmpty: 'Stage something first — the index is empty',
+    agentCommandsTitle: 'Choose which command to run',
+    agentCommandTooltip:
+      '\n\nClick to run it\nRight-click to remove from the list',
+    agentNewCommand: 'New command…',
+    agentPromptTitle: 'Send to agent',
+    agentPromptRun: 'Run',
+    agentPromptCancel: 'Cancel',
+    agentCommandPlaceholder: 'command run in the terminal',
     agentNoCommand:
-      'No agent command is set. Settings ▸ Session ▸ Agent command is where it goes.',
+      'No agent command is set. Pick one from the arrow beside the button.',
     agentNoTerminal: 'No shell in this tab to run it in.',
     search: 'Search',
     searchTitle: 'Search the repository with git grep',
@@ -257,8 +265,6 @@ export const en: RendererMessages = {
     restoreTabs: 'Reopen last session',
     shell: 'Shell',
     loginShell: 'Login shell',
-    agentCommand: 'Agent command',
-    agentCommandPlaceholder: 'command run in the terminal',
     restoreDefaults: 'Restore Defaults',
     done: 'Done'
   },
