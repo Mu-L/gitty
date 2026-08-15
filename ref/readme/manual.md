@@ -27,10 +27,8 @@ Left to right, it describes the active repository and then acts on it:
   [Going back](#going-back).
 - **The repository path** is a button: it opens the
   [recent repositories](#recent-repositories) menu.
-- **+** beside it — a directory picker, opening the repository you choose into a
-  new tab (<kbd>Ctrl+O</kbd>). It sits with the repository button because the
-  two are the same subject: which repository you are looking at, and opening
-  another.
+  Opening another repository is **+** at the end of the [tab bar](#tabs), or
+  <kbd>Ctrl+O</kbd>.
 - **⎇ branch** is a button too — the branch git has checked out, and a menu of
   every other branch to read. See
   [browsing another branch](#browsing-another-branch).

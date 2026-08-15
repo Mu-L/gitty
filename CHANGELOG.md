@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Opening a repository is one **+** rather than two: the title bar's is gone and
+  the tab bar's takes over its accent, beside the tabs it adds to.
 - **Send to agent** is no longer disabled when the index is empty; it types its
   command into the terminal regardless.
 - The **Markdown outline** setting is now **Outline**: the one switch governs

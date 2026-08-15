@@ -688,13 +688,6 @@ export default function App(): JSX.Element {
           <span className="repo">{active ? active.split('/').pop() : msg.app.noRepo}</span>
           <span className="caret">▾</span>
         </button>
-        <button
-          className="repo-add"
-          title={msg.app.openRepository}
-          onClick={() => pickAndOpen()}
-        >
-          +
-        </button>
         {activeStatus && (
           <>
             {/* The checked-out branch is a statement of fact, not a control:
