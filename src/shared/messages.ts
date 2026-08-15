@@ -141,6 +141,9 @@ export interface RendererMessages {
     readonly noBranchesYet: string
     readonly backTo: (branch: string) => string
     readonly browseHint: string
+    /** The two names in the title bar: what git is on, what the log shows. */
+    readonly checkedOutHint: (branch: string) => string
+    readonly browsingHint: (branch: string) => string
     readonly headLabel: string
   }
   readonly files: {

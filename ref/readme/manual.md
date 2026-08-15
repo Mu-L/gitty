@@ -489,7 +489,8 @@ instead. It is a read-only look: gitty runs no `checkout`, so the work tree,
 its diffs and the terminals stay exactly where git left them. While you are
 looking at another branch the title bar reads `⎇ main › other-branch` and the
 commit pane says which branch it is listing; **Back to <branch>** returns.
-Each tab browses on its own.
+Each of the two names has its own hover text saying which is which, since the
+distinction is the whole point of the feature. Each tab browses on its own.
 
 #### Push and Pull
 

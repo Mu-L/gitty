@@ -80,6 +80,10 @@ export const ru: RendererMessages = {
     noBranchesYet: 'Веток пока нет',
     backTo: (branch: string) => `Назад к ${branch}`,
     browseHint: 'Посмотреть историю другой ветки (переключения не происходит)',
+    checkedOutHint: (branch: string) =>
+      `Активная ветка: ${branch} — рабочее дерево, его различия и оболочки находятся на ней`,
+    browsingHint: (branch: string) =>
+      `Просмотр истории ветки ${branch} — она не переключена`,
     headLabel: 'HEAD'
   },
   files: {

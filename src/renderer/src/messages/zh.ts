@@ -64,6 +64,8 @@ export const zh: RendererMessages = {
     noBranchesYet: '暂无分支',
     backTo: (branch: string) => `返回 ${branch}`,
     browseHint: '浏览其他分支的历史（不会 checkout）',
+    checkedOutHint: (branch: string) => `当前签出：${branch} —— 工作区、其差异与终端都在这个分支上`,
+    browsingHint: (branch: string) => `正在浏览 ${branch} 的历史 —— 它并未被签出`,
     headLabel: 'HEAD'
   },
   files: {

@@ -64,6 +64,10 @@ export const ja: RendererMessages = {
     noBranchesYet: 'ブランチはまだありません',
     backTo: (branch: string) => `${branch} に戻る`,
     browseHint: '別のブランチの履歴を見る（チェックアウトはしません）',
+    checkedOutHint: (branch: string) =>
+      `チェックアウト中: ${branch} — ワークツリー、その差分、シェルはこのブランチ上にあります`,
+    browsingHint: (branch: string) =>
+      `${branch} の履歴を閲覧中 — このブランチはチェックアウトされていません`,
     headLabel: 'HEAD'
   },
   files: {

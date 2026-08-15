@@ -65,6 +65,10 @@ export const de: RendererMessages = {
     noBranchesYet: 'Noch keine Branches',
     backTo: (branch: string) => `Zurück zu ${branch}`,
     browseHint: 'Verlauf eines anderen Branches ansehen (nichts wird ausgecheckt)',
+    checkedOutHint: (branch: string) =>
+      `Ausgecheckt: ${branch} — Arbeitsverzeichnis, seine Diffs und die Shells liegen auf diesem Branch`,
+    browsingHint: (branch: string) =>
+      `Verlauf von ${branch} wird angesehen — dieser Branch ist nicht ausgecheckt`,
     headLabel: 'HEAD'
   },
   files: {

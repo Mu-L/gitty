@@ -64,6 +64,9 @@ export const ko: RendererMessages = {
     noBranchesYet: '브랜치가 아직 없습니다',
     backTo: (branch: string) => `${branch}(으)로 돌아가기`,
     browseHint: '다른 브랜치의 기록 보기(체크아웃하지 않음)',
+    checkedOutHint: (branch: string) =>
+      `체크아웃됨: ${branch} — 작업 트리와 그 차이, 셸이 모두 이 브랜치에 있습니다`,
+    browsingHint: (branch: string) => `${branch}의 기록을 보는 중 — 체크아웃된 것은 아닙니다`,
     headLabel: 'HEAD'
   },
   files: {

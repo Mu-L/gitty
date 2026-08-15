@@ -65,6 +65,10 @@ export const fr: RendererMessages = {
     noBranchesYet: 'Aucune branche pour l’instant',
     backTo: (branch: string) => `Retour à ${branch}`,
     browseHint: 'Parcourir l’historique d’une autre branche (rien n’est extrait)',
+    checkedOutHint: (branch: string) =>
+      `Branche extraite : ${branch} — la copie de travail, ses diffs et les shells sont sur cette branche`,
+    browsingHint: (branch: string) =>
+      `Consultation de l’historique de ${branch} — elle n’est pas extraite`,
     headLabel: 'HEAD'
   },
   files: {

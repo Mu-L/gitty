@@ -65,6 +65,10 @@ export const en: RendererMessages = {
     noBranchesYet: 'No branches yet',
     backTo: (branch: string) => `Back to ${branch}`,
     browseHint: "Browse another branch's history (nothing is checked out)",
+    checkedOutHint: (branch: string) =>
+      `Checked out: ${branch} — the work tree, its diffs and the shells are on this branch`,
+    browsingHint: (branch: string) =>
+      `Browsing the history of ${branch} — it is not checked out`,
     headLabel: 'HEAD'
   },
   files: {

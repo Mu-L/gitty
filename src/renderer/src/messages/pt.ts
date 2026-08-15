@@ -65,6 +65,9 @@ export const pt: RendererMessages = {
     noBranchesYet: 'Ainda não há ramos',
     backTo: (branch: string) => `Voltar a ${branch}`,
     browseHint: 'Percorrer o histórico de outro ramo (nada é obtido)',
+    checkedOutHint: (branch: string) =>
+      `Ramo ativo: ${branch} — a árvore de trabalho, os seus diffs e as shells estão neste ramo`,
+    browsingHint: (branch: string) => `A percorrer o histórico de ${branch} — não está ativo`,
     headLabel: 'HEAD'
   },
   files: {

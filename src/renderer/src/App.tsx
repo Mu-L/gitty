@@ -699,15 +699,29 @@ export default function App(): JSX.Element {
           <>
             <button
               className="repo-button branch-button"
-              title={msg.branch.browseHint}
               onClick={(e) => {
-                const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
-                void openBranchMenu(r.left, r.bottom + 2)
+                // The menu drops from the caret rather than the button's left
+                // edge: the caret sits beside the branch being browsed, which
+                // is the name the menu changes.
+                const el = e.currentTarget as HTMLElement
+                const caret = el.querySelector('.caret') ?? el
+                void openBranchMenu(
+                  caret.getBoundingClientRect().left,
+                  el.getBoundingClientRect().bottom + 2
+                )
               }}
             >
-              <span className="branch">⎇ {activeStatus.branch}</span>
-              {activeBrowsing && <span className="browsing">› {activeBrowsing}</span>}
-              <span className="caret">▾</span>
+              <span className="branch" title={msg.branch.checkedOutHint(activeStatus.branch)}>
+                ⎇ {activeStatus.branch}
+              </span>
+              {activeBrowsing && (
+                <span className="browsing" title={msg.branch.browsingHint(activeBrowsing)}>
+                  › {activeBrowsing}
+                </span>
+              )}
+              <span className="caret" title={msg.branch.browseHint}>
+                ▾
+              </span>
             </button>
             {activeStatus.upstream && (
               <span className="tracking">
