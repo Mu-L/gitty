@@ -1,7 +1,7 @@
 # Design: splitting RepoTab
 
 **Status:** in progress (2026-08-15) · **Scope:** `src/renderer/src/RepoTab.tsx`
-Cut 1 (`useDocs`) implemented · cuts 2–3 pending
+Cuts 1 (`useDocs`) and 2 (`FilesView`) implemented · cut 3 (`DiffHeader`) pending
 
 `RepoTab.tsx` is 1839 lines. That is long, but the length is not the problem —
 a component that owns one repository's whole session is allowed to be large.
@@ -127,7 +127,7 @@ refs leave `RepoTab` entirely. What stays behind is the coordination: `view`,
 (`onSelect` still clears `activeDoc` for non-snapshots, `onOpen` still calls
 `openFileDoc`).
 
-**Suggested props** (names indicative, the boundary is the contract):
+**The landed props** (`components/FilesView.tsx`):
 
 ```ts
 interface FilesViewProps {
@@ -139,21 +139,32 @@ interface FilesViewProps {
   selectedFile: string | null
   treeKey: string
   commitMeta: CommitMeta | null
-  header: { full: JSX.Element; hide: JSX.Element }   // buttons from RepoTab
+  paneClass: string         // pane + full-screen suffix, computed by the tab
+  header: { full: JSX.Element; hide: JSX.Element | null }   // buttons from RepoTab
+  onDoubleClick: (e: { target: EventTarget | null }) => void
   onSelect: (path: string) => void
   onOpen: (path: string) => void
-  onMenu: MenuItem[] | ((f: FileEntry) => MenuItem[])
-  onToggleStage?: (f: FileEntry) => void
+  onMenu: (entry: FileEntry, state: MenuState) => void
+  onToggleStage: (f: FileEntry) => void
   onSearch: (pattern: string) => void      // openSearch
   onBackToWorkTree: () => void
   sendToAgent: (pick?: string) => void
   agentItems: (list: string[]) => MenuItem[]
   agentCommands: string[]
-  onAgentPrompt: () => void
+  agentCommand: string
   setMenu: (m: MenuState | null) => void
   revForView: () => string | null          // for the "in revision" hint
 }
 ```
+
+Deviations from the sketch above: `onToggleStage` is unconditional — the
+component reads `view.mode` and passes it to `FilesPane` only for the work tree,
+same as before. `onAgentPrompt` was wrong (nothing reads it; the dropdown's
+state is the pane's own), and `agentCommand` is passed so the title can name the
+command that would run. `onMenu` is the menu's `(entry, state)` shape, not an
+items factory — `fileMenu` from `createContextMenus` is exactly that, so the
+component gets the handler as-is. `paneClass` arrives as the resolved string
+rather than the id.
 
 The header chrome passes through as rendered JSX rather than as state — the
 full/hide buttons are coordination (they involve `paneControls`, `PaneChrome`,

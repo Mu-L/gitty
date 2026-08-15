@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`src/renderer/src/symbols.ts`, `test/symbols.test.ts`); a file with nothing
   to list shows no panel.
 
+- **File history** carries a line-count column: how long the file was at each
+  of its commits. Only the newest revision is read; the rest are derived
+  backwards from `--numstat`, so a long history costs two `git log` calls.
+  A binary revision, and anything older than one, shows nothing.
+
 - <kbd>Ctrl+F</kbd> in the file tree filters it: a box above the tree, the
   paths holding that text and the count of how many are left. Matching is
   case-insensitive and against the whole path, so `src/main` keeps that
@@ -34,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the title bar already name it, and a long path crowded out the split buttons.
 - The document strip moved out of `RepoTab` into its own hook (`useDocs`);
   behaviour is unchanged.
+- The file pane — its header, the search and tree-filter strips and their state —
+  moved out of `RepoTab` into a `FilesView` component; behaviour is unchanged.
 
 ## [0.1.7] - 2026-08-15
 

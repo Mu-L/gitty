@@ -21,8 +21,8 @@ import {
   type DiffPaneHandle,
   type DiffView
 } from './components/DiffPane'
-import { FilesPane, matchesFilter, type FileEntry } from './components/FilesPane'
-import { CommitInfo } from './components/CommitInfo'
+import type { FileEntry } from './components/FilesPane'
+import { FilesView } from './components/FilesView'
 import { useMsg } from './locale'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { destroyTerminals, runInTerminal } from './terminals'
@@ -250,14 +250,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // view like the filter, not a preference: it belongs to this repository's
   // session and starts off again next time.
   const [allBranches, setAllBranches] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [searchText, setSearchText] = useState('')
-  // Ctrl+F over the file list narrows the tree rather than searching text: the
-  // pane is a list of paths, and what a reader wants from it is fewer of them.
-  const [treeFilterOpen, setTreeFilterOpen] = useState(false)
-  const [treeFilter, setTreeFilter] = useState('')
-  const treeFilterRef = useRef<HTMLInputElement>(null)
-  const filesBodyRef = useRef<HTMLDivElement>(null)
   const [remoteMsg, setRemoteMsg] = useState<{ ok: boolean; text: string } | null>(null)
   // gource is optional: the button exists only where the binary does.
   const [hasGource, setHasGource] = useState(false)
@@ -493,10 +485,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         : view.mode === 'range'
           ? `range:${view.from}..${view.to}`
           : 'worktree'
-  useEffect(() => {
-    setTreeFilterOpen(false)
-    setTreeFilter('')
-  }, [treeKey])
 
   // The documents beside the diff: the strip's state and its operations live in
   // useDocs; RepoTab keeps the coordination (resetting the list on navigation)
@@ -1086,189 +1074,39 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
           <Group orientation="horizontal" id={groupId(root, `top-${topKey}`)} disabled={!active}>
             {panes.files && (
             <Panel defaultSize={panes.diff ? '38%' : undefined} minSize="15%">
-              <div className={paneClass('files')}>
-                <div className="pane-header" onDoubleClick={headerDoubleClick('files')}>
-                  {fullButton('files')}
-                  <Tooltip
-                    className="title"
-                    lines={[
-                      { key: 'dbl-click', desc: msg.log.tooltipViews },
-                      { key: 'right-click', desc: msg.log.tooltipMore },
-                      ...paneControls('files', msg)
-                    ]}
-                  >
-                    {filesTitle}
-                  </Tooltip>
-                  <span className="spacer" />
-                  {/* The index is curated here, so this is where it is handed
-                      over. Only ever text into the shell below. */}
-                  {view.mode === 'worktree' && (
-                    <span className="split-button">
-                      <button
-                        className="toggle"
-                        title={msg.files.sendToAgentTitle(agentCommand)}
-                        onClick={() => sendToAgent()}
-                      >
-                        {msg.files.sendToAgent}
-                      </button>
-                      {/* Which agent to hand it to is a per-commit decision, so
-                          the whole choice lives here: the remembered commands
-                          and the box for one that is not remembered yet. */}
-                      <button
-                        className="toggle split-more"
-                        title={msg.files.agentCommandsTitle}
-                        onClick={(e) => {
-                          const r = e.currentTarget.getBoundingClientRect()
-                          setMenu({ x: r.left, y: r.bottom, items: agentItems(agentCommands) })
-                        }}
-                      >
-                        ▾
-                      </button>
-                    </span>
-                  )}
-                  {/* Searching is about the whole repository, so it belongs to
-                      the pane that lists it — and it follows the revision on
-                      screen rather than always asking about the disk. */}
-                  <button
-                    className={`toggle${searchOpen ? ' on' : ''}`}
-                    title={msg.files.searchTitle}
-                    onClick={() => setSearchOpen((o) => !o)}
-                  >
-                    {msg.files.search}
-                  </button>
-                  {view.mode !== 'worktree' && (
-                    <button onClick={backToWorkTree}>{msg.files.backToWorkTree}</button>
-                  )}
-                  {hideButton('files')}
-                </div>
-                {searchOpen && (
-                  <div className="log-filter">
-                    <input
-                      type="text"
-                      autoFocus
-                      value={searchText}
-                      placeholder={msg.files.searchPlaceholder}
-                      spellCheck={false}
-                      onChange={(e) => setSearchText(e.target.value)}
-                      onKeyDown={(e) => {
-                        // Enter runs it; Escape puts the box away without
-                        // disturbing the view behind it.
-                        if (e.key === 'Enter' && searchText.trim()) {
-                          e.stopPropagation()
-                          openSearch(searchText.trim())
-                        } else if (e.key === 'Escape') {
-                          e.stopPropagation()
-                          setSearchOpen(false)
-                        }
-                      }}
-                    />
-                    <span className="log-filter-busy">
-                      {revForView()
-                        ? msg.files.searchInRevision((revForView() as string).slice(0, 8))
-                        : msg.files.searchInWorktree}
-                    </span>
-                  </div>
-                )}
-                {treeFilterOpen && (
-                  <div className="log-filter">
-                    <input
-                      ref={treeFilterRef}
-                      type="text"
-                      value={treeFilter}
-                      placeholder={msg.files.filterPlaceholder}
-                      spellCheck={false}
-                      onChange={(e) => setTreeFilter(e.target.value)}
-                      onKeyDown={(e) => {
-                        // Escape puts the strip away and the whole tree back;
-                        // the focus goes where the arrow keys are read.
-                        if (e.key === 'Escape') {
-                          e.stopPropagation()
-                          setTreeFilterOpen(false)
-                          setTreeFilter('')
-                          filesBodyRef.current?.focus()
-                        }
-                      }}
-                    />
-                    <span className="log-filter-busy">
-                      {treeFilter === ''
-                        ? ''
-                        : msg.files.filterCount(
-                            viewFiles.filter((f) => matchesFilter(f.path, treeFilter)).length,
-                            viewFiles.length
-                          )}
-                    </span>
-                    <button
-                      className="log-filter-clear"
-                      title={msg.files.filterClear}
-                      onClick={() => {
-                        setTreeFilterOpen(false)
-                        setTreeFilter('')
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                )}
-                <div
-                  ref={filesBodyRef}
-                  className="pane-body"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-                      // Ctrl+F belongs to whichever view has the focus, and the
-                      // document search listens on the window — so this one
-                      // stops the event before it gets there.
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setTreeFilterOpen(true)
-                      // A second Ctrl+F selects what is in the box, so the next
-                      // thing typed replaces it — as it does in a browser.
-                      requestAnimationFrame(() => {
-                        treeFilterRef.current?.focus()
-                        treeFilterRef.current?.select()
-                      })
-                    }
-                  }}
-                >
-                  {commitMeta && <CommitInfo meta={commitMeta} />}
-                  <FilesPane
-                    entries={viewFiles}
-                    naturalSort={naturalSort}
-                    // A whole repository — browsing the work tree or a commit's
-                    // snapshot — opens shut: it is a tree to descend into, not
-                    // a list of changes to read.
-                    startCollapsed={view.mode === 'snapshot'}
-                    filter={treeFilterOpen ? treeFilter : ''}
-                    treeKey={treeKey}
-                    selected={selectedFile}
-                    onSelect={(f) => {
-                      setSelectedFile(f.path)
-                      // A single click browses the diff; opened files stay open.
-                      if (view.mode !== 'snapshot') setActiveDoc(null)
-                    }}
-                    onOpen={(f) => {
-                      // Double-click opens the file as its own document beside
-                      // the diff; the system application is a menu choice.
-                      setSelectedFile(f.path)
-                      openFileDoc(f.path)
-                    }}
-                    onMenu={fileMenu}
-                    onToggleStage={
-                      view.mode === 'worktree'
-                        ? (f) => void toggleStage(f.path, !!f.staged)
-                        : undefined
-                    }
-                    emptyText={
-                      view.mode === 'worktree' ||
-                      (view.mode === 'snapshot' && view.hash === null)
-                        ? msg.files.emptyWorktree
-                        : view.mode === 'snapshot'
-                          ? msg.files.emptySnapshot
-                          : msg.files.emptyDiff
-                    }
-                  />
-                </div>
-              </div>
+              <FilesView
+                view={view}
+                title={filesTitle}
+                viewFiles={viewFiles}
+                naturalSort={naturalSort}
+                selectedFile={selectedFile}
+                treeKey={treeKey}
+                commitMeta={commitMeta}
+                paneClass={paneClass('files')}
+                header={{ full: fullButton('files'), hide: hideButton('files') }}
+                onDoubleClick={headerDoubleClick('files')}
+                onSelect={(path) => {
+                  // A single click browses the diff; opened files stay open.
+                  setSelectedFile(path)
+                  if (view.mode !== 'snapshot') setActiveDoc(null)
+                }}
+                onOpen={(path) => {
+                  // Double-click opens the file as its own document beside the
+                  // diff; the system application is a menu choice.
+                  setSelectedFile(path)
+                  openFileDoc(path)
+                }}
+                onMenu={fileMenu}
+                onToggleStage={(f) => void toggleStage(f.path, !!f.staged)}
+                onSearch={openSearch}
+                onBackToWorkTree={backToWorkTree}
+                sendToAgent={sendToAgent}
+                agentItems={agentItems}
+                agentCommands={agentCommands}
+                agentCommand={agentCommand}
+                setMenu={setMenu}
+                revForView={revForView}
+              />
             </Panel>
             )}
             {panes.files && panes.diff && <Separator className="sep-v" />}
