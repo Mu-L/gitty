@@ -27,12 +27,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   context adds `--unidiff-zero`; a whitespace-ignoring diff withdraws the hunk
   buttons rather than applying a patch that does not hold every change.
   A failed apply shows git's own stderr.
-- **Commit with agent**, in the work-tree header: types a command you configure
-  (Settings ▸ Session ▸ Agent command) into the focused shell and presses
-  Enter. No model is called from inside Gitty and nothing leaves the machine;
-  the agent runs where there is a real tty, so its prompts, hooks and gpg
-  signing all work. **Copy Staged Diff** on the work-tree row's menu covers the
-  case where the conversation is in another window.
+- **Send to agent**, in the work-tree header: types a command into the focused
+  shell and presses Enter. No model is called from inside Gitty and nothing
+  leaves the machine; the agent runs where there is a real tty, so its prompts,
+  hooks and gpg signing all work. The arrow beside it holds the choice of
+  command — the remembered ones, the current one ticked, right-click to forget,
+  and **New command…** for one that is not in the list. The list starts as
+  suggestions and grows from what is actually run. **Copy Staged Diff** on the
+  work-tree row's menu covers the case where the conversation is in another
+  window.
 - **Graph**: the commit log draws lanes beside the hashes, so a merge shows
   where it came from and a branch shows where it parted. The lanes are computed
   from the commits' parents — `git log --graph`'s ASCII is typeset for a

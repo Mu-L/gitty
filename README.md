@@ -164,7 +164,7 @@ the right directory. Half a rebase button is worse than none.
 There is no commit box either, which is a smaller claim than it sounds. The
 message is not the missing piece: what is missing is somewhere to decide *which
 changes are one commit*, and that is what the staging above is for. Once the
-index says one thing, **Commit with agent** hands it to whatever writes your
+index says one thing, **Send to agent** hands it to whatever writes your
 messages.
 
 ## The manual

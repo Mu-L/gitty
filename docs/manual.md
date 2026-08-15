@@ -168,15 +168,24 @@ confirmation that says plainly there is no undo; an untracked file has no index
 version to go back to, so it offers **Delete File** instead, which goes to the
 system trash.
 
-**Commit with agent** in the header hands the index over. It types a command of
-your choosing — Settings ▸ Session ▸ Agent command — into the shell in the
-bottom-right pane and presses Enter, and that is all it does: no model is
-called from inside Gitty, nothing leaves the machine that you did not send. The
-agent's prompts and output appear in the terminal, where there is a real tty,
-so hooks and gpg signing work as they always do. There is no default that is
-known to run anywhere, so an unset command says where to set it rather than
-failing quietly. Right-clicking the work-tree row in the commit log also offers
-**Copy Staged Diff**, for a conversation happening in another window.
+**Send to agent** in the header hands the index over. It types a command into
+the shell in the bottom-right pane and presses Enter, and that is all it does:
+no model is called from inside Gitty, nothing leaves the machine that you did
+not send. The agent's prompts and output appear in the terminal, where there is
+a real tty, so hooks and gpg signing work as they always do.
+
+The arrow beside the button is where the command is chosen — there is no
+setting for it, because it is a question asked once per hand-over rather than
+once per install. The dropdown lists the commands Gitty remembers, ticks the
+one the button itself runs, and runs the one you pick; right-clicking an entry
+forgets it. **New command…** at the bottom opens a one-line box, prefilled with
+the current command, for anything not in the list. The list starts as a few
+suggestions — which agent is installed is not something Gitty can know — and a
+command joins it by having been run, so nothing is remembered on the strength
+of a half-typed line.
+
+Right-clicking the work-tree row in the commit log also offers **Copy Staged
+Diff**, for a conversation happening in another window.
 
 When a commit or a commit range is selected, this pane lists that commit's files
 instead; **Back to Work Tree** (or <kbd>Esc</kbd>) returns to the working tree.
@@ -523,7 +532,6 @@ order.
 | **Reopen last session** | Reopen the repositories that were open when the app last exited. The repository Gitty was started with is still the active tab; ones that have since been deleted are quietly dropped. |
 | **Shell** | The shell a terminal starts, listed from `/etc/shells` plus the usual paths (`COMSPEC` and PowerShell on Windows). **System default** is `$SHELL`. A path that has since gone falls back to it rather than leaving a dead pane. |
 | **Login shell** | Start it with `-l`, so the user's profile is sourced. Turn it off for a faster, quieter shell — no profile output, no login-time checks. Windows shells have no such flag and ignore this. |
-| **Agent command** | What **Commit with agent** types into the focused shell. The default is a placeholder, not a command known to work here: which agent is installed is not something Gitty can know, so an unset or wrong command fails in the terminal where you can see it, rather than inside the app where you cannot. |
 
 **Shell** and **Login shell** are read when a terminal is created, so they take
 effect on the next split or the next repository tab, not in the shells already

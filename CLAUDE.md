@@ -177,9 +177,14 @@ midnight-adjacent commit shows a time on the wrong day.
 Gitty stages; it does not commit. The message is written by an agent, so a
 subject/body box would solve a problem nobody has — what is missing is a place
 to decide *which changes are one commit*, which is reading and selecting, which
-is what the four panes are for. **Commit with agent** then types a configured
-command into the terminal pane and stops there: no model is called from inside
-the app, which is what keeps "nothing leaves the machine" true.
+is what the four panes are for. **Send to agent** then types a command into the
+terminal pane and stops there: no model is called from inside the app, which is
+what keeps "nothing leaves the machine" true. The command is picked from the
+button's own dropdown — remembered commands, plus a prompt for one that is not
+remembered yet — and there is deliberately no settings row for it: it is
+answered once per hand-over, not once per install. `App.tsx` owns the list
+(`gitty.agentCommands`, most recently used first) and a command joins it by
+having been run, never by having been typed.
 
 `src/main/patch.ts` is the whole of the risky part, and it is pure string work
 over `git diff` output so `test/patch.test.ts` can hold it — a wrong patch does
