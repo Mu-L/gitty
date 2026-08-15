@@ -340,6 +340,7 @@ export const ja: RendererMessages = {
     showAllPanes: 'すべてのペインを表示',
     hidesThisPane: ' このペインを隠す',
     fillsTheWindow: ' ウィンドウいっぱいに表示',
+    cyclesWhileFull: ' 最大化中は次のペインへ切り替え',
     dblClickToggles: 'タイトルをダブルクリックで全画面を切り替え'
   },
   terminal: {

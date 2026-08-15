@@ -340,6 +340,7 @@ export const en: RendererMessages = {
     showAllPanes: 'Show All Panes',
     hidesThisPane: ' hides this pane',
     fillsTheWindow: ' fills the window',
+    cyclesWhileFull: ' moves on to the next pane while one fills the window',
     dblClickToggles: 'Double-click the title toggles full screen'
   },
   terminal: {

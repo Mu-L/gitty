@@ -27,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   subtree; nothing stays collapsed while the box has text. <kbd>Esc</kbd> or
   another commit clears it.
 
+- <kbd>Ctrl+Tab</kbd> moves full screen on to the next pane, <kbd>Ctrl+Shift+Tab</kbd>
+  back — hidden panes skipped, wrapping at either end. Only while a pane fills
+  the window, where there is no other pane to click; the shell does not see the
+  key either.
+
 ### Changed
 
 - **Send to agent** is no longer disabled when the index is empty; it types its

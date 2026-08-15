@@ -336,6 +336,7 @@ export const zh: RendererMessages = {
     showAllPanes: '显示所有窗格',
     hidesThisPane: ' 隐藏此窗格',
     fillsTheWindow: ' 填满窗口',
+    cyclesWhileFull: ' 最大化时切换到下一个面板',
     dblClickToggles: '双击标题栏切换全屏'
   },
   terminal: {

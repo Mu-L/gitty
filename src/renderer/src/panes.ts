@@ -44,12 +44,40 @@ export function paneFullAccel(id: PaneId): string {
   return `Ctrl+Shift+${PANE_ORDER.indexOf(id) + 1}`
 }
 
+/** Cycling between full-screen panes; RepoTab handles it, like full screen. */
+export const PANE_CYCLE_ACCEL = 'Ctrl+Tab'
+
+/**
+ * True for that key. Read off `code`, like every other chord here, and shared
+ * with the terminal: xterm would otherwise pass it to the shell, and while the
+ * terminal is the pane filling the window this is the way out of it.
+ */
+export function isPaneCycleChord(e: KeyboardEvent): boolean {
+  return (e.ctrlKey || e.metaKey) && !e.altKey && e.code === 'Tab'
+}
+
+/**
+ * The pane one step from `from` in layout order, skipping the hidden ones.
+ * Cycling is what full screen is missing: with the layout gone there is no
+ * other pane to click, so the key has to be the way across.
+ *
+ * Returns `from` when it is the only pane left, and `null` when `from` is
+ * itself hidden — a caller in that state has nothing to cycle from.
+ */
+export function nextPane(from: PaneId, panes: PaneVisibility, back = false): PaneId | null {
+  const visible = PANE_ORDER.filter((id) => panes[id])
+  const i = visible.indexOf(from)
+  if (i < 0) return null
+  return visible[(i + (back ? -1 : 1) + visible.length) % visible.length]
+}
+
 /** The uniform controls every pane shares — hide and full screen — as
  *  structured tooltip lines. Each pane's own interactions go above them. */
 export function paneControls(id: PaneId, msg: RendererMessages): TooltipLine[] {
   return [
     { key: paneAccel(id), desc: msg.paneChrome.hidesThisPane },
     { key: paneFullAccel(id), desc: msg.paneChrome.fillsTheWindow },
+    { key: PANE_CYCLE_ACCEL, desc: msg.paneChrome.cyclesWhileFull },
     // Double-clicking the title does the same as Ctrl+Shift+N; a mouse
     // gesture has no key to highlight, so the line renders as plain text.
     { key: '', desc: msg.paneChrome.dblClickToggles }

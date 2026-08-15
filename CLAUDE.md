@@ -340,7 +340,11 @@ pty and kill whatever is running in it. `components/PaneChrome.tsx` holds the
 two header buttons both `RepoTab` and `TerminalsPane` render, so the icons and
 wording cannot drift between the terminal's own header and the other three.
 `Ctrl+Shift+1..4` is read off `e.code`: with Shift down the key itself is
-punctuation.
+punctuation. `Ctrl+Tab` moves full screen on to the next visible pane
+(`nextPane` in `panes.ts`) and fires **only while a pane fills the window** —
+with the layout drawn every pane is a click away, and Tab is the focus key it
+has always been. xterm must be told to ignore the chord, exactly as it is for
+`Ctrl+Shift+C`, or the shell eats the one key out of a full-screen terminal.
 
 ### Hiding panes
 

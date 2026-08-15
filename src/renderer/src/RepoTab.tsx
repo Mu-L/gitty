@@ -46,6 +46,8 @@ import {
   paneAccel,
   paneControls,
   paneFullAccel,
+  isPaneCycleChord,
+  nextPane,
   visibleCount,
   type PaneId,
   type PaneVisibility
@@ -740,6 +742,12 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         e.preventDefault()
         const id = PANE_ORDER[Number(e.code.slice(-1)) - 1]
         if (panes[id]) setFull((f) => (f === id ? null : id))
+      } else if (isPaneCycleChord(e) && full) {
+        // Ctrl+Tab moves full screen on to the next pane, Shift back. Only
+        // while a pane fills the window: with the layout on screen every pane
+        // is a click away, and Tab is the focus key it has always been.
+        e.preventDefault()
+        setFull((f) => (f ? nextPane(f, panes, e.shiftKey) : f))
       }
     }
     window.addEventListener('keydown', onKey)

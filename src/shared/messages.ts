@@ -449,6 +449,7 @@ export interface RendererMessages {
     /** The tooltip line descriptions for pane controls. */
     readonly hidesThisPane: string
     readonly fillsTheWindow: string
+    readonly cyclesWhileFull: string
     readonly dblClickToggles: string
   }
   readonly terminal: {

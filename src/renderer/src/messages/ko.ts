@@ -339,6 +339,7 @@ export const ko: RendererMessages = {
     showAllPanes: '모든 창 표시',
     hidesThisPane: ' 이 창 숨기기',
     fillsTheWindow: ' 창 가득 채우기',
+    cyclesWhileFull: ' 창을 가득 채운 상태에서 다음 창으로 이동',
     dblClickToggles: '제목을 더블 클릭하면 전체 화면 전환'
   },
   terminal: {

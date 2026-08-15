@@ -343,6 +343,7 @@ export const de: RendererMessages = {
     showAllPanes: 'Alle Bereiche einblenden',
     hidesThisPane: ' blendet diesen Bereich aus',
     fillsTheWindow: ' füllt das Fenster',
+    cyclesWhileFull: ' wechselt zum nächsten Bereich, solange einer das Fenster füllt',
     dblClickToggles: 'Doppelklick auf den Titel schaltet Vollbild um'
   },
   terminal: {

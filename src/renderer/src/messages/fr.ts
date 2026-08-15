@@ -345,6 +345,7 @@ export const fr: RendererMessages = {
     showAllPanes: 'Afficher tous les volets',
     hidesThisPane: ' masque ce volet',
     fillsTheWindow: ' remplit la fenêtre',
+    cyclesWhileFull: ' passe au panneau suivant tant qu’un panneau remplit la fenêtre',
     dblClickToggles: 'Double-cliquer sur le titre bascule en plein écran'
   },
   terminal: {

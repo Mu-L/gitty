@@ -361,6 +361,7 @@ export const ru: RendererMessages = {
     showAllPanes: 'Показать все панели',
     hidesThisPane: ' скрывает эту панель',
     fillsTheWindow: ' разворачивает на окно',
+    cyclesWhileFull: ' переходит к следующей панели, пока одна развёрнута на окно',
     dblClickToggles: 'Двойной щелчок по заголовку переключает полный экран'
   },
   terminal: {

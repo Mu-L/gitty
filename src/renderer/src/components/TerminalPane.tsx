@@ -7,6 +7,7 @@ import { getMessages } from '../messages'
 import { loadLocale, useMsg } from '../locale'
 import type { TerminalOptions } from '../../../shared/types'
 import { isCopyChord } from '../copy'
+import { isPaneCycleChord } from '../panes'
 
 export type Theme = 'dark' | 'light'
 
@@ -81,7 +82,11 @@ function ensureSession(
   // Ctrl+Shift+C is a copy, not something the shell should see: xterm would
   // otherwise send it on as the interrupt. Returning false leaves the event to
   // bubble, which is where the app's copy handler picks it up.
-  term.attachCustomKeyEventHandler((e) => !(e.type === 'keydown' && isCopyChord(e)))
+  // Ctrl+Tab is the same kind of thing: while the terminal fills the window it
+  // is the only way out of it, so the shell must not see it either.
+  term.attachCustomKeyEventHandler(
+    (e) => !(e.type === 'keydown' && (isCopyChord(e) || isPaneCycleChord(e)))
+  )
   term.onData((data) => window.gitty.terminal.input(id, data))
 
   const s: Session = { host, term, fit }

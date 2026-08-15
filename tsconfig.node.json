@@ -21,5 +21,8 @@
     "src/renderer/src/lanes.ts",
     "src/renderer/src/symbols.ts",
     "test/**/*.ts"
-  ]
+  ],
+  // panes.ts reads a KeyboardEvent and names a type declared in a .tsx, so its
+  // test belongs to the web project — this one has neither DOM nor jsx.
+  "exclude": ["test/panes.test.ts"]
 }

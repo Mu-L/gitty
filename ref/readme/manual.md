@@ -117,6 +117,12 @@ covered. **⤡** in the same corner, <kbd>Esc</kbd>, a double-click on the
 header, or <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> restores the
 layout. Only one pane is full screen at a time.
 
+<kbd>Ctrl+Tab</kbd> moves full screen on to the next pane in layout order and
+<kbd>Ctrl+Shift+Tab</kbd> back, skipping the hidden ones and wrapping round at
+either end. It works only while a pane fills the window, which is where it is
+needed: with the layout on screen every pane is already a click away. The
+terminal does not see the key, so it works from inside a shell too.
+
 Hiding is the other direction — any pane can be put away and brought back:
 
 - **Panes** in the title bar lists all four, with a dot beside the visible ones;
@@ -601,6 +607,7 @@ highlight** lives here only.
 | <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> | Hide or show Files, Diff, Commits, Terminal |
 | <kbd>Ctrl+Shift+0</kbd> | Show all four panes again |
 | <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> | Fill the window with that pane |
+| <kbd>Ctrl+Tab</kbd> / <kbd>Ctrl+Shift+Tab</kbd> | Full screen moves to the next pane, or the previous |
 
 ## Platform notes
 

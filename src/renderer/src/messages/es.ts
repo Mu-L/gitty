@@ -344,6 +344,7 @@ export const es: RendererMessages = {
     showAllPanes: 'Mostrar todos los paneles',
     hidesThisPane: ' oculta este panel',
     fillsTheWindow: ' llena la ventana',
+    cyclesWhileFull: ' pasa al panel siguiente mientras uno llena la ventana',
     dblClickToggles: 'Doble clic en el título alterna la pantalla completa'
   },
   terminal: {
