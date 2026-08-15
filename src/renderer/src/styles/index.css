@@ -297,15 +297,6 @@ button:disabled:hover {
   flex: 1;
 }
 
-/* Hints give up their space before the title does. */
-.pane-header .hint {
-  flex: 0 100 auto;
-  min-width: 0;
-  color: var(--fg-faint);
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 /* The tooltip anchor stands in for the element it wraps (the pane titles pass
    "title"): flex sizing and text colour come from that class, while the popup
    is a sibling of the ellipsis span so the title's overflow cannot clip it. */

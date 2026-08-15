@@ -30,6 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the headings beside a rendered document and the symbols beside a source file.
 - The title bar's two branch names each hover-explain themselves — checked out
   versus being read — and the menu drops from the caret, not the button's edge.
+- The terminal header no longer repeats the repository path; the tab bar and
+  the title bar already name it, and a long path crowded out the split buttons.
 
 ## [0.1.7] - 2026-08-15
 

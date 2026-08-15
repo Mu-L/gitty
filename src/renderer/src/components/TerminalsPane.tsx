@@ -179,7 +179,6 @@ export const TerminalsPane = memo(function TerminalsPane({
         <button title={msg.terminal.splitDownTitle} onClick={() => split('vertical')}>
           {msg.terminal.splitDown}
         </button>
-        <span className="hint">{root}</span>
         {onHide && (
           <HideButton accel="Ctrl+4" note={msg.terminal.shellsKeepRunning} onHide={onHide} />
         )}
