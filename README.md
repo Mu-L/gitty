@@ -96,18 +96,23 @@ Two more things I wanted and almost nothing offered: a **markdown preview**, and
 
 ### Download a package (Linux)
 
-The `.deb` on the [releases page](https://github.com/baojie/gitty/releases) is
-the shortest way in — no Node, no build:
+The `.deb` is the shortest way in — no Node, no build:
 
 ```bash
-sudo dpkg -i gitty-desktop_*_amd64.deb
+wget https://github.com/baojie/gitty/releases/download/v0.1.7/gitty-desktop_0.1.7_amd64.deb
+sudo dpkg -i gitty-desktop_0.1.7_amd64.deb
 ```
 
 It installs `/usr/bin/gitty`, an application-menu entry with its icon, and runs
 with Chromium's sandbox **on** — see
-[Linux desktop integration](ref/readme/manual.md#linux-desktop-integration). An `.AppImage` is
-published beside it for distributions without dpkg; it is the second choice,
-because an AppImage cannot install the sandbox helper.
+[Linux desktop integration](ref/readme/manual.md#linux-desktop-integration).
+
+There is an [arm64 `.deb`](https://github.com/baojie/gitty/releases/download/v0.1.7/gitty-desktop_0.1.7_arm64.deb)
+beside it, and an AppImage for distributions without dpkg
+([x86_64](https://github.com/baojie/gitty/releases/download/v0.1.7/Gitty-0.1.7-x86_64.AppImage),
+[arm64](https://github.com/baojie/gitty/releases/download/v0.1.7/Gitty-0.1.7-arm64.AppImage)) —
+the second choice, because an AppImage cannot install the sandbox helper. Older
+versions are on the [releases page](https://github.com/baojie/gitty/releases).
 
 ### From npm
 

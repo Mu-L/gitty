@@ -632,7 +632,11 @@ work tree pane (and the title bar's count) listing changes already committed.
 
 - Keep `CHANGELOG.md` current (Keep a Changelog format). Released versions are
   tagged `vX.Y.Z` with a matching GitHub release; put new work under
-  `## [Unreleased]`, not into a published section.
+  `## [Unreleased]`, not into a published section. Releasing is: bump
+  `package.json` (and the lock), close `## [Unreleased]` as the new version,
+  bump the version in the README's **download links** — they name the file, so
+  they go stale silently — and push the tag, which is what builds the packages
+  and creates the release.
 - Files under `ref/` — specs and any other standalone documents — are named
   with a date prefix: `YYYY-MM-DD-<name>.md`, so they sort by the day they were
   written and each carries its date in its name. The README translations are the
