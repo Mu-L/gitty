@@ -85,6 +85,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- A new README screenshot (`ref/gitty-0.1.7.png`), showing the window as it is
+  now: **Send to agent** in the work-tree header, documents open beside the
+  diff, the lane graph. The 0.1.6 image stays where it is — the translated
+  READMEs are dated snapshots and still point at it.
 - The README is 660 lines shorter than it was: everything pane-by-pane — the
   window, the panes, finding text, the settings table, the shortcuts and the
   platform notes — moved to **[ref/readme/manual.md](ref/readme/manual.md)**,
