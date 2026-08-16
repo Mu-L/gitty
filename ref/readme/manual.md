@@ -113,7 +113,8 @@ window with that pane, and **×** at its right hides it.
 Full screen covers everything else, including the title and tab bars, and the
 panes underneath keep working — the terminal goes on running while it is
 covered. **⤡** in the same corner, <kbd>Esc</kbd>, a double-click on the
-header, or <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> restores the
+header (on its empty space — the buttons, and the Changes pane's title menu,
+have their own meaning), or <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> restores the
 layout. Only one pane is full screen at a time.
 
 <kbd>Ctrl+Tab</kbd> moves full screen on to the next pane in layout order and
@@ -159,6 +160,11 @@ this change added and removed in that file, `+12 −3`, against HEAD in the work
 tree and against the parent for a commit or a range. A snapshot is a tree rather
 than a change, so it has no churn; nor do binary files or a merge commit, whose
 combined diff attributes nothing.
+
+The pane's title says what is listed, and clicking it opens a menu of the two
+standing views: **Changes**, the uncommitted ones, and **Working Tree**, every
+file in the directory on disk, read-only. A tick marks whichever is on screen;
+from a commit, a range or a snapshot the same menu is the way back to either.
 
 - **Click** — show the file's diff on the right.
 - **Double-click** — open the whole file as a document beside the diff, with
@@ -212,7 +218,8 @@ When a commit or a commit range is selected, this pane lists that commit's files
 instead; **Back to Changes** (or <kbd>Esc</kbd>) returns to the uncommitted
 changes.
 In a [snapshot](#snapshots) it lists the entire tree at that commit, not just
-what changed.
+what changed. Browsing the working tree has no such button — the title picker
+it was opened from is also the way out of it.
 
 ### Diff (top right)
 

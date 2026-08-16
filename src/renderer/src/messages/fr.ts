@@ -85,6 +85,9 @@ export const fr: RendererMessages = {
     rangeTitle: (from: string, to: string) =>
       `Plage ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     backToWorkTree: 'Retour aux modifications',
+    viewPickTitle: 'Changer ce que ce panneau liste',
+    changesHint: 'Ce qui n’est pas encore validé',
+    workingTreeHint: 'Tous les fichiers du répertoire de travail, en lecture seule',
     emptyChanges: 'Aucune modification.',
     emptyWorktree: 'Copie de travail propre.',
     emptySnapshot: 'Aucun fichier dans cet instantané.',

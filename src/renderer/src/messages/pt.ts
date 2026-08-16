@@ -84,6 +84,9 @@ export const pt: RendererMessages = {
     rangeTitle: (from: string, to: string) =>
       `Intervalo ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     backToWorkTree: 'Voltar às alterações',
+    viewPickTitle: 'Alternar o que este painel lista',
+    changesHint: 'O que não está confirmado',
+    workingTreeHint: 'Todos os ficheiros do diretório de trabalho, só de leitura',
     emptyChanges: 'Sem alterações.',
     emptyWorktree: 'Árvore de trabalho limpa.',
     emptySnapshot: 'Nenhum ficheiro neste instantâneo.',

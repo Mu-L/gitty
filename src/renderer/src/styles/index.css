@@ -304,6 +304,30 @@ button:disabled:hover {
   flex: 1;
 }
 
+/* The file pane's title is also its view picker. It has to read as a title
+   first — no border until the pointer is on it — or a header that mostly says
+   where you are would look like a row of controls. */
+.title-pick {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0 4px;
+  color: var(--fg);
+  border-color: transparent;
+}
+
+.title-pick:hover {
+  border-color: var(--border);
+}
+
+.title-pick-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* The tooltip anchor stands in for the element it wraps (the pane titles pass
    "title"): flex sizing and text colour come from that class, while the popup
    is a sibling of the ellipsis span so the title's overflow cannot clip it. */

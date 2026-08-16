@@ -100,6 +100,9 @@ export const ru: RendererMessages = {
     rangeTitle: (from: string, to: string) =>
       `Диапазон ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     backToWorkTree: 'Назад к изменениям',
+    viewPickTitle: 'Переключить, что показывает эта панель',
+    changesHint: 'Незакоммиченные изменения',
+    workingTreeHint: 'Все файлы рабочего каталога, только для чтения',
     emptyChanges: 'Изменений нет.',
     emptyWorktree: 'Рабочее дерево чистое.',
     emptySnapshot: 'В этом снимке нет файлов.',

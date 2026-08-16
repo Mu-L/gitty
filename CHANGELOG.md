@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The Changes pane's title is a picker: it opens a menu of **Changes** and
+  **Working Tree**, ticked at whichever is on screen. Browsing the whole
+  directory no longer needs the Changes row's context menu, and a commit or a
+  snapshot has a second way back. **Back to Changes** is gone from the working
+  tree's header, where the picker now says the same thing; a commit, a range or
+  a revision's snapshot keeps it. Double-clicking the title itself no longer
+  toggles full screen; the rest of the header still does.
+
 ## [0.1.8] - 2026-08-16
 
 ### Added

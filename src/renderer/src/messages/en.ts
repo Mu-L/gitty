@@ -85,6 +85,9 @@ export const en: RendererMessages = {
     rangeTitle: (from: string, to: string) =>
       `Range ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     backToWorkTree: 'Back to Changes',
+    viewPickTitle: 'Switch what this pane lists',
+    changesHint: 'What is uncommitted',
+    workingTreeHint: 'Every file in the working directory, read-only',
     emptyChanges: 'No changes.',
     emptyWorktree: 'Working tree clean.',
     emptySnapshot: 'No files in this snapshot.',

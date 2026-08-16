@@ -1161,6 +1161,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                 onToggleStage={(f) => void toggleStage(f.path, !!f.staged)}
                 onSearch={openSearch}
                 onBackToWorkTree={backToWorkTree}
+                onBrowseWorkTree={browseWorktree}
                 sendToAgent={sendToAgent}
                 agentItems={agentItems}
                 agentCommands={agentCommands}

@@ -193,6 +193,11 @@ export interface RendererMessages {
     readonly rangeTitle: (from: string, to: string) => string
     /** Takes the file pane back to the `worktree` view, shown as "Changes". */
     readonly backToWorkTree: string
+    /** The title itself is a picker: it switches between what is uncommitted
+     *  and the whole directory on disk. */
+    readonly viewPickTitle: string
+    readonly changesHint: string
+    readonly workingTreeHint: string
     /** The empty text of the `worktree` view — "No changes." */
     readonly emptyChanges: string
     /** The empty text while browsing the whole working directory. */

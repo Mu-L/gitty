@@ -28,6 +28,8 @@ export interface FilesViewProps {
   onToggleStage: (entry: FileEntry) => void
   onSearch: (pattern: string) => void
   onBackToWorkTree: () => void
+  /** Browse the whole directory on disk — the other half of the title picker. */
+  onBrowseWorkTree: () => void
   sendToAgent: (pick?: string) => void
   agentItems: (list: string[]) => MenuItem[]
   agentCommands: string[]
@@ -59,6 +61,7 @@ export function FilesView({
   onToggleStage,
   onSearch,
   onBackToWorkTree,
+  onBrowseWorkTree,
   sendToAgent,
   agentItems,
   agentCommands,
@@ -117,6 +120,33 @@ export function FilesView({
           ? msg.files.emptySnapshot
           : msg.files.emptyDiff
 
+  // Changes and Working Tree are the two standing views of this pane — one is
+  // what is uncommitted, the other the whole directory on disk — and the title
+  // already names whichever is on screen, so it is also where they are swapped.
+  const openViewMenu = (e: { currentTarget: HTMLElement }): void => {
+    const r = e.currentTarget.getBoundingClientRect()
+    const onChanges = view.mode === 'worktree'
+    const onWorkTree = view.mode === 'snapshot' && view.hash === null
+    setMenu({
+      x: r.left,
+      y: r.bottom,
+      items: [
+        {
+          label: msg.files.changesTitle,
+          accel: onChanges ? '✓' : undefined,
+          title: msg.files.changesHint,
+          action: onBackToWorkTree
+        },
+        {
+          label: msg.files.workingTreeTitle,
+          accel: onWorkTree ? '✓' : undefined,
+          title: msg.files.workingTreeHint,
+          action: onBrowseWorkTree
+        }
+      ]
+    })
+  }
+
   return (
     <div className={paneClass}>
       <div className="pane-header" onDoubleClick={onDoubleClick}>
@@ -124,12 +154,17 @@ export function FilesView({
         <Tooltip
           className="title"
           lines={[
-            { key: 'dbl-click', desc: msg.log.tooltipViews },
+            { key: 'click', desc: msg.files.viewPickTitle },
             { key: 'right-click', desc: msg.log.tooltipMore },
             ...paneControls('files', msg)
           ]}
         >
-          {title}
+          {/* A button, so double-clicking the title no longer reaches the
+              header's full-screen handler — the rest of the header still
+              does, and the tooltip says what the click here is for. */}
+          <button className="toggle title-pick" onClick={openViewMenu}>
+            <span className="title-pick-label">{title}</span>▾
+          </button>
         </Tooltip>
         <span className="spacer" />
         {/* The index is curated here, so this is where it is handed over. Only
@@ -220,7 +255,11 @@ export function FilesView({
             ▾
           </button>
         </span>
-        {view.mode !== 'worktree' && (
+        {/* Browsing the whole directory is the title picker's other half, so
+            the way back out of it is the picker too — a second control saying
+            the same thing would only crowd the header. A commit, a range or a
+            revision's snapshot keeps the button. */}
+        {view.mode !== 'worktree' && !(view.mode === 'snapshot' && view.hash === null) && (
           <button onClick={onBackToWorkTree}>{msg.files.backToWorkTree}</button>
         )}
         {header.hide}

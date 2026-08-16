@@ -84,6 +84,9 @@ export const ja: RendererMessages = {
     rangeTitle: (from: string, to: string) =>
       `範囲 ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     backToWorkTree: '変更に戻る',
+    viewPickTitle: 'このペインが一覧する対象を切り替える',
+    changesHint: 'コミットされていない変更',
+    workingTreeHint: '作業ディレクトリのすべてのファイル（読み取り専用）',
     emptyChanges: '変更はありません。',
     emptyWorktree: 'ワークツリーはクリーンです。',
     emptySnapshot: 'このスナップショットにファイルはありません。',

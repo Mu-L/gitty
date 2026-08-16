@@ -82,6 +82,9 @@ export const zh: RendererMessages = {
     rangeTitle: (from: string, to: string) =>
       `范围 ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     backToWorkTree: '返回变更',
+    viewPickTitle: '切换此面板列出的内容',
+    changesHint: '尚未提交的改动',
+    workingTreeHint: '工作目录中的全部文件，只读',
     emptyChanges: '没有变更。',
     emptyWorktree: '工作树干净。',
     emptySnapshot: '此快照中没有文件。',

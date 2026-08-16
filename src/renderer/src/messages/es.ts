@@ -84,6 +84,9 @@ export const es: RendererMessages = {
     rangeTitle: (from: string, to: string) =>
       `Rango ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     backToWorkTree: 'Volver a los cambios',
+    viewPickTitle: 'Cambiar lo que enumera este panel',
+    changesHint: 'Lo que no está confirmado',
+    workingTreeHint: 'Todos los archivos del directorio de trabajo, en solo lectura',
     emptyChanges: 'Sin cambios.',
     emptyWorktree: 'El árbol de trabajo está limpio.',
     emptySnapshot: 'No hay archivos en esta instantánea.',

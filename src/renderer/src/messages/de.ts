@@ -85,6 +85,9 @@ export const de: RendererMessages = {
     rangeTitle: (from: string, to: string) =>
       `Bereich ${from.slice(0, 8)}..${to.slice(0, 8)}`,
     backToWorkTree: 'Zurück zu den Änderungen',
+    viewPickTitle: 'Umschalten, was dieser Bereich auflistet',
+    changesHint: 'Was noch nicht committet ist',
+    workingTreeHint: 'Alle Dateien im Arbeitsverzeichnis, schreibgeschützt',
     emptyChanges: 'Keine Änderungen.',
     emptyWorktree: 'Arbeitsverzeichnis ist sauber.',
     emptySnapshot: 'Keine Dateien in diesem Snapshot.',
