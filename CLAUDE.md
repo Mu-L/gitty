@@ -179,14 +179,17 @@ midnight-adjacent commit shows a time on the wrong day.
 Gitty stages; it does not commit. The message is written by an agent, so a
 subject/body box would solve a problem nobody has — what is missing is a place
 to decide *which changes are one commit*, which is reading and selecting, which
-is what the four panes are for. **Send to agent** then types a command into the
+is what the four panes are for. **Send** then types a command into the
 terminal pane and stops there: no model is called from inside the app, which is
 what keeps "nothing leaves the machine" true. The command is picked from the
-button's own dropdown — remembered commands, plus a prompt for one that is not
-remembered yet — and there is deliberately no settings row for it: it is
+dropdown beside the button — remembered commands, plus a prompt for one that is
+not remembered yet — and there is deliberately no settings row for it: it is
 answered once per hand-over, not once per install. `App.tsx` owns the list
 (`gitty.agentCommands`, most recently used first) and a command joins it by
-having been run, never by having been typed. Leaving it goes through the main
+having been run, never by having been typed. **The head of that list is the
+current command** — there is no second stored answer to drift out of it, which
+is what an earlier `gitty.agentCommand` was — so the picker shows
+`agentCommands[0]`, and an empty list greys both controls out. Leaving it goes through the main
 process (`settings:confirmForget`), so the confirmation is a native modal the
 window cannot be clicked past — the same reason discarding a file asks there
 rather than in the renderer.

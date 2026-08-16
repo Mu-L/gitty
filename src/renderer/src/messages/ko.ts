@@ -86,7 +86,7 @@ export const ko: RendererMessages = {
     lines: (n: number) => `${n}줄`,
     toggleStage: (staged: boolean) =>
       staged ? '클릭하면 이 파일을 스테이지에서 내립니다' : '클릭하면 이 파일을 스테이지합니다',
-    sendToAgent: 'agent에게 보내기',
+    sendToAgent: '보내기',
     sendToAgentTitle: (command: string) =>
       `스테이지된 내용을 두고 터미널에서 "${command}"를 실행합니다`,
     agentCommandsTitle: '실행할 명령 고르기',

@@ -108,25 +108,38 @@ export function FilesView({
             ever text into the shell below. */}
         {view.mode === 'worktree' && (
           <span className="split-button">
-            <button
-              className="toggle"
-              title={msg.files.sendToAgentTitle(agentCommand)}
-              onClick={() => sendToAgent()}
-            >
-              {msg.files.sendToAgent}
-            </button>
             {/* Which agent to hand it to is a per-commit decision, so the
                 whole choice lives here: the remembered commands and the box
-                for one that is not remembered yet. */}
+                for one that is not remembered yet. It names the command it
+                would run — the head of the list — so what Send does is
+                readable without opening the menu; a long one is cut by CSS
+                rather than allowed to widen the header, and carries the whole
+                of itself as its own tooltip. */}
             <button
-              className="toggle split-more"
+              className="toggle split-pick"
               title={msg.files.agentCommandsTitle}
               onClick={(e) => {
                 const r = e.currentTarget.getBoundingClientRect()
                 setMenu({ x: r.left, y: r.bottom, items: agentItems(agentCommands) })
               }}
             >
+              <span
+                className={`split-pick-label${agentCommand === '' ? ' empty' : ''}`}
+                title={agentCommand || undefined}
+              >
+                {agentCommand || msg.files.agentCommandPlaceholder}
+              </span>
               ▾
+            </button>
+            {/* Nothing remembered means nothing to send: the button greys out
+                rather than reporting the same absence after the click. */}
+            <button
+              className="toggle"
+              disabled={agentCommand === ''}
+              title={msg.files.sendToAgentTitle(agentCommand)}
+              onClick={() => sendToAgent()}
+            >
+              {msg.files.sendToAgent}
             </button>
           </span>
         )}

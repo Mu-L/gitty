@@ -144,13 +144,13 @@ export default function App(): JSX.Element {
   const [termLogin, setTermLogin] = useState(
     () => localStorage.getItem('gitty.termLogin') !== 'off'
   )
-  // What "Send to agent" runs, and the commands its dropdown offers. There is
-  // no settings row for it: the command is chosen where it is used, which is
-  // once per hand-over rather than once per install.
-  const [agentCommand, setAgentCommand] = useState(
-    () => localStorage.getItem('gitty.agentCommand') ?? AGENT_COMMANDS[0]
-  )
+  // The commands "Send" offers. There is no settings row for them: the command
+  // is chosen where it is used, which is once per hand-over rather than once
+  // per install. The list is its own memory of which one is current — running
+  // a command moves it to the front — so the head of it is what Send runs, and
+  // there is no second stored answer to drift out of it.
   const [agentCommands, setAgentCommands] = useState<string[]>(loadAgentCommands)
+  const agentCommand = agentCommands[0] ?? ''
   const [recent, setRecent] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
@@ -444,7 +444,6 @@ export default function App(): JSX.Element {
     setRestoreTabs(true)
     setTermShell('')
     setTermLogin(true)
-    setAgentCommand(AGENT_COMMANDS[0])
     setAgentCommands([...AGENT_COMMANDS])
     setTheme('dark')
     setFontSize(12.5)
@@ -492,7 +491,6 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.restoreTabs', restoreTabs ? 'on' : 'off')
     localStorage.setItem('gitty.termShell', termShell)
     localStorage.setItem('gitty.termLogin', termLogin ? 'on' : 'off')
-    localStorage.setItem('gitty.agentCommand', agentCommand)
     localStorage.setItem('gitty.agentCommands', JSON.stringify(agentCommands))
   }, [
     wrap,
@@ -514,19 +512,18 @@ export default function App(): JSX.Element {
     restoreTabs,
     termShell,
     termLogin,
-    agentCommand,
     agentCommands
   ])
 
   /**
-   * Select a command and remember it. A command earns its place in the list by
-   * having been run, so typing one into the settings box does not fill the
-   * dropdown with every intermediate keystroke.
+   * Remember a command by running it. It goes to the head of the list, which is
+   * where the picker reads the current one from; a command earns its place by
+   * having been run, so typing one into the box does not fill the dropdown with
+   * every intermediate keystroke.
    */
   const useAgentCommand = useCallback((command: string) => {
     const c = command.trim()
     if (!c) return
-    setAgentCommand(c)
     setAgentCommands((list) => [c, ...list.filter((x) => x !== c)].slice(0, AGENT_COMMAND_LIMIT))
   }, [])
 

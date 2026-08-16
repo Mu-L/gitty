@@ -88,7 +88,7 @@ export const de: RendererMessages = {
     lines: (n: number) => `${n} Zeilen`,
     toggleStage: (staged: boolean) =>
       staged ? 'Klicken, um die Datei aus dem Index zu nehmen' : 'Klicken, um die Datei vorzumerken',
-    sendToAgent: 'An Agent senden',
+    sendToAgent: 'Senden',
     sendToAgentTitle: (command: string) =>
       `„${command}“ im Terminal ausführen, gegen das, was vorgemerkt ist`,
     agentCommandsTitle: 'Befehl zum Ausführen wählen',

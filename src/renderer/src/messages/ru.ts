@@ -103,7 +103,7 @@ export const ru: RendererMessages = {
     lines: (n: number) => `${n} ${plural(n, 'строка', 'строки', 'строк')}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Щёлкните, чтобы убрать файл из индекса' : 'Щёлкните, чтобы добавить файл в индекс',
-    sendToAgent: 'Отправить агенту',
+    sendToAgent: 'Отправить',
     sendToAgentTitle: (command: string) =>
       `Выполнить «${command}» в терминале — по тому, что лежит в индексе`,
     agentCommandsTitle: 'Выберите команду для запуска',

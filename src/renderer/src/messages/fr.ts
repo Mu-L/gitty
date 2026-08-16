@@ -88,7 +88,7 @@ export const fr: RendererMessages = {
     lines: (n: number) => `${n} ligne${n === 1 ? '' : 's'}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Cliquer pour retirer ce fichier de l’index' : 'Cliquer pour indexer ce fichier',
-    sendToAgent: 'Envoyer à l’agent',
+    sendToAgent: 'Envoyer',
     sendToAgentTitle: (command: string) =>
       `Lancer « ${command} » dans le terminal, sur ce qui est indexé`,
     agentCommandsTitle: 'Choisir la commande à lancer',

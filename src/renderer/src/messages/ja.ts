@@ -87,7 +87,7 @@ export const ja: RendererMessages = {
     lines: (n: number) => `${n} 行`,
     toggleStage: (staged: boolean) =>
       staged ? 'クリックでこのファイルをステージ解除' : 'クリックでこのファイルをステージ',
-    sendToAgent: 'agent に送る',
+    sendToAgent: '送信',
     sendToAgentTitle: (command: string) =>
       `ステージ済みの内容に対して、ターミナルで "${command}" を実行します`,
     agentCommandsTitle: '実行するコマンドを選ぶ',

@@ -891,13 +891,39 @@ button:disabled:hover {
 }
 
 .split-button .toggle {
+  border-radius: 0;
+}
+
+.split-button > :first-child {
   border-radius: 3px 0 0 3px;
 }
 
-.split-button .split-more {
-  padding: 0 4px;
+.split-button > :last-child {
   margin-left: -1px;
   border-radius: 0 3px 3px 0;
+}
+
+.split-button .split-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 0 5px;
+}
+
+/* The command the picker names. Cut at a fixed width: it is a whole shell
+   command, and a pane header cannot grow to hold one. */
+.split-pick-label {
+  max-width: 12ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Nothing remembered: the picker shows what would go there, faintly, so it
+   reads as a prompt rather than as a command about to run. */
+.split-pick-label.empty {
+  color: var(--fg-faint);
 }
 
 .dl-add {

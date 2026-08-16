@@ -182,16 +182,18 @@ confirmation that says plainly there is no undo; an untracked file has no index
 version to go back to, so it offers **Delete File** instead, which goes to the
 system trash.
 
-**Send to agent** in the header hands the index over. It types a command into
+**Send** in the header hands the index over. It types a command into
 the shell in the bottom-right pane and presses Enter, and that is all it does:
 no model is called from inside Gitty, nothing leaves the machine that you did
 not send. The agent's prompts and output appear in the terminal, where there is
 a real tty, so hooks and gpg signing work as they always do.
 
-The arrow beside the button is where the command is chosen — there is no
-setting for it, because it is a question asked once per hand-over rather than
-once per install. The dropdown lists the commands Gitty remembers, ticks the
-one the button itself runs, and runs the one you pick. The **×** at the right
+The box to its left names the command it would run, and is where a different
+one is chosen — there is no setting for it, because it is a question asked once
+per hand-over rather than once per install. The dropdown lists the commands
+Gitty remembers, most recently run first, and runs the one you pick; running a
+command moves it to the top, so the box always shows the last one used. With
+nothing remembered the box is faint and **Send** greys out. The **×** at the right
 of an entry takes it out of the list, after a confirmation — the list is the
 only place a command is written down, and the menu stays open so several can
 go in a row. **New command…** at the bottom opens a one-line box, prefilled with

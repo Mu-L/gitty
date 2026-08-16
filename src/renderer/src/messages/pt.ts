@@ -87,7 +87,7 @@ export const pt: RendererMessages = {
     lines: (n: number) => `${n} linha${n === 1 ? '' : 's'}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Clique para tirar o ficheiro do índice' : 'Clique para pôr o ficheiro no índice',
-    sendToAgent: 'Enviar ao agente',
+    sendToAgent: 'Enviar',
     sendToAgentTitle: (command: string) =>
       `Correr «${command}» no terminal, sobre o que está no índice`,
     agentCommandsTitle: 'Escolha o comando a correr',

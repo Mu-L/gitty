@@ -84,7 +84,7 @@ export const zh: RendererMessages = {
     emptyDiff: '此差异中没有文件。',
     lines: (n: number) => `${n} 行`,
     toggleStage: (staged: boolean) => (staged ? '单击取消暂存该文件' : '单击暂存该文件'),
-    sendToAgent: '发送给 agent',
+    sendToAgent: '发送',
     sendToAgentTitle: (command: string) => `在终端里对暂存区运行 "${command}"`,
     agentCommandsTitle: '选择要运行的命令',
     agentCommandTooltip:

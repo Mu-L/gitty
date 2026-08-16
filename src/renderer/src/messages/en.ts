@@ -88,7 +88,7 @@ export const en: RendererMessages = {
     lines: (n: number) => `${n} lines`,
     toggleStage: (staged: boolean) =>
       staged ? 'Click to unstage this file' : 'Click to stage this file',
-    sendToAgent: 'Send to agent',
+    sendToAgent: 'Send',
     sendToAgentTitle: (command: string) =>
       `Run "${command}" in the terminal, against what is staged`,
     agentCommandsTitle: 'Choose which command to run',
