@@ -108,12 +108,13 @@ export function FilesView({
   }, [treeKey])
 
   const emptyText =
-    view.mode === 'worktree' ||
-    (view.mode === 'snapshot' && view.hash === null)
-      ? msg.files.emptyWorktree
-      : view.mode === 'snapshot'
-        ? msg.files.emptySnapshot
-        : msg.files.emptyDiff
+    view.mode === 'worktree'
+      ? msg.files.emptyChanges
+      : view.mode === 'snapshot' && view.hash === null
+        ? msg.files.emptyWorktree
+        : view.mode === 'snapshot'
+          ? msg.files.emptySnapshot
+          : msg.files.emptyDiff
 
   return (
     <div className={paneClass}>

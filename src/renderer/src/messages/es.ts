@@ -24,7 +24,7 @@ export const es: RendererMessages = {
     noReposOpen: 'No hay repositorios abiertos.',
     recentlyOpened: 'Repositorios abiertos recientemente',
     showHidePanes: 'Mostrar u ocultar los paneles',
-    changesCount: (n: number) => `${n} cambiado${n === 1 ? '' : 's'}`,
+    changesCount: (n: number) => `${n} cambio${n === 1 ? '' : 's'}`,
     notInWorkTree: (path: string) =>
       `${path} no está dentro de un árbol de trabajo de git.`,
     notInWorkTreeHint: (path: string) =>
@@ -49,6 +49,7 @@ export const es: RendererMessages = {
     forwardTitle: 'Avanzar al lugar del que se retrocedió (Alt+→)',
     historyTitle: 'Lugares vistos en este repositorio, del más reciente al más antiguo',
     noHistory: 'Aún no se ha visto nada',
+    changes: 'Cambios',
     worktree: 'Árbol de trabajo',
     worktreeFile: (path: string) => `${path} (árbol de trabajo)`,
     commit: (short: string, subject: string) => `${short} — ${subject}`,
@@ -74,6 +75,7 @@ export const es: RendererMessages = {
     headLabel: 'HEAD'
   },
   files: {
+    changesTitle: 'Cambios',
     workingTreeTitle: 'Árbol de trabajo',
     commitTitle: (short: string, subject: string) =>
       `Commit ${short} — ${subject}`,
@@ -81,7 +83,8 @@ export const es: RendererMessages = {
       `Instantánea ${short} — ${subject}`,
     rangeTitle: (from: string, to: string) =>
       `Rango ${from.slice(0, 8)}..${to.slice(0, 8)}`,
-    backToWorkTree: 'Volver al árbol de trabajo',
+    backToWorkTree: 'Volver a los cambios',
+    emptyChanges: 'Sin cambios.',
     emptyWorktree: 'El árbol de trabajo está limpio.',
     emptySnapshot: 'No hay archivos en esta instantánea.',
     emptyDiff: 'No hay archivos en este diff.',
@@ -119,7 +122,7 @@ export const es: RendererMessages = {
   diff: {
     titleFallback: 'Diff',
     errorTitle: 'error',
-    emptyWorktree: 'El árbol de trabajo está limpio.',
+    emptyWorktree: 'Sin cambios.',
     emptySnapshot: 'Selecciona un archivo para verlo en este commit.',
     emptyDiff: 'Sin cambios de texto.',
     emptyBrowseWorktree: 'Selecciona un archivo para verlo en el árbol de trabajo.',
@@ -185,8 +188,8 @@ export const es: RendererMessages = {
   },
   log: {
     commits: 'Commits',
-    worktreeRow: 'Árbol de trabajo ',
-    worktreeRowTitle: 'Cambios sin confirmar en el árbol de trabajo',
+    worktreeRow: 'Cambios ',
+    worktreeRowTitle: 'Cambios sin confirmar',
     worktreeClean: '(limpio)',
     worktreeUncommitted: (n: number) => `(${n} sin confirmar)`,
     noCommitsYet: 'Aún no hay commits.',
@@ -218,7 +221,7 @@ export const es: RendererMessages = {
     keyMove: ' mover',
     keyShow: ' mostrar',
     keyCompare: ' comparar',
-    keyWorktree: ' árbol de trabajo',
+    keyWorktree: ' cambios',
     tooltipViews: ' vistas',
     tooltipMore: ' para más',
     moreTitle: 'Más acciones del registro',

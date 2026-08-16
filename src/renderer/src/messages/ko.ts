@@ -24,7 +24,7 @@ export const ko: RendererMessages = {
     noReposOpen: '열려 있는 저장소가 없습니다.',
     recentlyOpened: '최근 연 저장소',
     showHidePanes: '창 표시 또는 숨기기',
-    changesCount: (n: number) => `${n}개 변경됨`,
+    changesCount: (n: number) => `${n}개 변경`,
     notInWorkTree: (path: string) => `${path}은(는) git 작업 트리 안에 없습니다.`,
     notInWorkTreeHint: (path: string) =>
       `${path}은(는) git 작업 트리 안에 없습니다. "저장소 열기"를 사용하세요.`
@@ -48,6 +48,7 @@ export const ko: RendererMessages = {
     forwardTitle: '되돌아온 곳으로 앞으로 가기(Alt+→)',
     historyTitle: '이 저장소에서 본 곳, 최근 순',
     noHistory: '아직 본 곳이 없습니다',
+    changes: '변경 사항',
     worktree: '작업 트리',
     worktreeFile: (path: string) => `${path}(작업 트리)`,
     commit: (short: string, subject: string) => `${short} — ${subject}`,
@@ -73,6 +74,7 @@ export const ko: RendererMessages = {
     headLabel: 'HEAD'
   },
   files: {
+    changesTitle: '변경 사항',
     workingTreeTitle: '작업 트리',
     commitTitle: (short: string, subject: string) =>
       `커밋 ${short} — ${subject}`,
@@ -80,7 +82,8 @@ export const ko: RendererMessages = {
       `스냅숏 ${short} — ${subject}`,
     rangeTitle: (from: string, to: string) =>
       `범위 ${from.slice(0, 8)}..${to.slice(0, 8)}`,
-    backToWorkTree: '작업 트리로 돌아가기',
+    backToWorkTree: '변경 사항으로 돌아가기',
+    emptyChanges: '변경 사항이 없습니다.',
     emptyWorktree: '작업 트리가 깨끗합니다.',
     emptySnapshot: '이 스냅숏에 파일이 없습니다.',
     emptyDiff: '이 diff에 파일이 없습니다.',
@@ -118,7 +121,7 @@ export const ko: RendererMessages = {
   diff: {
     titleFallback: 'Diff',
     errorTitle: '오류',
-    emptyWorktree: '작업 트리가 깨끗합니다.',
+    emptyWorktree: '변경 사항이 없습니다.',
     emptySnapshot: '이 커밋 시점의 내용을 볼 파일을 선택하세요.',
     emptyDiff: '텍스트 변경 사항이 없습니다.',
     emptyBrowseWorktree: '작업 트리의 내용을 볼 파일을 선택하세요.',
@@ -182,8 +185,8 @@ export const ko: RendererMessages = {
   },
   log: {
     commits: '커밋',
-    worktreeRow: '작업 트리 ',
-    worktreeRowTitle: '작업 트리의 커밋하지 않은 변경 사항',
+    worktreeRow: '변경 사항 ',
+    worktreeRowTitle: '커밋하지 않은 변경 사항',
     worktreeClean: '(깨끗함)',
     worktreeUncommitted: (n: number) => `(커밋 안 함 ${n}개)`,
     noCommitsYet: '커밋이 아직 없습니다.',
@@ -215,7 +218,7 @@ export const ko: RendererMessages = {
     keyMove: ' 이동',
     keyShow: ' 보기',
     keyCompare: ' 비교',
-    keyWorktree: ' 작업 트리',
+    keyWorktree: ' 변경 사항',
     tooltipViews: ' 보기',
     tooltipMore: ' 더 보기',
     moreTitle: '더 많은 로그 작업',

@@ -75,6 +75,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   renders in its own language — and gains **File ▸ Close Repository**
   (<kbd>Ctrl+W</kbd>), **View ▸ Refresh** and a **Help** menu (**About Gitty**,
   **GitHub**).
+- The uncommitted changes are **Changes** throughout — the top-left pane's
+  title, the log's first row and the back buttons — while **Working Tree** is
+  reserved for browsing the whole directory.
 
 ## [0.1.7] - 2026-08-15
 

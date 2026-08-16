@@ -62,7 +62,7 @@ const en: MainMessages = {
     title: 'Gitty'
   },
   git: {
-    workingTree: 'Working tree',
+    workingTree: 'Changes',
     diffTruncated: 'Diff truncated — larger than 2 MB.',
     untrackedOmitted: (n: number) => `${n} more untracked files not shown.`,
     notAnImage: 'Not an image.',
@@ -71,7 +71,7 @@ const en: MainMessages = {
     gitFailed: 'git failed',
     nothingToApply: 'Nothing to apply.',
     pathEscapesRepo: 'path escapes the repository',
-    changesCount: (n: number) => `${n} changed`,
+    changesCount: (n: number) => `${n} changes`,
     untrackedLabel: 'untracked',
     stagedLabel: 'staged',
     unstagedLabel: 'unstaged'
@@ -141,7 +141,7 @@ const zh: MainMessages = {
     title: 'Gitty'
   },
   git: {
-    workingTree: '工作树',
+    workingTree: '变更',
     diffTruncated: '差异已截断 — 大于 2 MB。',
     untrackedOmitted: (n: number) => `还有 ${n} 个未跟踪文件未显示。`,
     notAnImage: '不是图片。',
@@ -221,7 +221,7 @@ const ja: MainMessages = {
     title: 'Gitty'
   },
   git: {
-    workingTree: 'ワークツリー',
+    workingTree: '変更',
     diffTruncated: '差分を省略しました — 2 MB を超えています。',
     untrackedOmitted: (n: number) => `未追跡ファイルがあと ${n} 件あります。`,
     notAnImage: '画像ではありません。',
@@ -300,7 +300,7 @@ const ko: MainMessages = {
     title: 'Gitty'
   },
   git: {
-    workingTree: '작업 트리',
+    workingTree: '변경 사항',
     diffTruncated: 'diff가 잘렸습니다 — 2 MB보다 큽니다.',
     untrackedOmitted: (n: number) => `표시하지 않은 추적되지 않는 파일 ${n}개.`,
     notAnImage: '이미지가 아닙니다.',
@@ -309,7 +309,7 @@ const ko: MainMessages = {
     gitFailed: 'git 실행 실패',
     nothingToApply: '적용할 내용이 없습니다.',
     pathEscapesRepo: '경로가 저장소를 벗어납니다',
-    changesCount: (n: number) => `${n}개 변경됨`,
+    changesCount: (n: number) => `${n}개 변경`,
     untrackedLabel: '추적 안 함',
     stagedLabel: '스테이지됨',
     unstagedLabel: '스테이지 안 함'
@@ -380,7 +380,7 @@ const fr: MainMessages = {
     title: 'Gitty'
   },
   git: {
-    workingTree: 'Copie de travail',
+    workingTree: 'Modifications',
     diffTruncated: 'Diff tronqué — plus de 2 Mo.',
     untrackedOmitted: (n: number) =>
       `${n} fichier${n === 1 ? '' : 's'} non suivi${n === 1 ? '' : 's'} de plus non affiché${n === 1 ? '' : 's'}.`,
@@ -390,7 +390,7 @@ const fr: MainMessages = {
     gitFailed: 'échec de git',
     nothingToApply: 'Rien à appliquer.',
     pathEscapesRepo: 'le chemin sort du dépôt',
-    changesCount: (n: number) => `${n} modifié${n === 1 ? '' : 's'}`,
+    changesCount: (n: number) => `${n} modification${n === 1 ? '' : 's'}`,
     untrackedLabel: 'non suivi',
     stagedLabel: 'indexé',
     unstagedLabel: 'non indexé'
@@ -461,7 +461,7 @@ const de: MainMessages = {
     title: 'Gitty'
   },
   git: {
-    workingTree: 'Arbeitsverzeichnis',
+    workingTree: 'Änderungen',
     diffTruncated: 'Diff gekürzt — größer als 2 MB.',
     untrackedOmitted: (n: number) =>
       `${n} weitere nicht verfolgte Dateien werden nicht angezeigt.`,
@@ -471,7 +471,7 @@ const de: MainMessages = {
     gitFailed: 'git fehlgeschlagen',
     nothingToApply: 'Nichts anzuwenden.',
     pathEscapesRepo: 'Pfad verlässt das Repository',
-    changesCount: (n: number) => `${n} geändert`,
+    changesCount: (n: number) => `${n} Änderungen`,
     untrackedLabel: 'nicht verfolgt',
     stagedLabel: 'vorgemerkt',
     unstagedLabel: 'nicht vorgemerkt'
@@ -542,7 +542,7 @@ const es: MainMessages = {
     title: 'Gitty'
   },
   git: {
-    workingTree: 'Árbol de trabajo',
+    workingTree: 'Cambios',
     diffTruncated: 'Diff truncado — supera los 2 MB.',
     untrackedOmitted: (n: number) =>
       `${n} archivo${n === 1 ? '' : 's'} sin seguimiento más que no se muestra${n === 1 ? '' : 'n'}.`,
@@ -552,7 +552,7 @@ const es: MainMessages = {
     gitFailed: 'git falló',
     nothingToApply: 'Nada que aplicar.',
     pathEscapesRepo: 'la ruta se sale del repositorio',
-    changesCount: (n: number) => `${n} cambiado${n === 1 ? '' : 's'}`,
+    changesCount: (n: number) => `${n} cambio${n === 1 ? '' : 's'}`,
     untrackedLabel: 'sin seguimiento',
     stagedLabel: 'preparado',
     unstagedLabel: 'sin preparar'
@@ -623,7 +623,7 @@ const ru: MainMessages = {
     title: 'Gitty'
   },
   git: {
-    workingTree: 'Рабочее дерево',
+    workingTree: 'Изменения',
     diffTruncated: 'Diff обрезан — больше 2 МБ.',
     untrackedOmitted: (n: number) => `Ещё ${n} неотслеживаемых файлов не показано.`,
     notAnImage: 'Это не изображение.',
@@ -632,7 +632,7 @@ const ru: MainMessages = {
     gitFailed: 'git завершился с ошибкой',
     nothingToApply: 'Нечего применять.',
     pathEscapesRepo: 'путь выходит за пределы репозитория',
-    changesCount: (n: number) => `${n} изменено`,
+    changesCount: (n: number) => `${n} изменений`,
     untrackedLabel: 'не отслеживается',
     stagedLabel: 'проиндексировано',
     unstagedLabel: 'не проиндексировано'
@@ -703,7 +703,7 @@ const pt: MainMessages = {
     title: 'Gitty'
   },
   git: {
-    workingTree: 'Árvore de trabalho',
+    workingTree: 'Alterações',
     diffTruncated: 'Diff truncado — maior do que 2 MB.',
     untrackedOmitted: (n: number) =>
       `Mais ${n} ficheiro${n === 1 ? '' : 's'} não seguido${n === 1 ? '' : 's'} que não ${n === 1 ? 'é mostrado' : 'são mostrados'}.`,
@@ -713,7 +713,7 @@ const pt: MainMessages = {
     gitFailed: 'o git falhou',
     nothingToApply: 'Nada a aplicar.',
     pathEscapesRepo: 'o caminho sai do repositório',
-    changesCount: (n: number) => `${n} alterado${n === 1 ? '' : 's'}`,
+    changesCount: (n: number) => `${n} ${n === 1 ? 'alteração' : 'alterações'}`,
     untrackedLabel: 'não seguido',
     stagedLabel: 'preparado',
     unstagedLabel: 'não preparado'

@@ -24,7 +24,7 @@ export const en: RendererMessages = {
     noReposOpen: 'No repositories open.',
     recentlyOpened: 'Recently opened repositories',
     showHidePanes: 'Show or hide the panes',
-    changesCount: (n: number) => `${n} changed`,
+    changesCount: (n: number) => `${n} changes`,
     notInWorkTree: (path: string) =>
       `${path} is not inside a git work tree.`,
     notInWorkTreeHint: (path: string) =>
@@ -49,6 +49,7 @@ export const en: RendererMessages = {
     forwardTitle: 'Forward to the place stepped back from (Alt+→)',
     historyTitle: 'Places viewed in this repository, most recent first',
     noHistory: 'Nothing viewed yet',
+    changes: 'Changes',
     worktree: 'Working tree',
     worktreeFile: (path: string) => `${path} (working tree)`,
     commit: (short: string, subject: string) => `${short} — ${subject}`,
@@ -75,6 +76,7 @@ export const en: RendererMessages = {
     headLabel: 'HEAD'
   },
   files: {
+    changesTitle: 'Changes',
     workingTreeTitle: 'Working Tree',
     commitTitle: (short: string, subject: string) =>
       `Commit ${short} — ${subject}`,
@@ -82,7 +84,8 @@ export const en: RendererMessages = {
       `Snapshot ${short} — ${subject}`,
     rangeTitle: (from: string, to: string) =>
       `Range ${from.slice(0, 8)}..${to.slice(0, 8)}`,
-    backToWorkTree: 'Back to Work Tree',
+    backToWorkTree: 'Back to Changes',
+    emptyChanges: 'No changes.',
     emptyWorktree: 'Working tree clean.',
     emptySnapshot: 'No files in this snapshot.',
     emptyDiff: 'No files in this diff.',
@@ -120,7 +123,7 @@ export const en: RendererMessages = {
   diff: {
     titleFallback: 'Diff',
     errorTitle: 'error',
-    emptyWorktree: 'Working tree clean.',
+    emptyWorktree: 'No changes.',
     emptySnapshot: 'Select a file to view it at this commit.',
     emptyDiff: 'No textual changes.',
     emptyBrowseWorktree: 'Select a file to view it in the working tree.',
@@ -185,8 +188,8 @@ export const en: RendererMessages = {
   },
   log: {
     commits: 'Commits',
-    worktreeRow: 'Working Tree ',
-    worktreeRowTitle: 'Uncommitted changes in the working tree',
+    worktreeRow: 'Changes ',
+    worktreeRowTitle: 'Uncommitted changes',
     worktreeClean: '(clean)',
     worktreeUncommitted: (n: number) => `(${n} uncommitted)`,
     noCommitsYet: 'No commits yet.',
@@ -216,7 +219,7 @@ export const en: RendererMessages = {
     keyMove: ' move',
     keyShow: ' show',
     keyCompare: ' compare',
-    keyWorktree: ' work tree',
+    keyWorktree: ' changes',
     tooltipViews: ' views',
     tooltipMore: ' for more',
     moreTitle: 'More log actions',

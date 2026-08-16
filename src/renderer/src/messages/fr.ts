@@ -24,7 +24,7 @@ export const fr: RendererMessages = {
     noReposOpen: 'Aucun dépôt ouvert.',
     recentlyOpened: 'Dépôts récemment ouverts',
     showHidePanes: 'Afficher ou masquer les volets',
-    changesCount: (n: number) => `${n} modifié${n === 1 ? '' : 's'}`,
+    changesCount: (n: number) => `${n} modification${n === 1 ? '' : 's'}`,
     notInWorkTree: (path: string) =>
       `${path} n'est pas dans une copie de travail git.`,
     notInWorkTreeHint: (path: string) =>
@@ -49,6 +49,7 @@ export const fr: RendererMessages = {
     forwardTitle: 'Avancer vers l’endroit quitté (Alt+→)',
     historyTitle: 'Endroits consultés dans ce dépôt, du plus récent au plus ancien',
     noHistory: 'Rien de consulté pour l’instant',
+    changes: 'Modifications',
     worktree: 'Copie de travail',
     worktreeFile: (path: string) => `${path} (copie de travail)`,
     commit: (short: string, subject: string) => `${short} — ${subject}`,
@@ -75,6 +76,7 @@ export const fr: RendererMessages = {
     headLabel: 'HEAD'
   },
   files: {
+    changesTitle: 'Modifications',
     workingTreeTitle: 'Copie de travail',
     commitTitle: (short: string, subject: string) =>
       `Commit ${short} — ${subject}`,
@@ -82,7 +84,8 @@ export const fr: RendererMessages = {
       `Instantané ${short} — ${subject}`,
     rangeTitle: (from: string, to: string) =>
       `Plage ${from.slice(0, 8)}..${to.slice(0, 8)}`,
-    backToWorkTree: 'Retour à la copie de travail',
+    backToWorkTree: 'Retour aux modifications',
+    emptyChanges: 'Aucune modification.',
     emptyWorktree: 'Copie de travail propre.',
     emptySnapshot: 'Aucun fichier dans cet instantané.',
     emptyDiff: 'Aucun fichier dans ce diff.',
@@ -120,7 +123,7 @@ export const fr: RendererMessages = {
   diff: {
     titleFallback: 'Diff',
     errorTitle: 'erreur',
-    emptyWorktree: 'Copie de travail propre.',
+    emptyWorktree: 'Aucune modification.',
     emptySnapshot: 'Sélectionnez un fichier pour le voir à ce commit.',
     emptyDiff: 'Aucune modification textuelle.',
     emptyBrowseWorktree: 'Sélectionnez un fichier pour le voir dans la copie de travail.',
@@ -186,8 +189,8 @@ export const fr: RendererMessages = {
   },
   log: {
     commits: 'Commits',
-    worktreeRow: 'Copie de travail ',
-    worktreeRowTitle: 'Modifications non validées dans la copie de travail',
+    worktreeRow: 'Modifications ',
+    worktreeRowTitle: 'Modifications non validées',
     worktreeClean: '(propre)',
     worktreeUncommitted: (n: number) => `(${n} non validé${n === 1 ? '' : 's'})`,
     noCommitsYet: 'Aucun commit pour l’instant.',
@@ -219,7 +222,7 @@ export const fr: RendererMessages = {
     keyMove: ' déplacer',
     keyShow: ' afficher',
     keyCompare: ' comparer',
-    keyWorktree: ' copie de travail',
+    keyWorktree: ' modifications',
     tooltipViews: ' vues',
     tooltipMore: ' pour plus',
     moreTitle: 'Autres actions du journal',

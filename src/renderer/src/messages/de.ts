@@ -24,7 +24,7 @@ export const de: RendererMessages = {
     noReposOpen: 'Keine Repositories geöffnet.',
     recentlyOpened: 'Zuletzt geöffnete Repositories',
     showHidePanes: 'Bereiche ein- oder ausblenden',
-    changesCount: (n: number) => `${n} geändert`,
+    changesCount: (n: number) => `${n} Änderungen`,
     notInWorkTree: (path: string) =>
       `${path} liegt nicht in einem Git-Arbeitsverzeichnis.`,
     notInWorkTreeHint: (path: string) =>
@@ -49,6 +49,7 @@ export const de: RendererMessages = {
     forwardTitle: 'Vorwärts zur verlassenen Stelle (Alt+→)',
     historyTitle: 'In diesem Repository angesehene Stellen, neueste zuerst',
     noHistory: 'Noch nichts angesehen',
+    changes: 'Änderungen',
     worktree: 'Arbeitsverzeichnis',
     worktreeFile: (path: string) => `${path} (Arbeitsverzeichnis)`,
     commit: (short: string, subject: string) => `${short} — ${subject}`,
@@ -75,6 +76,7 @@ export const de: RendererMessages = {
     headLabel: 'HEAD'
   },
   files: {
+    changesTitle: 'Änderungen',
     workingTreeTitle: 'Arbeitsverzeichnis',
     commitTitle: (short: string, subject: string) =>
       `Commit ${short} — ${subject}`,
@@ -82,7 +84,8 @@ export const de: RendererMessages = {
       `Snapshot ${short} — ${subject}`,
     rangeTitle: (from: string, to: string) =>
       `Bereich ${from.slice(0, 8)}..${to.slice(0, 8)}`,
-    backToWorkTree: 'Zurück zum Arbeitsverzeichnis',
+    backToWorkTree: 'Zurück zu den Änderungen',
+    emptyChanges: 'Keine Änderungen.',
     emptyWorktree: 'Arbeitsverzeichnis ist sauber.',
     emptySnapshot: 'Keine Dateien in diesem Snapshot.',
     emptyDiff: 'Keine Dateien in diesem Diff.',
@@ -120,7 +123,7 @@ export const de: RendererMessages = {
   diff: {
     titleFallback: 'Diff',
     errorTitle: 'Fehler',
-    emptyWorktree: 'Arbeitsverzeichnis ist sauber.',
+    emptyWorktree: 'Keine Änderungen.',
     emptySnapshot: 'Wählen Sie eine Datei, um sie zu diesem Commit anzusehen.',
     emptyDiff: 'Keine Textänderungen.',
     emptyBrowseWorktree: 'Wählen Sie eine Datei, um sie im Arbeitsverzeichnis anzusehen.',
@@ -184,8 +187,8 @@ export const de: RendererMessages = {
   },
   log: {
     commits: 'Commits',
-    worktreeRow: 'Arbeitsverzeichnis ',
-    worktreeRowTitle: 'Nicht committete Änderungen im Arbeitsverzeichnis',
+    worktreeRow: 'Änderungen ',
+    worktreeRowTitle: 'Nicht committete Änderungen',
     worktreeClean: '(sauber)',
     worktreeUncommitted: (n: number) => `(${n} nicht committet)`,
     noCommitsYet: 'Noch keine Commits.',
@@ -217,7 +220,7 @@ export const de: RendererMessages = {
     keyMove: ' bewegen',
     keyShow: ' anzeigen',
     keyCompare: ' vergleichen',
-    keyWorktree: ' Arbeitsverzeichnis',
+    keyWorktree: ' Änderungen',
     tooltipViews: ' Ansichten',
     tooltipMore: ' für mehr',
     moreTitle: 'Weitere Protokollaktionen',

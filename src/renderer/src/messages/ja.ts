@@ -48,6 +48,7 @@ export const ja: RendererMessages = {
     forwardTitle: '戻る前の場所へ進む（Alt+→）',
     historyTitle: 'このリポジトリで見た場所（新しい順）',
     noHistory: 'まだ何も見ていません',
+    changes: '変更',
     worktree: 'ワークツリー',
     worktreeFile: (path: string) => `${path}（ワークツリー）`,
     commit: (short: string, subject: string) => `${short} — ${subject}`,
@@ -74,6 +75,7 @@ export const ja: RendererMessages = {
     headLabel: 'HEAD'
   },
   files: {
+    changesTitle: '変更',
     workingTreeTitle: 'ワークツリー',
     commitTitle: (short: string, subject: string) =>
       `コミット ${short} — ${subject}`,
@@ -81,7 +83,8 @@ export const ja: RendererMessages = {
       `スナップショット ${short} — ${subject}`,
     rangeTitle: (from: string, to: string) =>
       `範囲 ${from.slice(0, 8)}..${to.slice(0, 8)}`,
-    backToWorkTree: 'ワークツリーに戻る',
+    backToWorkTree: '変更に戻る',
+    emptyChanges: '変更はありません。',
     emptyWorktree: 'ワークツリーはクリーンです。',
     emptySnapshot: 'このスナップショットにファイルはありません。',
     emptyDiff: 'この差分にファイルはありません。',
@@ -119,7 +122,7 @@ export const ja: RendererMessages = {
   diff: {
     titleFallback: '差分',
     errorTitle: 'エラー',
-    emptyWorktree: 'ワークツリーはクリーンです。',
+    emptyWorktree: '変更はありません。',
     emptySnapshot: 'このコミット時点の内容を見るファイルを選択してください。',
     emptyDiff: 'テキストの変更はありません。',
     emptyBrowseWorktree: 'ワークツリーの内容を見るファイルを選択してください。',
@@ -183,8 +186,8 @@ export const ja: RendererMessages = {
   },
   log: {
     commits: 'コミット',
-    worktreeRow: 'ワークツリー ',
-    worktreeRowTitle: 'ワークツリーの未コミットの変更',
+    worktreeRow: '変更 ',
+    worktreeRowTitle: '未コミットの変更',
     worktreeClean: '（クリーン）',
     worktreeUncommitted: (n: number) => `（未コミット ${n} 件）`,
     noCommitsYet: 'コミットはまだありません。',
@@ -216,7 +219,7 @@ export const ja: RendererMessages = {
     keyMove: ' 移動',
     keyShow: ' 表示',
     keyCompare: ' 比較',
-    keyWorktree: ' ワークツリー',
+    keyWorktree: ' 変更',
     tooltipViews: ' 表示',
     tooltipMore: ' その他',
     moreTitle: 'その他のログ操作',

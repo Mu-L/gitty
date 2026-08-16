@@ -48,6 +48,7 @@ export const zh: RendererMessages = {
     forwardTitle: '前进到刚才退回的位置（Alt+→）',
     historyTitle: '本仓库中查看过的位置，最近的在最前',
     noHistory: '还没有查看记录',
+    changes: '变更',
     worktree: '工作区',
     worktreeFile: (path: string) => `${path}（工作区）`,
     commit: (short: string, subject: string) => `${short} — ${subject}`,
@@ -72,6 +73,7 @@ export const zh: RendererMessages = {
     headLabel: 'HEAD'
   },
   files: {
+    changesTitle: '变更',
     workingTreeTitle: '工作树',
     commitTitle: (short: string, subject: string) =>
       `提交 ${short} — ${subject}`,
@@ -79,7 +81,8 @@ export const zh: RendererMessages = {
       `快照 ${short} — ${subject}`,
     rangeTitle: (from: string, to: string) =>
       `范围 ${from.slice(0, 8)}..${to.slice(0, 8)}`,
-    backToWorkTree: '返回工作树',
+    backToWorkTree: '返回变更',
+    emptyChanges: '没有变更。',
     emptyWorktree: '工作树干净。',
     emptySnapshot: '此快照中没有文件。',
     emptyDiff: '此差异中没有文件。',
@@ -115,7 +118,7 @@ export const zh: RendererMessages = {
   diff: {
     titleFallback: '差异',
     errorTitle: '错误',
-    emptyWorktree: '工作树干净。',
+    emptyWorktree: '没有变更。',
     emptySnapshot: '选择一个文件以在此提交中查看。',
     emptyDiff: '无文本变更。',
     emptyBrowseWorktree: '选择一个文件以在工作树中查看。',
@@ -179,8 +182,8 @@ export const zh: RendererMessages = {
   },
   log: {
     commits: '提交',
-    worktreeRow: '工作树 ',
-    worktreeRowTitle: '工作树中未提交的变更',
+    worktreeRow: '变更 ',
+    worktreeRowTitle: '未提交的变更',
     worktreeClean: '（干净）',
     worktreeUncommitted: (n: number) => `（${n} 个未提交）`,
     noCommitsYet: '暂无提交。',
@@ -212,7 +215,7 @@ export const zh: RendererMessages = {
     keyMove: ' 移动',
     keyShow: ' 显示',
     keyCompare: ' 比较',
-    keyWorktree: ' 工作树',
+    keyWorktree: ' 变更',
     tooltipViews: ' 查看',
     tooltipMore: ' 更多',
     moreTitle: '更多日志操作',

@@ -1045,7 +1045,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   /* ---------- headers ---------- */
 
   const filesTitle = useMemo(() => {
-    if (view.mode === 'worktree') return msg.files.workingTreeTitle
+    if (view.mode === 'worktree') return msg.files.changesTitle
     if (view.mode === 'commit') return msg.files.commitTitle(view.short, view.subject)
     // A null-hash snapshot is the work tree being browsed, not a revision.
     if (view.mode === 'snapshot' && view.hash === null) return msg.files.workingTreeTitle

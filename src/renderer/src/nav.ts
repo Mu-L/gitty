@@ -103,7 +103,7 @@ export function navLabel(p: NavPlace, msg: RendererMessages): string {
   const path = p.doc?.path ?? p.selectedFile
   let label: string
   if (v.mode === 'worktree') {
-    label = path ? msg.nav.worktreeFile(path) : msg.nav.worktree
+    label = path ? msg.nav.worktreeFile(path) : msg.nav.changes
   } else if (v.mode === 'commit') {
     label = path ? msg.nav.commitFile(path, v.short) : msg.nav.commit(v.short, v.subject)
   } else if (v.mode === 'snapshot') {

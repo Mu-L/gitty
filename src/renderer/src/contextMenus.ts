@@ -13,6 +13,10 @@ import type { RendererMessages } from '../../shared/messages'
  * than from a revision. The menus below only read the view, but most of the
  * tab does too, so it lives with its owner and is imported back by RepoTab.
  */
+// `worktree` is the uncommitted-changes view: the UI reads it as "Changes".
+// The name is the directory it lives in, kept to avoid renaming the mode. A
+// snapshot with a null hash is the other use of the word — browsing that same
+// directory's whole contents ("Working Tree").
 export type View =
   | { mode: 'worktree' }
   | { mode: 'commit'; hash: string; short: string; subject: string }

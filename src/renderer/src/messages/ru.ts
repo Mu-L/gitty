@@ -64,6 +64,7 @@ export const ru: RendererMessages = {
     forwardTitle: 'Вперёд, к месту, откуда вернулись (Alt+→)',
     historyTitle: 'Просмотренные места в этом репозитории, начиная с последнего',
     noHistory: 'Пока ничего не просмотрено',
+    changes: 'Изменения',
     worktree: 'Рабочее дерево',
     worktreeFile: (path: string) => `${path} (рабочее дерево)`,
     commit: (short: string, subject: string) => `${short} — ${subject}`,
@@ -90,6 +91,7 @@ export const ru: RendererMessages = {
     headLabel: 'HEAD'
   },
   files: {
+    changesTitle: 'Изменения',
     workingTreeTitle: 'Рабочее дерево',
     commitTitle: (short: string, subject: string) =>
       `Коммит ${short} — ${subject}`,
@@ -97,7 +99,8 @@ export const ru: RendererMessages = {
       `Снимок ${short} — ${subject}`,
     rangeTitle: (from: string, to: string) =>
       `Диапазон ${from.slice(0, 8)}..${to.slice(0, 8)}`,
-    backToWorkTree: 'Назад к рабочему дереву',
+    backToWorkTree: 'Назад к изменениям',
+    emptyChanges: 'Изменений нет.',
     emptyWorktree: 'Рабочее дерево чистое.',
     emptySnapshot: 'В этом снимке нет файлов.',
     emptyDiff: 'В этом diff нет файлов.',
@@ -135,7 +138,7 @@ export const ru: RendererMessages = {
   diff: {
     titleFallback: 'Diff',
     errorTitle: 'ошибка',
-    emptyWorktree: 'Рабочее дерево чистое.',
+    emptyWorktree: 'Изменений нет.',
     emptySnapshot: 'Выберите файл, чтобы посмотреть его на этом коммите.',
     emptyDiff: 'Текстовых изменений нет.',
     emptyBrowseWorktree: 'Выберите файл, чтобы посмотреть его в рабочем дереве.',
@@ -201,8 +204,8 @@ export const ru: RendererMessages = {
   },
   log: {
     commits: 'Коммиты',
-    worktreeRow: 'Рабочее дерево ',
-    worktreeRowTitle: 'Незакоммиченные изменения в рабочем дереве',
+    worktreeRow: 'Изменения ',
+    worktreeRowTitle: 'Незакоммиченные изменения',
     worktreeClean: '(чисто)',
     worktreeUncommitted: (n: number) =>
       `(${n} ${plural(n, 'изменение', 'изменения', 'изменений')} не закоммичено)`,
@@ -235,7 +238,7 @@ export const ru: RendererMessages = {
     keyMove: ' перемещение',
     keyShow: ' показать',
     keyCompare: ' сравнить',
-    keyWorktree: ' рабочее дерево',
+    keyWorktree: ' изменения',
     tooltipViews: ' виды',
     tooltipMore: ' ещё',
     moreTitle: 'Другие действия журнала',

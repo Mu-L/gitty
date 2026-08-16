@@ -69,6 +69,9 @@ export interface MainMessages {
     readonly title: string
   }
   readonly git: {
+    /** Title for a whole-work-tree diff when it is truncated — everything
+     *  uncommitted at once. Reads as "Changes"; the key keeps the internal
+     *  "worktree" name of the view it belongs to. */
     readonly workingTree: string
     readonly diffTruncated: string
     readonly untrackedOmitted: (n: number) => string
@@ -150,7 +153,11 @@ export interface RendererMessages {
     readonly forwardTitle: string
     readonly historyTitle: string
     readonly noHistory: string
-    /** A place, as the menu lists it. */
+    /** A place, as the menu lists it. The `worktree` view shows the uncommitted
+     *  changes and reads "Changes"; the key keeps the internal View-mode name. */
+    readonly changes: string
+    /** The same view but browsing the whole working directory (a snapshot with
+     *  a null hash): the "work tree" concept, as opposed to `changes` above. */
     readonly worktree: string
     readonly worktreeFile: (path: string) => string
     readonly commit: (short: string, subject: string) => string
@@ -176,12 +183,19 @@ export interface RendererMessages {
     readonly headLabel: string
   }
   readonly files: {
+    /** The file pane's title in the `worktree` view — the uncommitted changes. */
+    readonly changesTitle: string
+    /** The file pane's title while browsing the whole working directory
+     *  (a snapshot with a null hash). */
     readonly workingTreeTitle: string
     readonly commitTitle: (short: string, subject: string) => string
     readonly snapshotTitle: (short: string, subject: string) => string
     readonly rangeTitle: (from: string, to: string) => string
+    /** Takes the file pane back to the `worktree` view, shown as "Changes". */
     readonly backToWorkTree: string
-    /** The empty text shown in the work-tree pane. */
+    /** The empty text of the `worktree` view — "No changes." */
+    readonly emptyChanges: string
+    /** The empty text while browsing the whole working directory. */
     readonly emptyWorktree: string
     readonly emptySnapshot: string
     readonly emptyDiff: string
@@ -226,6 +240,8 @@ export interface RendererMessages {
   readonly diff: {
     readonly titleFallback: string
     readonly errorTitle: string
+    /** The empty text of the `worktree` view — "No changes."; the key keeps
+     *  the internal name of the view. */
     readonly emptyWorktree: string
     readonly emptySnapshot: string
     readonly emptyDiff: string
@@ -301,6 +317,8 @@ export interface RendererMessages {
   }
   readonly log: {
     readonly commits: string
+    /** The pseudo-commit for the work tree, shown as "Changes"; the key keeps
+     *  the internal name. */
     readonly worktreeRow: string
     readonly worktreeRowTitle: string
     readonly worktreeClean: string
@@ -339,6 +357,7 @@ export interface RendererMessages {
     readonly keyMove: string
     readonly keyShow: string
     readonly keyCompare: string
+    /** Esc returns to the uncommitted-changes row, shown as "changes". */
     readonly keyWorktree: string
     /** Tooltip for the button that folds the commit-message body away. */
     readonly messageToggle: (collapsed: boolean) => string

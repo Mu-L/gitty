@@ -34,8 +34,8 @@ Left to right, it describes the active repository and then acts on it:
   [browsing another branch](#browsing-another-branch).
 - **`origin/main ↑2 ↓0`** — the upstream of the checked-out branch and how far
   ahead and behind it is. Absent on a branch that tracks nothing.
-- **`3 changed`** — how many files the work tree has uncommitted, the same count
-  the **Working Tree** row in the commits pane carries.
+- **`3 changes`** — how many files the work tree has uncommitted, the same count
+  the **Changes** row in the commits pane carries.
 - **Panes ▾** — show or hide each of the four; see
   [Full screen and hiding](#full-screen-and-hiding).
 - **Settings** — the preferences dialog ([Settings](#settings)),
@@ -61,10 +61,11 @@ the title bar remember that wandering, the way a browser does.
 - **▾** lists the places themselves, most recent first, with a dot on the one
   you are at. Pick any of them to jump straight there.
 
-A *place* is everything the two top panes were showing: the view — the work
-tree, one commit, a range of two, a snapshot — the file selected inside it, and
-the document opened beside the diff. So a stop reads as `Working tree`,
-`7bb7787 — Refresh screenshot batches`, `src/main/git.ts @ 7bb7787` or
+A *place* is everything the two top panes were showing: the view — the
+uncommitted changes, one commit, a range of two, a snapshot — the file selected
+inside it, and the document opened beside the diff. So a stop reads as
+`Changes`, `7bb7787 — Refresh screenshot batches`, `src/main/git.ts @ 7bb7787`
+or
 `blame: src/main/git.ts @ 7bb7787`, and returning to it puts the same file back
 on screen at the same revision rather than merely reselecting the commit.
 
@@ -140,7 +141,7 @@ come back with their scrollback when it does.
 
 ## The panes
 
-### Working Tree (top left)
+### Changes (top left)
 
 Changed files as a collapsible tree, each with its line count beside the name.
 Browsing a whole repository — the work tree or a commit's snapshot — opens with
@@ -208,7 +209,8 @@ Right-clicking the work-tree row in the commit log also offers **Copy Staged
 Diff**, for a conversation happening in another window.
 
 When a commit or a commit range is selected, this pane lists that commit's files
-instead; **Back to Work Tree** (or <kbd>Esc</kbd>) returns to the working tree.
+instead; **Back to Changes** (or <kbd>Esc</kbd>) returns to the uncommitted
+changes.
 In a [snapshot](#snapshots) it lists the entire tree at that commit, not just
 what changed.
 
@@ -306,7 +308,7 @@ snapshot has no diff to show, so every file there is a document.
 
 The files in a snapshot never existed on disk at that revision, which is why
 **Open in System App** hands over a temporary copy of it and **Reveal in File
-Manager** is not offered. **Back to Work Tree** (or <kbd>Esc</kbd>) leaves.
+Manager** is not offered. **Back to Changes** (or <kbd>Esc</kbd>) leaves.
 
 #### Markdown preview
 
@@ -405,7 +407,7 @@ way*. It tracks the range across renames by itself.
 
 #### Searching the repository
 
-**Search** in the working-tree pane's header opens a box above the file list
+**Search** in the Changes pane's header opens a box above the file list
 and runs `git grep`. The arrow beside it switches that button to **Filter**,
 which narrows the list of files instead; the one you pick stays chosen, and
 only one of the two boxes is open at a time. The results are a document grouped by file, line numbers
@@ -420,8 +422,8 @@ expression is not eaten on the way.
 ### Commits (bottom left)
 
 The log of the current branch, loaded 300 at a time and extended as you scroll.
-The first row is the **Working Tree** — the uncommitted changes, with a count of
-changed files; selecting it brings the top panes back to the work tree. A filter
+The first row is **Changes** — the uncommitted changes, with a count of changed
+files; selecting it brings the top panes back to them. A filter
 box above the log narrows the list — debounced, with a ✕ to clear — and the
 result pages the same way.
 
@@ -553,7 +555,7 @@ screen instead of an empty pane.
 file, a rendered markdown document, an [HTML preview](#html-preview), a blame,
 or a file's history. With the file tree focused it does something else — it
 filters that tree, described in
-[Working Tree](#working-tree-top-left). Every match is highlighted with the current one picked out,
+[Changes](#changes-top-left). Every match is highlighted with the current one picked out,
 <kbd>Enter</kbd> and <kbd>Shift+Enter</kbd> (or the arrows) walk them and wrap
 around at either end, the count says where you are, and <kbd>Esc</kbd> closes.
 
@@ -608,7 +610,7 @@ highlight** lives here only.
 | <kbd>Ctrl+Click</kbd> on a file heading | Open that file in a new document tab |
 | <kbd>Ctrl+F</kbd> | Find in the diff, the file, or whatever the pane is showing — or filter the file tree, with that pane focused |
 | <kbd>Ctrl+C</kbd> / <kbd>Ctrl+Shift+C</kbd> | Copy the selection, anywhere in the window |
-| <kbd>Esc</kbd> | Back to the working tree |
+| <kbd>Esc</kbd> | Back to the changes |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Back and forward through the places viewed |
 | <kbd>Alt</kbd> | Show or hide the application menu bar (not on macOS, where it is always there) |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |
