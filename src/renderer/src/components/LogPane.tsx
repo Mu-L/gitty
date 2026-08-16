@@ -5,7 +5,8 @@ import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
 import { fmtDateTimeZone, stamp, useTime } from '../time'
 
-/** Pseudo-hash of the row that stands for the uncommitted work tree. */
+/** Pseudo-hash of the row that stands for the uncommitted changes. The row
+ *  reads "Changes"; the constant keeps the internal `worktree` name. */
 export const WORKTREE_ROW = '__worktree__'
 
 /** Horizontal distance between two lanes, in the graph's own units. */
@@ -96,7 +97,7 @@ export function LogPane({
   graph: boolean
   selected: string | null
   compare: string | null
-  /** Number of uncommitted changes, shown on the work-tree row. */
+  /** Number of uncommitted changes, shown on the Changes row. */
   changedCount: number
   /** The commit filter, narrowed in git; '' shows all. */
   filter: string
@@ -118,7 +119,7 @@ export function LogPane({
   // Recomputed over the whole loaded list, which is what keeps the first page
   // identical once the second arrives — see lanes.ts.
   const lanes = useMemo(() => (graph ? layoutLanes(commits) : null), [graph, commits])
-  // The work-tree row sits above the log and takes part in keyboard navigation.
+  // The Changes row sits above the log and takes part in keyboard navigation.
   const hashes = [WORKTREE_ROW, ...commits.map((c) => c.hash)]
   const index = hashes.indexOf(selected ?? '')
 

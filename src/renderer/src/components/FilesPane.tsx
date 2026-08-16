@@ -10,9 +10,9 @@ export interface FileEntry {
   /** Status marks rendered before the file name. */
   marks: Array<{ char: string; cls: string }>
   deleted: boolean
-  /** Work tree only: the change is in the index, whole or in part. */
+  /** Changes view only: the change is in the index, whole or in part. */
   staged?: boolean
-  /** Work tree only: git has never seen this file. */
+  /** Changes view only: git has never seen this file. */
   untracked?: boolean
   /** Present for renames: the previous path. */
   origPath?: string
@@ -110,7 +110,7 @@ export function FilesPane({
   onSelect: (entry: FileEntry) => void
   onOpen: (entry: FileEntry) => void
   onMenu: (entry: FileEntry, state: MenuState) => void
-  /** Work tree only: clicking the status marks moves the file in or out of
+  /** Changes view only: clicking the status marks moves the file in or out of
    *  the index. Absent in every other mode, where there is no index to move
    *  it to and the marks are just a status. */
   onToggleStage?: (entry: FileEntry) => void

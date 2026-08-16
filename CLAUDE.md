@@ -4,9 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Gitty is an Electron desktop git history browser with four panes: working tree
-(top left), diff (top right), commit log (bottom left) and an interactive shell
-(bottom right). See README.md for the user-facing behaviour of each pane.
+Gitty is an Electron desktop git history browser with four panes: the
+uncommitted changes (top left, titled **Changes**), diff (top right), commit log
+(bottom left) and an interactive shell (bottom right). See README.md for the
+user-facing behaviour of each pane.
+
+"Changes" and "Working Tree" are two different things throughout, and the
+distinction is worth keeping in comments as well as on screen: **Changes** is
+what is uncommitted, the `worktree` `View` mode; **Working Tree** is the whole
+directory on disk, which is what browsing a null-hash snapshot shows. The
+internal names (`worktree`, `WORKTREE_ROW`, `emptyWorktree`) kept the older word
+rather than being renamed under the UI.
 
 ### Language
 
@@ -388,7 +396,8 @@ Each `RepoTab` holds a `View` of four modes — `worktree`, `commit`, `range`,
 | `snapshot` | the entire tree at that commit | that file's contents, read-only |
 
 `selectedFile` narrows the diff within a mode. The commit log's first row is a
-pseudo-commit (`WORKTREE_ROW`) standing for the work tree; it joins keyboard
+pseudo-commit (`WORKTREE_ROW`) standing for the uncommitted changes, drawn as
+the **Changes** row; it joins keyboard
 navigation and selecting it returns to `worktree` mode.
 
 ### Browsing history
@@ -417,9 +426,9 @@ call for the move.
 The title bar's branch is a menu (`git for-each-ref` over `refs/heads` and
 `refs/remotes`) and picking one sets `browsingByRoot[root]` in `App.tsx`, which
 each `RepoTab` takes as its `browsing` prop and passes to `git.log` as a ref.
-That is the whole feature: **nothing is checked out**. Status, the work tree
+That is the whole feature: **nothing is checked out**. Status, the Changes
 pane, its diffs and the shells all still describe the branch git is on, which is
-why the work-tree row stays in the log and the title bar shows both names. A
+why the Changes row stays in the log and the title bar shows both names. A
 change of branch drops the loaded commits rather than merging two histories,
 and clears the selection with them.
 
@@ -612,7 +621,7 @@ whatever order git finishes. Both `refresh` and `loadDiff` therefore stamp each
 call with a sequence number and drop a reply that a newer call has overtaken.
 Without it the panes disagree — the diff pane re-runs git for every render and
 so always shows the truth, while a stale `git status` landing last leaves the
-work tree pane (and the title bar's count) listing changes already committed.
+Changes pane (and the title bar's count) listing changes already committed.
 
 ## Gotchas
 

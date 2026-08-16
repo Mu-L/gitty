@@ -308,7 +308,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   // Another branch means another history: drop what is loaded rather than
   // merging two logs, and let go of a selection that may not be in it. The
-  // work tree is unaffected, so the work-tree row stays where it is.
+  // work tree is unaffected, so the Changes row stays where it is.
   const firstBrowse = useRef(true)
   useEffect(() => {
     if (firstBrowse.current) {
@@ -673,7 +673,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   }, [])
 
   /** Browse the whole repository as it is on disk right now — tracked and
-   *  untracked files alike, read-only. The worktree row's context menu offers
+   *  untracked files alike, read-only. The Changes row's context menu offers
    *  this. A null hash is what makes it the work tree rather than a revision. */
   const browseWorktree = useCallback(() => {
     setCompareCommit(null)

@@ -445,7 +445,7 @@ export async function fileChurn(
       ? ['show', '--numstat', '-z', '--format=', ...ws, spec.hash]
       : spec.kind === 'range'
         ? ['diff', '--numstat', '-z', ...ws, `${spec.from}..${spec.to}`]
-        : // Staged and unstaged together, which is what the work-tree list shows.
+        : // Staged and unstaged together, which is what the Changes list shows.
           ['diff', '--numstat', '-z', ...ws, 'HEAD']
   try {
     return Object.fromEntries(parseNumstat(await git(root, args)))

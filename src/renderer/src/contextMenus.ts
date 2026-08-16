@@ -7,11 +7,11 @@ import type { FileEntry } from './components/FilesPane'
 import type { RendererMessages } from '../../shared/messages'
 
 /**
- * What a repository session can show: the work tree, one commit, a range, or
- * the whole tree at a commit. A snapshot with a null hash is "browse working
- * tree": the whole tree, but read from the disk as it is right now rather
- * than from a revision. The menus below only read the view, but most of the
- * tab does too, so it lives with its owner and is imported back by RepoTab.
+ * What a repository session can show: the uncommitted changes, one commit, a
+ * range, or the whole tree at a commit. A snapshot with a null hash is "browse
+ * working tree": the whole tree, but read from the disk as it is right now
+ * rather than from a revision. The menus below only read the view, but most of
+ * the tab does too, so it lives with its owner and is imported back by RepoTab.
  */
 // `worktree` is the uncommitted-changes view: the UI reads it as "Changes".
 // The name is the directory it lives in, kept to avoid renaming the mode. A
@@ -62,9 +62,9 @@ export interface ContextMenuDeps {
   setMenu: (state: MenuState) => void
   /** Browse the whole repository as it is on disk right now, read-only. */
   browseWorktree: () => void
-  /** Work tree only: move a whole file in or out of the index. */
+  /** Changes view only: move a whole file in or out of the index. */
   toggleStage: (path: string, staged: boolean) => void
-  /** Work tree only: throw a tracked file's changes away, after confirming. */
+  /** Changes view only: throw a tracked file's changes away, after confirming. */
   discardChanges: (path: string) => void
   /** The whole index as a patch, for a conversation happening elsewhere. */
   copyStagedDiff: () => void
@@ -268,8 +268,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
       label: msg.contextMenu.copyFileName,
       action: () => void window.gitty.clipboard.write(rel.split('/').pop() ?? rel)
     })
-    // The index, and the two ways of leaving it: only in the work tree, which
-    // is the only mode that has one.
+    // The index, and the two ways of leaving it: only in the Changes view,
+    // which is the only mode that has one.
     if (view.mode === 'worktree') {
       items.push({
         label: entry.staged ? msg.contextMenu.unstageFile : msg.contextMenu.stageFile,
@@ -285,9 +285,9 @@ export function createContextMenus(deps: ContextMenuDeps): {
         })
       }
     }
-    // Deleting is about the file on disk, so it belongs to the work tree alone:
-    // a commit's file list and a snapshot describe revisions, where there is
-    // nothing to delete. A file already gone from the tree is not offered either.
+    // Deleting is about the file on disk, so it belongs to the Changes view
+    // alone: a commit's file list and a snapshot describe revisions, where there
+    // is nothing to delete. A file already gone from the tree is not offered either.
     if (view.mode === 'worktree' && !entry.deleted) {
       items.push({
         label: msg.contextMenu.deleteFile,

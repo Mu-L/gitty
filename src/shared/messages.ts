@@ -465,9 +465,9 @@ export interface RendererMessages {
     readonly copyFileName: string
     readonly openInSystemApp: string
     readonly revealInFileManager: string
-    /** Work-tree only: sends the file to the system trash. */
+    /** Changes view only: sends the file to the system trash. */
     readonly deleteFile: string
-    /** Work-tree only: the index. */
+    /** Changes view only: the index. */
     readonly stageFile: string
     readonly unstageFile: string
     readonly discardChanges: string
@@ -490,7 +490,7 @@ export interface RendererMessages {
     readonly fileHistory: string
     /** On a blame row: what happened to the lines under the selection. */
     readonly lineHistory: string
-    // worktree row in commit log
+    // the Changes row in the commit log
     readonly browseWorktree: string
   }
   readonly paneChrome: {
