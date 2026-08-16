@@ -9,8 +9,9 @@ out/
 dist/
 *.tsbuildinfo
 
-# Logs
-logs/
+# Logs — runtime output is noise, but logs/daily/ is the work journal
+logs/*
+!logs/daily/
 *.log
 npm-debug.log*
 yarn-debug.log*
