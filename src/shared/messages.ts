@@ -13,8 +13,31 @@ export interface MainMessages {
   readonly menu: {
     readonly file: string
     readonly openRepo: string
+    readonly closeRepo: string
     readonly settings: string
+    /** Label for the last File item: "Close Window" on macOS, "Quit" elsewhere. */
+    readonly closeWindow: string
+    readonly quit: string
+    readonly edit: string
+    readonly undo: string
+    readonly redo: string
+    readonly cut: string
+    readonly copy: string
+    readonly paste: string
+    readonly delete: string
+    readonly selectAll: string
     readonly view: string
+    /** Gitty's own refresh — reloading status and log, not the page. */
+    readonly refresh: string
+    readonly reload: string
+    readonly devTools: string
+    readonly actualSize: string
+    readonly zoomIn: string
+    readonly zoomOut: string
+    readonly fullscreen: string
+    readonly help: string
+    readonly about: string
+    readonly github: string
   }
   readonly dialog: {
     readonly openRepoTitle: string

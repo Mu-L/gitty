@@ -1,6 +1,15 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, shell } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  clipboard,
+  dialog,
+  ipcMain,
+  Menu,
+  shell,
+  type MenuItemConstructorOptions
+} from 'electron'
 import * as git from './git'
 import * as gource from './gource'
 import { availableShells, createTerminal, type TerminalSession } from './pty'
@@ -24,6 +33,9 @@ import { msg, setMainLocale } from './messages'
 app.setName('Gitty')
 
 let win: BrowserWindow | null = null
+
+/** The project's home page — the About dialog and the Help menu both point here. */
+const GITTY_REPO_URL = 'https://github.com/baojie/gitty'
 
 // The renderer can split the terminal pane, so shells are keyed by the id it
 // hands out rather than held one at a time.
@@ -62,12 +74,35 @@ function initialPath(): string {
 }
 
 /**
- * A minimal application menu. Without one, Chromium's edit accelerators
- * (Ctrl+C to copy selected diff text, Ctrl+A, …) are not bound at all.
- * The bar itself stays hidden; only the shortcuts matter here.
+ * The application menu. Without one, Chromium's edit accelerators (Ctrl+C to
+ * copy selected diff text, Ctrl+A, …) are not bound at all. The bar itself
+ * stays hidden, but every item is labelled from the message table — a role's
+ * own label is Electron's language, not Gitty's, so each carries an explicit
+ * one, or the menu would stay English under a different language setting.
  */
 function installMenu(): void {
   const isMac = process.platform === 'darwin'
+  const editItems: MenuItemConstructorOptions[] = isMac
+    ? [
+        { role: 'undo', label: msg.menu.undo },
+        { role: 'redo', label: msg.menu.redo },
+        { type: 'separator' },
+        { role: 'cut', label: msg.menu.cut },
+        { role: 'copy', label: msg.menu.copy },
+        { role: 'paste', label: msg.menu.paste },
+        { role: 'selectAll', label: msg.menu.selectAll }
+      ]
+    : [
+        { role: 'undo', label: msg.menu.undo },
+        { role: 'redo', label: msg.menu.redo },
+        { type: 'separator' },
+        { role: 'cut', label: msg.menu.cut },
+        { role: 'copy', label: msg.menu.copy },
+        { role: 'paste', label: msg.menu.paste },
+        { role: 'delete', label: msg.menu.delete },
+        { type: 'separator' },
+        { role: 'selectAll', label: msg.menu.selectAll }
+      ]
   Menu.setApplicationMenu(
     Menu.buildFromTemplate([
       ...(isMac ? [{ role: 'appMenu' as const }] : []),
@@ -80,26 +115,58 @@ function installMenu(): void {
             click: () => win?.webContents.send('menu:open-repo')
           },
           {
+            label: msg.menu.closeRepo,
+            accelerator: 'CmdOrCtrl+W',
+            click: () => win?.webContents.send('menu:close-repo')
+          },
+          {
             label: msg.menu.settings,
             accelerator: 'CmdOrCtrl+,',
             click: () => win?.webContents.send('menu:open-settings')
           },
-          { type: 'separator' as const },
-          isMac ? { role: 'close' as const } : { role: 'quit' as const }
+          { type: 'separator' },
+          isMac
+            ? { role: 'close', label: msg.menu.closeWindow }
+            : { role: 'quit', label: msg.menu.quit }
         ]
       },
-      { role: 'editMenu' as const },
+      { label: msg.menu.edit, submenu: editItems },
       {
         label: msg.menu.view,
         submenu: [
-          { role: 'reload' as const },
-          { role: 'toggleDevTools' as const },
-          { type: 'separator' as const },
-          { role: 'resetZoom' as const },
-          { role: 'zoomIn' as const },
-          { role: 'zoomOut' as const },
-          { type: 'separator' as const },
-          { role: 'togglefullscreen' as const }
+          // Refresh carries no accelerator: F5 and Ctrl+R are already the
+          // app's own keys, and registering them here too would fire twice.
+          {
+            label: msg.menu.refresh,
+            click: () => win?.webContents.send('menu:refresh')
+          },
+          { role: 'reload', label: msg.menu.reload },
+          { role: 'toggleDevTools', label: msg.menu.devTools },
+          { type: 'separator' },
+          { role: 'resetZoom', label: msg.menu.actualSize },
+          { role: 'zoomIn', label: msg.menu.zoomIn },
+          { role: 'zoomOut', label: msg.menu.zoomOut },
+          { type: 'separator' },
+          { role: 'togglefullscreen', label: msg.menu.fullscreen }
+        ]
+      },
+      {
+        label: msg.menu.help,
+        submenu: [
+          // macOS puts About in the application menu; a second one here would
+          // just duplicate it.
+          ...(!isMac
+            ? [
+                {
+                  label: msg.menu.about,
+                  click: () => win?.webContents.send('menu:about')
+                }
+              ]
+            : []),
+          {
+            label: msg.menu.github,
+            click: () => void shell.openExternal(GITTY_REPO_URL)
+          }
         ]
       }
     ])
@@ -212,7 +279,7 @@ function registerIpc(): void {
     return {
       version,
       author,
-      github: 'https://github.com/baojie/gitty',
+      github: GITTY_REPO_URL,
       builtAt,
       electron: process.versions.electron ?? '',
       chromium: process.versions.chrome ?? '',

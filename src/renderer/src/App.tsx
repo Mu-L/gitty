@@ -372,6 +372,19 @@ export default function App(): JSX.Element {
 
   useEffect(() => window.gitty.repo.onMenuSettings(() => setSettingsOpen(true)), [])
 
+  useEffect(
+    () =>
+      window.gitty.repo.onMenuCloseRepo(() => {
+        // The menu knows nothing about tabs; with none open there is nothing to close.
+        if (active) closeTab(active)
+      }),
+    [active, closeTab]
+  )
+
+  useEffect(() => window.gitty.repo.onMenuRefresh(() => refreshActive()), [refreshActive])
+
+  useEffect(() => window.gitty.repo.onMenuAbout(() => setAboutOpen(true)), [])
+
   /* ---------- pane visibility ---------- */
 
   // The last visible pane cannot be hidden: an empty window would leave the

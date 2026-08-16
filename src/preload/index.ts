@@ -64,6 +64,24 @@ const api = {
       const h = (): void => cb()
       ipcRenderer.on('menu:open-settings', h)
       return () => ipcRenderer.removeListener('menu:open-settings', h)
+    },
+    /** Fired by the File ▸ Close Repository item and the Cmd/Ctrl+W accelerator. */
+    onMenuCloseRepo: (cb: () => void): (() => void) => {
+      const h = (): void => cb()
+      ipcRenderer.on('menu:close-repo', h)
+      return () => ipcRenderer.removeListener('menu:close-repo', h)
+    },
+    /** Fired by the View ▸ Refresh menu item. */
+    onMenuRefresh: (cb: () => void): (() => void) => {
+      const h = (): void => cb()
+      ipcRenderer.on('menu:refresh', h)
+      return () => ipcRenderer.removeListener('menu:refresh', h)
+    },
+    /** Fired by the Help ▸ About Gitty menu item. */
+    onMenuAbout: (cb: () => void): (() => void) => {
+      const h = (): void => cb()
+      ipcRenderer.on('menu:about', h)
+      return () => ipcRenderer.removeListener('menu:about', h)
     }
   },
   git: {

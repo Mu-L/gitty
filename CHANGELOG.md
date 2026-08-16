@@ -68,6 +68,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   one **⋯** click behind.
 - The title bar's empty space hover-tells that <kbd>Alt</kbd> shows and hides
   the application menu; not on macOS, whose menu bar is always on the screen.
+- The application menu follows the language setting end to end — the Edit
+  menu and every View role carry explicit labels, which Electron otherwise
+  renders in its own language — and gains **File ▸ Close Repository**
+  (<kbd>Ctrl+W</kbd>), **View ▸ Refresh** and a **Help** menu (**About Gitty**,
+  **GitHub**).
 
 ## [0.1.7] - 2026-08-15
 
