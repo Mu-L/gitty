@@ -6,8 +6,14 @@ import { fileIcon } from '../src/renderer/src/icons'
 describe('fileIcon', () => {
   it('gives a language its own colour on the shared shape', () => {
     expect(fileIcon('src/App.tsx')).toEqual({ shape: 'code', tone: 'blue' })
-    expect(fileIcon('src/app.py')).toEqual({ shape: 'code', tone: 'green' })
     expect(fileIcon('main.rs')).toEqual({ shape: 'code', tone: 'orange' })
+  })
+
+  it('draws Python as its own mark rather than the shared glyph', () => {
+    expect(fileIcon('src/app.py')).toEqual({ shape: 'python', tone: 'green' })
+    expect(fileIcon('stubs/app.pyi')).toEqual({ shape: 'python', tone: 'green' })
+    // Compiled output is not source, whatever produced it.
+    expect(fileIcon('__pycache__/app.pyc')).toEqual({ shape: 'binary', tone: 'green' })
   })
 
   it('reads the extension case-insensitively', () => {

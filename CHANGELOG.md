@@ -15,7 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   hue. Eighteen hand-drawn glyphs rather than an icon package, and palette
   variables rather than brand colours, so both themes are one table
   (`src/renderer/src/icons.ts`, `test/icons.test.ts`). An unknown extension
-  gets a plain page.
+  gets a plain page. `.py` is the exception to the colour rule: Python is drawn
+  as its own two-tone mark, which a reader picks out faster than any tone of
+  the shared glyph.
 
 ### Changed
 

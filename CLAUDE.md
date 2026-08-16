@@ -410,7 +410,11 @@ icon package whose whole value is breadth would be a megabyte for a screenful
 of answers — and every tone is a palette variable, never a brand hex: the tree
 is drawn over both themes, and a colour picked against one background is
 unreadable on the other. `--orange` exists for this and nothing else, yellow
-being taken by the modified status code.
+being taken by the modified status code. The one exception is a **brand mark**
+— a shape that is a language's own logo and carries its colours in the drawing.
+Python is the only one, and the bar for a second is that a reader recognises
+the mark faster than any tone of the shared glyph: a logo per language is what
+shape-plus-tone exists to avoid.
 
 ### Browsing history
 

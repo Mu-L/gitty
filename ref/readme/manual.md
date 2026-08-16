@@ -155,7 +155,8 @@ after every capital letter.
 Each name carries a type icon: the shape is the family — source, structured
 data, markup, a stylesheet, prose, an image, an archive, a shell script, a
 lockfile, compiled output — and the colour is the language, so `.ts` and `.py`
-are the same glyph in different colours. An extension Gitty does not know gets a
+are the same glyph in different colours. Python is the one language drawn as
+itself, in its own blue and yellow. An extension Gitty does not know gets a
 plain page rather than a guess.
 Two status columns are shown: the staged state (green) and the work-tree state
 (yellow / red); untracked files are `??`. The count is read from disk in the

@@ -11,6 +11,16 @@ import { fileIcon, type IconShape } from '../icons'
  * so a glyph costs nothing to re-theme and the light palette is not a second
  * copy of the table.
  */
+/**
+ * Half of Python's mark: the top bar and the leg under its left end. The other
+ * half is the same path turned 180° about the centre — the two are exactly
+ * complementary that way, so they interlock without overlapping and there is
+ * one shape to keep right rather than two.
+ */
+const PY_HALF =
+  'M5.4 2.2h5.2a2 2 0 0 1 2 2v1.2H7.2v3.6a1.6 1.6 0 0 1-1.6 1.6h-.6' +
+  'a1.6 1.6 0 0 1-1.6-1.6V4.2a2 2 0 0 1 2-2z'
+
 const SHAPES: Record<IconShape, JSX.Element> = {
   // < >
   code: (
@@ -140,6 +150,22 @@ const SHAPES: Record<IconShape, JSX.Element> = {
       <line x1="5" y1="6" x2="5" y2="10.4" />
       <path d="M11.4 8.8c0 2-2.6 1.8-4.8 2.6" />
     </>
+  ),
+  // Python, drawn as itself. The only glyph carrying colours of its own —
+  // filled rather than stroked, and the two eyes white as the logo has them,
+  // which reads on either theme because both sit on the mark's own blue and
+  // yellow rather than on the pane.
+  python: (
+    <g stroke="none">
+      <g fill="#ffd43b" transform="rotate(180 8 8)">
+        <path d={PY_HALF} />
+        <circle cx="5.4" cy="3.8" r="0.62" fill="#fff" />
+      </g>
+      <g fill="#4b8bbe">
+        <path d={PY_HALF} />
+        <circle cx="5.4" cy="3.8" r="0.62" fill="#fff" />
+      </g>
+    </g>
   ),
   // Unrecognised: a page, and nothing claimed about it.
   file: (

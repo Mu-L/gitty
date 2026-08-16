@@ -15,6 +15,12 @@
  * Every tone is a palette variable, never a brand hex: the tree is drawn over
  * both themes, and a colour picked for one background is unreadable on the
  * other. That is also why there are eight tones and not a hue per language.
+ *
+ * The exception is a **brand mark** — a shape that is one language's own logo
+ * and carries that logo's colours in the drawing. Python is the only one, and
+ * the bar for a second is the same: a mark a reader recognises faster than any
+ * tone of the shared glyph, in colours that hold up on both backgrounds. A
+ * logo per language is what the shape-plus-tone scheme exists to avoid.
  */
 
 export type IconShape =
@@ -36,6 +42,10 @@ export type IconShape =
   | 'font'
   | 'git' // git's own dotfiles
   | 'file' // anything unrecognised
+  // Brand marks: a language whose own logo is more legible than any glyph a
+  // family could give it. They carry their colours in the drawing and ignore
+  // the tone, which is why there are so few of them — see the note above.
+  | 'python'
 
 /** Palette variables, not brand colours — see the note above. */
 export type IconTone =
@@ -107,8 +117,12 @@ const BY_EXT: Record<string, FileIcon> = {
   jsx: ic('code', 'yellow'),
   mjs: ic('code', 'yellow'),
   cjs: ic('code', 'yellow'),
-  py: ic('code', 'green'),
-  pyi: ic('code', 'green'),
+  // Python's two snakes are read faster than any tone of the shared glyph, so
+  // it is the one language drawn as itself. The tone is carried anyway — it is
+  // what the mark falls back to if the drawing is ever dropped.
+  py: ic('python', 'green'),
+  pyi: ic('python', 'green'),
+  pyw: ic('python', 'green'),
   go: ic('code', 'cyan'),
   rs: ic('code', 'orange'),
   rb: ic('code', 'red'),
