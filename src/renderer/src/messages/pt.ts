@@ -221,6 +221,7 @@ export const pt: RendererMessages = {
     keyWorktree: ' árvore de trabalho',
     tooltipViews: ' vistas',
     tooltipMore: ' para mais',
+    moreTitle: 'Mais ações do log',
     messageToggle: (collapsed: boolean) =>
       collapsed
         ? 'Mostrar a mensagem completa do commit'

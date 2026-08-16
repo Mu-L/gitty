@@ -320,6 +320,8 @@ export interface RendererMessages {
     /** The suffix "views" paired with "dbl-click" key in FilesPane tooltip. */
     readonly tooltipViews: string
     readonly tooltipMore: string
+    /** Tooltip for the "⋯" button that holds the uncommon log actions. */
+    readonly moreTitle: string
   }
   readonly pushPull: {
     readonly push: string

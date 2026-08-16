@@ -220,6 +220,7 @@ export const de: RendererMessages = {
     keyWorktree: ' Arbeitsverzeichnis',
     tooltipViews: ' Ansichten',
     tooltipMore: ' für mehr',
+    moreTitle: 'Weitere Protokollaktionen',
     messageToggle: (collapsed: boolean) =>
       collapsed
         ? 'Vollständige Commit-Nachricht anzeigen'

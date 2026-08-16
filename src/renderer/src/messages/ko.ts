@@ -218,6 +218,7 @@ export const ko: RendererMessages = {
     keyWorktree: ' 작업 트리',
     tooltipViews: ' 보기',
     tooltipMore: ' 더 보기',
+    moreTitle: '더 많은 로그 작업',
     messageToggle: (collapsed: boolean) =>
       collapsed ? '전체 커밋 메시지 표시' : '전체 커밋 메시지 숨기기'
   },

@@ -219,6 +219,7 @@ export const ja: RendererMessages = {
     keyWorktree: ' ワークツリー',
     tooltipViews: ' 表示',
     tooltipMore: ' その他',
+    moreTitle: 'その他のログ操作',
     messageToggle: (collapsed: boolean) =>
       collapsed ? '完全なコミットメッセージを表示' : '完全なコミットメッセージを隠す'
   },

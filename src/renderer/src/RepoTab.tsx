@@ -999,6 +999,49 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     copyStagedDiff
   })
 
+  /* ---------- log header overflow ---------- */
+
+  // Push and Pull stay on the bar; everything else about the log is one more
+  // click behind "⋯" — the view toggles first, then the one-shot actions.
+  const openLogMenu = (x: number, y: number): void => {
+    const items: MenuItem[] = [
+      {
+        label: `${graph ? '●' : ' '} ${msg.log.graph}`,
+        title: msg.log.graphTitle,
+        action: () => setGraph((g) => !g)
+      },
+      {
+        label: `${allBranches ? '●' : ' '} ${msg.log.allBranches}`,
+        title: msg.log.allBranchesTitle,
+        action: () => setAllBranches((a) => !a)
+      }
+    ]
+    // Only where gource is installed; starting it is brief enough that the
+    // entry simply does nothing while it runs.
+    if (hasGource)
+      items.push({
+        label: gourceStarting ? msg.log.gourceStarting : msg.log.gource,
+        title: msg.log.gourceTitle,
+        separatorBefore: true,
+        action: () => {
+          if (!gourceStarting) void playGource()
+        }
+      })
+    items.push({
+      label: msg.log.openInBrowser,
+      title: msg.log.openRepoCommitsTitle,
+      // Without gource the separator has to move here, or the one-shot group
+      // loses the line that tells it apart from the toggles.
+      separatorBefore: !hasGource,
+      action: () => {
+        void window.gitty.web.repoUrl(root).then((url) => {
+          if (url) void window.gitty.file.openExternal(url)
+        })
+      }
+    })
+    setMenu({ x, y, items })
+  }
+
   /* ---------- headers ---------- */
 
   const filesTitle = useMemo(() => {
@@ -1280,42 +1323,17 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   >
                     {remoteOp === 'pull' ? msg.pushPull.pulling : behind > 0 ? msg.pushPull.pullCount(behind) : msg.pushPull.pull}
                   </button>
-                  {/* Only where gource is installed — an absent companion is
-                      better said by silence than by a dead button. */}
-                  {hasGource && (
-                    <button
-                      className="toggle"
-                      disabled={gourceStarting}
-                      title={msg.log.gourceTitle}
-                      onClick={() => void playGource()}
-                    >
-                      {gourceStarting ? msg.log.gourceStarting : msg.log.gource}
-                    </button>
-                  )}
-                  <button
-                    className={`toggle${graph ? ' on' : ''}`}
-                    title={msg.log.graphTitle}
-                    onClick={() => setGraph((g) => !g)}
-                  >
-                    {msg.log.graph}
-                  </button>
-                  <button
-                    className={`toggle${allBranches ? ' on' : ''}`}
-                    title={msg.log.allBranchesTitle}
-                    onClick={() => setAllBranches((a) => !a)}
-                  >
-                    {msg.log.allBranches}
-                  </button>
+                  {/* Push and Pull are the frequent ones; the rest is a click
+                      behind "⋯". */}
                   <button
                     className="toggle"
-                    title={msg.log.openRepoCommitsTitle}
-                    onClick={() => {
-                      void window.gitty.web.repoUrl(root).then((url) => {
-                        if (url) void window.gitty.file.openExternal(url)
-                      })
+                    title={msg.log.moreTitle}
+                    onClick={(e) => {
+                      const r = e.currentTarget.getBoundingClientRect()
+                      openLogMenu(r.left, r.bottom + 2)
                     }}
                   >
-                    {msg.log.openInBrowser}
+                    ⋯
                   </button>
                   <span className="spacer" />
                   {compareCommit && <span className="badge">{msg.log.comparing2}</span>}

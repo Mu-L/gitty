@@ -215,6 +215,7 @@ export const zh: RendererMessages = {
     keyWorktree: ' 工作树',
     tooltipViews: ' 查看',
     tooltipMore: ' 更多',
+    moreTitle: '更多日志操作',
     messageToggle: (collapsed: boolean) =>
       collapsed ? '显示完整提交信息' : '收起完整提交信息'
   },

@@ -222,6 +222,7 @@ export const fr: RendererMessages = {
     keyWorktree: ' copie de travail',
     tooltipViews: ' vues',
     tooltipMore: ' pour plus',
+    moreTitle: 'Autres actions du journal',
     messageToggle: (collapsed: boolean) =>
       collapsed
         ? 'Afficher le message complet du commit'

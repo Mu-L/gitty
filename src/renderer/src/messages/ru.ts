@@ -238,6 +238,7 @@ export const ru: RendererMessages = {
     keyWorktree: ' рабочее дерево',
     tooltipViews: ' виды',
     tooltipMore: ' ещё',
+    moreTitle: 'Другие действия журнала',
     messageToggle: (collapsed: boolean) =>
       collapsed
         ? 'Показать полное сообщение коммита'

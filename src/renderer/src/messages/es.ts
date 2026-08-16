@@ -221,6 +221,7 @@ export const es: RendererMessages = {
     keyWorktree: ' árbol de trabajo',
     tooltipViews: ' vistas',
     tooltipMore: ' para más',
+    moreTitle: 'Más acciones del registro',
     messageToggle: (collapsed: boolean) =>
       collapsed
         ? 'Mostrar el mensaje completo del commit'

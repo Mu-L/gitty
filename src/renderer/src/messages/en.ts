@@ -219,6 +219,7 @@ export const en: RendererMessages = {
     keyWorktree: ' work tree',
     tooltipViews: ' views',
     tooltipMore: ' for more',
+    moreTitle: 'More log actions',
     messageToggle: (collapsed: boolean) =>
       collapsed ? 'Show the full commit message' : 'Hide the full commit message'
   },
