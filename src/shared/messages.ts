@@ -218,8 +218,9 @@ export interface RendererMessages {
     readonly agentPromptRun: string
     readonly agentPromptCancel: string
     readonly agentCommandPlaceholder: string
-    /** Why nothing happened: no command configured, or nowhere to run it. */
-    readonly agentNoCommand: string
+    /** The picker's label when nothing is remembered to run. */
+    readonly agentNone: string
+    /** Why nothing happened: there is nowhere to run the command. */
     readonly agentNoTerminal: string
     /** Searching the repository from the file pane's header. */
     readonly search: string
@@ -227,6 +228,8 @@ export interface RendererMessages {
     readonly searchPlaceholder: string
     readonly searchInRevision: (short: string) => string
     readonly searchInWorktree: string
+    /** The × that puts the search box away. */
+    readonly searchClear: string
     /** The arrow beside that button, which picks what it opens. */
     readonly findModeTitle: string
     /** Ctrl+F over the listed tree: show only the paths that match. */
@@ -278,9 +281,11 @@ export interface RendererMessages {
     readonly outline: string
     readonly showOutline: string
     readonly showSymbols: string
-    /** One switch: pressed is inline, raised is side by side. */
+    /** One switch: pressed is inline, raised is side by side. Its tip names
+     *  what a click would give, not the switch in the abstract. */
     readonly inline: string
-    readonly switchView: string
+    readonly showSideBySide: string
+    readonly showInline: string
     readonly docTabDiff: string
     readonly docTabDiffTitle: string
     readonly docTabClose: string

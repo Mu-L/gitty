@@ -100,11 +100,12 @@ export function FilesView({
     setSearchOpen(true)
   }
 
-  // Both the collapsed set and the filter belong to one tree: another commit's
-  // files are not the ones that was typed against.
+  // Both strips belong to one tree: neither a filter over these paths nor a
+  // search of this revision is an answer about the next one.
   useEffect(() => {
     setTreeFilterOpen(false)
     setTreeFilter('')
+    setSearchOpen(false)
   }, [treeKey])
 
   const emptyText =
@@ -154,7 +155,7 @@ export function FilesView({
                 className={`split-pick-label${agentCommand === '' ? ' empty' : ''}`}
                 title={agentCommand || undefined}
               >
-                {agentCommand || msg.files.agentCommandPlaceholder}
+                {agentCommand || msg.files.agentNone}
               </span>
               ▾
             </button>
@@ -250,6 +251,13 @@ export function FilesView({
               ? msg.files.searchInRevision((revForView() as string).slice(0, 8))
               : msg.files.searchInWorktree}
           </span>
+          <button
+            className="log-filter-clear"
+            title={msg.files.searchClear}
+            onClick={() => setSearchOpen(false)}
+          >
+            ✕
+          </button>
         </div>
       )}
       {treeFilterOpen && (

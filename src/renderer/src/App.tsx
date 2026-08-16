@@ -67,10 +67,11 @@ const isMac = window.gitty.platform === 'darwin'
 function loadAgentCommands(): string[] {
   try {
     const v = JSON.parse(localStorage.getItem('gitty.agentCommands') ?? 'null')
-    if (Array.isArray(v)) {
-      const list = v.filter((c): c is string => typeof c === 'string' && c.trim() !== '')
-      if (list.length) return list
-    }
+    // An empty array is an answer, not a missing one: a user who forgot every
+    // command means it. Only an absent or unreadable value falls back to the
+    // suggestions, which is the first run.
+    if (Array.isArray(v))
+      return v.filter((c): c is string => typeof c === 'string' && c.trim() !== '')
   } catch {
     // A hand-edited or truncated value is not worth a dialog; fall through.
   }

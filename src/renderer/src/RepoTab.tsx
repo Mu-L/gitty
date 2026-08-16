@@ -859,11 +859,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
    */
   const sendToAgent = useCallback(
     (pick?: string) => {
+      // Nothing to run is a state the button is disabled in, so this is a
+      // guard rather than a case to report: there is no message for it.
       const command = (pick ?? agentCommand).trim()
-      if (!command) {
-        setRemoteMsg({ ok: false, text: msg.files.agentNoCommand })
-        return
-      }
+      if (!command) return
       if (!runInTerminal(root, command)) {
         setRemoteMsg({ ok: false, text: msg.files.agentNoTerminal })
         return

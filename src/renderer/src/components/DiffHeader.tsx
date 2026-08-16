@@ -211,7 +211,7 @@ export function DiffHeader({
         {!viewingFile && (
           <button
             className={`toggle${diffView === 'inline' ? ' on' : ''}`}
-            title={msg.diff.switchView}
+            title={diffView === 'inline' ? msg.diff.showSideBySide : msg.diff.showInline}
             onClick={() => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))}
           >
             {msg.diff.inline}
