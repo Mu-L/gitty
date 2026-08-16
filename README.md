@@ -55,9 +55,9 @@ Things the other git browsers mostly do not do:
   session. Commits are real URLs, so the history can be read in tabs, kept
   open, and searched with the browser's own find, for as long as the app is
   running.
-- **[gource](https://gource.io/) in one click**, when it is installed: the
-  repository's whole history as an animation, in its own window. Where gource is
-  absent the button is not drawn — nothing is downloaded or offered that cannot
+- **[gource](https://gource.io/) from the commits menu**, when it is installed:
+  the repository's whole history as an animation, in its own window. Where gource
+  is absent the entry is not drawn — nothing is downloaded or offered that cannot
   run.
 - **Nine interface languages and an explicit time zone.** Git records every
   commit with its author's offset, so a stamp is always a choice of zone; here

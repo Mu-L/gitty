@@ -425,8 +425,13 @@ changed files; selecting it brings the top panes back to the work tree. A filter
 box above the log narrows the list — debounced, with a ✕ to clear — and the
 result pages the same way.
 
-**Graph** in the header draws the lanes beside the hashes: where a branch
-parted, where a merge landed, which line a commit belongs to. It is computed
+The header keeps **Push** and **Pull**, the two used often; everything else
+about the log is one click behind **⋯** — **Graph**, **All Branches**,
+**Gource** where it is installed, and **Open in Browser**. The two switches
+carry a dot in that menu while they are on.
+
+**Graph** draws the lanes beside the hashes: where a branch parted, where a
+merge landed, which line a commit belongs to. It is computed
 from each commit's parents rather than parsed out of `git log --graph`, whose
 ASCII is typeset for a terminal. A lane keeps its colour down the page, and the
 palette is a fixed one — deliberately unlike blame, whose colours are derived
@@ -482,17 +487,17 @@ regular expression reaches git as one argument.
 
 #### Gource
 
-If [gource](https://gource.io/) is on `PATH`, the commits pane grows a
-**Gource** button beside **Open in Browser**: it plays the repository's history
+If [gource](https://gource.io/) is on `PATH`, the commits header's **⋯** menu
+grows a **Gource** entry: it plays the repository's history
 as an animation — the directory tree growing, files lighting up as each commit
 lands, one author flying between them per name in the log. Gource opens a window
-of its own and keeps running after you close Gitty; the button only waits long
+of its own and keeps running after you close Gitty; the entry only waits long
 enough to see that it started, and shows what gource said if it did not.
 
 It is started with a day of history per half second, idle files kept on screen
 and long gaps skipped, which is what makes a real repository readable rather
 than a slow trickle. Nothing is installed for you: where gource is not on
-`PATH`, the button is simply not there.
+`PATH`, the entry is simply not there.
 
 #### Browsing another branch
 
@@ -605,6 +610,7 @@ highlight** lives here only.
 | <kbd>Ctrl+C</kbd> / <kbd>Ctrl+Shift+C</kbd> | Copy the selection, anywhere in the window |
 | <kbd>Esc</kbd> | Back to the working tree |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Back and forward through the places viewed |
+| <kbd>Alt</kbd> | Show or hide the application menu bar (not on macOS, where it is always there) |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |
 | <kbd>Ctrl+O</kbd> | Open another repository in a new tab |
 | <kbd>Ctrl+,</kbd> | Settings |
