@@ -351,9 +351,9 @@ export const zh: RendererMessages = {
     shellExited: (exitCode: number) =>
       `[Shell 已退出，退出码 ${exitCode}]`,
     closeTerminal: '关闭此终端',
-    splitRight: '向右拆分 →',
+    splitRight: '横拆 →',
     splitRightTitle: '向右拆分当前终端',
-    splitDown: '向下拆分 ↓',
+    splitDown: '竖拆 ↓',
     splitDownTitle: '向下拆分当前终端',
     shellsKeepRunning: ' — Shell 将继续运行'
   },
