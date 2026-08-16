@@ -2,7 +2,7 @@
 
 [English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Français](README.fr.md) · **Deutsch** · [Español](README.es.md) · [Русский](README.ru.md) · [Português](README.pt.md)
 
-> **Übersetzt am 2026-08-15.**
+> **Übersetzt am 2026-08-16.**
 > Die [englische README](../../README.md) ist die offizielle Fassung und die
 > einzige, die weiter gepflegt wird. Dieses Dokument ist eine Momentaufnahme
 > davon; wo beide sich widersprechen, gilt das Englische. Dieses Dokument deckt
@@ -17,7 +17,7 @@ Rechtsklick kopiert ihren Pfad, zwei angeklickte Commits werden verglichen.
 
 ```
 ┌──────────────────────┬──────────────────────┐
-│ Working Tree         │ Diff                 │
+│ Changes              │ Diff                 │
 │ (or a commit's files)│ (unified, coloured)  │
 ├──────────────────────┼──────────────────────┤
 │ Commits              │ Terminal             │
@@ -37,6 +37,14 @@ Dinge, die die anderen Git-Browser meist nicht tun:
   entweder kein Terminal oder starten ein externes, also heißt eine Vermutung
   prüfen: Fenster wechseln. Hier ist es gleich da, und jeder andere Bereich
   aktualisiert sich, wenn sich das Repository ändert.
+- **Staging, das bei einem Agenten endet, nicht in einem Commit-Feld.** Stage
+  eine Datei, einen Hunk oder nur die Zeilen, die du ausgewählt hast; **Send**
+  tippt dann deinen eigenen Befehl — `claude "commit the staged changes"`,
+  `codex exec …`, was auch immer du ausführst — in die Shell darunter und drückt
+  Enter. Die Nachricht zu schreiben ist Sache des Agenten. Zu entscheiden,
+  *welche Änderungen ein Commit sind*, ist deine, und dafür sind die vier
+  Bereiche da. Aus Gitty heraus wird kein Modell aufgerufen, also verlässt nichts
+  die Maschine, was du nicht selbst gesendet hast.
 - **Dokumente, nicht nur Diffs.** Markdown wird gerendert, HTML in einem
   Sandbox-Rahmen gezeigt, Bilder als Bilder angezeigt — alles in der Revision,
   in der man gerade ist. Ein zwei Jahre altes README rendert mit den Screenshots,
@@ -62,16 +70,16 @@ Dinge, die die anderen Git-Browser meist nicht tun:
   `127.0.0.1` gebunden ist — dein eigener Browser und sonst niemand. Commits sind
   echte URLs, also lässt sich die Historie in Tabs lesen, offen halten und mit
   der Suche des Browsers durchsuchen, solange das Repository offen ist.
-- **[gource](https://gource.io/) mit einem Klick**, wenn es installiert ist: die
-  ganze Historie des Repositories als Animation, in einem eigenen Fenster. Wo
-  gource fehlt, wird die Schaltfläche nicht gezeichnet — es wird nichts
+- **[gource](https://gource.io/) aus dem Commits-Menü**, wenn es installiert ist:
+  die ganze Historie des Repositories als Animation, in einem eigenen Fenster. Wo
+  gource fehlt, wird der Eintrag nicht gezeichnet — es wird nichts
   heruntergeladen oder angeboten, was nicht laufen kann.
 - **Neun Oberflächensprachen und eine explizite Zeitzone.** Git speichert jeden
   Commit mit dem Versatz seines Autors, also ist ein Zeitstempel immer eine Wahl
   der Zone; hier trifft man sie, und die ganze Oberfläche — Log, Blame,
   Datei-Historie, die Grenze zwischen „heute" und einem Datum — folgt.
 
-![Gitty 0.1.6](../../ref/gitty-0.1.6.png)
+![Gitty 0.1.8](../../ref/gitty-0.1.8.png)
 
 ## Warum noch einer? <a id="why-another-one"></a>
 
@@ -103,19 +111,24 @@ im Fenster.
 
 ### Ein Paket herunterladen (Linux) <a id="download-a-package-linux"></a>
 
-Die `.deb`-Datei auf der
-[Releases-Seite](https://github.com/baojie/gitty/releases) ist der kürzeste Weg
-— kein Node, kein Build:
+Die `.deb`-Datei ist der kürzeste Weg — kein Node, kein Build:
 
 ```bash
-sudo dpkg -i gitty-desktop_*_amd64.deb
+wget https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_amd64.deb
+sudo dpkg -i gitty-desktop_0.1.8_amd64.deb
 ```
 
 Sie installiert `/usr/bin/gitty`, einen Eintrag im Anwendungsmenü mit Symbol, und
 läuft mit Chromiums Sandbox **an** — siehe
-[Linux-Desktop-Integration](manual.de.md#linux-desktop-integration). Daneben wird
-ein `.AppImage` für Distributionen ohne dpkg veröffentlicht; es ist die zweite
-Wahl, weil ein AppImage den Sandbox-Helfer nicht installieren kann.
+[Linux-Desktop-Integration](manual.de.md#linux-desktop-integration).
+
+Daneben liegen ein [arm64-`.deb`](https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_arm64.deb)
+und ein AppImage für Distributionen ohne dpkg
+([x86_64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-x86_64.AppImage),
+[arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-arm64.AppImage)) —
+die zweite Wahl, weil ein AppImage den Sandbox-Helfer nicht installieren kann.
+Ältere Fassungen liegen auf der
+[Releases-Seite](https://github.com/baojie/gitty/releases).
 
 ### Aus npm <a id="from-npm"></a>
 
@@ -176,7 +189,7 @@ schlimmer als keiner.
 Einen Commit-Kasten gibt es ebenfalls nicht, was eine kleinere Behauptung ist, als
 sie klingt. Was fehlt, ist nicht die Nachricht: Es fehlt ein Ort, um zu
 entscheiden, *welche Änderungen ein Commit sind* — und genau dafür ist das Staging
-oben da. Sobald der Index eine Sache sagt, reicht **Send to agent** sie an das
+oben da. Sobald der Index eine Sache sagt, reicht **Send** sie an das
 weiter, was deine Nachrichten schreibt.
 
 ## Das Handbuch <a id="the-manual"></a>

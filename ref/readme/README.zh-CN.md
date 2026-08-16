@@ -2,7 +2,7 @@
 
 [English](../../README.md) · **简体中文** · [日本語](README.ja.md) · [한국어](README.ko.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [Español](README.es.md) · [Русский](README.ru.md) · [Português](README.pt.md)
 
-> **翻译于 2026-08-15。**
+> **翻译于 2026-08-16。**
 > [英文 README](../../README.md) 是官方版本，也是唯一持续更新的版本。本文是那一
 > 刻的快照，两者不一致时以英文版为准。本文只覆盖这份文件——[手册](manual.zh-CN.md)
 > 有自己的翻译，那里同样以英文为官方版本。界面本身全是英文，所以下文中的按钮名、
@@ -13,7 +13,7 @@
 
 ```
 ┌──────────────────────┬──────────────────────┐
-│ Working Tree         │ Diff                 │
+│ Changes              │ Diff                 │
 │ (or a commit's files)│ (unified, coloured)  │
 ├──────────────────────┼──────────────────────┤
 │ Commits              │ Terminal             │
@@ -30,6 +30,11 @@
   根的真正登录 shell（`$SHELL`），和 diff 在同一个窗口里，可分裂成好几个。多数 git
   浏览器要么没有终端，要么启动外部终端，于是验证一个念头就得来回切窗口。这里它就在
   手边，而且仓库一变，其余每个窗格都会刷新。
+- **暂存之后交给 agent，而不是交给一个提交消息框。** 暂存一个文件、一个 hunk，或者
+  只是你选中的那几行；然后 **Send** 把你自己的命令——`claude "commit the staged
+  changes"`、`codex exec …`，你跑什么就是什么——敲进下方的 shell 并按下回车。写消息
+  是 agent 的活。决定*哪些改动算作一个提交*是你的活，那正是这四个窗格的用处。Gitty
+  内部不调用任何模型，所以你没有送出去的东西不会离开这台机器。
 - **文档，而不只是 diff。** Markdown 会被渲染，HTML 在沙箱 frame 里运行，图片就显示
   成图片——全都在你当前所处的版本上。两年前的 README 会带着*那个*提交随附的截图渲染
   出来，从对象数据库里读出；不涉及磁盘上的任何东西，也不会从网络抓取任何东西。
@@ -45,13 +50,14 @@
   diff——交给系统浏览器，由应用内部一个绑定在 `127.0.0.1` 的 web 服务器提供——只有你
   自己的浏览器，没有别人。提交是真实 URL，所以只要仓库开着，历史就能在标签页里读、
   保持打开、用浏览器自带的查找搜索。
-- **[gource](https://gource.io/) 一键播放**，装了就可用：仓库的整段历史以动画呈现，
-  开在自己的窗口里。gource 不在时按钮不绘制——不会下载或提供任何跑不起来的东西。
+- **[gource](https://gource.io/) 就在 commits 菜单里**，装了就可用：仓库的整段历史
+  以动画呈现，开在自己的窗口里。gource 不在时那一条不绘制——不会下载或提供任何跑不
+  起来的东西。
 - **九种界面语言，以及一个明确的时区。** git 给每个提交记录作者的偏移量，所以时间戳
   永远是一个时区选择；在这里你来定，整个 UI——日志、blame、文件历史、"今天"与某个日
   期的分界——都会跟随。
 
-![Gitty 0.1.6](../../ref/gitty-0.1.6.png)
+![Gitty 0.1.8](../../ref/gitty-0.1.8.png)
 
 ## 为什么又造一个？ <a id="why-another-one"></a>
 
@@ -80,17 +86,22 @@
 
 ### 下载安装包（Linux） <a id="download-a-package-linux"></a>
 
-[releases 页](https://github.com/baojie/gitty/releases)上的 `.deb` 是上手最快的路
-——不用装 Node，不用构建：
+`.deb` 是上手最快的路——不用装 Node，不用构建：
 
 ```bash
-sudo dpkg -i gitty-desktop_*_amd64.deb
+wget https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_amd64.deb
+sudo dpkg -i gitty-desktop_0.1.8_amd64.deb
 ```
 
 它会装上 `/usr/bin/gitty`、一个带图标的应用程序菜单条目，并且带着 Chromium 沙箱
-**开启**运行——见[Linux 桌面集成](manual.zh-CN.md#linux-desktop-integration)。旁边
-还发布了一个 `.AppImage`，给没有 dpkg 的发行版用；它是第二选择，因为 AppImage 装
-不了沙箱辅助程序。
+**开启**运行——见[Linux 桌面集成](manual.zh-CN.md#linux-desktop-integration)。
+
+旁边还有 [arm64 的 `.deb`](https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_arm64.deb)，
+以及给没有 dpkg 的发行版用的 AppImage
+（[x86_64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-x86_64.AppImage)、
+[arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-arm64.AppImage)）——
+它是第二选择，因为 AppImage 装不了沙箱辅助程序。旧版本都在
+[releases 页](https://github.com/baojie/gitty/releases)。
 
 ### 从 npm 安装 <a id="from-npm"></a>
 
@@ -142,7 +153,7 @@ Gitty 读历史，并暂存你决定归到一起的改动。它不 rebase、不 
 
 也没有提交框——这件事比听上去更不值一提。缺的不是提交消息：缺的是一个地方来决定
 *哪些改动算一次提交*，而上面说的暂存就是为此而设的。一旦 index 说清了一件事，
-**Send to agent** 就把它交给替你写消息的东西。
+**Send** 就把它交给替你写消息的东西。
 
 ## 手册 <a id="the-manual"></a>
 

@@ -32,6 +32,13 @@ Things the other git browsers mostly do not do:
   diff, splittable into several. Most git browsers either have no terminal or
   launch an external one, so checking a hunch means alt-tabbing. Here it is
   right there, and every other pane refreshes as the repository changes.
+- **Staging that ends in an agent, not a commit box.** Stage a file, a hunk, or
+  just the lines you selected; then **Send** types a command of your own —
+  `claude "commit the staged changes"`, `codex exec …`, whatever you run — into
+  the shell below and presses Enter. Writing the message is the agent's job.
+  Deciding *which changes are one commit* is yours, and that is what the four
+  panes are for. No model is called from inside Gitty, so nothing leaves the
+  machine that you did not send.
 - **Documents, not only diffs.** Markdown is rendered, HTML is shown in a
   sandboxed frame, images are shown as pictures — all at the revision you are
   on. A README from two years ago renders with the screenshots *that* commit

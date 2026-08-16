@@ -2,7 +2,7 @@
 
 [English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · **한국어** · [Français](README.fr.md) · [Deutsch](README.de.md) · [Español](README.es.md) · [Русский](README.ru.md) · [Português](README.pt.md)
 
-> **번역일: 2026-08-15.**
+> **번역일: 2026-08-16.**
 > [영어 README](../../README.md)가 공식 버전이며, 계속 갱신되는 유일한 문서입니다. 이
 > 문서는 그 시점의 스냅샷이고, 둘이 다르면 영어가 우선합니다. 이 문서는 이 파일만
 > 다루며, [매뉴얼](manual.ko.md)은 자체 번역이 있고 그쪽에서도 영어가 공식 버전입니다.
@@ -14,7 +14,7 @@
 
 ```
 ┌──────────────────────┬──────────────────────┐
-│ Working Tree         │ Diff                 │
+│ Changes              │ Diff                 │
 │ (or a commit's files)│ (unified, coloured)  │
 ├──────────────────────┼──────────────────────┤
 │ Commits              │ Terminal             │
@@ -32,6 +32,12 @@
   대부분의 git 브라우저는 터미널이 아예 없거나 외부 터미널을 띄우기 때문에, 어떤
   직감을 확인하려면 alt-tab을 해야 합니다. 여기서는 그것이 바로 거기 있고, 저장소가
   바뀌면 다른 모든 창이 새로 고쳐집니다.
+- **커밋 메시지 상자가 아니라 agent로 끝나는 스테이징.** 파일 하나, hunk 하나, 아니면
+  고른 줄만 스테이지한 다음 **Send**가 당신의 명령 — `claude "commit the staged
+  changes"`, `codex exec …`, 무엇을 쓰든 — 을 아래 셸에 입력하고 Enter를 누릅니다.
+  메시지를 쓰는 건 agent의 일입니다. *어느 변경을 한 커밋으로 삼을지* 정하는 건 당신의
+  일이고, 네 개의 창이 바로 그것을 위한 것입니다. Gitty 안에서는 어떤 모델도 호출되지
+  않으므로, 당신이 보내지 않은 것은 이 기계를 떠나지 않습니다.
 - **문서이지 diff만이 아님.** Markdown은 렌더링되고, HTML은 샌드박스 프레임에서
   실행되며, 이미지는 그림으로 표시됩니다 — 모두 당신이 보고 있는 리비전 그대로입니다.
   2년 전의 README는 *그* 커밋이 담아낸 스크린샷과 함께 렌더링되며, 오브젝트
@@ -51,14 +57,14 @@
   당신의 브라우저일 뿐 다른 누구도 아닙니다. 커밋은 진짜 URL이므로, 저장소가 열려
   있는 동안에는 히스토리를 탭으로 읽고, 열어 두고, 브라우저의 찾기로 검색할 수
   있습니다.
-- **설치돼 있으면 [gource](https://gource.io/)를 한 번의 클릭으로**: 저장소의 전체
-  히스토리를 애니메이션으로, 자기 창에서 재생합니다. gource가 없으면 버튼이 그려지지
+- **설치돼 있으면 커밋 메뉴에서 [gource](https://gource.io/)를**: 저장소의 전체
+  히스토리를 애니메이션으로, 자기 창에서 재생합니다. gource가 없으면 그 항목이 그려지지
   않습니다 — 실행할 수 없는 것은 다운로드하거나 제안하지 않습니다.
 - **아홉 개의 인터페이스 언어와 명시적 시간대.** git은 모든 커밋을 작성자의 오프셋과
   함께 기록하므로, 시간 표시는 언제나 시간대의 선택입니다. 여기서는 당신이 선택하고,
   UI 전체 — 로그, blame, 파일 히스토리, "오늘"과 어떤 날짜의 경계 — 가 따라갑니다.
 
-![Gitty 0.1.6](../../ref/gitty-0.1.6.png)
+![Gitty 0.1.8](../../ref/gitty-0.1.8.png)
 
 ## 왜 또 하나를? <a id="why-another-one"></a>
 
@@ -87,18 +93,23 @@
 
 ### 패키지 다운로드 (Linux) <a id="download-a-package-linux"></a>
 
-[릴리스 페이지](https://github.com/baojie/gitty/releases)의 `.deb`가 가장 빠른 길입니다
-— Node도 빌드도 필요 없습니다:
+`.deb`가 가장 빠른 길입니다 — Node도 빌드도 필요 없습니다:
 
 ```bash
-sudo dpkg -i gitty-desktop_*_amd64.deb
+wget https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_amd64.deb
+sudo dpkg -i gitty-desktop_0.1.8_amd64.deb
 ```
 
 `/usr/bin/gitty`, 아이콘이 딸린 애플리케이션 메뉴 항목이 설치되고, Chromium 샌드박스가
 **켜진** 채로 실행됩니다 —
-[Linux 데스크톱 통합](manual.ko.md#linux-desktop-integration)을 보세요. dpkg가 없는
-배포판을 위해 `.AppImage`도 옆에 발행됩니다. AppImage는 샌드박스 헬퍼를 설치할 수
-없으므로 두 번째 선택입니다.
+[Linux 데스크톱 통합](manual.ko.md#linux-desktop-integration)을 보세요.
+
+옆에는 [arm64 `.deb`](https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_arm64.deb)가
+있고, dpkg가 없는 배포판을 위한 AppImage
+([x86_64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-x86_64.AppImage),
+[arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-arm64.AppImage))도
+있습니다. AppImage는 샌드박스 헬퍼를 설치할 수 없으므로 두 번째 선택입니다. 예전
+버전은 [릴리스 페이지](https://github.com/baojie/gitty/releases)에 있습니다.
 
 ### npm에서 <a id="from-npm"></a>
 
@@ -153,7 +164,7 @@ cherry-pick, 충돌 해결, 브랜치 생성·삭제·전환은 하지 않으며
 
 커밋 상자도 없습니다. 이는 들리는 것보다 작은 주장입니다. 빠진 것은 메시지가 아닙니다:
 빠진 것은 *어느 변경을 한 커밋으로 삼을지* 정할 자리이고, 위의 스테이징이 바로 그것을
-위한 것입니다. 인덱스가 하나를 말하면, **Send to agent**가 그것을 당신의 메시지를
+위한 것입니다. 인덱스가 하나를 말하면, **Send**가 그것을 당신의 메시지를
 쓰는 무언가에 건넵니다.
 
 ## 매뉴얼 <a id="the-manual"></a>

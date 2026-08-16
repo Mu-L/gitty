@@ -6,7 +6,7 @@ Tout ce que fait Gitty, volet par volet. Le [README](../../README.md) est la
 version courte — ce que c'est, pourquoi il existe, comment l'installer — et le
 reste ; c'est ici que vivent les détails.
 
-> **Traduit le 2026-08-15.**
+> **Traduit le 2026-08-16.**
 > Le [manuel en anglais](manual.md) est la version officielle et la seule tenue
 > à jour. Ce document en est un instantané ; en cas de divergence, c'est l'anglais
 > qui fait foi. L'interface est en anglais, donc les noms de boutons et d'entrées
@@ -30,17 +30,15 @@ De gauche à droite, elle décrit le dépôt actif puis agit dessus :
   [Revenir en arrière](#going-back).
 - **Le chemin du dépôt** est un bouton : il ouvre le menu des
   [dépôts récents](#recent-repositories).
-- **+** à côté de lui — un sélecteur de répertoire, ouvrant le dépôt que vous
-  choisissez dans un nouvel onglet (<kbd>Ctrl+O</kbd>). Il est placé avec le
-  bouton du dépôt parce que les deux traitent du même sujet : quel dépôt vous
-  regardez, et en ouvrir un autre.
+  Ouvrir un autre dépôt se fait avec le **+** au bout de la
+  [barre d'onglets](#tabs), ou <kbd>Ctrl+O</kbd>.
 - **⎇ branche** est un bouton aussi — la branche que git a sortie, et un menu de
   toutes les autres branches à lire. Voir
   [parcourir une autre branche](#browsing-another-branch).
 - **`origin/main ↑2 ↓0`** — l'amont de la branche sortie et de combien elle est
   en avance ou en retard. Absent sur une branche qui ne suit rien.
-- **`3 changed`** — combien de fichiers l'arbre de travail a de non validés, le
-  même compte que porte la ligne **Working Tree** du volet des commits.
+- **`3 changes`** — combien de fichiers l'arbre de travail a de non validés, le
+  même compte que porte la ligne **Changes** du volet des commits.
 - **Panes ▾** — afficher ou masquer chacun des quatre ; voir
   [Plein écran et masquage](#full-screen-and-hiding).
 - **Settings** — la boîte de dialogue des préférences ([Réglages](#settings)),
@@ -67,10 +65,10 @@ navigateur web.
 - **▾** liste les endroits eux-mêmes, le plus récent en premier, avec un point
   sur celui où vous êtes. Choisissez-en un pour y sauter directement.
 
-Un *endroit* est tout ce que les deux volets du haut montraient : la vue —
-l'arbre de travail, un commit, une plage de deux, un instantané — le fichier
-sélectionné à l'intérieur, et le document ouvert à côté du diff. Un arrêt se lit
-donc `Working tree`, `7bb7787 — Refresh screenshot batches`,
+Un *endroit* est tout ce que les deux volets du haut montraient : la vue — les
+modifications non validées, un commit, une plage de deux, un instantané — le
+fichier sélectionné à l'intérieur, et le document ouvert à côté du diff. Un arrêt
+se lit donc `Changes`, `7bb7787 — Refresh screenshot batches`,
 `src/main/git.ts @ 7bb7787` ou `blame: src/main/git.ts @ 7bb7787`, et y revenir
 replace le même fichier à l'écran à la même révision plutôt que de simplement
 resélectionner le commit.
@@ -107,7 +105,7 @@ auparavant — nom de base plus répertoire parent — le plus récent en premie
 - **Ctrl/Cmd+clic** ou **clic milieu** — l'ouvrir dans l'onglet courant, en
   remplaçant le dépôt qui s'y trouve et en gardant la place de l'onglet dans la
   barre.
-- **Clic droit** — retirer l'entrée de la liste. Le menu reste ouvert, on peut
+- Le **×** à droite d'une entrée — la retirer de la liste ; un clic droit sur l'entrée fait de même. Le menu reste ouvert, on peut
   donc en effacer plusieurs de suite.
 
 **Open Repository…** et **Clear Recent** se trouvent en dessous. La liste vit
@@ -124,6 +122,13 @@ les volets en dessous continuent de fonctionner — le terminal tourne toujours
 pendant qu'il est couvert. **⤡** dans le même coin, <kbd>Esc</kbd>, un
 double-clic sur l'en-tête, ou <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd>
 restaurent la disposition. Un seul volet est en plein écran à la fois.
+
+<kbd>Ctrl+Tab</kbd> déplace le plein écran vers le volet suivant dans l'ordre de
+la disposition et <kbd>Ctrl+Shift+Tab</kbd> vers le précédent, en sautant les
+volets masqués et en rebouclant à chaque extrémité. Cela ne marche que pendant
+qu'un volet remplit la fenêtre, c'est-à-dire là où c'est utile : avec la
+disposition à l'écran, chaque volet est déjà à un clic. Le terminal ne voit pas
+la touche, donc cela marche aussi depuis un shell.
 
 Le masquage est l'autre direction — n'importe quel volet peut être rangé puis
 rappelé :
@@ -146,7 +151,7 @@ continuent de tourner et reviennent avec leur historique de défilement.
 
 ## Les volets <a id="the-panes"></a>
 
-### Working Tree (en haut à gauche) <a id="working-tree-top-left"></a>
+### Changes (en haut à gauche) <a id="changes-top-left"></a>
 
 Les fichiers modifiés en arbre repliable, chacun avec son nombre de lignes à côté
 du nom. Parcourir tout un dépôt — l'arbre de travail ou l'instantané d'un commit
@@ -184,16 +189,29 @@ confirmation native qui dit clairement qu'il n'y a pas d'annulation ; un fichier
 non suivi n'a pas de version d'index où revenir, donc il propose **Delete File**
 à la place, qui va à la corbeille du système.
 
-**Send to agent** dans l'en-tête remet l'index. Il tape une commande dans le shell
+<kbd>Ctrl+F</kbd> avec ce volet actif — ou **Filter** sur le bouton de recherche
+de l'en-tête, dont la flèche choisit entre chercher dans le dépôt et filtrer
+cette liste — ouvre un champ de filtre au-dessus de l'arbre et le réduit aux
+chemins contenant ce que vous tapez, avec le compte de combien de fichiers sur
+combien il reste. Le texte est comparé au chemin entier, donc `src/main` garde
+tout ce qui est sous ce répertoire, et la casse est ignorée. Rien ne reste fermé
+tant que le champ a du texte — une correspondance cinq répertoires plus bas est
+tout l'intérêt d'avoir tapé. <kbd>Esc</kbd> ou le **✕** l'efface et remet
+l'arbre entier, et passer à un autre commit aussi.
+
+**Send** dans l'en-tête remet l'index. Il tape une commande dans le shell
 du volet en bas à droite et presse Entrée, et c'est tout : aucun modèle n'est
 appelé depuis Gitty, rien ne quitte la machine que vous n'ayez envoyé. Les invites
 et la sortie de l'agent apparaissent dans le terminal, où il y a un vrai tty, donc
 les hooks et la signature gpg fonctionnent comme toujours.
 
-La flèche à côté du bouton est l'endroit où la commande est choisie — il n'y a pas
-de réglage pour cela, car c'est une question posée une fois par remise plutôt
-qu'une fois par installation. Le menu liste les commandes dont Gitty se souvient,
-coche celle que le bouton exécute lui-même, et lance celle que vous choisissez.
+La boîte à sa gauche nomme la commande qu'il lancerait, et c'est là qu'on en
+choisit une autre — il n'y a pas de réglage pour cela, car c'est une question
+posée une fois par remise plutôt qu'une fois par installation. Le menu liste les
+commandes dont Gitty se souvient, la plus récemment lancée en premier, et lance
+celle que vous choisissez ; lancer une commande la remonte en tête, si bien que
+la boîte montre toujours la dernière utilisée. Sans rien en mémoire, la boîte est
+pâle et **Send** est grisé.
 Le **×** à droite d'une entrée la retire de la liste, après une confirmation — la
 liste est le seul endroit où une commande est écrite, et le menu reste ouvert pour
 qu'on puisse en retirer plusieurs à la suite. **New command…** en bas ouvre une
@@ -208,7 +226,7 @@ aussi **Copy Staged Diff**, pour une conversation qui se tient dans une autre
 fenêtre.
 
 Quand un commit ou une plage de commits est sélectionné, ce volet liste les
-fichiers de ce commit ; **Back to Work Tree** (ou <kbd>Esc</kbd>) revient à
+fichiers de ce commit ; **Back to Changes** (ou <kbd>Esc</kbd>) revient à
 l'arbre de travail. Dans un [instantané](#snapshots), il liste l'arbre entier à ce
 commit, pas seulement ce qui a changé.
 
@@ -229,9 +247,10 @@ sélectionné.
   un avis), que `git diff` seul laisse de côté.
 - **Wrap** — retour à la ligne au lieu du défilement horizontal. Actif par
   défaut.
-- **Inline / Side-by-Side** — une colonne avec des marques `+`/`-`, ou l'ancien
-  et le nouveau côte à côte, où une série de suppressions est appariée aux ajouts
-  qui la suivent. Les moitiés repliées restent alignées.
+- **Inline** — un interrupteur comme **Wrap** : enfoncé, une colonne avec des
+  marques `+`/`-` ; relevé, l'ancien et le nouveau côte à côte, où une série de
+  suppressions est appariée aux ajouts qui la suivent. Les moitiés repliées
+  restent alignées.
 - **Titres de fichier** — chaque titre replie son fichier : le triangle le réduit
   au nom, et **Collapse All** / **Expand All** dans l'en-tête s'occupent de tout.
   **Ctrl+clic** sur un titre ouvre ce fichier dans un nouvel onglet de document ;
@@ -287,6 +306,26 @@ un document est une action et non un mode — sélectionner un autre fichier ou 
 autre commit remet le diff — si bien que le volet ne reste jamais coincé sur des
 fichiers quand vous vouliez des modifications.
 
+#### Le plan d'un fichier source <a id="the-outline-of-a-source-file"></a>
+
+Un fichier source porte un bouton **Outline**, le même qu'un document rendu : les
+classes, fonctions et membres du fichier à côté de lui en arbre, indentés selon
+l'imbrication et colorés selon ce que chacun déclare. Cliquez une entrée pour y
+sauter — le fichier est dessiné assez loin pour la contenir, si profonde soit-elle
+— et l'entrée où vous avez défilé est marquée. Tirez le séparateur pour donner
+plus de place à l'un ou l'autre ; la largeur est partagée par tous les fichiers du
+dépôt.
+
+Il lit seize langages — C, C++, C#, Go, Java, JavaScript, Lua, Perl, PHP, Python,
+Ruby, Rust, shell, Swift, TypeScript et les variantes JSX des deux derniers — et
+les lit en reconnaissant des déclarations plutôt qu'en analysant : les commentaires
+et les chaînes sont d'abord effacés, l'imbrication vient de la profondeur des
+accolades (ou de l'indentation, là où le langage s'écrit ainsi), et un nom
+n'apparaît que là où un mot-clé l'a mis. Tout le reste — formats de données,
+feuilles de style, un langage qu'il ne connaît pas — n'affiche aucun panneau
+plutôt qu'une liste devinée. Le markdown a
+[son propre plan](#markdown-preview), fait de ses titres.
+
 #### Instantanés <a id="snapshots"></a>
 
 Faites un clic droit sur un commit et choisissez **Browse Snapshot** pour lire le
@@ -297,7 +336,7 @@ là-bas chaque fichier est un document.
 
 Les fichiers d'un instantané n'ont jamais existé sur le disque à cette révision,
 c'est pourquoi **Open in System App** en remet une copie temporaire et que
-**Reveal in File Manager** n'est pas proposé. **Back to Work Tree** (ou
+**Reveal in File Manager** n'est pas proposé. **Back to Changes** (ou
 <kbd>Esc</kbd>) en sort.
 
 #### Aperçu Markdown <a id="markdown-preview"></a>
@@ -390,7 +429,9 @@ Blame montre une ligne par ligne source — le commit, son auteur, sa date et la
 ligne elle-même, mis en évidence comme le visualiseur de code, avec un tiret
 cadratin quand une ligne n'est pas encore validée — à la révision que vous
 consultez. File History liste chaque commit qui a touché le fichier, suit les
-renommages, et cliquer un commit l'ouvre.
+renommages, et cliquer un commit l'ouvre ; une colonne entre la date et l'auteur
+dit la longueur du fichier à ce commit, et reste vide là où le compte ne peut pas
+être établi — une révision binaire, et tout ce qui est plus ancien.
 
 Un clic droit sur une ligne de blame offre **History of These Lines** : `git log
 -L` sur les lignes que couvre la sélection — ou la ligne cliquée, sans sélection
@@ -400,8 +441,11 @@ c'en est arrivé là*. Il suit la plage à travers les renommages tout seul.
 
 #### Chercher dans le dépôt <a id="searching-the-repository"></a>
 
-**Search** dans l'en-tête du volet arbre de travail ouvre une boîte au-dessus de
-la liste des fichiers et lance `git grep`. Les résultats sont un document groupé
+**Search** dans l'en-tête du volet Changes ouvre une boîte au-dessus de la liste
+des fichiers et lance `git grep`. La flèche à côté bascule ce bouton en
+**Filter**, qui réduit la liste des fichiers à la place ; celui que vous choisissez
+reste choisi, et une seule des deux boîtes est ouverte à la fois. Les résultats
+sont un document groupé
 par fichier, numéros de ligne en bas à gauche ; en cliquer un ouvre ce fichier à
 cette ligne, la ligne étant marquée.
 
@@ -414,12 +458,16 @@ seul argument, si bien qu'une expression régulière n'est pas mangée en route.
 ### Commits (en bas à gauche) <a id="commits-bottom-left"></a>
 
 Le journal de la branche courante, chargé par 300 et étendu au défilement. La
-première ligne est **Working Tree** — les modifications non validées, avec un
-compte de fichiers modifiés ; la sélectionner ramène les volets du haut à l'arbre
-de travail. Un champ de filtre au-dessus du journal réduit la liste — avec un
+première ligne est **Changes** — les modifications non validées, avec un compte de
+fichiers modifiés ; la sélectionner y ramène les volets du haut. Un champ de filtre au-dessus du journal réduit la liste — avec un
 délai, et un ✕ pour effacer — et le résultat se pagine de la même façon.
 
-**Graph** dans l'en-tête dessine les voies à côté des hashes : où une branche
+L'en-tête garde **Push** et **Pull**, les deux qui servent souvent ; tout le reste
+au sujet du journal est à un clic derrière **⋯** — **Graph**, **All Branches**,
+**Gource** là où il est installé, et **Open in Browser**. Les deux interrupteurs
+portent un point dans ce menu tant qu'ils sont actifs.
+
+**Graph** dessine les voies à côté des hashes : où une branche
 s'est séparée, où une fusion a atterri, à quelle ligne appartient un commit. Il
 est calculé depuis les parents de chaque commit plutôt qu'analysé depuis
 `git log --graph`, dont l'ASCII est composé pour un terminal. Une voie garde sa
@@ -480,18 +528,18 @@ de commande, donc une expression régulière atteint git en un seul argument.
 
 #### Gource <a id="gource"></a>
 
-Si [gource](https://gource.io/) est dans le `PATH`, le volet des commits gagne un
-bouton **Gource** à côté de **Open in Browser** : il joue l'historique du dépôt
+Si [gource](https://gource.io/) est dans le `PATH`, le menu **⋯** de l'en-tête des
+commits gagne une entrée **Gource** : il joue l'historique du dépôt
 comme une animation — l'arborescence qui pousse, les fichiers qui s'allument à
 chaque commit, un auteur qui vole de l'un à l'autre par nom dans le journal.
 Gource ouvre sa propre fenêtre et continue de tourner après que vous fermez
-Gitty ; le bouton attend juste assez longtemps pour voir qu'il a démarré, et
+Gitty ; l'entrée attend juste assez longtemps pour voir qu'il a démarré, et
 montre ce que gource a dit s'il ne l'a pas fait.
 
 Il est lancé avec un jour d'historique par demi-seconde, les fichiers inactifs
 gardés à l'écran et les longs intervalles sautés, ce qui rend un vrai dépôt
 lisible plutôt qu'un lent filet. Rien n'est installé pour vous : là où gource
-n'est pas dans le `PATH`, le bouton n'est tout simplement pas là.
+n'est pas dans le `PATH`, l'entrée n'est tout simplement pas là.
 
 #### Parcourir une autre branche <a id="browsing-another-branch"></a>
 
@@ -548,7 +596,9 @@ au lieu d'un volet vide.
 
 <kbd>Ctrl+F</kbd> cherche dans tout ce que montre le volet de droite : un diff,
 un fichier, un document markdown rendu, un [aperçu HTML](#html-preview), un
-blame, ou l'historique d'un fichier. Chaque correspondance est mise en évidence
+blame, ou l'historique d'un fichier. Avec l'arbre des fichiers actif, elle fait
+autre chose — elle filtre cet arbre, décrit dans
+[Changes](#changes-top-left). Chaque correspondance est mise en évidence
 avec l'actuelle distinguée, <kbd>Enter</kbd> et <kbd>Shift+Enter</kbd> (ou les
 flèches) les parcourent et rebouclent à chaque extrémité, le compte dit où vous
 êtes, et <kbd>Esc</kbd> ferme.
@@ -583,7 +633,7 @@ qu'elle grandit ; le tableau ci-dessous les liste dans cet ordre.
 | **Ignore whitespace** | Off, Amount (le `-b` de git : une suite d'espaces qui change de longueur n'est pas une modification) ou All (`-w` : aucune différence d'espace n'en est une). Du code réindenté ou remis à la ligne se lit comme inchangé plutôt que comme un mur de rouge et de vert. Les comptes `+12 −3` de la liste de fichiers suivent le même réglage, si bien qu'elle ne peut pas revendiquer des lignes que le diff refuse ensuite de montrer. |
 | **Word wrap** | Retour à la ligne au lieu du défilement horizontal. |
 | **Word highlight** | Marquer les mots qui ont changé dans une ligne modifiée, pas seulement la ligne. |
-| **Markdown outline** | Afficher le plan à côté d'un document rendu. |
+| **Outline** | Afficher le plan à côté d'un document : les titres dans un document rendu, les classes et fonctions dans un fichier source. |
 | **Markdown source lines** | Numéroter chaque bloc d'un document rendu avec la ligne où il commence dans la source. Les titres, paragraphes, éléments de liste, tableaux, codes délimités et images en portent tous un, dans une gouttière en bas à gauche. Désactivé par défaut. |
 | **File sorting** | Natural ou Byte order. Natural lit les chiffres d'un nom comme un nombre (`W9` avant `W10`) et met la casse en second ; l'ordre d'octets est celui de git, où chaque majuscule se range devant chaque minuscule. |
 | **Reopen last session** | Rouvrir les dépôts qui étaient ouverts quand l'application a quitté la dernière fois. Le dépôt avec lequel Gitty a été lancé reste l'onglet actif ; ceux qui ont depuis été supprimés sont discrètement écartés. |
@@ -592,7 +642,7 @@ qu'elle grandit ; le tableau ci-dessous les liste dans cet ordre.
 
 **Shell** et **Login shell** sont lus quand un terminal est créé, si bien qu'ils
 prennent effet à la prochaine division ou au prochain onglet de dépôt, pas dans
-les shells déjà en cours. **Word wrap**, **Diff layout** et **Markdown outline**
+les shells déjà en cours. **Word wrap**, **Diff layout** et **Outline**
 sont les mêmes bascules que celles de l'en-tête du diff : en changer une d'un côté
 la change des deux. **Word highlight** n'existe qu'ici.
 
@@ -603,16 +653,18 @@ la change des deux. **Word highlight** n'existe qu'ici.
 | <kbd>Enter</kbd> | Montrer le commit sélectionné |
 | <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Marquer un second commit et comparer la paire |
 | <kbd>Ctrl+Click</kbd> sur un titre de fichier | Ouvrir ce fichier dans un nouvel onglet de document |
-| <kbd>Ctrl+F</kbd> | Chercher dans le diff, le fichier, ou tout ce que montre le volet |
+| <kbd>Ctrl+F</kbd> | Chercher dans le diff, le fichier, ou tout ce que montre le volet — ou filtrer l'arbre des fichiers, ce volet étant actif |
 | <kbd>Ctrl+C</kbd> / <kbd>Ctrl+Shift+C</kbd> | Copier la sélection, n'importe où dans la fenêtre |
-| <kbd>Esc</kbd> | Retour à l'arbre de travail |
+| <kbd>Esc</kbd> | Retour aux modifications non validées |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Reculer et avancer parmi les endroits consultés |
+| <kbd>Alt</kbd> | Afficher ou masquer la barre de menus de l'application (pas sur macOS, où elle est toujours là) |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Rafraîchir l'état et le journal |
 | <kbd>Ctrl+O</kbd> | Ouvrir un autre dépôt dans un nouvel onglet |
 | <kbd>Ctrl+,</kbd> | Réglages |
 | <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> | Masquer ou afficher Files, Diff, Commits, Terminal |
 | <kbd>Ctrl+Shift+0</kbd> | Réafficher les quatre volets |
 | <kbd>Ctrl+Shift+1</kbd> … <kbd>Ctrl+Shift+4</kbd> | Remplir la fenêtre avec ce volet |
+| <kbd>Ctrl+Tab</kbd> / <kbd>Ctrl+Shift+Tab</kbd> | Le plein écran passe au volet suivant, ou au précédent |
 
 
 ## Notes de plateforme <a id="platform-notes"></a>

@@ -2,7 +2,7 @@
 
 [English](../../README.md) · [简体中文](README.zh-CN.md) · **日本語** · [한국어](README.ko.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [Español](README.es.md) · [Русский](README.ru.md) · [Português](README.pt.md)
 
-> **翻訳日: 2026-08-15。**
+> **翻訳日: 2026-08-16。**
 > 公式版は[英語版 README](../../README.md) であり、継続的に更新されるのはそちらだ
 > けです。この文書はその時点のスナップショットで、食い違いがある場合は英語版が正
 > です。この文書は本ファイルだけを対象としており、[マニュアル](manual.ja.md)には
@@ -15,7 +15,7 @@
 
 ```
 ┌──────────────────────┬──────────────────────┐
-│ Working Tree         │ Diff                 │
+│ Changes              │ Diff                 │
 │ (or a commit's files)│ (unified, coloured)  │
 ├──────────────────────┼──────────────────────┤
 │ Commits              │ Terminal             │
@@ -33,6 +33,13 @@
   ます。多くの git ブラウザはターミナルを外に置くので、思いつきを確かめるだけでウィ
   ンドウを行き来することになります。ここではすぐそこにあり、リポジトリが変われば他
   のペインもすべて更新されます。
+- **コミットメッセージ欄ではなく、agent で終わるステージング。** ファイル単位、
+  hunk 単位、あるいは選択した行だけをステージし、**Send** があなた自身のコマンド —
+  `claude "commit the staged changes"`、`codex exec …`、普段使っているもの — を下の
+  シェルに打ち込んで Enter を押します。メッセージを書くのは agent の仕事。*どの変更
+  を 1 つのコミットにするか*を決めるのがあなたの仕事で、4 つのペインはそのためにあり
+  ます。Gitty の内部からモデルは一切呼ばれないので、自分で送っていないものがこのマシ
+  ンを出ることはありません。
 - **差分だけでなくドキュメントも。** Markdown は描画され、HTML はサンドボックス化
   されたフレームで表示され、画像は絵として表示されます — いずれも、いま見ているリビ
   ジョンでの姿です。2 年前の README が、*その*コミットが出荷した当時のスクリーン
@@ -54,14 +61,14 @@
   にバインドしており、相手は自分のブラウザだけです。コミットは本物の URL なので、履
   歴はリポジトリを開いている間、タブで読み、開いたままにし、ブラウザの検索で探せま
   す。
-- **ワンクリックで [gource](https://gource.io/)**（インストールされていれば）。リポジ
-  トリの全履歴を、独自のウィンドウでアニメーションとして再生します。gource が無い場
-  合、ボタンは描画されません。動かせないものはダウンロードも提示もしません。
+- **コミットメニューから [gource](https://gource.io/)**（インストールされていれば）。
+  リポジトリの全履歴を、独自のウィンドウでアニメーションとして再生します。gource が
+  無い場合、その項目は描画されません。動かせないものはダウンロードも提示もしません。
 - **9 言語のインターフェースと明示的なタイムゾーン。** git は各コミットを作者のオフ
   セット付きで記録するので、タイムスタンプは常にゾーンの選択です。ここでそれを選べ
   ば、ログ・blame・ファイル履歴・「今日」と日付の境目まで、UI 全体がそれに従います。
 
-![Gitty 0.1.6](../../ref/gitty-0.1.6.png)
+![Gitty 0.1.8](../../ref/gitty-0.1.8.png)
 
 ## なぜもう一つ作るのか <a id="why-another-one"></a>
 
@@ -90,18 +97,24 @@
 
 ### パッケージをダウンロード (Linux) <a id="download-a-package-linux"></a>
 
-[リリースページ](https://github.com/baojie/gitty/releases)の `.deb` が最短の入り口で
-す。Node もビルドも不要です:
+`.deb` が最短の入り口です。Node もビルドも不要です:
 
 ```bash
-sudo dpkg -i gitty-desktop_*_amd64.deb
+wget https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_amd64.deb
+sudo dpkg -i gitty-desktop_0.1.8_amd64.deb
 ```
 
 これで `/usr/bin/gitty`、アイコン付きのアプリケーションメニューエントリがインストー
 ルされ、Chromium のサンドボックスを**有効にしたまま**動きます —
-[Linux デスクトップ統合](manual.ja.md#linux-desktop-integration)を参照。dpkg の無い
-ディストリビューション向けに `.AppImage` も並んで公開されています。こちらは第二候補
-です。AppImage はサンドボックスのヘルパーをインストールできないからです。
+[Linux デスクトップ統合](manual.ja.md#linux-desktop-integration)を参照。
+
+隣には [arm64 の `.deb`](https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_arm64.deb)
+があり、dpkg の無いディストリビューション向けには AppImage
+（[x86_64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-x86_64.AppImage)、
+[arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-arm64.AppImage)）
+があります。こちらは第二候補です。AppImage はサンドボックスのヘルパーをインストール
+できないからです。旧バージョンは[リリースページ](https://github.com/baojie/gitty/releases)
+にあります。
 
 ### npm から <a id="from-npm"></a>
 
@@ -159,7 +172,7 @@ merge、cherry-pick、コンフリクト解決、ブランチの作成・削除�
 コミットボックスもありません。これは聞こえるより小さな話です。足りないのはメッセー
 ジではありません。足りないのは*どの変更を 1 つのコミットにするか*を決める場所で、上
 述のステージングがそのためのものです。インデックスが 1 つのことを指し示したら、
-**Send to agent** がそれを、あなたのメッセージを書くものに手渡します。
+**Send** がそれを、あなたのメッセージを書くものに手渡します。
 
 ## マニュアル <a id="the-manual"></a>
 
