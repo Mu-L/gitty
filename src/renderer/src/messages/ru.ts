@@ -32,6 +32,7 @@ export const ru: RendererMessages = {
     openRepository: 'Открыть репозиторий',
     refresh: 'Обновить',
     refreshTitle: (accel: string) => `Обновить статус и журнал (${accel})`,
+    menuTitle: (accel: string) => `Показать или скрыть меню (${accel})`,
     panes: 'Панели',
     noRepo: 'нет репозитория',
     noReposOpen: 'Нет открытых репозиториев.',

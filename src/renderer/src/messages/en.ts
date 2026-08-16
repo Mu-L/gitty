@@ -18,6 +18,7 @@ export const en: RendererMessages = {
     openRepository: 'Open Repository',
     refresh: 'Refresh',
     refreshTitle: (accel: string) => `Refresh status and log (${accel})`,
+    menuTitle: (accel: string) => `Show or hide the menu (${accel})`,
     panes: 'Panes',
     noRepo: 'no repository',
     noReposOpen: 'No repositories open.',

@@ -18,6 +18,7 @@ export const ko: RendererMessages = {
     openRepository: '저장소 열기',
     refresh: '새로 고침',
     refreshTitle: (accel: string) => `상태와 로그 새로 고침（${accel}）`,
+    menuTitle: (accel: string) => `메뉴 표시/숨기기（${accel}）`,
     panes: '창',
     noRepo: '저장소 없음',
     noReposOpen: '열려 있는 저장소가 없습니다.',

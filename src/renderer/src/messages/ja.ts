@@ -18,6 +18,7 @@ export const ja: RendererMessages = {
     openRepository: 'リポジトリを開く',
     refresh: '更新',
     refreshTitle: (accel: string) => `ステータスとログを更新（${accel}）`,
+    menuTitle: (accel: string) => `メニューを表示・非表示（${accel}）`,
     panes: 'ペイン',
     noRepo: 'リポジトリなし',
     noReposOpen: '開いているリポジトリはありません。',

@@ -57,6 +57,13 @@ const AGENT_COMMAND_LIMIT = 12
 /** Shown in the Refresh button's tooltip; the keys RepoTab's handler refreshes on. */
 const REFRESH_ACCEL = 'F5 / Ctrl+R'
 
+/** Shown in the title bar's tooltip; the key that toggles the hidden menu bar. */
+const MENU_ACCEL = 'Alt'
+
+// macOS's menu bar is always on the screen, so Alt toggling it — the behaviour
+// autoHideMenuBar gives Windows and Linux — is not a fact there.
+const isMac = window.gitty.platform === 'darwin'
+
 function loadAgentCommands(): string[] {
   try {
     const v = JSON.parse(localStorage.getItem('gitty.agentCommands') ?? 'null')
@@ -627,7 +634,7 @@ export default function App(): JSX.Element {
     <LocaleProvider locale={locale} setLocale={setLocale}>
     <TimeProvider time={time}>
     <div className="app" onContextMenu={(e) => e.preventDefault()}>
-      <div className="titlebar">
+      <div className="titlebar" title={isMac ? undefined : msg.app.menuTitle(MENU_ACCEL)}>
         {/* The brand opens the About dialog, like the application menu's
             About on macOS. */}
         <button

@@ -18,6 +18,7 @@ export const de: RendererMessages = {
     openRepository: 'Repository öffnen',
     refresh: 'Aktualisieren',
     refreshTitle: (accel: string) => `Status und Log aktualisieren (${accel})`,
+    menuTitle: (accel: string) => `Menü anzeigen oder ausblenden (${accel})`,
     panes: 'Bereiche',
     noRepo: 'kein Repository',
     noReposOpen: 'Keine Repositories geöffnet.',

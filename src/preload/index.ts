@@ -31,6 +31,8 @@ import type {
 const api = {
   /** Used to shorten paths for display. */
   homeDir: os.homedir(),
+  /** Which platform the app runs on; the renderer keys a hint off it. */
+  platform: process.platform,
   /** The app icon as a data URL, for the title bar; null when unavailable. */
   appIcon: (): Promise<string | null> => ipcRenderer.invoke('app:icon'),
   /** Facts for the About dialog: version, author, home page, build time. */

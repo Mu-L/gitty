@@ -18,6 +18,7 @@ export const zh: RendererMessages = {
     openRepository: '打开仓库',
     refresh: '刷新',
     refreshTitle: (accel: string) => `刷新状态和日志（${accel}）`,
+    menuTitle: (accel: string) => `显示或隐藏菜单（${accel}）`,
     panes: '窗格',
     noRepo: '未打开仓库',
     noReposOpen: '未打开任何仓库。',

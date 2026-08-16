@@ -18,6 +18,7 @@ export const fr: RendererMessages = {
     openRepository: 'Ouvrir un dépôt',
     refresh: 'Actualiser',
     refreshTitle: (accel: string) => `Rafraîchir l'état et le journal (${accel})`,
+    menuTitle: (accel: string) => `Afficher ou masquer le menu (${accel})`,
     panes: 'Volets',
     noRepo: 'aucun dépôt',
     noReposOpen: 'Aucun dépôt ouvert.',

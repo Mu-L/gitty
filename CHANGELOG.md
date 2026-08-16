@@ -55,6 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   into a `DiffHeader` component; behaviour is unchanged.
 - The title bar's **Refresh** button hover-tells its shortcut: <kbd>F5</kbd> /
   <kbd>Ctrl+R</kbd>.
+- The title bar's empty space hover-tells that <kbd>Alt</kbd> shows and hides
+  the application menu; not on macOS, whose menu bar is always on the screen.
 
 ## [0.1.7] - 2026-08-15
 
