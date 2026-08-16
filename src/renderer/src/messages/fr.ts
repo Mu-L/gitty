@@ -152,7 +152,6 @@ export const fr: RendererMessages = {
     showOutline: 'Afficher le plan des titres',
     showSymbols: 'Afficher le plan des symboles',
     inline: 'En ligne',
-    sideBySide: 'Côte à côte',
     switchView: 'Basculer entre l’affichage en ligne et côte à côte',
     docTabDiff: 'Diff',
     docTabDiffTitle: 'Le diff',

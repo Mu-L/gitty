@@ -152,7 +152,6 @@ export const de: RendererMessages = {
     showOutline: 'Überschriften-Gliederung anzeigen',
     showSymbols: 'Symbol-Gliederung anzeigen',
     inline: 'Inline',
-    sideBySide: 'Nebeneinander',
     switchView: 'Zwischen Inline- und Nebeneinander-Ansicht wechseln',
     docTabDiff: 'Diff',
     docTabDiffTitle: 'Der Diff',

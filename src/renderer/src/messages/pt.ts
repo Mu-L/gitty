@@ -151,7 +151,6 @@ export const pt: RendererMessages = {
     showOutline: 'Mostrar a estrutura de títulos',
     showSymbols: 'Mostrar a estrutura de símbolos',
     inline: 'Em linha',
-    sideBySide: 'Lado a lado',
     switchView: 'Alternar entre a vista em linha e lado a lado',
     docTabDiff: 'Diff',
     docTabDiffTitle: 'O diff',

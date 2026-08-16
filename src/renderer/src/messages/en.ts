@@ -152,7 +152,6 @@ export const en: RendererMessages = {
     showOutline: 'Show the heading outline',
     showSymbols: 'Show the symbol outline',
     inline: 'Inline',
-    sideBySide: 'Side-by-Side',
     switchView: 'Switch between inline and side-by-side',
     docTabDiff: 'Diff',
     docTabDiffTitle: 'The diff',

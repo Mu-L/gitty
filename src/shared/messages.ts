@@ -237,8 +237,8 @@ export interface RendererMessages {
     readonly outline: string
     readonly showOutline: string
     readonly showSymbols: string
+    /** One switch: pressed is inline, raised is side by side. */
     readonly inline: string
-    readonly sideBySide: string
     readonly switchView: string
     readonly docTabDiff: string
     readonly docTabDiffTitle: string

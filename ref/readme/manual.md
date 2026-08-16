@@ -226,9 +226,9 @@ uncommitted change in the work tree, or every file in the selected commit.
   and inlines untracked files (up to 50, then a notice), which `git diff` alone
   leaves out.
 - **Wrap** — wrap long lines instead of scrolling sideways. On by default.
-- **Inline / Side-by-Side** — one column with `+`/`-` markers, or old and new
-  next to each other, where a run of deletions is zipped with the additions that
-  follow it. Wrapped halves stay aligned.
+- **Inline** — a switch like **Wrap**: pressed, one column with `+`/`-` markers;
+  raised, old and new side by side, where a run of deletions is zipped with the
+  additions that follow it. Wrapped halves stay aligned.
 - **File headings** — each heading folds its file: the triangle collapses it
   to the name, and **Collapse All** / **Expand All** in the header does the
   lot. **Ctrl+click** a heading opens that file in a new document tab;

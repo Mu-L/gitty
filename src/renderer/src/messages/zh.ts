@@ -147,7 +147,6 @@ export const zh: RendererMessages = {
     showOutline: '显示标题大纲',
     showSymbols: '显示符号大纲',
     inline: '行内',
-    sideBySide: '并排',
     switchView: '在行内和并排视图之间切换',
     docTabDiff: '差异',
     docTabDiffTitle: '差异',

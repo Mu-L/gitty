@@ -151,7 +151,6 @@ export const ja: RendererMessages = {
     showOutline: '見出しのアウトラインを表示',
     showSymbols: 'シンボルのアウトラインを表示',
     inline: 'インライン',
-    sideBySide: '左右に並べる',
     switchView: 'インライン表示と左右表示を切り替える',
     docTabDiff: '差分',
     docTabDiffTitle: '差分',

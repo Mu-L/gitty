@@ -205,13 +205,16 @@ export function DiffHeader({
             {msg.diff.outline}
           </button>
         )}
+        {/* One switch, like Wrap: pressed is inline, raised is side by side. A
+            label that renamed itself said the current state in the same place
+            the other buttons say what they do. */}
         {!viewingFile && (
           <button
-            className="toggle"
+            className={`toggle${diffView === 'inline' ? ' on' : ''}`}
             title={msg.diff.switchView}
             onClick={() => setDiffView((v) => (v === 'inline' ? 'split' : 'inline'))}
           >
-            {diffView === 'inline' ? msg.diff.inline : msg.diff.sideBySide}
+            {msg.diff.inline}
           </button>
         )}
         {header.hide}

@@ -150,7 +150,6 @@ export const ko: RendererMessages = {
     showOutline: '제목 개요 표시',
     showSymbols: '심벌 개요 표시',
     inline: '인라인',
-    sideBySide: '나란히',
     switchView: '인라인 보기와 나란히 보기 전환',
     docTabDiff: 'Diff',
     docTabDiffTitle: 'Diff',

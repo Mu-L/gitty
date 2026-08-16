@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Opening a repository is one **+** rather than two: the title bar's is gone and
   the tab bar's takes over its accent, beside the tabs it adds to.
+- The diff header's view switch is one **Inline** button, pressed or raised,
+  the way **Wrap** beside it works — not a label that renamed itself.
 - The work-tree header's **Search** button also does **Filter**; the arrow
   beside it picks which. <kbd>Ctrl+F</kbd> still opens the filter, and only one
   of the two boxes is open at a time.

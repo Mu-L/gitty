@@ -167,7 +167,6 @@ export const ru: RendererMessages = {
     showOutline: 'Показать структуру заголовков',
     showSymbols: 'Показать структуру символов',
     inline: 'В строку',
-    sideBySide: 'Рядом',
     switchView: 'Переключиться между построчным видом и видом «рядом»',
     docTabDiff: 'Diff',
     docTabDiffTitle: 'Diff',
