@@ -152,6 +152,11 @@ sorted the way a
 reader expects rather than the way a byte comparison does: the digits in a name count as a number, so `W9` comes before `W10`, and
 case is not a first-order difference, so `butler/` sorts with the b's instead of
 after every capital letter.
+Each name carries a type icon: the shape is the family — source, structured
+data, markup, a stylesheet, prose, an image, an archive, a shell script, a
+lockfile, compiled output — and the colour is the language, so `.ts` and `.py`
+are the same glyph in different colours. An extension Gitty does not know gets a
+plain page rather than a guess.
 Two status columns are shown: the staged state (green) and the work-tree state
 (yellow / red); untracked files are `??`. The count is read from disk in the
 work tree and from the revision everywhere else; binary files, deleted files and
@@ -165,6 +170,13 @@ The pane's title says what is listed, and clicking it opens a menu of the two
 standing views: **Changes**, the uncommitted ones, and **Working Tree**, every
 file in the directory on disk, read-only. A tick marks whichever is on screen;
 from a commit, a range or a snapshot the same menu is the way back to either.
+
+**Working Tree** means every file: the ones `.gitignore` covers — build output,
+`node_modules`, whatever else — are listed like the rest, in dimmed italics, and
+a folder holding nothing but ignored files is dimmed too. They open and read
+like any other file; only their line counts are left off, since counting them
+means reading every byte of a directory that is usually the largest thing on
+disk. `.git` itself is not listed.
 
 - **Click** — show the file's diff on the right.
 - **Double-click** — open the whole file as a document beside the diff, with

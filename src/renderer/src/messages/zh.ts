@@ -85,6 +85,7 @@ export const zh: RendererMessages = {
     viewPickTitle: '切换此面板列出的内容',
     changesHint: '尚未提交的改动',
     workingTreeHint: '工作目录中的全部文件，只读',
+    ignoredFile: '被 .gitignore 忽略',
     emptyChanges: '没有变更。',
     emptyWorktree: '工作树干净。',
     emptySnapshot: '此快照中没有文件。',

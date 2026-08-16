@@ -25,7 +25,8 @@ import type {
   RepoStatus,
   SnapshotFileContent,
   TerminalOptions,
-  WebUrl
+  WebUrl,
+  WorktreeFile
 } from '../shared/types'
 
 const api = {
@@ -157,8 +158,9 @@ const api = {
       ipcRenderer.invoke('git:applyHunks', root, filePath, picks, direction, opts),
     snapshotFiles: (root: string, hash: string): Promise<string[]> =>
       ipcRenderer.invoke('git:snapshotFiles', root, hash),
-    /** Every file on disk now — tracked and untracked — for browsing the work tree. */
-    worktreeFiles: (root: string): Promise<string[]> =>
+    /** Every file on disk now — tracked, untracked and ignored — for browsing
+     *  the work tree; each says whether `.gitignore` covers it. */
+    worktreeFiles: (root: string): Promise<WorktreeFile[]> =>
       ipcRenderer.invoke('git:worktreeFiles', root),
     snapshotFile: (root: string, hash: string, filePath: string): Promise<SnapshotFileContent> =>
       ipcRenderer.invoke('git:snapshotFile', root, hash, filePath),

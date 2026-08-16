@@ -21,7 +21,8 @@ import type {
   ImageFileContent,
   LogFilterMode,
   RepoStatus,
-  SnapshotFileContent
+  SnapshotFileContent,
+  WorktreeFile
 } from '../shared/types'
 import { DEFAULT_DIFF_OPTIONS } from '../shared/types'
 import {
@@ -670,26 +671,37 @@ export async function snapshotFiles(root: string, hash: string): Promise<string[
 }
 
 /**
- * Every file in the work tree — tracked and untracked — as it is on disk right
- * now, for "browse working tree". A file deleted on disk is gone, so it is not
- * listed; an untracked one is. `ls-files -c` still names files the index has
- * but the disk has lost, which is what the access check drops.
+ * Every file in the work tree as it is on disk right now, for "browse working
+ * tree" — tracked, untracked, and the ignored ones too, which are as much part
+ * of the directory in front of you as the rest and are marked rather than
+ * withheld. A file deleted on disk is gone, so it is not listed; `ls-files -c`
+ * still names files the index has but the disk has lost, which is what the
+ * access check drops. `.git` itself is never listed: git does not report its
+ * own store as content.
  */
-export async function worktreeFiles(root: string): Promise<string[]> {
-  const raw = await git(root, ['ls-files', '-c', '-o', '--exclude-standard', '-z'])
+export async function worktreeFiles(root: string): Promise<WorktreeFile[]> {
+  const [raw, rawIgnored] = await Promise.all([
+    git(root, ['ls-files', '-c', '-o', '--exclude-standard', '-z']),
+    // Files only, not `--directory`: the tree lists paths, and a bare
+    // `node_modules/` row would be a folder that never opens.
+    git(root, ['ls-files', '-o', '-i', '--exclude-standard', '-z'])
+  ])
   // A path in conflict has three index entries — one per merge stage — and
   // `-c` prints one line each, so a Set is what makes it one file again. The
   // tree keys its rows by path; three rows would share a key.
-  const paths = [...new Set(raw.split('\0').filter((p) => p.length > 0))]
+  const ignored = new Set(rawIgnored.split('\0').filter((p) => p.length > 0))
+  const paths = [...new Set(raw.split('\0').filter((p) => p.length > 0)), ...ignored]
   const existing = await Promise.all(
     paths.map((p) =>
       fs.promises
         .access(path.join(root, p))
-        .then(() => p)
+        .then<WorktreeFile | null>(() => ({ path: p, ignored: ignored.has(p) }))
         .catch(() => null)
     )
   )
-  return existing.filter((p): p is string => p !== null).sort()
+  return existing
+    .filter((f): f is WorktreeFile => f !== null)
+    .sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
 }
 
 /** Contents of one file at a revision; binary files report rather than dump. */

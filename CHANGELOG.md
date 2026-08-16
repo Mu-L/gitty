@@ -7,7 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- File names in the tree carry a type icon: the shape is the family — source,
+  data, markup, prose, image, archive, script, lockfile, compiled output — and
+  the colour is the language, so `.ts` and `.py` share a glyph and differ in
+  hue. Eighteen hand-drawn glyphs rather than an icon package, and palette
+  variables rather than brand colours, so both themes are one table
+  (`src/renderer/src/icons.ts`, `test/icons.test.ts`). An unknown extension
+  gets a plain page.
+
 ### Changed
+
+- **Working Tree** lists ignored files too — build output, `node_modules` — in
+  dimmed italics, and dims a folder that holds nothing else. They were the one
+  part of the directory the view left out. No line counts for them: counting
+  reads every byte.
 
 - The Changes pane's title is a picker: it opens a menu of **Changes** and
   **Working Tree**, ticked at whichever is on screen. Browsing the whole

@@ -3,6 +3,7 @@ import { useMsg } from '../locale'
 import type { FileChurn } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { comparePaths } from '../paths'
+import { FileIcon } from './FileIcon'
 
 export interface FileEntry {
   path: string
@@ -14,6 +15,8 @@ export interface FileEntry {
   staged?: boolean
   /** Changes view only: git has never seen this file. */
   untracked?: boolean
+  /** Working Tree only: `.gitignore` covers this file. Listed, but drawn dim. */
+  ignored?: boolean
   /** Present for renames: the previous path. */
   origPath?: string
   /** Number of lines, when counted. */
@@ -29,11 +32,32 @@ interface TreeRow {
   name: string
   depth: number
   entry?: FileEntry
+  /** Directories: everything under it is ignored, so the folder reads as dim too. */
+  ignored?: boolean
+}
+
+/**
+ * Which directories hold nothing but ignored files. A folder is only dim when
+ * all of it is — `src` with one ignored build artefact in it is still source.
+ */
+function ignoredDirs(entries: FileEntry[]): Set<string> {
+  const all = new Set<string>()
+  const some = new Set<string>()
+  for (const entry of entries) {
+    const dirs = entry.path.split('/').slice(0, -1)
+    for (let d = 0; d < dirs.length; d++) {
+      const key = dirs.slice(0, d + 1).join('/')
+      ;(entry.ignored ? all : some).add(key)
+    }
+  }
+  for (const key of some) all.delete(key)
+  return all
 }
 
 /** Flatten the entry list into visible tree rows, honouring collapsed folders. */
 function buildRows(entries: FileEntry[], collapsed: (key: string) => boolean): TreeRow[] {
   const rows: TreeRow[] = []
+  const dim = ignoredDirs(entries)
   let prevParts: string[] = []
 
   for (const entry of entries) {
@@ -46,11 +70,13 @@ function buildRows(entries: FileEntry[], collapsed: (key: string) => boolean): T
       common++
     }
     for (let d = common; d < dirs.length; d++) {
+      const key = dirs.slice(0, d + 1).join('/')
       rows.push({
         kind: 'dir',
-        key: dirs.slice(0, d + 1).join('/'),
+        key,
         name: dirs[d],
-        depth: d
+        depth: d,
+        ignored: dim.has(key)
       })
     }
     prevParts = dirs
@@ -167,7 +193,7 @@ export function FilesPane({
           >
             <span className="tree-indent" style={{ width: row.depth * 12 }} />
             <span className="twisty">{collapsed(row.key) ? '▶' : '▼'}</span>
-            <span className="dir-name">{row.name}/</span>
+            <span className={`dir-name${row.ignored ? ' ignored' : ''}`}>{row.name}/</span>
           </div>
         ) : (
           <div
@@ -202,10 +228,15 @@ export function FilesPane({
                 {m.char}
               </span>
             ))}
+            {/* The type icon sits against the name rather than out at the
+                indent: it is part of reading the file, where the status codes
+                before it are about the change. */}
+            <FileIcon path={row.key} />
             <span
               className={`file-name${row.entry!.deleted ? ' deleted' : ''}${
                 row.entry!.staged ? ' staged' : ''
-              }`}
+              }${row.entry!.ignored ? ' ignored' : ''}`}
+              title={row.entry!.ignored ? msg.files.ignoredFile : undefined}
             >
               {row.name}
             </span>

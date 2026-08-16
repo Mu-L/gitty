@@ -198,6 +198,7 @@ export interface RendererMessages {
     readonly viewPickTitle: string
     readonly changesHint: string
     readonly workingTreeHint: string
+    readonly ignoredFile: string
     /** The empty text of the `worktree` view — "No changes." */
     readonly emptyChanges: string
     /** The empty text while browsing the whole working directory. */

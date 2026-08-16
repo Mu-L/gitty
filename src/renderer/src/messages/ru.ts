@@ -103,6 +103,7 @@ export const ru: RendererMessages = {
     viewPickTitle: 'Переключить, что показывает эта панель',
     changesHint: 'Незакоммиченные изменения',
     workingTreeHint: 'Все файлы рабочего каталога, только для чтения',
+    ignoredFile: 'Игнорируется через .gitignore',
     emptyChanges: 'Изменений нет.',
     emptyWorktree: 'Рабочее дерево чистое.',
     emptySnapshot: 'В этом снимке нет файлов.',

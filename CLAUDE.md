@@ -400,6 +400,18 @@ pseudo-commit (`WORKTREE_ROW`) standing for the uncommitted changes, drawn as
 the **Changes** row; it joins keyboard
 navigation and selecting it returns to `worktree` mode.
 
+`src/renderer/src/icons.ts` decides the type icon each file row carries, and is
+a leaf module with no imports for the reason `paths.ts` is one. The mapping is
+two-dimensional deliberately: **the shape is the family** and **the colour is
+the language**, so thirty-odd extensions cost eighteen glyphs rather than
+thirty icons, and two languages that look alike are ones a reader treats alike.
+The glyphs themselves are hand-written paths in `components/FileIcon.tsx` — an
+icon package whose whole value is breadth would be a megabyte for a screenful
+of answers — and every tone is a palette variable, never a brand hex: the tree
+is drawn over both themes, and a colour picked against one background is
+unreadable on the other. `--orange` exists for this and nothing else, yellow
+being taken by the modified status code.
+
 ### Browsing history
 
 `src/renderer/src/nav.ts` is the leaf module holding a `NavPlace` — a `View`, the

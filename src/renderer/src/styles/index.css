@@ -19,6 +19,10 @@
   --blue: #5b9cff;
   --cyan: #4fc3d0;
   --magenta: #b98ae0;
+  /* The one palette colour nothing but the file-type icons uses: Rust, TOML
+     and the make files want a hue of their own, and yellow already means the
+     modified status code. */
+  --orange: #e09a52;
   --diff-add-bg: #1a2f22;
   --diff-del-bg: #35201f;
   --diff-hunk: #2a3244;
@@ -75,6 +79,7 @@
   --blue: #2b6dd0;
   --cyan: #0f8a95;
   --magenta: #8a4bbd;
+  --orange: #b56213;
   --lane-0: #2b6dd0;
   --lane-1: #1f9d3e;
   --lane-2: #a67c00;
@@ -667,6 +672,51 @@ button:disabled:hover {
   color: var(--cyan);
 }
 
+/* The file-type icon, drawn by FileIcon.tsx. Fixed width like everything else
+   beside the name — see .tree-indent — and scaled with the row rather than the
+   font, so a taller row does not leave it stranded at the top of its line. */
+.file-icon {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  margin-right: -2px;
+  opacity: 0.9;
+}
+
+/* The tones icons.ts names. Palette variables, so both themes are one table:
+   an icon colour picked against the dark background is unreadable on white. */
+.icon-blue {
+  color: var(--blue);
+}
+
+.icon-green {
+  color: var(--green);
+}
+
+.icon-yellow {
+  color: var(--yellow);
+}
+
+.icon-red {
+  color: var(--red);
+}
+
+.icon-cyan {
+  color: var(--cyan);
+}
+
+.icon-magenta {
+  color: var(--magenta);
+}
+
+.icon-orange {
+  color: var(--orange);
+}
+
+.icon-dim {
+  color: var(--fg-dim);
+}
+
 .file-name {
   flex: 0 1 auto;
   min-width: 0;
@@ -684,6 +734,16 @@ button:disabled:hover {
    name and still reads as staged. */
 .file-name.staged {
   color: var(--green);
+}
+
+/* Ignored by .gitignore — in the Working Tree listing these are there but not
+   part of the project, so they are drawn back rather than left out. Last of
+   the file-name rules: nothing else applies to them, and this is the fact the
+   row is reporting. */
+.file-name.ignored,
+.dir-name.ignored {
+  color: var(--fg-dim);
+  font-style: italic;
 }
 
 .file-lines {

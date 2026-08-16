@@ -88,6 +88,7 @@ export const fr: RendererMessages = {
     viewPickTitle: 'Changer ce que ce panneau liste',
     changesHint: 'Ce qui n’est pas encore validé',
     workingTreeHint: 'Tous les fichiers du répertoire de travail, en lecture seule',
+    ignoredFile: 'Ignoré par .gitignore',
     emptyChanges: 'Aucune modification.',
     emptyWorktree: 'Copie de travail propre.',
     emptySnapshot: 'Aucun fichier dans cet instantané.',

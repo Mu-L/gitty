@@ -87,6 +87,7 @@ export const ja: RendererMessages = {
     viewPickTitle: 'このペインが一覧する対象を切り替える',
     changesHint: 'コミットされていない変更',
     workingTreeHint: '作業ディレクトリのすべてのファイル（読み取り専用）',
+    ignoredFile: '.gitignore により無視されています',
     emptyChanges: '変更はありません。',
     emptyWorktree: 'ワークツリーはクリーンです。',
     emptySnapshot: 'このスナップショットにファイルはありません。',

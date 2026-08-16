@@ -88,6 +88,7 @@ export const de: RendererMessages = {
     viewPickTitle: 'Umschalten, was dieser Bereich auflistet',
     changesHint: 'Was noch nicht committet ist',
     workingTreeHint: 'Alle Dateien im Arbeitsverzeichnis, schreibgeschützt',
+    ignoredFile: 'Von .gitignore ignoriert',
     emptyChanges: 'Keine Änderungen.',
     emptyWorktree: 'Arbeitsverzeichnis ist sauber.',
     emptySnapshot: 'Keine Dateien in diesem Snapshot.',

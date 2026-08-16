@@ -213,6 +213,15 @@ export interface DiffResult {
   notice?: string
 }
 
+/**
+ * One entry of "browse working tree". `ignored` is what `.gitignore` says
+ * about it — the file is listed either way, and the pane draws it differently.
+ */
+export interface WorktreeFile {
+  path: string
+  ignored: boolean
+}
+
 /** A single file's contents at a commit, for read-only snapshot browsing. */
 export interface SnapshotFileContent {
   content: string

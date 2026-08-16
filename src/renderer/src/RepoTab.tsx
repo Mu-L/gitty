@@ -369,18 +369,21 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         }))
       } else if (view.mode === 'snapshot') {
         if (view.hash === null) {
-          // Browse working tree: every file on disk — tracked and untracked —
-          // read-only like a snapshot but with real paths. Opening a file works
-          // ("Open in system app" and "Reveal" too), and its contents come from
-          // the disk as it is now rather than from a revision.
+          // Browse working tree: every file on disk — tracked, untracked and
+          // ignored — read-only like a snapshot but with real paths. Opening a
+          // file works ("Open in system app" and "Reveal" too), and its
+          // contents come from the disk as it is now rather than from a
+          // revision. An ignored file is still a file in the directory, so it
+          // is listed and drawn dimmed rather than left out.
           rev = null
-          const paths = await window.gitty.git.worktreeFiles(root)
+          const files = await window.gitty.git.worktreeFiles(root)
           if (cancelled) return
-          entries = paths.map<FileEntry>((p) => ({
-            path: p,
-            absPath: `${root}/${p}`,
+          entries = files.map<FileEntry>((f) => ({
+            path: f.path,
+            absPath: `${root}/${f.path}`,
             marks: [],
-            deleted: false
+            deleted: false,
+            ignored: f.ignored
           }))
         } else {
           // Snapshot mode: the whole tree at that commit, read-only.
@@ -436,7 +439,12 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       // the churn of the same change beside them. A snapshot is a tree, not a
       // change, so it has none.
       if (!cancelled && entries.length > 0) {
-        const pairs = entries.map((e) => ({ rev, filePath: e.path }))
+        // Ignored files are counted out of the batch, not out of the list:
+        // counting means reading every byte of them, and a work tree's ignored
+        // half is the build output and node_modules — hundreds of megabytes to
+        // read for a number beside a row nobody opened.
+        const counted = entries.map((e, i) => ({ e, i })).filter(({ e }) => !e.ignored)
+        const pairs = counted.map(({ e }) => ({ rev, filePath: e.path }))
         const spec: ChurnSpec | null =
           view.mode === 'worktree'
             ? { kind: 'worktree' }
@@ -452,8 +460,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
             : Promise.resolve<Record<string, FileChurn>>({})
         ])
         if (!cancelled) {
-          for (let i = 0; i < entries.length; i++) {
-            entries[i] = { ...entries[i], lines: counts[i], churn: churn[entries[i].path] ?? null }
+          for (let k = 0; k < counted.length; k++) {
+            const { i } = counted[k]
+            entries[i] = { ...entries[i], lines: counts[k], churn: churn[entries[i].path] ?? null }
           }
         }
       }
