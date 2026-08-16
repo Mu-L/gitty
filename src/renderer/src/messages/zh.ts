@@ -39,7 +39,8 @@ export const zh: RendererMessages = {
     openRepoEllipsis: '打开仓库…',
     clearRecent: '清除记录',
     tooltip:
-      '\n\n单击在新标签页中打开\nCtrl+单击在当前标签页打开\n右键从列表中移除',
+      '\n\n单击在新标签页中打开\nCtrl+单击在当前标签页打开\n× 把它从列表中移除',
+    forget: '从列表中移除这个仓库',
     accelOpen: 'Ctrl+O'
   },
   nav: {

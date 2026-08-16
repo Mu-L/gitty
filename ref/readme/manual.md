@@ -97,8 +97,8 @@ before — basename plus its parent directory — most recent first.
 - **Click** — open it in a new tab.
 - **Ctrl/Cmd+click** or **middle-click** — open it in the current tab, replacing
   the repository there and keeping the tab's place in the bar.
-- **Right-click** — remove the entry from the list. The menu stays open, so
-  several can be cleared in a row.
+- **×** at the right of an entry — take it out of the list; right-clicking the
+  entry does the same. The menu stays open, so several can go in a row.
 
 **Open Repository…** and **Clear Recent** sit below. The list lives in
 `~/.config/Gitty/recent-repos.json`, holds twelve entries, and skips any that

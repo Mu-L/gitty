@@ -40,7 +40,8 @@ export const pt: RendererMessages = {
     openRepoEllipsis: 'Abrir repositório…',
     clearRecent: 'Limpar recentes',
     tooltip:
-      '\n\nClique para abrir num novo separador\nCtrl+clique para abrir neste separador\nClique com o botão direito para remover da lista',
+      '\n\nClique para abrir num separador novo\nCtrl+clique para abrir neste separador\n× tira-o da lista',
+    forget: 'Esquecer este repositório',
     accelOpen: 'Ctrl+O'
   },
   nav: {

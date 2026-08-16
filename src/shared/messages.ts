@@ -140,6 +140,8 @@ export interface RendererMessages {
     readonly clearRecent: string
     /** Hover tip for a recent-repo entry. */
     readonly tooltip: string
+    /** The × at the right of one, which takes it out of the list. */
+    readonly forget: string
     readonly accelOpen: string
   }
   /** The back / forward buttons and the browsing-history menu. */

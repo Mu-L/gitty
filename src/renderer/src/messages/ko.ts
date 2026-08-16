@@ -39,7 +39,8 @@ export const ko: RendererMessages = {
     openRepoEllipsis: '저장소 열기…',
     clearRecent: '기록 지우기',
     tooltip:
-      '\n\n클릭하면 새 탭에서 열기\nCtrl+클릭하면 이 탭에서 열기\n오른쪽 클릭하면 목록에서 제거',
+      '\n\n클릭하면 새 탭에서 열기\nCtrl+클릭하면 이 탭에서 열기\n× 는 목록에서 지웁니다',
+    forget: '이 저장소를 목록에서 지우기',
     accelOpen: 'Ctrl+O'
   },
   nav: {

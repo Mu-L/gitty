@@ -40,7 +40,8 @@ export const fr: RendererMessages = {
     openRepoEllipsis: 'Ouvrir un dépôt…',
     clearRecent: 'Effacer la liste',
     tooltip:
-      '\n\nCliquer pour ouvrir dans un nouvel onglet\nCtrl+clic pour ouvrir dans cet onglet\nClic droit pour retirer de la liste',
+      '\n\nClic pour ouvrir dans un nouvel onglet\nCtrl+clic pour ouvrir dans cet onglet\n× le retire de la liste',
+    forget: 'Oublier ce dépôt',
     accelOpen: 'Ctrl+O'
   },
   nav: {

@@ -40,7 +40,8 @@ export const en: RendererMessages = {
     openRepoEllipsis: 'Open Repository…',
     clearRecent: 'Clear Recent',
     tooltip:
-      '\n\nClick to open in a new tab\nCtrl+click to open in this tab\nRight-click to remove from the list',
+      '\n\nClick to open in a new tab\nCtrl+click to open in this tab\n× takes it out of the list',
+    forget: 'Forget this repository',
     accelOpen: 'Ctrl+O'
   },
   nav: {

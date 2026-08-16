@@ -39,7 +39,8 @@ export const ja: RendererMessages = {
     openRepoEllipsis: 'リポジトリを開く…',
     clearRecent: '履歴を消去',
     tooltip:
-      '\n\nクリックで新しいタブに開く\nCtrl+クリックでこのタブに開く\n右クリックで一覧から削除',
+      '\n\nクリックで新しいタブに開く\nCtrl+クリックでこのタブに開く\n× で一覧から外す',
+    forget: 'このリポジトリを一覧から外す',
     accelOpen: 'Ctrl+O'
   },
   nav: {

@@ -553,6 +553,13 @@ export default function App(): JSX.Element {
   /* ---------- repository menu (recent + open) ---------- */
 
   // Rebuilt rather than captured, so removing an entry updates the open menu.
+  function forgetRecent(path: string): void {
+    void window.gitty.repo.forget(path).then((next) => {
+      setRecent(next)
+      setMenu((m) => (m ? { ...m, items: recentItems(next) } : m))
+    })
+  }
+
   function recentItems(list: string[]): MenuItem[] {
     const others = list.filter((p) => p !== active)
     const items: MenuItem[] = others.map((p) => ({
@@ -561,11 +568,11 @@ export default function App(): JSX.Element {
       title: `${p}${msg.recent.tooltip}`,
       action: (mods) => void (mods?.ctrl ? openInActiveTab(p) : openTab(p)),
       auxAction: () => void openInActiveTab(p),
-      altAction: () =>
-        void window.gitty.repo.forget(p).then((next) => {
-          setRecent(next)
-          setMenu((m) => (m ? { ...m, items: recentItems(next) } : m))
-        })
+      // Right-click and the × do the same thing; the × is the one that can be
+      // seen. The menu is rebuilt rather than closed, so several entries can
+      // go in a row.
+      altAction: () => forgetRecent(p),
+      remove: { title: msg.recent.forget, action: () => forgetRecent(p) }
     }))
     if (items.length === 0) {
       items.push({ label: msg.recent.noOtherRepos, action: () => {} })
