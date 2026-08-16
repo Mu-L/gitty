@@ -64,7 +64,7 @@ Things the other git browsers mostly do not do:
   you make it, and the whole UI — log, blame, file history, the boundary between
   "today" and a date — follows.
 
-![Gitty 0.1.7](ref/gitty-0.1.7.png)
+![Gitty 0.1.8](ref/gitty-0.1.8.png)
 
 ## Why another one?
 
