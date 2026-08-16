@@ -38,6 +38,7 @@ import {
   US
 } from './parse'
 import { buildPatch, parseFilePatch, type ApplyDirection, type HunkPick } from './patch'
+import { grepExpr, grepPathspecs, parseQuery } from '../shared/query'
 import { msg } from './messages'
 
 const exec = promisify(execFile)
@@ -394,8 +395,14 @@ const MAX_GREP_HITS = 2000
  * revision, so a grep started while browsing a commit answers about the commit
  * rather than about today.
  *
- * The pattern is one argument, never spliced into a command line, and `-e`
- * keeps a pattern that begins with a dash from being read as an option.
+ * What was typed is a query rather than a bare pattern (`query.ts`), so the
+ * terms and the path limits come out separated here. Every term is one
+ * argument, never spliced into a command line, and `-e` keeps a term that
+ * begins with a dash from being read as an option.
+ *
+ * A query with nothing to look *for* — `in:*.py` on its own — searches
+ * nothing: `git grep` needs a pattern, and "every line of every Python file"
+ * is not what the box was asked for.
  */
 export async function grep(
   root: string,
@@ -403,9 +410,11 @@ export async function grep(
   rev: string | null
 ): Promise<GrepResult> {
   if (!pattern) return { hits: [], truncated: false }
-  const args = ['grep', '-n', '-z', '-I', '--no-color', '-e', pattern]
+  const query = parseQuery(pattern)
+  if (query.include.length === 0) return { hits: [], truncated: false }
+  const args = ['grep', '-n', '-z', '-I', '--no-color', ...grepExpr(query)]
   if (rev) args.push(rev)
-  args.push('--')
+  args.push('--', ...grepPathspecs(query))
   let raw: string
   try {
     raw = await searchLog(root, args, 'grep')

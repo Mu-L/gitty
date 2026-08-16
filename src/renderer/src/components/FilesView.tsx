@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type JSX } from 'react'
+import { useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useMsg } from '../locale'
 import type { CommitMeta } from '../../../shared/types'
+import { parseQuery } from '../../../shared/query'
 import type { View } from '../contextMenus'
 import { paneControls } from '../panes'
 import type { MenuItem, MenuState } from './ContextMenu'
@@ -79,6 +80,9 @@ export function FilesView({
   // the same gesture, so one button carries both and the arrow beside it says
   // which. The last one used stays chosen, so the common case is one click.
   const [findMode, setFindMode] = useState<'search' | 'filter'>('search')
+  // The box takes a query, not a bare pattern — `foo in:*.py` — and the same
+  // parse main will run decides whether there is a term in it at all.
+  const searchable = useMemo(() => parseQuery(searchText).include.length > 0, [searchText])
   const treeFilterRef = useRef<HTMLInputElement>(null)
   const filesBodyRef = useRef<HTMLDivElement>(null)
 
@@ -275,8 +279,10 @@ export function FilesView({
             onChange={(e) => setSearchText(e.target.value)}
             onKeyDown={(e) => {
               // Enter runs it; Escape puts the box away without disturbing
-              // the view behind it.
-              if (e.key === 'Enter' && searchText.trim()) {
+              // the view behind it. A query that only limits the paths
+              // (`in:*.py`) has nothing to look for, so Enter leaves the box
+              // open and the strip says so rather than reporting no match.
+              if (e.key === 'Enter' && searchText.trim() && searchable) {
                 e.stopPropagation()
                 onSearch(searchText.trim())
               } else if (e.key === 'Escape') {
@@ -286,9 +292,11 @@ export function FilesView({
             }}
           />
           <span className="log-filter-busy">
-            {revForView()
-              ? msg.files.searchInRevision((revForView() as string).slice(0, 8))
-              : msg.files.searchInWorktree}
+            {!searchable
+              ? msg.files.searchNeedsTerm
+              : revForView()
+                ? msg.files.searchInRevision((revForView() as string).slice(0, 8))
+                : msg.files.searchInWorktree}
           </span>
           <button
             className="log-filter-clear"

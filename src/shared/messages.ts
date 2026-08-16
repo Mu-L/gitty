@@ -234,6 +234,8 @@ export interface RendererMessages {
     readonly searchPlaceholder: string
     readonly searchInRevision: (short: string) => string
     readonly searchInWorktree: string
+    /** A query with path limits but no term: there is nothing to search for. */
+    readonly searchNeedsTerm: string
     /** The × that puts the search box away. */
     readonly searchClear: string
     /** The arrow beside that button, which picks what it opens. */

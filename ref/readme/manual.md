@@ -436,8 +436,25 @@ down the left; clicking one opens that file at that line, with the line marked.
 The search follows the revision on screen: in the work tree it reads what is on
 disk, uncommitted work and all, and in a commit or a snapshot it reads that
 revision — the box says which. Above 2000 hits it stops and says so, the way an
-oversized diff does. The pattern reaches git as a single argument, so a regular
-expression is not eaten on the way.
+oversized diff does.
+
+The box takes a query rather than a bare pattern, in the shape a mail client
+taught everyone:
+
+| Typed | Found |
+| --- | --- |
+| `foo bar` | lines holding both words |
+| `"foo bar"` | the phrase, spaces and all |
+| `-foo` | lines without it |
+| `foo in:*.py` | only files matching the glob; `in:*.py,*.pyi` for several |
+| `foo -in:test/*` | those files left out |
+| `foo in *.py` | the same as `in:` — without the colon it reads as the operator only when a path follows, so `for x in list` is still four words |
+
+Quoting turns the operators off, which is how `"in:*.py"` is searched for
+literally. Every term and every glob reaches git as its own argument — nothing
+is spliced into a command line — so a regular expression is not eaten on the
+way. A query that says where to look but not what to look for (`in:*.py` alone)
+does not run; the strip says there is nothing to search for.
 
 ### Commits (bottom left)
 

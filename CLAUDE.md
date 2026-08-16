@@ -22,8 +22,8 @@ Two rules, and the line between them is *shipped UI* versus *the repository*.
 
 **The interface is translatable.** Every user-visible string goes through the
 message tables (see [Messages and i18n](#messages-and-i18n)) — never a literal in
-JSX or a dialog call. English (`en`) is the source table: it is what gets written
-first, and what every other language is translated from.
+JSX or a dialog call. English (`en`) is the source table: written first, and what
+every other language is translated from.
 
 **Everything else is English, always.** Documentation, code comments, the
 CHANGELOG, commit messages, `ref/spec/*`, this file. Conversation with the user
@@ -33,18 +33,17 @@ work authored in another language.
 
 The user-facing documentation is two files. `README.md` is the short one —
 what Gitty is, why it exists, how to install it, what it deliberately does not
-do — and is kept under about 200 lines. `ref/readme/manual.md` is the long one:
-every pane, the settings table, the shortcuts, the platform notes. A behaviour
-change usually belongs in the manual; the README changes only when the pitch
-does. Both have translations in `ref/readme/` — `README.<lang>.md` and
-`manual.<lang>.md` — in eight languages (zh-CN, ja, ko, fr, de, es, ru, pt).
+do — kept under about 200 lines. `ref/readme/manual.md` is the long one: every
+pane, the settings table, the shortcuts, the platform notes. A behaviour change
+usually belongs in the manual; the README changes only when the pitch does. Both
+have translations in `ref/readme/` — `README.<lang>.md` and `manual.<lang>.md` —
+in eight languages (zh-CN, ja, ko, fr, de, es, ru, pt).
 
 The translations are **snapshots, not a second source of truth**. Each carries
-the date it was translated and a line saying the English file is the official
-version and the only one kept current — the English README and the English manual
-each stand alone as authoritative. Do not update a translation as part of changing
-behaviour; the English file is what has to stay right. Because translated headings
-would produce unpredictable anchors, each section carries an explicit
+its translation date and a line saying the English file is the official version
+and the only one kept current. Do not update a translation as part of changing
+behaviour; the English file is what has to stay right. Because translated
+headings would produce unpredictable anchors, each section carries an explicit
 `<a id="…">` with the English slug, so the cross-links match the English file's.
 
 Message tables other than `en` are the same kind of thing — translations that
@@ -63,15 +62,14 @@ npm run dist             # build, then electron-builder → release/ (.deb, AppI
 ./setup.sh               # symlink run.sh as `gitty` into ~/.local/bin
 ```
 
-`npm run dist` is the *packaged* product and behaves differently from the
-scripts above on purpose: it has its own executable, so its desktop entry
-matches on `gitty` rather than the `electron` window class, and the `.deb`'s
-postinst sets `chrome-sandbox` up, so the sandbox is on. `run.sh` and
-`setup.sh` are the developer path and keep both workarounds — they really are
-running an unpackaged Electron. `electron` therefore sits in
-`optionalDependencies`: electron-builder refuses to package a project that
-lists it as a dependency, and npm installs optional ones anyway, so the global
-`npm i -g gitty-desktop` route still gets a runtime.
+`npm run dist` is the *packaged* product and behaves differently on purpose: it
+has its own executable, so its desktop entry matches on `gitty` rather than the
+`electron` window class, and the `.deb`'s postinst sets `chrome-sandbox` up, so
+the sandbox is on. `run.sh` and `setup.sh` are the developer path and keep both
+workarounds — they really are running an unpackaged Electron. `electron`
+therefore sits in `optionalDependencies`: electron-builder refuses to package a
+project that lists it as a dependency, and npm installs optional ones anyway, so
+the global `npm i -g gitty-desktop` route still gets a runtime.
 
 A detached run writes everything to
 `${XDG_STATE_HOME:-~/.local/state}/gitty/gitty.log`; use `--fg` when you want
@@ -82,8 +80,7 @@ typecheck` plus `npm test`; run both after every change. The test suite lives
 in `test/` — one vitest file per pure module (`parse.ts`, `patch.ts`,
 `paths.ts`, `lanes.ts`), fed fixtures without a repository — so the folder is a
 readable index of what is tested. Anything that can be wrong *quietly* belongs
-there: the patch builder above all. Verification
-beyond that is visual — see below.
+there: the patch builder above all. Verification beyond that is visual.
 
 `npm install` runs `install-electron && electron-rebuild -f -w node-pty` via
 `postinstall`. Electron 43 no longer downloads its binary from an install script
@@ -103,9 +100,8 @@ bundle, never the source) at the `ready-to-show` handler, run with
 read the PNG. Drive the UI first by passing a snippet to
 `win.webContents.executeJavaScript` — clicking `.commit-row`, `.row` or header
 buttons, or dispatching a `contextmenu` MouseEvent. `out/` is gitignored and
-rebuilt, so the patch is throwaway.
-
-Use a repository with real history for this; this repo's own log is short.
+rebuilt, so the patch is throwaway. Use a repository with real history; this
+repo's own log is short.
 
 ## Architecture
 
@@ -128,19 +124,17 @@ Every user-visible string comes from a message table. `src/shared/messages.ts`
 declares the shape — `MainMessages` and `RendererMessages` — and each side ships
 its own table against it: `src/main/messages.ts` (menus, dialogs, and the strings
 git output is wrapped in) and `src/renderer/src/messages/` (everything on
-screen), whose `index.ts` re-exports the active table as `msg`.
-
-The two sides are split because they need different things and load at different
-times, not because the boundary is doctrinal — main's table covers what exists
-before any window does, and the renderer's is part of the renderer bundle.
+screen), whose `index.ts` re-exports the active table as `msg`. The two sides are
+split because main's table covers what exists before any window does, and the
+renderer's is part of the renderer bundle — not because the boundary is doctrinal.
 
 **There is no runtime interpolation and no lookup by key.** A leaf is either a
 string or an arrow function taking typed parameters and returning one, so
 `msg.app.changesCount(3)` is an ordinary call the compiler checks: a missing key,
 a typo, or a wrong argument type is a typecheck error rather than a `??? key`
-rendered to the user at runtime. That is the whole reason the tables are typed
-objects and not JSON. It also means a plural or a word order that a language
-needs differently is expressible — the function body is code, not a template.
+at runtime. That is the whole reason the tables are typed objects and not JSON,
+and it also makes a plural or an unusual word order expressible — the function
+body is code, not a template.
 
 Adding a string means adding it to the interface in `src/shared/messages.ts` and
 to `en`; `npm run typecheck` then names every table that is missing it. Do not
@@ -155,9 +149,9 @@ component; `messages/index.ts` maps a `Locale` onto its table and falls back to
 tables behind a `Proxy` that `setMainLocale()` re-points, and the IPC handler
 rebuilds the application menu so its labels change with the rest.
 
-Because `msg` now changes over the life of a component, it is a **dependency
-like any other**: a `useCallback`, `useMemo` or `useEffect` that reads it must
-list it, or its strings stay on the language they were first rendered in.
+Because `msg` changes over the life of a component, it is a **dependency like
+any other**: a `useCallback`, `useMemo` or `useEffect` that reads it must list
+it, or its strings stay on the language they were first rendered in.
 
 Adding a language is a new table beside `en.ts`, a `Locale` in `locale.ts`, an
 entry in `messages/index.ts`, and a `MainMessages` table in `src/main/messages.ts`
@@ -173,12 +167,12 @@ tables. Relative stamps do take wordings from the message table, so `stamp` is
 handed `msg.time`; hover tips stay absolute whatever the rows show, because a
 short stamp never says which zone it is in.
 
-Three things it exists to keep right. `Intl.supportedValuesOf('timeZone')` **omits `UTC`**
-(an alias, not a canonical zone), so the list prepends it. An unknown zone name
-makes `toLocaleString` throw, and a `RangeError` raised while rendering the
-commit log takes the whole window white — `zoneOf` therefore falls back to the
-system zone for anything the runtime does not know, which is what a setting
-that outlived its zone name looks like. And "today" is a calendar day *in the
+Three things it exists to keep right. `Intl.supportedValuesOf('timeZone')`
+**omits `UTC`** (an alias, not a canonical zone), so the list prepends it. An
+unknown zone name makes `toLocaleString` throw, and a `RangeError` raised while
+rendering the commit log takes the whole window white — `zoneOf` therefore falls
+back to the system zone for anything the runtime does not know (what a setting
+that outlived its zone name looks like). And "today" is a calendar day *in the
 displayed zone*, so `stamp` reads both the commit and now through it, or a
 midnight-adjacent commit shows a time on the wrong day.
 
@@ -186,21 +180,20 @@ midnight-adjacent commit shows a time on the wrong day.
 
 Gitty stages; it does not commit. The message is written by an agent, so a
 subject/body box would solve a problem nobody has — what is missing is a place
-to decide *which changes are one commit*, which is reading and selecting, which
-is what the four panes are for. **Send** then types a command into the
-terminal pane and stops there: no model is called from inside the app, which is
-what keeps "nothing leaves the machine" true. The command is picked from the
-dropdown beside the button — remembered commands, plus a prompt for one that is
-not remembered yet — and there is deliberately no settings row for it: it is
-answered once per hand-over, not once per install. `App.tsx` owns the list
-(`gitty.agentCommands`, most recently used first) and a command joins it by
-having been run, never by having been typed. **The head of that list is the
-current command** — there is no second stored answer to drift out of it, which
-is what an earlier `gitty.agentCommand` was — so the picker shows
-`agentCommands[0]`, and an empty list greys both controls out. Leaving it goes through the main
-process (`settings:confirmForget`), so the confirmation is a native modal the
-window cannot be clicked past — the same reason discarding a file asks there
-rather than in the renderer.
+to decide *which changes are one commit*, which is what the four panes are for.
+**Send** types a command into the terminal pane and stops there: no model is
+called from inside the app, which is what keeps "nothing leaves the machine"
+true. The command is picked from the dropdown beside the button — remembered
+commands, plus a prompt for one not remembered yet — and there is deliberately
+no settings row for it: it is answered once per hand-over, not once per install.
+`App.tsx` owns the list (`gitty.agentCommands`, most recently used first) and a
+command joins it by having been run, never by having been typed. **The head of
+that list is the current command** — there is no second stored answer to drift
+out of it, which is what an earlier `gitty.agentCommand` was — so the picker
+shows `agentCommands[0]`, and an empty list greys both controls out. Forgetting
+one goes through the main process (`settings:confirmForget`), so the
+confirmation is a native modal the window cannot be clicked past — the same
+reason discarding a file asks there rather than in the renderer.
 
 `src/main/patch.ts` is the whole of the risky part, and it is pure string work
 over `git diff` output so `test/patch.test.ts` can hold it — a wrong patch does
@@ -240,6 +233,19 @@ kinds `grep` and `lines`), so they inherit the find strip and the doc tabs. A
 grep follows the revision on screen, which is the point of it: in a snapshot it
 answers about the snapshot.
 
+What the search box takes is a **query**, not a pattern: `foo in:*.py`, the
+shape a mail client taught everyone. `src/shared/query.ts` parses it into terms
+(`--and`-ed, `-foo` negated) and pathspecs (`-in:` becoming `:(exclude)`), and
+is pure string work with no imports for the reason `patch.ts` is — a query read
+wrongly searches the wrong thing silently, so `test/query.test.ts` holds it. It
+is *shared* rather than main's because both sides read the box: main builds the
+command line, the renderer asks whether there is a term in it at all and refuses
+to run `in:*.py` alone. Two rules the parse is built around. **Quoting turns
+every operator off**, which is the only way to search for `in:` or a leading
+dash literally. And a bare `in` is the operator **only when a path follows**
+(`looksLikePath`) — code is full of `for x in list`, and eating that word would
+be a worse bug than not supporting the colon-less form at all.
+
 `src/renderer/src/lanes.ts` computes the commit graph — deliberately not by
 parsing `git log --graph`, whose ASCII is typeset for a terminal. A lane holds
 the hash it expects next; a commit takes the first lane expecting it or opens
@@ -275,23 +281,23 @@ machine's browser, any of which can fetch the port — and behind it is every
 open repository's contents. So every URL carries a token minted at startup,
 as a path prefix (`/t/<token>/…`) rather than a query string. A wrong token is
 a **404, not a 403** — a 403 confirms the resource exists. The `Host` header
-must be loopback, which is what makes DNS rebinding pointless. And
-`Referrer-Policy: no-referrer` is required, not decoration: the pages link
-outward, and one click would otherwise put the token in a stranger's `Referer`.
+must be loopback, which makes DNS rebinding pointless. And `Referrer-Policy:
+no-referrer` is required: the pages link outward, and one click would otherwise
+put the token in a stranger's `Referer`.
 
 ### Gource
 
 `src/main/gource.ts` is an *optional* companion, and the shape follows from
-that: `available()` walks `PATH` once (the result is cached — PATH does not
-change under a running app) and the commits pane simply does not render the
-button when it comes back false, rather than showing one that fails on click.
+that: `available()` walks `PATH` once (cached — PATH does not change under a
+running app) and the commits pane simply does not render the button when it
+comes back false, rather than showing one that fails on click.
 
 `play()` spawns it detached and resolves after a 2.5 s grace period: long
 enough to catch the immediate failures (no display, no OpenGL, an unreadable
 path) and report gource's own stderr through the same strip push and pull use,
 short enough that the button does not feel stuck. If it is still alive when the
 timer fires, its pipes are destroyed and it is `unref`'d — gource draws its own
-window and is meant to outlive Gitty, so nothing is piped through the app.
+window and is meant to outlive Gitty.
 
 ### Settings, and where a preference lives
 
@@ -336,26 +342,28 @@ tab is closed. `react-resizable-panels` keeps layout state per Group id, so
 Two things the tab shells must not lose. **`min-width: 0`** on `.tab-content`,
 `.repo-tab-shell` and `.repo-tab`: a flex item defaults to `min-width: auto`, so
 without it a tab is stretched by its own nowrap content — long paths, long
-commit subjects — and its panel group ends up wider than the window. The panel
+commit subjects — and its panel group ends up wider than the window. The
 percentages stay correct while the total is wrong, which shows up as one pane
 squeezed to a sliver (its header buttons clipped away) and another pushed off
-screen entirely. And **`disabled={!active}`** on every Group of a hidden tab:
+screen. And **`disabled={!active}`** on every Group of a hidden tab:
 the library hit-tests the pointer against every registered group, and a
-`display: none` group reports a zero-sized rect.
+`display: none` group reports a zero-sized rect. (Both rules apply to *every*
+`Group` in the app, including `MarkdownPane`'s and `CodePane`'s outlines.)
 
-### Full screen and hiding panes
+### Full screen
 
 Full screen is one `PaneId | null` per `RepoTab` and a `position: fixed` class
-on that pane, deliberately: unmounting the layout would dispose the terminal's
-pty and kill whatever is running in it. `components/PaneChrome.tsx` holds the
-two header buttons both `RepoTab` and `TerminalsPane` render, so the icons and
-wording cannot drift between the terminal's own header and the other three.
-`Ctrl+Shift+1..4` is read off `e.code`: with Shift down the key itself is
-punctuation. `Ctrl+Tab` moves full screen on to the next visible pane
-(`nextPane` in `panes.ts`) and fires **only while a pane fills the window** —
-with the layout drawn every pane is a click away, and Tab is the focus key it
-has always been. xterm must be told to ignore the chord, exactly as it is for
-`Ctrl+Shift+C`, or the shell eats the one key out of a full-screen terminal.
+on that pane rather than a different tree, deliberately: unmounting the layout
+would dispose the terminal's pty and kill whatever is running in it.
+`components/PaneChrome.tsx` holds the two header buttons both `RepoTab` and
+`TerminalsPane` render, so the icons and wording cannot drift between the
+terminal's own header and the other three. `Ctrl+Shift+1..4` is read off
+`e.code`: with Shift down the key itself is punctuation. `Ctrl+Tab` moves full
+screen on to the next visible pane (`nextPane` in `panes.ts`) and fires **only
+while a pane fills the window** — with the layout drawn every pane is a click
+away, and Tab is the focus key it has always been. xterm must be told to ignore
+the chord, exactly as it is for `Ctrl+Shift+C`, or the shell eats the one key
+out of a full-screen terminal.
 
 ### Hiding panes
 
@@ -397,24 +405,23 @@ Each `RepoTab` holds a `View` of four modes — `worktree`, `commit`, `range`,
 
 `selectedFile` narrows the diff within a mode. The commit log's first row is a
 pseudo-commit (`WORKTREE_ROW`) standing for the uncommitted changes, drawn as
-the **Changes** row; it joins keyboard
-navigation and selecting it returns to `worktree` mode.
+the **Changes** row; it joins keyboard navigation and selecting it returns to
+`worktree` mode.
 
 `src/renderer/src/icons.ts` decides the type icon each file row carries, and is
 a leaf module with no imports for the reason `paths.ts` is one. The mapping is
 two-dimensional deliberately: **the shape is the family** and **the colour is
 the language**, so thirty-odd extensions cost eighteen glyphs rather than
-thirty icons, and two languages that look alike are ones a reader treats alike.
-The glyphs themselves are hand-written paths in `components/FileIcon.tsx` — an
-icon package whose whole value is breadth would be a megabyte for a screenful
+thirty icons. The glyphs are hand-written paths in `components/FileIcon.tsx` —
+an icon package whose whole value is breadth would be a megabyte for a screenful
 of answers — and every tone is a palette variable, never a brand hex: the tree
 is drawn over both themes, and a colour picked against one background is
 unreadable on the other. `--orange` exists for this and nothing else, yellow
 being taken by the modified status code. The one exception is a **brand mark**
-— a shape that is a language's own logo and carries its colours in the drawing.
-Python is the only one, and the bar for a second is that a reader recognises
-the mark faster than any tone of the shared glyph: a logo per language is what
-shape-plus-tone exists to avoid.
+— a language's own logo, carrying its colours in the drawing. Python is the only
+one, and the bar for a second is that a reader recognises the mark faster than
+any tone of the shared glyph: a logo per language is what shape-plus-tone exists
+to avoid.
 
 ### Browsing history
 
@@ -464,13 +471,13 @@ exactly as `main/patch.ts` counts — nothing may be skipped between the two, th
 `\ No newline` marker included, or a pick made here names different lines
 there. Line selection is read from the **document's own text selection**
 (the two range endpoints, not a scan of the rows), so dragging over a diff
-still copies and there is no second click semantics to learn. Rows render in chunks of 1500
-that grow as the end nears, rather than a fixed-height virtual window: word wrap
-and the side-by-side grid both make row heights variable. Inline rows carry
-`content-visibility: auto` so off-screen ones cost nothing. Side-by-side zips
-each run of deletions with the additions that follow it, one grid row per pair,
-so wrapped halves stay aligned. Wrap and view mode persist in `localStorage`
-under `gitty.wrap` / `gitty.diffView`.
+still copies and there is no second click semantics to learn. Rows render in
+chunks of 1500 that grow as the end nears, rather than a fixed-height virtual
+window: word wrap and the side-by-side grid both make row heights variable.
+Inline rows carry `content-visibility: auto` so off-screen ones cost nothing.
+Side-by-side zips each run of deletions with the additions that follow it, one
+grid row per pair, so wrapped halves stay aligned. Wrap and view mode persist in
+`localStorage` under `gitty.wrap` / `gitty.diffView`.
 
 ### Viewing whole files
 
@@ -478,83 +485,25 @@ under `gitty.wrap` / `gitty.diffView`.
 persisted and is cleared whenever another file or commit is selected: a history
 browser defaults to diffs, and viewing a file is an action (double-click, menu,
 header toggle) rather than a mode to get stuck in. Snapshot mode forces it on —
-a snapshot has no diff. Either way the source comes
-from `git.readWorking` in the work tree and `git.snapshotFile` at a revision;
-`CodePane` renders it with line numbers, and `MarkdownPane` takes over for `.md`.
+a snapshot has no diff. The source comes from `git.readWorking` in the work tree
+and `git.snapshotFile` at a revision; `CodePane` renders it with line numbers,
+`MarkdownPane` takes over for `.md`, and `ImagePane` for an image.
 
-`highlight.ts` is shared by both. highlight.js is imported through `lib/core`
-with languages registered one by one — the full bundle dwarfs the rest of the
-renderer — and its token colours are mapped onto the app palette in CSS rather
-than importing one of its themes. `highlightLines` exists because highlight.js
-emits one blob whose spans run across newlines (block comments, template
-literals): it walks the output keeping the stack of open spans, so each line can
-be its own element without broken markup.
+Four things govern that subtree, and the last is the one that bites. `highlight.ts`
+imports highlight.js through `lib/core` with languages registered one by one —
+the full bundle dwarfs the rest of the renderer. `symbols.ts` is the code
+outline: pure string work over the text (so `test/symbols.test.ts` holds it),
+importing nothing, and producing **no** outline for a language it cannot read
+rather than a guessed one. markdown-it runs with `html: false`, assigns heading
+ids on the token stream, and its link clicks are intercepted — a plain `<a>`
+navigation would replace the whole app window. And React owns the rendered
+markdown through `dangerouslySetInnerHTML` and rewrites it wholesale, so
+**memoise the prop object, not just the string**, images are substituted **in
+the render pass** rather than patched onto the DOM afterwards, and anything
+anchored into the document must survive that rewrite anyway.
 
-`src/renderer/src/symbols.ts` is the other outline — the declarations in a
-source file, which `CodePane` draws beside it in the same `Group` shape
-`MarkdownPane` uses for headings. It is pure string work over the text, for the
-reason `main/patch.ts` is: a wrong outline does not throw, so
-`test/symbols.test.ts` holds it. Comments and strings are blanked to spaces
-first (columns preserved, or a `{` in a string moves the whole tree), nesting is
-brace depth — indentation for the languages written that way — and a name
-appears only where a keyword put it. Two conventions keep the loose patterns
-honest: `member` rules match only inside a class, where a statement cannot
-appear, and `guard` marks the rules with no declaring keyword in front of the
-name, which are the ones `if (x) {` can fool. A language it cannot read
-produces **no** outline rather than a guessed one.
-
-It imports nothing, deliberately: `RepoTab` calls `hasOutline(outlineLanguage(path))`
-to decide whether to draw the button, and reaching into `highlight.ts` for that
-would drag highlight.js into the main bundle — hence its own small extension
-table beside that module's.
-
-`MarkdownPane`'s outline is a `Group` of its own, so the two rules that govern
-every other group apply here too: the id carries the repository (sizes are
-per-Group-id, and several tabs are mounted at once), and it is `disabled` while
-its tab is hidden, since the library hit-tests every registered group and a
-`display: none` one reports a zero-sized rect. Sizes live as long as the
-window — nothing in the app calls `useDefaultLayout`, which is what v4 needs to
-persist them.
-
-In `MarkdownPane`, markdown-it runs with `html: false` so raw HTML stays inert
-without a sanitiser; heading ids are assigned on the token stream before
-rendering, so the outline and the document cannot disagree; front matter is
-sliced off first, since markdown-it would read `---` as a horizontal rule; and
-link clicks are intercepted, because a plain `<a>` navigation would replace the
-whole app window.
-
-That interception is also where a link goes *somewhere*: an `http(s)` one to the
-system browser, a `#` one to the heading, and — with Ctrl or Cmd held — a
-relative one to the file it names, opened as a document beside the diff.
-`resolveInRepo` decides what counts as in-repo (the same function the images
-use, so a link and an image resolve alike, and anything climbing out past the
-root resolves to nothing). The revision is the *document's*, not the view's: a
-README read at a commit links to that commit's files. The `#fragment` rides
-along in `FileDocState.anchor` and the opened pane scrolls to the heading whose
-generated id matches it — once per document-and-anchor, or the images landing
-later would drag the reader back up. A hover title says so,
-written onto the token before rendering rather than onto the DOM after it —
-same reason as the images — and never over a title the author wrote.
-
-Images are the one thing the renderer cannot resolve for itself: a relative
-`src` would be fetched against the bundle, and a revision's bytes were never on
-disk at all. `git.readImageFile` returns them as a data: URL (`ImagePane` for a
-file opened on its own, `MarkdownPane` for the ones inside a document), keyed by
-the same `rev` as the document, so a commit renders with its own screenshots.
-The substitution happens **in the render pass** — the image rule reads a map off
-markdown-it's `env` and re-renders once the fetches land. Patching `src` onto
-the rendered DOM instead is the obvious thing and does not work: React owns that
-subtree through `dangerouslySetInnerHTML` and rewrites it wholesale, silently
-discarding the patch.
-
-That subtree has two consequences worth knowing before touching it. **Memoise
-the prop object, not just the string**: React sets innerHTML whenever the
-`dangerouslySetInnerHTML` prop is a different object, so a fresh `{__html}`
-literal per render rebuilds the nodes on every state change — the scroll
-handler that tracks the outline was enough to do it continuously. The same
-applies per line in `CodePane` and `BlamePane`, which is why both build their
-`{__html}` objects in a `useMemo` beside the highlighted lines. And **anything
-anchored into the document must survive that rewrite anyway** — see below.
+The full rulebook — the outlines, the link and image resolution, the revision a
+document links against — is `ref/spec/file-viewers.md`.
 
 ### Finding text
 
@@ -580,10 +529,6 @@ is left to `scrollIntoView`, which knows about boxes on both sides of the
 frame boundary. The CSP is `img-src 'self' data:`, so a `https://` image
 in a document is not fetched — deliberately, since rendering someone else's
 README should not report to their host.
-
-Full screen is a `position: fixed` class on the pane rather than a different
-tree, deliberately: unmounting the layout would dispose the terminal's pty and
-kill whatever is running in it.
 
 ### Lazy loading
 
@@ -617,9 +562,8 @@ instances live outside React** — the `sessions` registry in `terminals.ts` own
 the DOM node and the terminal (created by `ensureSession` in `TerminalPane.tsx`),
 and the component merely re-parents that node. Unmounting a real xterm would
 take the running shell with it, and every split moves terminals between panels.
-Sessions therefore end only in
-`destroySession`: **Close**, a shell that exited, or the tab's `TerminalsPane`
-unmounting (closing the repository tab).
+Sessions therefore end only in `destroySession`: **Close**, a shell that exited,
+or the tab's `TerminalsPane` unmounting (closing the repository tab).
 
 ### Refresh
 
@@ -656,22 +600,22 @@ Changes pane (and the title bar's count) listing changes already committed.
   why `setup.sh` writes `StartupWMClass=electron` into the desktop entry: that
   string is what the window list and the dock match a window against to find
   its icon. `app.setName`, `--class`, `--name`, `--wm-class-class`,
-  `CHROME_DESKTOP` and renaming the binary (symlink or hard link) were all
-  measured and all leave `WM_CLASS` — the Wayland `app_id` — alone. Only
-  packaging Gitty into its own executable would change it. **This is a Linux
-  fact and does not generalise**: on macOS the name is already right, because
-  the application menu is `{ role: 'appMenu' }` and Electron labels it with
-  `app.name`, which `app.setName('Gitty')` has set before any window exists.
+  `CHROME_DESKTOP` and renaming the binary were all measured and all leave
+  `WM_CLASS` — the Wayland `app_id` — alone; only packaging Gitty into its own
+  executable would change it. **A Linux fact that does not generalise**: on
+  macOS the name is already right, because the application menu is
+  `{ role: 'appMenu' }` and Electron labels it with `app.name`, which
+  `app.setName('Gitty')` has set before any window exists.
 - **An application menu must exist.** Without one Chromium binds no edit
   accelerators at all and Ctrl+C on selected diff text silently does nothing.
-  The menu bar itself is hidden (`autoHideMenuBar`). That menu is also why **Ctrl+C is
-  not handled in the renderer at all** — Chromium's own binding does it. The
-  second copy chord, Ctrl+Shift+C, is ours (`copy.ts`, wired in `App.tsx`),
-  because three different things hold a selection: the document, xterm (which
-  draws its own text, so the document's selection knows nothing about it) and
-  the HTML preview's iframe (whose keys never reach the host at all, hence a
-  listener of its own). `TerminalPane` also has to tell xterm not to pass the
-  chord to the shell, which would otherwise arrive as an interrupt.
+  The menu bar itself is hidden (`autoHideMenuBar`). That menu is also why
+  **Ctrl+C is not handled in the renderer at all** — Chromium's own binding does
+  it. The second copy chord, Ctrl+Shift+C, is ours (`copy.ts`, wired in
+  `App.tsx`), because three different things hold a selection: the document,
+  xterm (which draws its own text, so the document's selection knows nothing
+  about it) and the HTML preview's iframe (whose keys never reach the host at
+  all, hence a listener of its own). `TerminalPane` also has to tell xterm not
+  to pass the chord to the shell, which would otherwise arrive as an interrupt.
 - **Linux runs with `ELECTRON_DISABLE_SANDBOX=1`** (set by `run.sh`);
   `chrome-sandbox` cannot keep a root-owned setuid bit inside `node_modules`.
 - The repository to open is resolved as `$GITTY_REPO`, else the first argv entry

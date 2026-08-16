@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The repository search box takes a query: `foo in:*.py` limits it to those
+  files, `-in:test/*` leaves files out, `-foo` drops the lines holding it,
+  several words must share a line, and quotes make a phrase — or search an
+  operator literally. `foo in *.py` reads the same, but only when a path
+  follows, so `for x in list` stays four words
+  (`src/shared/query.ts`, `test/query.test.ts`).
+
 - File names in the tree carry a type icon: the shape is the family — source,
   data, markup, prose, image, archive, script, lockfile, compiled output — and
   the colour is the language, so `.ts` and `.py` share a glyph and differ in
