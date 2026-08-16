@@ -169,7 +169,9 @@ combined diff attributes nothing.
   Stage / Unstage File, Discard Changes, Delete File.
 - **Click a folder** — collapse or expand it.
 
-<kbd>Ctrl+F</kbd> with this pane focused opens a filter box above the tree and
+<kbd>Ctrl+F</kbd> with this pane focused — or **Filter** on the header's
+search button, whose arrow chooses between searching the repository and
+filtering this list — opens a filter box above the tree and
 narrows it to the paths holding what you type, with the count of how many of
 how many files are left. The text is matched against the whole path, so
 `src/main` keeps everything under that directory, and matching is
@@ -404,7 +406,9 @@ way*. It tracks the range across renames by itself.
 #### Searching the repository
 
 **Search** in the working-tree pane's header opens a box above the file list
-and runs `git grep`. The results are a document grouped by file, line numbers
+and runs `git grep`. The arrow beside it switches that button to **Filter**,
+which narrows the list of files instead; the one you pick stays chosen, and
+only one of the two boxes is open at a time. The results are a document grouped by file, line numbers
 down the left; clicking one opens that file at that line, with the line marked.
 
 The search follows the revision on screen: in the work tree it reads what is on

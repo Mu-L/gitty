@@ -71,8 +71,34 @@ export function FilesView({
   const [searchText, setSearchText] = useState('')
   const [treeFilterOpen, setTreeFilterOpen] = useState(false)
   const [treeFilter, setTreeFilter] = useState('')
+  // Which of the two the header button opens. They ask different questions —
+  // git grep over the repository, or the paths in front of you — but they are
+  // the same gesture, so one button carries both and the arrow beside it says
+  // which. The last one used stays chosen, so the common case is one click.
+  const [findMode, setFindMode] = useState<'search' | 'filter'>('search')
   const treeFilterRef = useRef<HTMLInputElement>(null)
   const filesBodyRef = useRef<HTMLDivElement>(null)
+
+  // Only one strip at a time: they stack above the same list, and the button
+  // that opens them can only be on or off about one of them.
+  const openFilter = (): void => {
+    setFindMode('filter')
+    setSearchOpen(false)
+    setTreeFilterOpen(true)
+    // A second Ctrl+F selects what is in the box, so the next thing typed
+    // replaces it — as it does in a browser.
+    requestAnimationFrame(() => {
+      treeFilterRef.current?.focus()
+      treeFilterRef.current?.select()
+    })
+  }
+
+  const openSearch = (): void => {
+    setFindMode('search')
+    setTreeFilterOpen(false)
+    setTreeFilter('')
+    setSearchOpen(true)
+  }
 
   // Both the collapsed set and the filter belong to one tree: another commit's
   // files are not the ones that was typed against.
@@ -145,14 +171,53 @@ export function FilesView({
         )}
         {/* Searching is about the whole repository, so it belongs to the pane
             that lists it — and it follows the revision on screen rather than
-            always asking about the disk. */}
-        <button
-          className={`toggle${searchOpen ? ' on' : ''}`}
-          title={msg.files.searchTitle}
-          onClick={() => setSearchOpen((o) => !o)}
-        >
-          {msg.files.search}
-        </button>
+            always asking about the disk. Filtering the list is the near
+            neighbour of that question, so it shares the button: the label is
+            whichever is chosen, the arrow changes it. */}
+        <span className="split-button">
+          <button
+            className={`toggle${(findMode === 'search' ? searchOpen : treeFilterOpen) ? ' on' : ''}`}
+            title={findMode === 'search' ? msg.files.searchTitle : msg.files.filterTitle}
+            onClick={() => {
+              if (findMode === 'search') {
+                if (searchOpen) setSearchOpen(false)
+                else openSearch()
+              } else if (treeFilterOpen) {
+                setTreeFilterOpen(false)
+                setTreeFilter('')
+              } else openFilter()
+            }}
+          >
+            {findMode === 'search' ? msg.files.search : msg.files.filter}
+          </button>
+          <button
+            className="toggle split-arrow"
+            title={msg.files.findModeTitle}
+            onClick={(e) => {
+              const r = e.currentTarget.getBoundingClientRect()
+              setMenu({
+                x: r.left,
+                y: r.bottom,
+                items: [
+                  {
+                    label: msg.files.search,
+                    accel: findMode === 'search' ? '✓' : undefined,
+                    title: msg.files.searchTitle,
+                    action: openSearch
+                  },
+                  {
+                    label: msg.files.filter,
+                    accel: findMode === 'filter' ? '✓' : undefined,
+                    title: msg.files.filterTitle,
+                    action: openFilter
+                  }
+                ]
+              })
+            }}
+          >
+            ▾
+          </button>
+        </span>
         {view.mode !== 'worktree' && (
           <button onClick={onBackToWorkTree}>{msg.files.backToWorkTree}</button>
         )}
@@ -234,16 +299,11 @@ export function FilesView({
           if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
             // Ctrl+F belongs to whichever view has the focus, and the document
             // search listens on the window — so this one stops the event
-            // before it gets there.
+            // before it gets there. It is the filter's key wherever the button
+            // is left, and leaves the button on the filter afterwards.
             e.preventDefault()
             e.stopPropagation()
-            setTreeFilterOpen(true)
-            // A second Ctrl+F selects what is in the box, so the next thing
-            // typed replaces it — as it does in a browser.
-            requestAnimationFrame(() => {
-              treeFilterRef.current?.focus()
-              treeFilterRef.current?.select()
-            })
+            openFilter()
           }
         }}
       >

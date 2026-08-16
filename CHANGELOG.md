@@ -36,10 +36,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Opening a repository is one **+** rather than two: the title bar's is gone and
   the tab bar's takes over its accent, beside the tabs it adds to.
-- **Send to agent** is now a picker naming the command, plus a **Send** button
-  beside it. The command runs from the head of the remembered list, so the one
-  just used is the one shown; with nothing remembered the picker is faint and
-  Send is disabled.
+- The work-tree header's **Search** button also does **Filter**; the arrow
+  beside it picks which. <kbd>Ctrl+F</kbd> still opens the filter, and only one
+  of the two boxes is open at a time.
+- **Send to agent** is now a picker naming the command plus a **Send** button.
+  The command is the remembered list's head — the last one run; an empty list
+  disables Send.
 - **Send to agent** is no longer disabled when the index is empty; it types its
   command into the terminal regardless.
 - The **Markdown outline** setting is now **Outline**: the one switch governs
