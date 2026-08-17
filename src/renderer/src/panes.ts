@@ -56,6 +56,24 @@ export function isPaneCycleChord(e: KeyboardEvent): boolean {
   return (e.ctrlKey || e.metaKey) && !e.altKey && e.code === 'Tab'
 }
 
+/** Browsing the work tree; RepoTab holds the view, App the pane visibility. */
+export const BROWSE_ACCEL = 'Ctrl+B'
+
+/**
+ * True for that key. Read off `code`, and kept from the shell for the same
+ * reason as the cycle chord: Ctrl+B is tmux's prefix, and this one hides the
+ * terminal, so the keystroke must not also land in whatever was running there.
+ */
+export function isBrowseChord(e: KeyboardEvent): boolean {
+  return (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.code === 'KeyB'
+}
+
+/**
+ * The layout browsing puts the window into: the file tree and what it opens,
+ * with the two panes that have nothing to say about a snapshot out of the way.
+ */
+export const BROWSE_PANES: PaneVisibility = { files: true, diff: true, log: false, terminal: false }
+
 /**
  * The pane one step from `from` in layout order, skipping the hidden ones.
  * Cycling is what full screen is missing: with the layout gone there is no

@@ -113,6 +113,17 @@ restores sizes that no longer add up. And the last visible pane renders no hide
 button — an empty window would leave only the title bar's **Panes** menu as the
 way back.
 
+One action sets the whole record rather than toggling a pane: browsing the work
+tree (<kbd>Ctrl+B</kbd>, and the **Changes** row's context menu) puts the window
+into `BROWSE_PANES` — files and diff only. A snapshot is a tree being read, and
+neither the log nor a shell has anything to say about it. The view belongs to
+the tab and the visibility to `App`, so `RepoTab` asks through an
+`onBrowseLayout` prop rather than reaching for `setPanes`; <kbd>Ctrl+Shift+0</kbd>
+is the way back out, as from any other hidden pane. `isBrowseChord` lives in
+`panes.ts` beside the cycle chord and is taken from xterm for the same reason:
+<kbd>Ctrl+B</kbd> is tmux's prefix, and a key that hides the terminal must not
+also reach what is running in it.
+
 Hiding the terminal pane unmounts `TerminalsPane`, which must not end its
 shells. Its split tree therefore lives beside the xterm registry in
 `terminals.ts`, keyed by root, and sessions are destroyed only by

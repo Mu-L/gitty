@@ -3,6 +3,7 @@ import type { Commit, DiffResult } from '../../shared/types'
 import type { MenuItem, MenuState } from './components/ContextMenu'
 import type { DiffView } from './components/DiffPane'
 import { isHtmlPath, isMarkdownPath } from './paths'
+import { BROWSE_ACCEL } from './panes'
 import type { FileEntry } from './components/FilesPane'
 import type { RendererMessages } from '../../shared/messages'
 
@@ -350,6 +351,7 @@ export function createContextMenus(deps: ContextMenuDeps): {
       items: [
         {
           label: msg.contextMenu.browseWorktree,
+          accel: BROWSE_ACCEL,
           action: browseWorktree
         },
         {

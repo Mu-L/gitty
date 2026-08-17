@@ -47,6 +47,7 @@ import {
   paneControls,
   paneFullAccel,
   isPaneCycleChord,
+  isBrowseChord,
   nextPane,
   visibleCount,
   type PaneId,
@@ -148,6 +149,8 @@ export interface RepoTabProps {
   panes: PaneVisibility
   /** Hide a pane from its own header button. */
   onHidePane: (id: PaneId) => void
+  /** Put the window into the browsing layout — pane visibility is App's. */
+  onBrowseLayout: () => void
   /** Branch whose history the log shows; null is HEAD, the checked-out one.
    *  Browsing another branch never touches the work tree — the top-left pane
    *  and its diffs still come from disk. */
@@ -200,6 +203,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setGraph,
     panes,
     onHidePane,
+    onBrowseLayout,
     browsing,
     settingsOpen,
     onStatus,
@@ -691,7 +695,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   /** Browse the whole repository as it is on disk right now — tracked and
    *  untracked files alike, read-only. The Changes row's context menu offers
-   *  this. A null hash is what makes it the work tree rather than a revision. */
+   *  this, as does Ctrl+B. A null hash is what makes it the work tree rather
+   *  than a revision; the log and the terminal step aside, since reading a
+   *  tree is what the window is now for. */
   const browseWorktree = useCallback(() => {
     setCompareCommit(null)
     setSelectedCommit(WORKTREE_ROW)
@@ -699,7 +705,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setDocs([])
     setActiveDoc(null)
     setView({ mode: 'snapshot', hash: null, short: '', subject: '' })
-  }, [])
+    onBrowseLayout()
+  }, [onBrowseLayout])
 
   const backToWorkTree = useCallback(() => {
     setView({ mode: 'worktree' })
@@ -759,6 +766,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         e.preventDefault()
         const id = PANE_ORDER[Number(e.code.slice(-1)) - 1]
         if (panes[id]) setFull((f) => (f === id ? null : id))
+      } else if (isBrowseChord(e)) {
+        // Ctrl+B for browse: the work tree as a tree of files, read-only.
+        e.preventDefault()
+        browseWorktree()
       } else if (isPaneCycleChord(e) && full) {
         // Ctrl+Tab moves full screen on to the next pane, Shift back. Only
         // while a pane fills the window: with the layout on screen every pane
@@ -769,7 +780,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [active, settingsOpen, agentPrompt, full, panes, backToWorkTree, refresh])
+  }, [active, settingsOpen, agentPrompt, full, panes, backToWorkTree, browseWorktree, refresh])
 
   const loadMore = useCallback(async () => {
     if (loadingMore.current || exhausted.current) return

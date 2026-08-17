@@ -21,6 +21,7 @@ const RepoTab = lazy(() => import('./RepoTab').then((m) => ({ default: m.RepoTab
 import {
   ALL_PANES,
   ALL_PANES_ACCEL,
+  BROWSE_PANES,
   paneLabels,
   PANE_ORDER,
   loadPanes,
@@ -393,6 +394,10 @@ export default function App(): JSX.Element {
   const togglePane = useCallback((id: PaneId) => {
     setPanes((prev) => (prev[id] && visibleCount(prev) < 2 ? prev : { ...prev, [id]: !prev[id] }))
   }, [])
+
+  // Browsing is a reading layout, and the tab that entered it asks for it.
+  // Ctrl+Shift+0 is the way back, as it is from any other hidden pane.
+  const browseLayout = useCallback(() => setPanes({ ...BROWSE_PANES }), [])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
@@ -844,6 +849,7 @@ export default function App(): JSX.Element {
                   setGraph={setGraph}
                   panes={panes}
                   onHidePane={togglePane}
+                  onBrowseLayout={browseLayout}
                   browsing={browsingByRoot[r] ?? null}
                   settingsOpen={settingsOpen}
                   onStatus={onStatus}

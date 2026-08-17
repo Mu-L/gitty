@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { ALL_PANES, nextPane, type PaneVisibility } from '../src/renderer/src/panes'
+import {
+  ALL_PANES,
+  BROWSE_PANES,
+  isBrowseChord,
+  nextPane,
+  type PaneVisibility
+} from '../src/renderer/src/panes'
 
 /** Layout order is files, diff, log, terminal. */
 const only = (...ids: Array<keyof PaneVisibility>): PaneVisibility => ({
@@ -38,5 +44,39 @@ describe('nextPane', () => {
 
   it('has nothing to cycle from when the pane itself is hidden', () => {
     expect(nextPane('log', only('files', 'diff'))).toBeNull()
+  })
+})
+
+/** Only the fields the chord reads; a KeyboardEvent needs a DOM to construct. */
+const key = (over: Partial<KeyboardEvent>): KeyboardEvent =>
+  ({
+    ctrlKey: false,
+    metaKey: false,
+    altKey: false,
+    shiftKey: false,
+    code: '',
+    ...over
+  }) as KeyboardEvent
+
+describe('isBrowseChord', () => {
+  it('takes Ctrl+B, and Cmd+B on macOS', () => {
+    expect(isBrowseChord(key({ ctrlKey: true, code: 'KeyB' }))).toBe(true)
+    expect(isBrowseChord(key({ metaKey: true, code: 'KeyB' }))).toBe(true)
+  })
+
+  it('leaves the plain key and the other modifiers alone', () => {
+    expect(isBrowseChord(key({ code: 'KeyB' }))).toBe(false)
+    expect(isBrowseChord(key({ ctrlKey: true, shiftKey: true, code: 'KeyB' }))).toBe(false)
+    expect(isBrowseChord(key({ ctrlKey: true, altKey: true, code: 'KeyB' }))).toBe(false)
+  })
+
+  it('reads the code, not the character', () => {
+    expect(isBrowseChord(key({ ctrlKey: true, code: 'KeyV' }))).toBe(false)
+  })
+})
+
+describe('BROWSE_PANES', () => {
+  it('is the reading layout: the tree and what it opens', () => {
+    expect(BROWSE_PANES).toEqual(only('files', 'diff'))
   })
 })

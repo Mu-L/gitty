@@ -179,6 +179,11 @@ like any other file; only their line counts are left off, since counting them
 means reading every byte of a directory that is usually the largest thing on
 disk. `.git` itself is not listed.
 
+<kbd>Ctrl+B</kbd> — b for browse — is the shortcut into it from anywhere, and it
+sets the window up for reading as well as switching the view: Commits and the
+terminal go away, leaving the tree and what it opens. <kbd>Ctrl+Shift+0</kbd>
+brings them back.
+
 - **Click** — show the file's diff on the right.
 - **Double-click** — open the whole file as a document beside the diff, with
   line numbers and syntax highlighting (a rendered document for markdown, the
@@ -649,6 +654,7 @@ highlight** lives here only.
 | <kbd>Ctrl+F</kbd> | Find in the diff, the file, or whatever the pane is showing — or filter the file tree, with that pane focused |
 | <kbd>Ctrl+C</kbd> / <kbd>Ctrl+Shift+C</kbd> | Copy the selection, anywhere in the window |
 | <kbd>Esc</kbd> | Back to the changes |
+| <kbd>Ctrl+B</kbd> | Browse the working tree, with Commits and Terminal out of the way |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Back and forward through the places viewed |
 | <kbd>Alt</kbd> | Show or hide the application menu bar (not on macOS, where it is always there) |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |

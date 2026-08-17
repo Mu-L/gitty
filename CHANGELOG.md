@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- <kbd>Ctrl+B</kbd> browses the working tree, and clears the window for it:
+  Commits and Terminal go, leaving the tree and what it opens.
+  <kbd>Ctrl+Shift+0</kbd> brings them back. The **Changes** row's menu item
+  takes the same layout. The key is kept from the shell, tmux's prefix being
+  what it is (`src/renderer/src/panes.ts`, `test/panes.test.ts`).
+
 - The repository search box takes a query: `foo in:*.py` limits it to those
   files, `-in:test/*` leaves files out, `-foo` drops the lines holding it,
   several words must share a line, and quotes make a phrase — or search an
