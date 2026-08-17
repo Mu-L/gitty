@@ -118,7 +118,7 @@ export const ko: RendererMessages = {
     emptyBrowseWorktree: '작업 트리의 내용을 볼 파일을 선택하세요.',
     emptyBlame: '추적할 줄이 없습니다.',
     emptyHistory: '이 파일에는 기록이 없습니다.',
-    showWholeDiff: '전체 diff 보기',
+    showWholeDiff: '전체',
     allShown: '커밋하지 않은 변경 사항을 모두 표시하고 있습니다',
     allCommitShown: '이 커밋의 파일을 모두 표시하고 있습니다',
     widenWorktree: 'diff를 커밋하지 않은 모든 변경 사항으로 넓히기',

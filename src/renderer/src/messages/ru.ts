@@ -135,7 +135,7 @@ export const ru: RendererMessages = {
     emptyBrowseWorktree: 'Выберите файл, чтобы посмотреть его в рабочем дереве.',
     emptyBlame: 'Нет строк для вины.',
     emptyHistory: 'У этого файла пока нет истории.',
-    showWholeDiff: 'Показать весь diff',
+    showWholeDiff: 'Всё',
     allShown: 'Показаны все незакоммиченные изменения',
     allCommitShown: 'Показаны все файлы этого коммита',
     widenWorktree: 'Расширить diff до всех незакоммиченных изменений',

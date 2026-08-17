@@ -120,7 +120,7 @@ export const de: RendererMessages = {
     emptyBrowseWorktree: 'Wählen Sie eine Datei, um sie im Arbeitsverzeichnis anzusehen.',
     emptyBlame: 'Keine Zeilen zuzuordnen.',
     emptyHistory: 'Diese Datei hat noch keinen Verlauf.',
-    showWholeDiff: 'Ganzen Diff anzeigen',
+    showWholeDiff: 'Alles',
     allShown: 'Alle nicht committeten Änderungen werden angezeigt',
     allCommitShown: 'Alle Dateien dieses Commits werden angezeigt',
     widenWorktree: 'Diff wieder auf alle nicht committeten Änderungen ausweiten',

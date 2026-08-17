@@ -120,7 +120,7 @@ export const fr: RendererMessages = {
     emptyBrowseWorktree: 'Sélectionnez un fichier pour le voir dans la copie de travail.',
     emptyBlame: 'Aucune ligne à imputer.',
     emptyHistory: 'Ce fichier n’a pas encore d’historique.',
-    showWholeDiff: 'Afficher tout le diff',
+    showWholeDiff: 'Tout',
     allShown: 'Toutes les modifications non validées sont affichées',
     allCommitShown: 'Tous les fichiers de ce commit sont affichés',
     widenWorktree: 'Élargir le diff à toutes les modifications non validées',

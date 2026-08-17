@@ -119,7 +119,7 @@ export const es: RendererMessages = {
     emptyBrowseWorktree: 'Selecciona un archivo para verlo en el árbol de trabajo.',
     emptyBlame: 'No hay líneas que atribuir.',
     emptyHistory: 'Este archivo aún no tiene historial.',
-    showWholeDiff: 'Mostrar el diff completo',
+    showWholeDiff: 'Todo',
     allShown: 'Se muestran todos los cambios sin confirmar',
     allCommitShown: 'Se muestran todos los archivos de este commit',
     widenWorktree: 'Ampliar el diff a todos los cambios sin confirmar',

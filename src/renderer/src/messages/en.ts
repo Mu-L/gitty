@@ -121,7 +121,7 @@ export const en: RendererMessages = {
     emptyBrowseWorktree: 'Select a file to view it in the working tree.',
     emptyBlame: 'No lines to blame.',
     emptyHistory: 'This file has no history yet.',
-    showWholeDiff: 'Show Whole Diff',
+    showWholeDiff: 'All',
     allShown: 'Every uncommitted change is shown',
     allCommitShown: 'Every file in this commit is shown',
     widenWorktree: 'Widen the diff back to every uncommitted change',

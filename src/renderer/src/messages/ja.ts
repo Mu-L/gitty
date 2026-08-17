@@ -119,7 +119,7 @@ export const ja: RendererMessages = {
     emptyBrowseWorktree: 'ワークツリーの内容を見るファイルを選択してください。',
     emptyBlame: '対象の行がありません。',
     emptyHistory: 'このファイルには履歴がありません。',
-    showWholeDiff: '差分全体を表示',
+    showWholeDiff: '全体',
     allShown: '未コミットの変更をすべて表示しています',
     allCommitShown: 'このコミットのファイルをすべて表示しています',
     widenWorktree: '未コミットの変更すべてに差分を広げる',

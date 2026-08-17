@@ -119,7 +119,7 @@ export const pt: RendererMessages = {
     emptyBrowseWorktree: 'Selecione um ficheiro para o ver na árvore de trabalho.',
     emptyBlame: 'Nenhuma linha a atribuir.',
     emptyHistory: 'Este arquivo ainda não tem histórico.',
-    showWholeDiff: 'Mostrar o diff completo',
+    showWholeDiff: 'Tudo',
     allShown: 'São mostradas todas as alterações por confirmar',
     allCommitShown: 'São mostrados todos os ficheiros deste commit',
     widenWorktree: 'Alargar o diff a todas as alterações por confirmar',
