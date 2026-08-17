@@ -111,20 +111,6 @@ export const ru: RendererMessages = {
     lines: (n: number) => `${n} ${plural(n, 'строка', 'строки', 'строк')}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Щёлкните, чтобы убрать файл из индекса' : 'Щёлкните, чтобы добавить файл в индекс',
-    sendToAgent: 'Отправить',
-    sendToAgentTitle: (command: string) =>
-      `Выполнить «${command}» в терминале — по тому, что лежит в индексе`,
-    agentCommandsTitle: 'Выберите команду для запуска',
-    agentCommandTooltip:
-      '\n\nЩелчок — запустить\n× убирает её из списка',
-    agentForget: 'Убрать эту команду из списка',
-    agentNewCommand: 'Новая команда…',
-    agentPromptTitle: 'Отправить агенту',
-    agentPromptRun: 'Запустить',
-    agentPromptCancel: 'Отмена',
-    agentCommandPlaceholder: 'команда, запускаемая в терминале',
-    agentNone: 'Нет команды',
-    agentNoTerminal: 'В этой вкладке нет оболочки, где её запустить.',
     search: 'Поиск',
     searchTitle: 'Искать по репозиторию через git grep.\n\nfoo bar — оба слова в одной строке\n"foo bar" — фраза целиком; кавычки ищут и оператор буквально\n-foo — строки без него\nfoo in:*.py — только эти файлы (несколько — через запятую)\nfoo -in:test/* — эти файлы исключены\nfoo in *.py — in без двоеточия, если дальше идёт путь',
     searchPlaceholder: 'Искать по репозиторию — foo in:*.py',
@@ -389,7 +375,21 @@ export const ru: RendererMessages = {
     splitRightTitle: 'Разделить активный терминал вправо',
     splitDown: 'Разделить ↓',
     splitDownTitle: 'Разделить активный терминал вниз',
-    shellsKeepRunning: ' — оболочки продолжают работать'
+    shellsKeepRunning: ' — оболочки продолжают работать',
+    sendToAgent: 'Отправить',
+    sendToAgentTitle: (command: string) =>
+      `Выполнить «${command}» в терминале — по тому, что лежит в индексе`,
+    agentCommandsTitle: 'Выберите команду для запуска',
+    agentCommandTooltip:
+      '\n\nЩелчок — запустить\n× убирает её из списка',
+    agentForget: 'Убрать эту команду из списка',
+    agentNewCommand: 'Новая команда…',
+    agentPromptTitle: 'Отправить агенту',
+    agentPromptRun: 'Запустить',
+    agentPromptCancel: 'Отмена',
+    agentCommandPlaceholder: 'команда, запускаемая в терминале',
+    agentNone: 'Нет команды',
+    agentNoTerminal: 'В этой вкладке нет оболочки, где её запустить.'
   },
   common: {
     loading: 'Загрузка…',

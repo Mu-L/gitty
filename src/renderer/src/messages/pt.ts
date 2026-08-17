@@ -95,20 +95,6 @@ export const pt: RendererMessages = {
     lines: (n: number) => `${n} linha${n === 1 ? '' : 's'}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Clique para tirar o ficheiro do índice' : 'Clique para pôr o ficheiro no índice',
-    sendToAgent: 'Enviar',
-    sendToAgentTitle: (command: string) =>
-      `Correr «${command}» no terminal, sobre o que está no índice`,
-    agentCommandsTitle: 'Escolha o comando a correr',
-    agentCommandTooltip:
-      '\n\nClique para o correr\n× remove-o da lista',
-    agentForget: 'Remover este comando da lista',
-    agentNewCommand: 'Novo comando…',
-    agentPromptTitle: 'Enviar ao agente',
-    agentPromptRun: 'Correr',
-    agentPromptCancel: 'Cancelar',
-    agentCommandPlaceholder: 'comando corrido no terminal',
-    agentNone: 'Sem comando',
-    agentNoTerminal: 'Não há nenhuma shell neste separador para o correr.',
     search: 'Procurar',
     searchTitle: 'Procurar no repositório com git grep.\n\nfoo bar — as duas palavras na mesma linha\n"foo bar" — a frase; as aspas também procuram um operador à letra\n-foo — as linhas que não a têm\nfoo in:*.py — apenas esses ficheiros (vários separados por vírgulas)\nfoo -in:test/* — esses ficheiros excluídos\nfoo in *.py — in sem os dois pontos, quando se lhe segue um caminho',
     searchPlaceholder: 'Procurar no repositório — foo in:*.py',
@@ -372,7 +358,21 @@ export const pt: RendererMessages = {
     splitRightTitle: 'Dividir o terminal ativo para a direita',
     splitDown: 'Dividir ↓',
     splitDownTitle: 'Dividir o terminal ativo para baixo',
-    shellsKeepRunning: ' — as shells continuam a correr'
+    shellsKeepRunning: ' — as shells continuam a correr',
+    sendToAgent: 'Enviar',
+    sendToAgentTitle: (command: string) =>
+      `Correr «${command}» no terminal, sobre o que está no índice`,
+    agentCommandsTitle: 'Escolha o comando a correr',
+    agentCommandTooltip:
+      '\n\nClique para o correr\n× remove-o da lista',
+    agentForget: 'Remover este comando da lista',
+    agentNewCommand: 'Novo comando…',
+    agentPromptTitle: 'Enviar ao agente',
+    agentPromptRun: 'Correr',
+    agentPromptCancel: 'Cancelar',
+    agentCommandPlaceholder: 'comando corrido no terminal',
+    agentNone: 'Sem comando',
+    agentNoTerminal: 'Não há nenhuma shell neste separador para o correr.'
   },
   common: {
     loading: 'A carregar…',

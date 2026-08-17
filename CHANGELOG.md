@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Send** and its command picker moved to the terminal pane's header, beside
+  the splits: the shell they type into is what they touch. They are no longer
+  tied to the Changes view, so the hand-over is there while browsing a commit
+  or the working tree.
+
 - **Working Tree** lists ignored files too — build output, `node_modules` — in
   dimmed italics, and dims a folder that holds nothing else. They were the one
   part of the directory the view left out. No line counts for them: counting

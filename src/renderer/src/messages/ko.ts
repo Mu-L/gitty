@@ -94,20 +94,6 @@ export const ko: RendererMessages = {
     lines: (n: number) => `${n}줄`,
     toggleStage: (staged: boolean) =>
       staged ? '클릭하면 이 파일을 스테이지에서 내립니다' : '클릭하면 이 파일을 스테이지합니다',
-    sendToAgent: '보내기',
-    sendToAgentTitle: (command: string) =>
-      `스테이지된 내용을 두고 터미널에서 "${command}"를 실행합니다`,
-    agentCommandsTitle: '실행할 명령 고르기',
-    agentCommandTooltip:
-      '\n\n클릭하면 실행\n× 를 누르면 목록에서 제거',
-    agentForget: '이 명령을 목록에서 제거',
-    agentNewCommand: '새 명령…',
-    agentPromptTitle: 'agent에게 보내기',
-    agentPromptRun: '실행',
-    agentPromptCancel: '취소',
-    agentCommandPlaceholder: '터미널에서 실행할 명령',
-    agentNone: '명령 없음',
-    agentNoTerminal: '이 탭에는 실행할 셸이 없습니다.',
     search: '검색',
     searchTitle: 'git grep으로 저장소 검색.\n\nfoo bar — 한 줄에 두 단어 모두\n"foo bar" — 구절 그대로. 따옴표는 연산자도 문자 그대로 검색한다\n-foo — 그 단어가 없는 줄\nfoo in:*.py — 해당 파일만(여러 개는 쉼표로 구분)\nfoo -in:test/* — 해당 파일 제외\nfoo in *.py — 뒤에 경로가 오면 콜론 없는 in도 같다',
     searchPlaceholder: '저장소 검색 — foo in:*.py',
@@ -367,7 +353,21 @@ export const ko: RendererMessages = {
     splitRightTitle: '선택한 터미널을 오른쪽으로 분할',
     splitDown: '아래쪽 분할 ↓',
     splitDownTitle: '선택한 터미널을 아래쪽으로 분할',
-    shellsKeepRunning: ' — 셸은 계속 실행됩니다'
+    shellsKeepRunning: ' — 셸은 계속 실행됩니다',
+    sendToAgent: '보내기',
+    sendToAgentTitle: (command: string) =>
+      `스테이지된 내용을 두고 터미널에서 "${command}"를 실행합니다`,
+    agentCommandsTitle: '실행할 명령 고르기',
+    agentCommandTooltip:
+      '\n\n클릭하면 실행\n× 를 누르면 목록에서 제거',
+    agentForget: '이 명령을 목록에서 제거',
+    agentNewCommand: '새 명령…',
+    agentPromptTitle: 'agent에게 보내기',
+    agentPromptRun: '실행',
+    agentPromptCancel: '취소',
+    agentCommandPlaceholder: '터미널에서 실행할 명령',
+    agentNone: '명령 없음',
+    agentNoTerminal: '이 탭에는 실행할 셸이 없습니다.'
   },
   common: {
     loading: '불러오는 중…',

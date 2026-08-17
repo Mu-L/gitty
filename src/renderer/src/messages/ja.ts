@@ -95,20 +95,6 @@ export const ja: RendererMessages = {
     lines: (n: number) => `${n} 行`,
     toggleStage: (staged: boolean) =>
       staged ? 'クリックでこのファイルをステージ解除' : 'クリックでこのファイルをステージ',
-    sendToAgent: '送信',
-    sendToAgentTitle: (command: string) =>
-      `ステージ済みの内容に対して、ターミナルで "${command}" を実行します`,
-    agentCommandsTitle: '実行するコマンドを選ぶ',
-    agentCommandTooltip:
-      '\n\nクリックで実行\n× で一覧から削除',
-    agentForget: 'このコマンドを一覧から削除',
-    agentNewCommand: '新しいコマンド…',
-    agentPromptTitle: 'agent に送る',
-    agentPromptRun: '実行',
-    agentPromptCancel: 'キャンセル',
-    agentCommandPlaceholder: 'ターミナルで実行するコマンド',
-    agentNone: 'コマンドなし',
-    agentNoTerminal: 'このタブには実行できるシェルがありません。',
     search: '検索',
     searchTitle: 'git grep でリポジトリを検索。\n\nfoo bar — 同じ行に両方の語\n"foo bar" — その語句そのもの。引用符は演算子も文字どおりに検索する\n-foo — その語を含まない行\nfoo in:*.py — そのファイルだけ（複数はカンマ区切り）\nfoo -in:test/* — そのファイルを除く\nfoo in *.py — 後ろがパスならコロンなしの in も同じ',
     searchPlaceholder: 'リポジトリを検索 — foo in:*.py',
@@ -368,7 +354,21 @@ export const ja: RendererMessages = {
     splitRightTitle: 'フォーカス中のターミナルを右に分割',
     splitDown: '下に分割 ↓',
     splitDownTitle: 'フォーカス中のターミナルを下に分割',
-    shellsKeepRunning: ' — シェルは動き続けます'
+    shellsKeepRunning: ' — シェルは動き続けます',
+    sendToAgent: '送信',
+    sendToAgentTitle: (command: string) =>
+      `ステージ済みの内容に対して、ターミナルで "${command}" を実行します`,
+    agentCommandsTitle: '実行するコマンドを選ぶ',
+    agentCommandTooltip:
+      '\n\nクリックで実行\n× で一覧から削除',
+    agentForget: 'このコマンドを一覧から削除',
+    agentNewCommand: '新しいコマンド…',
+    agentPromptTitle: 'agent に送る',
+    agentPromptRun: '実行',
+    agentPromptCancel: 'キャンセル',
+    agentCommandPlaceholder: 'ターミナルで実行するコマンド',
+    agentNone: 'コマンドなし',
+    agentNoTerminal: 'このタブには実行できるシェルがありません。'
   },
   common: {
     loading: '読み込み中…',

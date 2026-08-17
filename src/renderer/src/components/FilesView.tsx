@@ -4,7 +4,7 @@ import type { CommitMeta } from '../../../shared/types'
 import { parseQuery } from '../../../shared/query'
 import type { View } from '../contextMenus'
 import { paneControls } from '../panes'
-import type { MenuItem, MenuState } from './ContextMenu'
+import type { MenuState } from './ContextMenu'
 import { CommitInfo } from './CommitInfo'
 import { FilesPane, matchesFilter, type FileEntry } from './FilesPane'
 import { Tooltip } from './Tooltip'
@@ -31,10 +31,6 @@ export interface FilesViewProps {
   onBackToWorkTree: () => void
   /** Browse the whole directory on disk — the other half of the title picker. */
   onBrowseWorkTree: () => void
-  sendToAgent: (pick?: string) => void
-  agentItems: (list: string[]) => MenuItem[]
-  agentCommands: string[]
-  agentCommand: string
   setMenu: (m: MenuState | null) => void
   revForView: () => string | null
 }
@@ -63,10 +59,6 @@ export function FilesView({
   onSearch,
   onBackToWorkTree,
   onBrowseWorkTree,
-  sendToAgent,
-  agentItems,
-  agentCommands,
-  agentCommand,
   setMenu,
   revForView
 }: FilesViewProps): JSX.Element {
@@ -171,45 +163,6 @@ export function FilesView({
           </button>
         </Tooltip>
         <span className="spacer" />
-        {/* The index is curated here, so this is where it is handed over. Only
-            ever text into the shell below. */}
-        {view.mode === 'worktree' && (
-          <span className="split-button">
-            {/* Which agent to hand it to is a per-commit decision, so the
-                whole choice lives here: the remembered commands and the box
-                for one that is not remembered yet. It names the command it
-                would run — the head of the list — so what Send does is
-                readable without opening the menu; a long one is cut by CSS
-                rather than allowed to widen the header, and carries the whole
-                of itself as its own tooltip. */}
-            <button
-              className="toggle split-pick"
-              title={msg.files.agentCommandsTitle}
-              onClick={(e) => {
-                const r = e.currentTarget.getBoundingClientRect()
-                setMenu({ x: r.left, y: r.bottom, items: agentItems(agentCommands) })
-              }}
-            >
-              <span
-                className={`split-pick-label${agentCommand === '' ? ' empty' : ''}`}
-                title={agentCommand || undefined}
-              >
-                {agentCommand || msg.files.agentNone}
-              </span>
-              ▾
-            </button>
-            {/* Nothing remembered means nothing to send: the button greys out
-                rather than reporting the same absence after the click. */}
-            <button
-              className="toggle"
-              disabled={agentCommand === ''}
-              title={msg.files.sendToAgentTitle(agentCommand)}
-              onClick={() => sendToAgent()}
-            >
-              {msg.files.sendToAgent}
-            </button>
-          </span>
-        )}
         {/* Searching is about the whole repository, so it belongs to the pane
             that lists it — and it follows the revision on screen rather than
             always asking about the disk. Filtering the list is the near

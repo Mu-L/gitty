@@ -96,20 +96,6 @@ export const en: RendererMessages = {
     lines: (n: number) => `${n} lines`,
     toggleStage: (staged: boolean) =>
       staged ? 'Click to unstage this file' : 'Click to stage this file',
-    sendToAgent: 'Send',
-    sendToAgentTitle: (command: string) =>
-      `Run "${command}" in the terminal, against what is staged`,
-    agentCommandsTitle: 'Choose which command to run',
-    agentCommandTooltip:
-      '\n\nClick to run it\n× takes it out of the list',
-    agentForget: 'Forget this command',
-    agentNewCommand: 'New command…',
-    agentPromptTitle: 'Send to agent',
-    agentPromptRun: 'Run',
-    agentPromptCancel: 'Cancel',
-    agentCommandPlaceholder: 'command run in the terminal',
-    agentNone: 'No command',
-    agentNoTerminal: 'No shell in this tab to run it in.',
     search: 'Search',
     searchTitle:
       'Search the repository with git grep.\n\nfoo bar — both words on a line\n"foo bar" — the phrase; quoting also searches an operator literally\n-foo — lines without it\nfoo in:*.py — only those files (comma-separated for several)\nfoo -in:test/* — those files left out\nfoo in *.py — in without the colon, when a path follows',
@@ -369,7 +355,21 @@ export const en: RendererMessages = {
     splitRightTitle: 'Split the focused terminal to the right',
     splitDown: 'Split ↓',
     splitDownTitle: 'Split the focused terminal downwards',
-    shellsKeepRunning: ' — the shells keep running'
+    shellsKeepRunning: ' — the shells keep running',
+    sendToAgent: 'Send',
+    sendToAgentTitle: (command: string) =>
+      `Run "${command}" in the terminal, against what is staged`,
+    agentCommandsTitle: 'Choose which command to run',
+    agentCommandTooltip:
+      '\n\nClick to run it\n× takes it out of the list',
+    agentForget: 'Forget this command',
+    agentNewCommand: 'New command…',
+    agentPromptTitle: 'Send to agent',
+    agentPromptRun: 'Run',
+    agentPromptCancel: 'Cancel',
+    agentCommandPlaceholder: 'command run in the terminal',
+    agentNone: 'No command',
+    agentNoTerminal: 'No shell in this tab to run it in.'
   },
   common: {
     loading: 'Loading…',

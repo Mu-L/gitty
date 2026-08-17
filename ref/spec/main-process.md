@@ -7,9 +7,11 @@ subject/body box would solve a problem nobody has — what is missing is a place
 to decide *which changes are one commit*, which is what the four panes are for.
 **Send** types a command into the terminal pane and stops there: no model is
 called from inside the app, which is what keeps "nothing leaves the machine"
-true. The command is picked from the dropdown beside the button — remembered
-commands, plus a prompt for one not remembered yet — and there is deliberately
-no settings row for it: it is answered once per hand-over, not once per install.
+true. It sits in the **terminal pane's** header, beside the splits, because the
+shell it types into is the one thing it touches — the files it talks about are
+elsewhere, but the effect is here. The command is picked from the dropdown
+beside the button — remembered commands, plus a prompt for one not remembered
+yet — and there is deliberately no settings row for it: it is answered once per hand-over, not once per install.
 `App.tsx` owns the list (`gitty.agentCommands`, most recently used first) and a
 command joins it by having been run, never by having been typed. **The head of
 that list is the current command** — there is no second stored answer to drift

@@ -4,6 +4,7 @@ import { TerminalPane, type Theme } from './TerminalPane'
 import { useMsg } from '../locale'
 import type { TerminalOptions } from '../../../shared/types'
 import { FullButton, HideButton } from './PaneChrome'
+import type { MenuItem, MenuState } from './ContextMenu'
 import { paneControls } from '../panes'
 import { Tooltip } from './Tooltip'
 import {
@@ -73,7 +74,12 @@ export const TerminalsPane = memo(function TerminalsPane({
   disabled = false,
   full = false,
   onToggleFull,
-  onHide
+  onHide,
+  sendToAgent,
+  agentItems,
+  agentCommands,
+  agentCommand,
+  setMenu
 }: {
   root: string
   theme: Theme
@@ -89,6 +95,12 @@ export const TerminalsPane = memo(function TerminalsPane({
   onToggleFull?: () => void
   /** Absent when this is the only pane left on screen. */
   onHide?: () => void
+  /** Type the chosen command into the focused shell — see `RepoTab`. */
+  sendToAgent: (pick?: string) => void
+  agentItems: (list: string[]) => MenuItem[]
+  agentCommands: string[]
+  agentCommand: string
+  setMenu: (m: MenuState | null) => void
 }): JSX.Element {
   const { msg } = useMsg()
 
@@ -173,6 +185,43 @@ export const TerminalsPane = memo(function TerminalsPane({
           {msg.terminal.title}
         </Tooltip>
         <span className="spacer" />
+        {/* The command is only ever typed into a shell in this pane, so the
+            choice of what to send belongs here rather than beside the files it
+            talks about. Which agent to hand the work to is a per-commit
+            decision, so the whole choice lives in the header: the remembered
+            commands and the box for one that is not remembered yet. It names
+            the command it would run — the head of the list — so what Send does
+            is readable without opening the menu; a long one is cut by CSS
+            rather than allowed to widen the header, and carries the whole of
+            itself as its own tooltip. */}
+        <span className="split-button">
+          <button
+            className="toggle split-pick"
+            title={msg.terminal.agentCommandsTitle}
+            onClick={(e) => {
+              const r = e.currentTarget.getBoundingClientRect()
+              setMenu({ x: r.left, y: r.bottom, items: agentItems(agentCommands) })
+            }}
+          >
+            <span
+              className={`split-pick-label${agentCommand === '' ? ' empty' : ''}`}
+              title={agentCommand || undefined}
+            >
+              {agentCommand || msg.terminal.agentNone}
+            </span>
+            ▾
+          </button>
+          {/* Nothing remembered means nothing to send: the button greys out
+              rather than reporting the same absence after the click. */}
+          <button
+            className="toggle"
+            disabled={agentCommand === ''}
+            title={msg.terminal.sendToAgentTitle(agentCommand)}
+            onClick={() => sendToAgent()}
+          >
+            {msg.terminal.sendToAgent}
+          </button>
+        </span>
         <button title={msg.terminal.splitRightTitle} onClick={() => split('horizontal')}>
           {msg.terminal.splitRight}
         </button>

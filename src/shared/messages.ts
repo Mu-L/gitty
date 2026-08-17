@@ -209,25 +209,6 @@ export interface RendererMessages {
     readonly lines: (n: number) => string
     /** Clicking a file's status marks moves it in or out of the index. */
     readonly toggleStage: (staged: boolean) => string
-    /** Hands the curated index to whatever agent the user picks. */
-    readonly sendToAgent: string
-    readonly sendToAgentTitle: (command: string) => string
-    /** The dropdown of remembered commands beside that button. */
-    readonly agentCommandsTitle: string
-    /** Appended to a command in that dropdown, saying what a click does. */
-    readonly agentCommandTooltip: string
-    /** The × beside a command there, which takes it out of the list. */
-    readonly agentForget: string
-    /** Its last entry, and the one-line dialog that entry opens. */
-    readonly agentNewCommand: string
-    readonly agentPromptTitle: string
-    readonly agentPromptRun: string
-    readonly agentPromptCancel: string
-    readonly agentCommandPlaceholder: string
-    /** The picker's label when nothing is remembered to run. */
-    readonly agentNone: string
-    /** Why nothing happened: there is nowhere to run the command. */
-    readonly agentNoTerminal: string
     /** Searching the repository from the file pane's header. */
     readonly search: string
     readonly searchTitle: string
@@ -535,6 +516,25 @@ export interface RendererMessages {
     readonly binaryOrOversized: string
   }
   /** The find strip over a rendered document. */
+    /** Hands the curated index to whatever agent the user picks. */
+    readonly sendToAgent: string
+    readonly sendToAgentTitle: (command: string) => string
+    /** The dropdown of remembered commands beside that button. */
+    readonly agentCommandsTitle: string
+    /** Appended to a command in that dropdown, saying what a click does. */
+    readonly agentCommandTooltip: string
+    /** The × beside a command there, which takes it out of the list. */
+    readonly agentForget: string
+    /** Its last entry, and the one-line dialog that entry opens. */
+    readonly agentNewCommand: string
+    readonly agentPromptTitle: string
+    readonly agentPromptRun: string
+    readonly agentPromptCancel: string
+    readonly agentCommandPlaceholder: string
+    /** The picker's label when nothing is remembered to run. */
+    readonly agentNone: string
+    /** Why nothing happened: there is nowhere to run the command. */
+    readonly agentNoTerminal: string
   readonly find: {
     readonly placeholder: string
     /** "3 / 12" — which match, and how many there are. */

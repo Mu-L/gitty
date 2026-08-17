@@ -96,20 +96,6 @@ export const fr: RendererMessages = {
     lines: (n: number) => `${n} ligne${n === 1 ? '' : 's'}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Cliquer pour retirer ce fichier de l’index' : 'Cliquer pour indexer ce fichier',
-    sendToAgent: 'Envoyer',
-    sendToAgentTitle: (command: string) =>
-      `Lancer « ${command} » dans le terminal, sur ce qui est indexé`,
-    agentCommandsTitle: 'Choisir la commande à lancer',
-    agentCommandTooltip:
-      '\n\nCliquer pour la lancer\n× la retire de la liste',
-    agentForget: 'Retirer cette commande de la liste',
-    agentNewCommand: 'Nouvelle commande…',
-    agentPromptTitle: 'Envoyer à l’agent',
-    agentPromptRun: 'Lancer',
-    agentPromptCancel: 'Annuler',
-    agentCommandPlaceholder: 'commande lancée dans le terminal',
-    agentNone: 'Aucune commande',
-    agentNoTerminal: 'Aucun shell dans cet onglet pour la lancer.',
     search: 'Rechercher',
     searchTitle: 'Chercher dans le dépôt avec git grep.\n\nfoo bar — les deux mots sur une ligne\n"foo bar" — la phrase ; les guillemets cherchent aussi un opérateur au pied de la lettre\n-foo — les lignes qui ne l’ont pas\nfoo in:*.py — ces fichiers seulement (plusieurs séparés par des virgules)\nfoo -in:test/* — ces fichiers exclus\nfoo in *.py — in sans les deux-points, quand un chemin suit',
     searchPlaceholder: 'Chercher dans le dépôt — foo in:*.py',
@@ -373,7 +359,21 @@ export const fr: RendererMessages = {
     splitRightTitle: 'Diviser le terminal actif vers la droite',
     splitDown: 'Diviser ↓',
     splitDownTitle: 'Diviser le terminal actif vers le bas',
-    shellsKeepRunning: ' — les shells continuent de tourner'
+    shellsKeepRunning: ' — les shells continuent de tourner',
+    sendToAgent: 'Envoyer',
+    sendToAgentTitle: (command: string) =>
+      `Lancer « ${command} » dans le terminal, sur ce qui est indexé`,
+    agentCommandsTitle: 'Choisir la commande à lancer',
+    agentCommandTooltip:
+      '\n\nCliquer pour la lancer\n× la retire de la liste',
+    agentForget: 'Retirer cette commande de la liste',
+    agentNewCommand: 'Nouvelle commande…',
+    agentPromptTitle: 'Envoyer à l’agent',
+    agentPromptRun: 'Lancer',
+    agentPromptCancel: 'Annuler',
+    agentCommandPlaceholder: 'commande lancée dans le terminal',
+    agentNone: 'Aucune commande',
+    agentNoTerminal: 'Aucun shell dans cet onglet pour la lancer.'
   },
   common: {
     loading: 'Chargement…',

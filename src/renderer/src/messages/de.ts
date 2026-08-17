@@ -96,20 +96,6 @@ export const de: RendererMessages = {
     lines: (n: number) => `${n} Zeilen`,
     toggleStage: (staged: boolean) =>
       staged ? 'Klicken, um die Datei aus dem Index zu nehmen' : 'Klicken, um die Datei vorzumerken',
-    sendToAgent: 'Senden',
-    sendToAgentTitle: (command: string) =>
-      `„${command}“ im Terminal ausführen, gegen das, was vorgemerkt ist`,
-    agentCommandsTitle: 'Befehl zum Ausführen wählen',
-    agentCommandTooltip:
-      '\n\nKlicken, um ihn auszuführen\n× entfernt ihn aus der Liste',
-    agentForget: 'Diesen Befehl aus der Liste entfernen',
-    agentNewCommand: 'Neuer Befehl…',
-    agentPromptTitle: 'An Agent senden',
-    agentPromptRun: 'Ausführen',
-    agentPromptCancel: 'Abbrechen',
-    agentCommandPlaceholder: 'Befehl, der im Terminal läuft',
-    agentNone: 'Kein Befehl',
-    agentNoTerminal: 'In diesem Tab läuft keine Shell, in der er laufen könnte.',
     search: 'Suchen',
     searchTitle: 'Das Repository mit git grep durchsuchen.\n\nfoo bar — beide Wörter in einer Zeile\n"foo bar" — die Wortfolge; Anführungszeichen suchen auch einen Operator wörtlich\n-foo — Zeilen ohne das Wort\nfoo in:*.py — nur diese Dateien (mehrere durch Komma getrennt)\nfoo -in:test/* — diese Dateien ausgenommen\nfoo in *.py — in ohne Doppelpunkt, wenn ein Pfad folgt',
     searchPlaceholder: 'Repository durchsuchen — foo in:*.py',
@@ -371,7 +357,21 @@ export const de: RendererMessages = {
     splitRightTitle: 'Das aktive Terminal nach rechts teilen',
     splitDown: 'Teilen ↓',
     splitDownTitle: 'Das aktive Terminal nach unten teilen',
-    shellsKeepRunning: ' — die Shells laufen weiter'
+    shellsKeepRunning: ' — die Shells laufen weiter',
+    sendToAgent: 'Senden',
+    sendToAgentTitle: (command: string) =>
+      `„${command}“ im Terminal ausführen, gegen das, was vorgemerkt ist`,
+    agentCommandsTitle: 'Befehl zum Ausführen wählen',
+    agentCommandTooltip:
+      '\n\nKlicken, um ihn auszuführen\n× entfernt ihn aus der Liste',
+    agentForget: 'Diesen Befehl aus der Liste entfernen',
+    agentNewCommand: 'Neuer Befehl…',
+    agentPromptTitle: 'An Agent senden',
+    agentPromptRun: 'Ausführen',
+    agentPromptCancel: 'Abbrechen',
+    agentCommandPlaceholder: 'Befehl, der im Terminal läuft',
+    agentNone: 'Kein Befehl',
+    agentNoTerminal: 'In diesem Tab läuft keine Shell, in der er laufen könnte.'
   },
   common: {
     loading: 'Wird geladen…',

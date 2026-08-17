@@ -873,7 +873,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       const command = (pick ?? agentCommand).trim()
       if (!command) return
       if (!runInTerminal(root, command)) {
-        setRemoteMsg({ ok: false, text: msg.files.agentNoTerminal })
+        setRemoteMsg({ ok: false, text: msg.terminal.agentNoTerminal })
         return
       }
       // Remembered because it ran, not because it was typed: the list is a
@@ -895,10 +895,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       ...list.map((c) => ({
         label: c,
         accel: c === agentCommand ? '✓' : undefined,
-        title: `${c}${msg.files.agentCommandTooltip}`,
+        title: `${c}${msg.terminal.agentCommandTooltip}`,
         action: () => sendToAgent(c),
         remove: {
-          title: msg.files.agentForget,
+          title: msg.terminal.agentForget,
           // Confirmed in the main process, so the dialog is modal to the
           // window. The menu is rebuilt rather than closed, so several can be
           // forgotten in a row.
@@ -912,7 +912,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         }
       })),
       {
-        label: msg.files.agentNewCommand,
+        label: msg.terminal.agentNewCommand,
         separatorBefore: list.length > 0,
         action: () => setAgentPrompt(true)
       }
@@ -1171,10 +1171,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                 onSearch={openSearch}
                 onBackToWorkTree={backToWorkTree}
                 onBrowseWorkTree={browseWorktree}
-                sendToAgent={sendToAgent}
-                agentItems={agentItems}
-                agentCommands={agentCommands}
-                agentCommand={agentCommand}
                 setMenu={setMenu}
                 revForView={revForView}
               />
@@ -1429,13 +1425,18 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       <ContextMenu state={menu} onClose={() => setMenu(null)} />
       <PromptDialog
         open={agentPrompt}
-        title={msg.files.agentPromptTitle}
-        placeholder={msg.files.agentCommandPlaceholder}
+        title={msg.terminal.agentPromptTitle}
+        placeholder={msg.terminal.agentCommandPlaceholder}
         initial={agentCommand}
-        submitLabel={msg.files.agentPromptRun}
-        cancelLabel={msg.files.agentPromptCancel}
+        submitLabel={msg.terminal.agentPromptRun}
+        cancelLabel={msg.terminal.agentPromptCancel}
         onCancel={() => setAgentPrompt(false)}
         onSubmit={(c) => {
+                  sendToAgent={sendToAgent}
+                  agentItems={agentItems}
+                  agentCommands={agentCommands}
+                  agentCommand={agentCommand}
+                  setMenu={setMenu}
           setAgentPrompt(false)
           sendToAgent(c)
         }}
