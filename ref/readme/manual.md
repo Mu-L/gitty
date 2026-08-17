@@ -440,9 +440,10 @@ does not run; the strip says there is nothing to search for.
 
 The log of the current branch, loaded 300 at a time and extended as you scroll.
 The first row is **Changes** — the uncommitted changes, with a count of changed
-files; selecting it brings the top panes back to them. A filter
-box above the log narrows the list — debounced, with a ✕ to clear — and the
-result pages the same way.
+files; selecting it brings the top panes back to them. **Filter** on the
+header's right opens a filter box above the log, which narrows the list —
+debounced, and the result pages the same way. The ✕, <kbd>Esc</kbd> or the
+button again put the box away and the whole log back.
 
 The header keeps **Push** and **Pull**, the two used often; everything else
 about the log is one click behind **⋯** — **Graph**, **All Branches**,
@@ -566,7 +567,6 @@ resize against each other.
 by itself. The last terminal always stays: exiting it leaves the notice on
 screen instead of an empty pane.
 
-## Finding text
 **Send** in this pane's header hands the index over. It types a command into
 the focused shell and presses Enter, and that is all it does: no model is
 called from inside Gitty, nothing leaves the machine that you did not send. The
@@ -587,6 +587,7 @@ suggestions — which agent is installed is not something Gitty can know — and
 command joins it by having been run, so nothing is remembered on the strength
 of a half-typed line.
 
+## Finding text
 
 <kbd>Ctrl+F</kbd> searches whatever the right-hand pane is showing: a diff, a
 file, a rendered markdown document, an [HTML preview](#html-preview), a blame,

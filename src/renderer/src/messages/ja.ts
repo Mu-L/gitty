@@ -183,6 +183,8 @@ export const ja: RendererMessages = {
     worktreeClean: '（クリーン）',
     worktreeUncommitted: (n: number) => `（未コミット ${n} 件）`,
     noCommitsYet: 'コミットはまだありません。',
+    filter: 'フィルタ',
+    filterTitle: 'コミット一覧を絞り込む',
     filterPlaceholder: 'コミットをフィルタ…',
     noMatches: '一致するコミットはありません',
     clearFilter: 'フィルタをクリア',

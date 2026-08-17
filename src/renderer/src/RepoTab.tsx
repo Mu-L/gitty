@@ -263,6 +263,14 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // fire a git log.
   const [filter, setFilter] = useState('')
   const [debouncedFilter, setDebouncedFilter] = useState('')
+  // The strip is out of the way until the header button asks for it, and
+  // closing it drops the filter: a narrowed log with no box above it would look
+  // like a short history.
+  const [filterOpen, setFilterOpen] = useState(false)
+  const closeFilter = useCallback(() => {
+    setFilterOpen(false)
+    setFilter('')
+  }, [])
   // What the filter searches. A pickaxe mode reads every diff in the history,
   // so the log reports that it is working rather than looking briefly empty.
   const [filterMode, setFilterMode] = useState<LogFilterMode>('text')
@@ -1342,6 +1350,15 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   </button>
                   <span className="spacer" />
                   {compareCommit && <span className="badge">{msg.log.comparing2}</span>}
+                  {/* Narrowing the log is occasional, so the box is behind a
+                      button rather than standing above the list all the time. */}
+                  <button
+                    className={`toggle${filterOpen ? ' on' : ''}`}
+                    title={msg.log.filterTitle}
+                    onClick={() => (filterOpen ? closeFilter() : setFilterOpen(true))}
+                  >
+                    {msg.log.filter}
+                  </button>
                   {hideButton('log')}
                 </div>
                 {/* What git said. Failures stay until dismissed: a push that
@@ -1362,6 +1379,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   selected={selectedCommit}
                   compare={compareCommit}
                   changedCount={status?.files.length ?? 0}
+                  filterOpen={filterOpen}
+                  onCloseFilter={closeFilter}
                   filter={filter}
                   onFilter={setFilter}
                   filterMode={filterMode}
@@ -1413,6 +1432,11 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   full={full === 'terminal'}
                   onToggleFull={() => toggleFull('terminal')}
                   onHide={canHide ? () => onHidePane('terminal') : undefined}
+                  sendToAgent={sendToAgent}
+                  agentItems={agentItems}
+                  agentCommands={agentCommands}
+                  agentCommand={agentCommand}
+                  setMenu={setMenu}
                 />
               </Suspense>
             </Panel>
@@ -1432,11 +1456,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         cancelLabel={msg.terminal.agentPromptCancel}
         onCancel={() => setAgentPrompt(false)}
         onSubmit={(c) => {
-                  sendToAgent={sendToAgent}
-                  agentItems={agentItems}
-                  agentCommands={agentCommands}
-                  agentCommand={agentCommand}
-                  setMenu={setMenu}
           setAgentPrompt(false)
           sendToAgent(c)
         }}

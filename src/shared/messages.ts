@@ -321,6 +321,9 @@ export interface RendererMessages {
     readonly worktreeClean: string
     readonly worktreeUncommitted: (n: number) => string
     readonly noCommitsYet: string
+    /** The header button that opens and closes the filter strip. */
+    readonly filter: string
+    readonly filterTitle: string
     /** Filter box above the commit list. */
     readonly filterPlaceholder: string
     /** Shown when a filter matches nothing. */
@@ -513,12 +516,6 @@ export interface RendererMessages {
     readonly splitDown: string
     readonly splitDownTitle: string
     readonly shellsKeepRunning: string
-  }
-  readonly common: {
-    readonly loading: string
-    readonly binaryOrOversized: string
-  }
-  /** The find strip over a rendered document. */
     /** Hands the curated index to whatever agent the user picks. */
     readonly sendToAgent: string
     readonly sendToAgentTitle: (command: string) => string
@@ -538,6 +535,12 @@ export interface RendererMessages {
     readonly agentNone: string
     /** Why nothing happened: there is nowhere to run the command. */
     readonly agentNoTerminal: string
+  }
+  readonly common: {
+    readonly loading: string
+    readonly binaryOrOversized: string
+  }
+  /** The find strip over a rendered document. */
   readonly find: {
     readonly placeholder: string
     /** "3 / 12" — which match, and how many there are. */

@@ -182,6 +182,8 @@ export const ko: RendererMessages = {
     worktreeClean: '(깨끗함)',
     worktreeUncommitted: (n: number) => `(커밋 안 함 ${n}개)`,
     noCommitsYet: '커밋이 아직 없습니다.',
+    filter: '필터',
+    filterTitle: '커밋 목록 걸러내기',
     filterPlaceholder: '커밋 필터링…',
     noMatches: '일치하는 커밋이 없습니다',
     clearFilter: '필터 지우기',

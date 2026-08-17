@@ -180,6 +180,8 @@ export const zh: RendererMessages = {
     worktreeClean: '（干净）',
     worktreeUncommitted: (n: number) => `（${n} 个未提交）`,
     noCommitsYet: '暂无提交。',
+    filter: '过滤',
+    filterTitle: '过滤提交列表',
     filterPlaceholder: '过滤提交…',
     noMatches: '没有匹配的提交。',
     clearFilter: '清除过滤',

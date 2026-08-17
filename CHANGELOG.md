@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- The commit filter is behind a **Filter** button in the Commits header instead
+  of standing above the log always. Closing it — the button, the ✕ or
+  <kbd>Esc</kbd> — drops the filter, so a narrowed log always has the box above
+  it saying why.
+
 - The diff header's widen-back button reads **All** rather than **Show Whole
   Diff**: one word in a crowded header, with the tooltip saying what it widens
   to.

@@ -185,6 +185,8 @@ export const es: RendererMessages = {
     worktreeClean: '(limpio)',
     worktreeUncommitted: (n: number) => `(${n} sin confirmar)`,
     noCommitsYet: 'Aún no hay commits.',
+    filter: 'Filtrar',
+    filterTitle: 'Filtrar la lista de commits',
     filterPlaceholder: 'Filtrar commits…',
     noMatches: 'No hay commits que coincidan',
     clearFilter: 'Borrar filtro',

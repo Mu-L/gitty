@@ -202,6 +202,8 @@ export const ru: RendererMessages = {
     worktreeUncommitted: (n: number) =>
       `(${n} ${plural(n, 'изменение', 'изменения', 'изменений')} не закоммичено)`,
     noCommitsYet: 'Коммитов пока нет.',
+    filter: 'Фильтр',
+    filterTitle: 'Отфильтровать список коммитов',
     filterPlaceholder: 'Фильтровать коммиты…',
     noMatches: 'Нет подходящих коммитов',
     clearFilter: 'Очистить фильтр',

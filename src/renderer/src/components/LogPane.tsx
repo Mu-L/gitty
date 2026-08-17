@@ -81,6 +81,8 @@ export function LogPane({
   selected,
   compare,
   changedCount,
+  filterOpen,
+  onCloseFilter,
   filter,
   onFilter,
   filterMode,
@@ -99,6 +101,10 @@ export function LogPane({
   compare: string | null
   /** Number of uncommitted changes, shown on the Changes row. */
   changedCount: number
+  /** The filter strip is only on screen while the header button is on. */
+  filterOpen: boolean
+  /** Puts the strip away, which also drops the filter — see RepoTab. */
+  onCloseFilter: () => void
   /** The commit filter, narrowed in git; '' shows all. */
   filter: string
   onFilter: (value: string) => void
@@ -136,37 +142,44 @@ export function LogPane({
 
   return (
     <>
-      <div className="log-filter">
-        {/* The mode sits before the box, because it changes what typing into
-            the box means. */}
-        <select
-          className="log-filter-mode"
-          value={filterMode}
-          title={msg.log.filterModeTitle}
-          onChange={(e) => onFilterMode(e.target.value as LogFilterMode)}
-        >
-          <option value="text">{msg.log.filterModeText}</option>
-          <option value="content">{msg.log.filterModeContent}</option>
-          <option value="regex">{msg.log.filterModeRegex}</option>
-        </select>
-        <input
-          type="text"
-          value={filter}
-          placeholder={msg.log.filterPlaceholder}
-          onChange={(e) => onFilter(e.target.value)}
-          spellCheck={false}
-        />
-        {searching && <span className="log-filter-busy">{msg.log.searching}</span>}
-        {filter !== '' && (
-          <button
-            className="log-filter-clear"
-            title={msg.log.clearFilter}
-            onClick={() => onFilter('')}
+      {filterOpen && (
+        <div className="log-filter">
+          {/* The mode sits before the box, because it changes what typing into
+              the box means. */}
+          <select
+            className="log-filter-mode"
+            value={filterMode}
+            title={msg.log.filterModeTitle}
+            onChange={(e) => onFilterMode(e.target.value as LogFilterMode)}
           >
+            <option value="text">{msg.log.filterModeText}</option>
+            <option value="content">{msg.log.filterModeContent}</option>
+            <option value="regex">{msg.log.filterModeRegex}</option>
+          </select>
+          <input
+            type="text"
+            autoFocus
+            value={filter}
+            placeholder={msg.log.filterPlaceholder}
+            onChange={(e) => onFilter(e.target.value)}
+            onKeyDown={(e) => {
+              // Escape puts the strip away and the whole log back.
+              if (e.key === 'Escape') {
+                e.stopPropagation()
+                onCloseFilter()
+              }
+            }}
+            spellCheck={false}
+          />
+          {searching && <span className="log-filter-busy">{msg.log.searching}</span>}
+          {/* One button, and it closes the strip: a filter left behind an
+              unopened strip would hide commits with nothing on screen saying
+              why. */}
+          <button className="log-filter-clear" title={msg.log.clearFilter} onClick={onCloseFilter}>
             ✕
           </button>
-        )}
-      </div>
+        </div>
+      )}
       <div
         ref={listRef}
         className="pane-body"

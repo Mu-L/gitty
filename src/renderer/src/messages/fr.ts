@@ -186,6 +186,8 @@ export const fr: RendererMessages = {
     worktreeClean: '(propre)',
     worktreeUncommitted: (n: number) => `(${n} non validé${n === 1 ? '' : 's'})`,
     noCommitsYet: 'Aucun commit pour l’instant.',
+    filter: 'Filtrer',
+    filterTitle: 'Filtrer la liste des commits',
     filterPlaceholder: 'Filtrer les commits…',
     noMatches: 'Aucun commit ne correspond',
     clearFilter: 'Effacer le filtre',
