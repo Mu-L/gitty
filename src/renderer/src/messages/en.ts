@@ -88,6 +88,8 @@ export const en: RendererMessages = {
     viewPickTitle: 'Switch what this pane lists',
     changesHint: 'What is uncommitted',
     workingTreeHint: 'Every file in the working directory, read-only',
+    keyBrowse: ' browses the working tree; Commits and Terminal step aside',
+    keyChanges: ' back to the changes, with all four panes',
     ignoredFile: 'Ignored by .gitignore',
     emptyChanges: 'No changes.',
     emptyWorktree: 'Working tree clean.',

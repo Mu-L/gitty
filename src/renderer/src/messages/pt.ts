@@ -87,6 +87,8 @@ export const pt: RendererMessages = {
     viewPickTitle: 'Alternar o que este painel lista',
     changesHint: 'O que não está confirmado',
     workingTreeHint: 'Todos os ficheiros do diretório de trabalho, só de leitura',
+    keyBrowse: ' explora a árvore de trabalho; Commits e Terminal saem de cena',
+    keyChanges: ' volta às alterações, com os quatro painéis',
     ignoredFile: 'Ignorado pelo .gitignore',
     emptyChanges: 'Sem alterações.',
     emptyWorktree: 'Árvore de trabalho limpa.',

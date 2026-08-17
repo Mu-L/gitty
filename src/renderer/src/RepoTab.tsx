@@ -48,6 +48,10 @@ import {
   paneFullAccel,
   isPaneCycleChord,
   isBrowseChord,
+  isChangesChord,
+  fromTerminal,
+  ALL_PANES,
+  BROWSE_PANES,
   nextPane,
   visibleCount,
   type PaneId,
@@ -149,8 +153,8 @@ export interface RepoTabProps {
   panes: PaneVisibility
   /** Hide a pane from its own header button. */
   onHidePane: (id: PaneId) => void
-  /** Put the window into the browsing layout — pane visibility is App's. */
-  onBrowseLayout: () => void
+  /** Ask for a whole layout — pane visibility is App's, the view is this tab's. */
+  onLayout: (panes: PaneVisibility) => void
   /** Branch whose history the log shows; null is HEAD, the checked-out one.
    *  Browsing another branch never touches the work tree — the top-left pane
    *  and its diffs still come from disk. */
@@ -203,7 +207,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setGraph,
     panes,
     onHidePane,
-    onBrowseLayout,
+    onLayout,
     browsing,
     settingsOpen,
     onStatus,
@@ -705,8 +709,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setDocs([])
     setActiveDoc(null)
     setView({ mode: 'snapshot', hash: null, short: '', subject: '' })
-    onBrowseLayout()
-  }, [onBrowseLayout])
+    onLayout(BROWSE_PANES)
+  }, [onLayout])
 
   const backToWorkTree = useCallback(() => {
     setView({ mode: 'worktree' })
@@ -770,6 +774,13 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         // Ctrl+B for browse: the work tree as a tree of files, read-only.
         e.preventDefault()
         browseWorktree()
+      } else if (isChangesChord(e) && !fromTerminal(e.target)) {
+        // Ctrl+D back to the changes, and to the whole window with them: the
+        // way out of the reading layout Ctrl+B puts it into. In a terminal the
+        // key stays end-of-input, which is how a shell is left.
+        e.preventDefault()
+        backToWorkTree()
+        onLayout(ALL_PANES)
       } else if (isPaneCycleChord(e) && full) {
         // Ctrl+Tab moves full screen on to the next pane, Shift back. Only
         // while a pane fills the window: with the layout on screen every pane
@@ -780,7 +791,17 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [active, settingsOpen, agentPrompt, full, panes, backToWorkTree, browseWorktree, refresh])
+  }, [
+    active,
+    settingsOpen,
+    agentPrompt,
+    full,
+    panes,
+    backToWorkTree,
+    browseWorktree,
+    onLayout,
+    refresh
+  ])
 
   const loadMore = useCallback(async () => {
     if (loadingMore.current || exhausted.current) return

@@ -3,6 +3,7 @@ import {
   ALL_PANES,
   BROWSE_PANES,
   isBrowseChord,
+  isChangesChord,
   nextPane,
   type PaneVisibility
 } from '../src/renderer/src/panes'
@@ -78,5 +79,23 @@ describe('isBrowseChord', () => {
 describe('BROWSE_PANES', () => {
   it('is the reading layout: the tree and what it opens', () => {
     expect(BROWSE_PANES).toEqual(only('files', 'diff'))
+  })
+})
+
+describe('isChangesChord', () => {
+  it('takes Ctrl+D, and Cmd+D on macOS', () => {
+    expect(isChangesChord(key({ ctrlKey: true, code: 'KeyD' }))).toBe(true)
+    expect(isChangesChord(key({ metaKey: true, code: 'KeyD' }))).toBe(true)
+  })
+
+  it('leaves the plain key and the other modifiers alone', () => {
+    expect(isChangesChord(key({ code: 'KeyD' }))).toBe(false)
+    expect(isChangesChord(key({ ctrlKey: true, shiftKey: true, code: 'KeyD' }))).toBe(false)
+    expect(isChangesChord(key({ ctrlKey: true, altKey: true, code: 'KeyD' }))).toBe(false)
+  })
+
+  it('is a different key from the browse chord', () => {
+    expect(isChangesChord(key({ ctrlKey: true, code: 'KeyB' }))).toBe(false)
+    expect(isBrowseChord(key({ ctrlKey: true, code: 'KeyD' }))).toBe(false)
   })
 })

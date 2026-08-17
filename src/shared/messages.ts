@@ -198,6 +198,9 @@ export interface RendererMessages {
     readonly viewPickTitle: string
     readonly changesHint: string
     readonly workingTreeHint: string
+    /** Tooltip lines for the two keys that switch view and layout together. */
+    readonly keyBrowse: string
+    readonly keyChanges: string
     readonly ignoredFile: string
     /** The empty text of the `worktree` view — "No changes." */
     readonly emptyChanges: string

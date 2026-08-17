@@ -74,6 +74,24 @@ export function isBrowseChord(e: KeyboardEvent): boolean {
  */
 export const BROWSE_PANES: PaneVisibility = { files: true, diff: true, log: false, terminal: false }
 
+/** Back to the changes and to the whole layout; the pair of the browse key. */
+export const CHANGES_ACCEL = 'Ctrl+D'
+
+/**
+ * True for that key — but unlike the browse chord this one is *not* taken from
+ * the shell: Ctrl+D there is end-of-input, which is how a shell is left, and a
+ * history browser does not get to keep that key. RepoTab therefore ignores it
+ * while the terminal has the focus.
+ */
+export function isChangesChord(e: KeyboardEvent): boolean {
+  return (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.code === 'KeyD'
+}
+
+/** True while the event came from inside a terminal, whose keys are the shell's. */
+export function fromTerminal(target: EventTarget | null): boolean {
+  return target instanceof Element && target.closest('.xterm') !== null
+}
+
 /**
  * The pane one step from `from` in layout order, skipping the hidden ones.
  * Cycling is what full screen is missing: with the layout gone there is no

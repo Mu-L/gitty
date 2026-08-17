@@ -181,8 +181,10 @@ disk. `.git` itself is not listed.
 
 <kbd>Ctrl+B</kbd> — b for browse — is the shortcut into it from anywhere, and it
 sets the window up for reading as well as switching the view: Commits and the
-terminal go away, leaving the tree and what it opens. <kbd>Ctrl+Shift+0</kbd>
-brings them back.
+terminal go away, leaving the tree and what it opens. <kbd>Ctrl+D</kbd> is the
+way back: the changes again, with all four panes. In a terminal that key stays
+end-of-input, which is how a shell is left, so the pair works everywhere else.
+Both keys are listed in the pane title's tooltip.
 
 - **Click** — show the file's diff on the right.
 - **Double-click** — open the whole file as a document beside the diff, with
@@ -655,6 +657,7 @@ highlight** lives here only.
 | <kbd>Ctrl+C</kbd> / <kbd>Ctrl+Shift+C</kbd> | Copy the selection, anywhere in the window |
 | <kbd>Esc</kbd> | Back to the changes |
 | <kbd>Ctrl+B</kbd> | Browse the working tree, with Commits and Terminal out of the way |
+| <kbd>Ctrl+D</kbd> | Back to the changes, with all four panes (not in a terminal, where it is end-of-input) |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Back and forward through the places viewed |
 | <kbd>Alt</kbd> | Show or hide the application menu bar (not on macOS, where it is always there) |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |

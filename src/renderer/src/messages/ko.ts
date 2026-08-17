@@ -86,6 +86,8 @@ export const ko: RendererMessages = {
     viewPickTitle: '이 창이 나열하는 대상을 전환합니다',
     changesHint: '커밋되지 않은 변경 사항',
     workingTreeHint: '작업 디렉터리의 모든 파일(읽기 전용)',
+    keyBrowse: ' 작업 트리 보기 (커밋과 터미널은 숨김)',
+    keyChanges: ' 변경 사항으로 돌아가고 네 패널을 모두 표시',
     ignoredFile: '.gitignore에 의해 무시됨',
     emptyChanges: '변경 사항이 없습니다.',
     emptyWorktree: '작업 트리가 깨끗합니다.',

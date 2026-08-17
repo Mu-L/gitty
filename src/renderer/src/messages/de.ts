@@ -88,6 +88,8 @@ export const de: RendererMessages = {
     viewPickTitle: 'Umschalten, was dieser Bereich auflistet',
     changesHint: 'Was noch nicht committet ist',
     workingTreeHint: 'Alle Dateien im Arbeitsverzeichnis, schreibgeschützt',
+    keyBrowse: ' durchsucht das Arbeitsverzeichnis; Commits und Terminal treten zurück',
+    keyChanges: ' zurück zu den Änderungen, mit allen vier Bereichen',
     ignoredFile: 'Von .gitignore ignoriert',
     emptyChanges: 'Keine Änderungen.',
     emptyWorktree: 'Arbeitsverzeichnis ist sauber.',

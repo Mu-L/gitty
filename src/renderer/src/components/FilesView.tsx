@@ -3,7 +3,7 @@ import { useMsg } from '../locale'
 import type { CommitMeta } from '../../../shared/types'
 import { parseQuery } from '../../../shared/query'
 import type { View } from '../contextMenus'
-import { paneControls } from '../panes'
+import { BROWSE_ACCEL, CHANGES_ACCEL, paneControls } from '../panes'
 import type { MenuState } from './ContextMenu'
 import { CommitInfo } from './CommitInfo'
 import { FilesPane, matchesFilter, type FileEntry } from './FilesPane'
@@ -152,6 +152,10 @@ export function FilesView({
           lines={[
             { key: 'click', desc: msg.files.viewPickTitle },
             { key: 'right-click', desc: msg.log.tooltipMore },
+            // The two views this title switches between have keys of their
+            // own, and each brings its layout with it.
+            { key: BROWSE_ACCEL, desc: msg.files.keyBrowse },
+            { key: CHANGES_ACCEL, desc: msg.files.keyChanges },
             ...paneControls('files', msg)
           ]}
         >
