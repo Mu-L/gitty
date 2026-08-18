@@ -195,7 +195,13 @@ const api = {
     /** Send a work-tree file to the trash, after a native confirmation.
      *  Resolves true only when it is gone; the watcher refreshes the panes. */
     trash: (root: string, filePath: string): Promise<boolean> =>
-      ipcRenderer.invoke('file:trash', root, filePath)
+      ipcRenderer.invoke('file:trash', root, filePath),
+    /** Whether the system clipboard holds files that could be pasted. */
+    canPaste: (): Promise<boolean> => ipcRenderer.invoke('file:canPaste'),
+    /** Paste them into a directory of the work tree, relative to its root.
+     *  Resolves with how many arrived; the watcher refreshes the panes. */
+    paste: (root: string, destDir: string): Promise<number> =>
+      ipcRenderer.invoke('file:paste', root, destDir)
   },
   /** gource, when it is installed: an animation of the repository's history.
    *  It draws its own window; `play` resolves once it is up, or with what it

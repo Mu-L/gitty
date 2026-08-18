@@ -327,7 +327,9 @@ export const ko: RendererMessages = {
     blameFile: 'Blame 파일',
     fileHistory: '파일 기록',
     lineHistory: '이 줄들의 이력',
-    browseWorktree: '작업 트리 보기'
+    browseWorktree: '작업 트리 보기',
+    paste: '붙여넣기',
+    pasteInto: (dir: string) => `${dir}/ 에 붙여넣기`
   },
   paneChrome: {
     paneLabelFiles: '파일',

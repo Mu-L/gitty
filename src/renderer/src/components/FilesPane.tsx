@@ -204,6 +204,9 @@ export function FilesPane({
             onDoubleClick={() => onOpen(row.entry!)}
             onContextMenu={(e) => {
               e.preventDefault()
+              // The tree's own menu listens above this row; a row has its own
+              // answer, so the event stops here.
+              e.stopPropagation()
               onSelect(row.entry!)
               onMenu(row.entry!, { x: e.clientX, y: e.clientY, items: [] })
             }}

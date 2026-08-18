@@ -3,7 +3,7 @@ import type { Commit, DiffResult } from '../../shared/types'
 import type { MenuItem, MenuState } from './components/ContextMenu'
 import type { DiffView } from './components/DiffPane'
 import { isHtmlPath, isMarkdownPath } from './paths'
-import { BROWSE_ACCEL } from './panes'
+import { BROWSE_ACCEL, PASTE_ACCEL } from './panes'
 import type { FileEntry } from './components/FilesPane'
 import type { RendererMessages } from '../../shared/messages'
 
@@ -63,6 +63,10 @@ export interface ContextMenuDeps {
   setMenu: (state: MenuState) => void
   /** Browse the whole repository as it is on disk right now, read-only. */
   browseWorktree: () => void
+  /** Whether the system clipboard holds files, asked as the menu opens. */
+  canPaste: () => Promise<boolean>
+  /** Paste them into a directory of the work tree, relative to the root. */
+  pasteFiles: (destDir: string) => void
   /** Changes view only: move a whole file in or out of the index. */
   toggleStage: (path: string, staged: boolean) => void
   /** Changes view only: throw a tracked file's changes away, after confirming. */
@@ -81,6 +85,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
   diffMenu: (at: MenuState) => void
   diffFileMenu: (path: string, at: MenuState) => void
   fileMenu: (entry: FileEntry, at: MenuState) => void
+  /** The file tree's own menu, off the empty space below the rows. */
+  treeMenu: (at: MenuState) => void
   commitMenu: (c: Commit, at: MenuState) => void
   worktreeMenu: (at: MenuState) => void
 } {
@@ -113,6 +119,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
     setActiveDoc,
     setMenu,
     browseWorktree,
+    canPaste,
+    pasteFiles,
     toggleStage,
     discardChanges,
     copyStagedDiff,
@@ -228,8 +236,31 @@ export function createContextMenus(deps: ContextMenuDeps): {
     })
   }
 
-  const fileMenu = (entry: FileEntry, at: MenuState): void => {
+  /**
+   * Pasting writes to the working directory, so it is offered by the two views
+   * that *are* that directory — the changes and the working tree — and by
+   * neither of the ones describing a revision, where there is nothing on disk
+   * to write into.
+   */
+  const pastable = view.mode === 'worktree' || (view.mode === 'snapshot' && view.hash === null)
+
+  /** The Paste item, or nothing: it is left out rather than greyed out when
+   *  the clipboard holds no files, which is most of the time. */
+  const pasteItem = (destDir: string, can: boolean): MenuItem[] =>
+    pastable && can
+      ? [
+          {
+            label: destDir ? msg.contextMenu.pasteInto(destDir) : msg.contextMenu.paste,
+            accel: PASTE_ACCEL,
+            separatorBefore: true,
+            action: () => pasteFiles(destDir)
+          }
+        ]
+      : []
+
+  const fileMenu = async (entry: FileEntry, at: MenuState): Promise<void> => {
     const rel = entry.path
+    const can = await canPaste()
     // Snapshot entries carry a virtual absPath; opening must go through the
     // snapshot temp file, and "Reveal" has nothing to reveal on disk.
     const snapshot = entry.absPath.startsWith('gitty:snapshot:')
@@ -302,7 +333,19 @@ export function createContextMenus(deps: ContextMenuDeps): {
         action: () => void window.gitty.file.trash(root, rel)
       })
     }
+    // Into the directory holding the file that was right-clicked, which is
+    // where a paste aimed at a row belongs.
+    items.push(...pasteItem(rel.split('/').slice(0, -1).join('/'), can))
     setMenu({ ...at, items })
+  }
+
+  /** Right-click on the tree itself rather than on a row: the repository root
+   *  is what a paste with no row under it means. */
+  const treeMenu = async (at: MenuState): Promise<void> => {
+    const items = pasteItem('', await canPaste())
+    if (items.length === 0) return
+    // The one item stands alone here, so it needs no separator above it.
+    setMenu({ ...at, items: [{ ...items[0], separatorBefore: false }] })
   }
 
   const commitMenu = (c: Commit, at: MenuState): void => {
@@ -381,5 +424,5 @@ export function createContextMenus(deps: ContextMenuDeps): {
     })
   }
 
-  return { diffMenu, diffFileMenu, fileMenu, commitMenu, worktreeMenu }
+  return { diffMenu, diffFileMenu, fileMenu, treeMenu, commitMenu, worktreeMenu }
 }

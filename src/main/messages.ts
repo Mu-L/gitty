@@ -51,6 +51,14 @@ const en: MainMessages = {
     discardDetail:
       'The file goes back to what the index holds. This cannot be undone — the changes are not in git anywhere.',
     discardButton: 'Discard',
+    pasteTitle: 'Paste Files',
+    pasteConflict: (n: number) =>
+      n === 1 ? 'One file is already there.' : `${n} files are already there.`,
+    pasteConflictDetail:
+      'Keep both puts "(copy)" in the name of the arriving file; replace overwrites what is there.',
+    pasteKeepBothButton: 'Keep Both',
+    pasteReplaceButton: 'Replace',
+    pasteFailed: 'Could not paste',
     forgetTitle: 'Forget Command',
     forgetConfirm: (command: string) =>
       `Forget "${command}"?`,
@@ -130,6 +138,12 @@ const zh: MainMessages = {
     discardDetail:
       '文件将回到暂存区中的内容。此操作无法撤销——这些更改并未记录在 git 的任何地方。',
     discardButton: '丢弃',
+    pasteTitle: '粘贴文件',
+    pasteConflict: (n: number) => (n === 1 ? '已存在同名文件。' : `已存在 ${n} 个同名文件。`),
+    pasteConflictDetail: '保留两者会在新文件名中加上“(copy)”；替换会覆盖原有文件。',
+    pasteKeepBothButton: '保留两者',
+    pasteReplaceButton: '替换',
+    pasteFailed: '无法粘贴',
     forgetTitle: '忘记命令',
     forgetConfirm: (command: string) =>
       `忘记 "${command}"？`,
@@ -210,6 +224,14 @@ const ja: MainMessages = {
     discardDetail:
       'ファイルはインデックスの内容に戻ります。取り消せません——この変更は git のどこにも残っていません。',
     discardButton: '破棄',
+    pasteTitle: 'ファイルを貼り付け',
+    pasteConflict: (n: number) =>
+      n === 1 ? '同名のファイルが既にあります。' : `同名のファイルが ${n} 件あります。`,
+    pasteConflictDetail:
+      '両方を残すと新しいファイル名に「(copy)」が付きます。置き換えると既存のファイルは上書きされます。',
+    pasteKeepBothButton: '両方を残す',
+    pasteReplaceButton: '置き換える',
+    pasteFailed: '貼り付けできませんでした',
     forgetTitle: 'コマンドを削除',
     forgetConfirm: (command: string) =>
       `"${command}" を一覧から削除しますか？`,
@@ -289,6 +311,14 @@ const ko: MainMessages = {
     discardDetail:
       '파일은 인덱스의 내용으로 돌아갑니다. 되돌릴 수 없습니다 — 이 변경 사항은 git 어디에도 남아 있지 않습니다.',
     discardButton: '버리기',
+    pasteTitle: '파일 붙여넣기',
+    pasteConflict: (n: number) =>
+      n === 1 ? '같은 이름의 파일이 이미 있습니다.' : `같은 이름의 파일이 ${n}개 있습니다.`,
+    pasteConflictDetail:
+      '둘 다 유지하면 새 파일 이름에 "(copy)"가 붙고, 바꾸면 기존 파일을 덮어씁니다.',
+    pasteKeepBothButton: '둘 다 유지',
+    pasteReplaceButton: '바꾸기',
+    pasteFailed: '붙여넣을 수 없습니다',
     forgetTitle: '명령 삭제',
     forgetConfirm: (command: string) =>
       `"${command}" 을(를) 목록에서 지울까요?`,
@@ -369,6 +399,14 @@ const fr: MainMessages = {
     discardDetail:
       "Le fichier revient au contenu de l'index. Irréversible — ces modifications ne sont nulle part dans git.",
     discardButton: 'Abandonner',
+    pasteTitle: 'Coller les fichiers',
+    pasteConflict: (n: number) =>
+      n === 1 ? 'Un fichier du même nom existe déjà.' : `${n} fichiers du même nom existent déjà.`,
+    pasteConflictDetail:
+      'Conserver les deux ajoute « (copy) » au nom du fichier collé ; remplacer écrase l\'existant.',
+    pasteKeepBothButton: 'Conserver les deux',
+    pasteReplaceButton: 'Remplacer',
+    pasteFailed: 'Impossible de coller',
     forgetTitle: 'Oublier la commande',
     forgetConfirm: (command: string) =>
       `Oublier « ${command} » ?`,
@@ -450,6 +488,14 @@ const de: MainMessages = {
     discardDetail:
       'Die Datei fällt auf den Stand des Index zurück. Das lässt sich nicht rückgängig machen — diese Änderungen stehen nirgends in git.',
     discardButton: 'Verwerfen',
+    pasteTitle: 'Dateien einfügen',
+    pasteConflict: (n: number) =>
+      n === 1 ? 'Eine Datei ist bereits vorhanden.' : `${n} Dateien sind bereits vorhanden.`,
+    pasteConflictDetail:
+      'Beide behalten hängt „(copy)“ an den Namen der eingefügten Datei; Ersetzen überschreibt die vorhandene.',
+    pasteKeepBothButton: 'Beide behalten',
+    pasteReplaceButton: 'Ersetzen',
+    pasteFailed: 'Einfügen nicht möglich',
     forgetTitle: 'Befehl vergessen',
     forgetConfirm: (command: string) =>
       `„${command}“ vergessen?`,
@@ -531,6 +577,14 @@ const es: MainMessages = {
     discardDetail:
       'El archivo vuelve a lo que contiene el índice. No se puede deshacer: esos cambios no están en ninguna parte de git.',
     discardButton: 'Descartar',
+    pasteTitle: 'Pegar archivos',
+    pasteConflict: (n: number) =>
+      n === 1 ? 'Ya hay un archivo con ese nombre.' : `Ya hay ${n} archivos con esos nombres.`,
+    pasteConflictDetail:
+      'Conservar ambos añade «(copy)» al nombre del archivo pegado; reemplazar sobrescribe el existente.',
+    pasteKeepBothButton: 'Conservar ambos',
+    pasteReplaceButton: 'Reemplazar',
+    pasteFailed: 'No se pudo pegar',
     forgetTitle: 'Olvidar comando',
     forgetConfirm: (command: string) =>
       `¿Olvidar «${command}»?`,
@@ -612,6 +666,14 @@ const ru: MainMessages = {
     discardDetail:
       'Файл вернётся к содержимому индекса. Это необратимо — этих изменений нигде нет в git.',
     discardButton: 'Отменить',
+    pasteTitle: 'Вставить файлы',
+    pasteConflict: (n: number) =>
+      n === 1 ? 'Файл с таким именем уже есть.' : `Файлов с такими именами уже ${n}.`,
+    pasteConflictDetail:
+      'Сохранить оба — к имени вставляемого файла добавится «(copy)»; заменить — существующий будет перезаписан.',
+    pasteKeepBothButton: 'Сохранить оба',
+    pasteReplaceButton: 'Заменить',
+    pasteFailed: 'Не удалось вставить',
     forgetTitle: 'Забыть команду',
     forgetConfirm: (command: string) =>
       `Забыть «${command}»?`,
@@ -692,6 +754,14 @@ const pt: MainMessages = {
     discardDetail:
       'O ficheiro volta ao que o índice contém. Não há como desfazer — estas alterações não estão em lado nenhum do git.',
     discardButton: 'Descartar',
+    pasteTitle: 'Colar ficheiros',
+    pasteConflict: (n: number) =>
+      n === 1 ? 'Já existe um ficheiro com esse nome.' : `Já existem ${n} ficheiros com esses nomes.`,
+    pasteConflictDetail:
+      'Manter ambos acrescenta «(copy)» ao nome do ficheiro colado; substituir sobrepõe o existente.',
+    pasteKeepBothButton: 'Manter ambos',
+    pasteReplaceButton: 'Substituir',
+    pasteFailed: 'Não foi possível colar',
     forgetTitle: 'Esquecer comando',
     forgetConfirm: (command: string) =>
       `Esquecer «${command}»?`,

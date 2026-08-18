@@ -329,7 +329,9 @@ export const en: RendererMessages = {
     blameFile: 'Blame File',
     fileHistory: 'File History',
     lineHistory: 'History of These Lines',
-    browseWorktree: 'Browse Working Tree'
+    browseWorktree: 'Browse Working Tree',
+    paste: 'Paste',
+    pasteInto: (dir: string) => `Paste into ${dir}/`
   },
   paneChrome: {
     paneLabelFiles: 'Files',

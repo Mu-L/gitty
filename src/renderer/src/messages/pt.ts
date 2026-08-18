@@ -332,7 +332,9 @@ export const pt: RendererMessages = {
     blameFile: 'Blame',
     fileHistory: 'Histórico do arquivo',
     lineHistory: 'Histórico destas linhas',
-    browseWorktree: 'Explorar a árvore de trabalho'
+    browseWorktree: 'Explorar a árvore de trabalho',
+    paste: 'Colar',
+    pasteInto: (dir: string) => `Colar em ${dir}/`
   },
   paneChrome: {
     paneLabelFiles: 'Ficheiros',

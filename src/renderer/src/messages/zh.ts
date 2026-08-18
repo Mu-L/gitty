@@ -325,7 +325,9 @@ export const zh: RendererMessages = {
     blameFile: '追溯文件',
     fileHistory: '文件历史',
     lineHistory: '这几行的历史',
-    browseWorktree: '浏览工作树'
+    browseWorktree: '浏览工作树',
+    paste: '粘贴',
+    pasteInto: (dir: string) => `粘贴到 ${dir}/`
   },
   paneChrome: {
     paneLabelFiles: '文件',

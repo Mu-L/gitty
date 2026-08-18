@@ -715,6 +715,22 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     onLayout(BROWSE_PANES)
   }, [onLayout])
 
+  /**
+   * Paste whatever files the system clipboard holds into a directory of the
+   * work tree. The sources are read in the main process from the clipboard
+   * itself — nothing here names a path outside the repository — and the count
+   * that comes back is only used to decide whether a refresh is worth doing;
+   * the watcher would get there on its own, a moment later.
+   */
+  const pasteFiles = useCallback(
+    (destDir: string) => {
+      void window.gitty.file.paste(root, destDir).then((n) => {
+        if (n > 0) void refresh()
+      })
+    },
+    [root, refresh]
+  )
+
   const backToWorkTree = useCallback(() => {
     setView({ mode: 'worktree' })
     setSelectedCommit(WORKTREE_ROW)
@@ -1026,40 +1042,43 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   /* ---------- context menus ---------- */
 
-  const { diffMenu, diffFileMenu, fileMenu, commitMenu, worktreeMenu } = createContextMenus({
-    msg,
-    root,
-    view,
-    viewingFile,
-    previewing,
-    docSource,
-    wrap,
-    setWrap,
-    mdOutline,
-    setMdOutline,
-    wordDiff,
-    setWordDiff,
-    diffView,
-    setDiffView,
-    diff,
-    selectedFile,
-    selectedCommit,
-    openFileDoc,
-    openBlame,
-    openHistory,
-    showCommit,
-    showSnapshot,
-    onSelectCommit,
-    revForView,
-    setSelectedFile,
-    setActiveDoc,
-    setMenu,
-    browseWorktree,
-    toggleStage: (path, staged) => void toggleStage(path, staged),
-    discardChanges: (path) => void discardChanges(path),
-    copyStagedDiff,
-    remoteCommitBase
-  })
+  const { diffMenu, diffFileMenu, fileMenu, treeMenu, commitMenu, worktreeMenu } =
+    createContextMenus({
+      msg,
+      root,
+      view,
+      viewingFile,
+      previewing,
+      docSource,
+      wrap,
+      setWrap,
+      mdOutline,
+      setMdOutline,
+      wordDiff,
+      setWordDiff,
+      diffView,
+      setDiffView,
+      diff,
+      selectedFile,
+      selectedCommit,
+      openFileDoc,
+      openBlame,
+      openHistory,
+      showCommit,
+      showSnapshot,
+      onSelectCommit,
+      revForView,
+      setSelectedFile,
+      setActiveDoc,
+      setMenu,
+      browseWorktree,
+      canPaste: () => window.gitty.file.canPaste(),
+      pasteFiles,
+      toggleStage: (path, staged) => void toggleStage(path, staged),
+      discardChanges: (path) => void discardChanges(path),
+      copyStagedDiff,
+      remoteCommitBase
+    })
 
   /* ---------- log header overflow ---------- */
 
@@ -1221,6 +1240,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   openFileDoc(path)
                 }}
                 onMenu={fileMenu}
+                onTreeMenu={treeMenu}
+                onPasteFiles={pasteFiles}
                 onToggleStage={(f) => void toggleStage(f.path, !!f.staged)}
                 onSearch={openSearch}
                 onBackToWorkTree={backToWorkTree}

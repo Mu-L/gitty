@@ -332,7 +332,9 @@ export const es: RendererMessages = {
     blameFile: 'Blame',
     fileHistory: 'Historial del archivo',
     lineHistory: 'Historial de estas líneas',
-    browseWorktree: 'Explorar el árbol de trabajo'
+    browseWorktree: 'Explorar el árbol de trabajo',
+    paste: 'Pegar',
+    pasteInto: (dir: string) => `Pegar en ${dir}/`
   },
   paneChrome: {
     paneLabelFiles: 'Archivos',

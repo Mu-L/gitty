@@ -144,6 +144,42 @@ short enough that the button does not feel stuck. If it is still alive when the
 timer fires, its pipes are destroyed and it is `unref`'d — gource draws its own
 window and is meant to outlive Gitty.
 
+## Pasting files into the work tree
+
+The file tree accepts a paste, which means answering "what did the desktop put
+on the clipboard when the user pressed copy in a file manager?" — a question
+with no single answer. `src/main/clipfiles.ts` parses the three shapes that
+turn up, in the order of how much each says: `x-special/gnome-copied-files`
+(and the KDE/MATE/Nautilus spellings of the same thing), which is the only one
+carrying the copy/cut verb; `text/uri-list` and macOS's `public.file-url`,
+which carry paths and nothing else; and plain text as absolute paths, which is
+what copying a path out of a terminal leaves. It is pure string work with no
+imports so `test/clipfiles.test.ts` can hold the shapes without a clipboard.
+
+Two things about that list are load-bearing. The plain-text fallback is
+deliberately all-or-nothing — one line that is not an absolute path disqualifies
+the whole payload, and `index.ts` additionally requires every path to exist —
+because otherwise ordinary copied prose would read as a file list. And the
+formats are **read rather than looked up**: `clipboard.availableFormats()`
+reports the MIME types Chromium knows and leaves the desktop's `x-special/*`
+ones out entirely, while `clipboard.readBuffer` returns them perfectly well.
+Measured on this Wayland session; asking first would find nothing.
+
+`file:paste` resolves its target against the root like every other path the
+renderer names, and the sources never cross IPC — they come from the clipboard
+in the main process. A name the target already holds is the one question worth
+asking, and it is asked once for the whole paste rather than per file: keep
+both, which is `copyName`'s `notes (copy).md`, or replace. Pasting into the
+directory a file came from skips that question, being a duplicate made on
+purpose. A cut renames, falling back to copy-and-remove across filesystems, and
+clears the clipboard afterwards — leaving it would move the same files again
+from a source no longer there. The count that comes back only decides whether
+the renderer refreshes early; the watcher would get there anyway.
+
+Which views offer it is the renderer's business (`contextMenus.ts`): the
+changes and the working tree are the working directory, and a commit, a range
+or a revision's snapshot describes something that is not on disk to write into.
+
 ## Recent repositories
 
 `src/main/recent.ts` keeps the list in `app.getPath('userData')` — which is why

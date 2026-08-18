@@ -331,7 +331,9 @@ export const de: RendererMessages = {
     blameFile: 'Blame',
     fileHistory: 'Dateiverlauf',
     lineHistory: 'Geschichte dieser Zeilen',
-    browseWorktree: 'Arbeitsverzeichnis durchsuchen'
+    browseWorktree: 'Arbeitsverzeichnis durchsuchen',
+    paste: 'Einfügen',
+    pasteInto: (dir: string) => `In ${dir}/ einfügen`
   },
   paneChrome: {
     paneLabelFiles: 'Dateien',

@@ -87,6 +87,9 @@ export function isChangesChord(e: KeyboardEvent): boolean {
   return (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.code === 'KeyD'
 }
 
+/** Pasting files into the file tree; the shell keeps its own Ctrl+V. */
+export const PASTE_ACCEL = 'Ctrl+V'
+
 /** True while the event came from inside a terminal, whose keys are the shell's. */
 export function fromTerminal(target: EventTarget | null): boolean {
   return target instanceof Element && target.closest('.xterm') !== null

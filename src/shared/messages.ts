@@ -59,6 +59,14 @@ export interface MainMessages {
     readonly discardConfirm: (name: string) => string
     readonly discardDetail: string
     readonly discardButton: string
+    /** Pasting the clipboard's files into the work tree: the one question is
+     *  what to do about a name the target directory already holds. */
+    readonly pasteTitle: string
+    readonly pasteConflict: (n: number) => string
+    readonly pasteConflictDetail: string
+    readonly pasteKeepBothButton: string
+    readonly pasteReplaceButton: string
+    readonly pasteFailed: string
     /** Confirming that a remembered agent command is to be forgotten. */
     readonly forgetTitle: string
     readonly forgetConfirm: (command: string) => string
@@ -491,6 +499,10 @@ export interface RendererMessages {
     readonly lineHistory: string
     // the Changes row in the commit log
     readonly browseWorktree: string
+    /** Pasting the clipboard's files into the tree; `pasteInto` names the
+     *  directory a row's paste would write to. */
+    readonly paste: string
+    readonly pasteInto: (dir: string) => string
   }
   readonly paneChrome: {
     /** The four pane names used as labels throughout the UI. */

@@ -17,6 +17,13 @@ import { availableShells, createTerminal, type TerminalSession } from './pty'
 import { addRecent, clearRecent, listRecent, removeRecent } from './recent'
 import { watchRepo, type RepoWatcher } from './watcher'
 import * as web from './web'
+import {
+  copyName,
+  parseCopiedFiles,
+  parsePlainPaths,
+  parseUriList,
+  type ClipboardFiles
+} from './clipfiles'
 import type {
   AboutInfo,
   ApplyDirection,
@@ -271,6 +278,45 @@ function createWindow(): void {
   } else {
     win.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
+}
+
+/**
+ * What the system clipboard holds, if it holds files at all. The formats are
+ * tried in the order of how much they say: the desktop-specific ones carry the
+ * copy/cut verb, `text/uri-list` and macOS's file URLs carry only the paths,
+ * and plain text is read as paths last and only when they are really there —
+ * that check is what keeps ordinary copied prose out.
+ */
+function readClipboardFiles(): ClipboardFiles | null {
+  // Read each format rather than asking which ones are there:
+  // `availableFormats()` reports the MIME types Chromium knows and leaves the
+  // desktop's `x-special/*` ones out entirely, while `readBuffer` returns them
+  // perfectly well — measured on this Wayland session. An absent format reads
+  // as an empty buffer, so trying costs nothing.
+  const read = (format: string): string => {
+    try {
+      return clipboard.readBuffer(format).toString('utf8')
+    } catch {
+      return ''
+    }
+  }
+  const desktop = [
+    'x-special/gnome-copied-files',
+    'x-special/KDE-copied-files',
+    'x-special/mate-copied-files',
+    'x-special/nautilus-clipboard'
+  ]
+  for (const format of desktop) {
+    const parsed = parseCopiedFiles(read(format))
+    if (parsed) return parsed
+  }
+  for (const format of ['text/uri-list', 'public.file-url']) {
+    const parsed = parseUriList(read(format))
+    if (parsed) return parsed
+  }
+  const plain = parsePlainPaths(clipboard.readText())
+  if (plain && plain.paths.every((p) => fs.existsSync(p))) return plain
+  return null
 }
 
 function registerIpc(): void {
@@ -580,6 +626,82 @@ function registerIpc(): void {
   })
 
   // Optional: the button is only rendered where gource is installed.
+  /** Whether pasting into the file tree would do anything, for the menu item. */
+  ipcMain.handle('file:canPaste', () => readClipboardFiles() !== null)
+
+  /**
+   * Paste the clipboard's files into a directory of the work tree. The target
+   * is resolved and checked like every other path the renderer names, and the
+   * sources come from the desktop rather than from the renderer — nothing here
+   * takes a source path over IPC.
+   *
+   * A name already taken is the only question worth asking, and it is asked
+   * once for the whole paste rather than per file: keep both, which adds
+   * "(copy)" to the name, or replace. A cut moves the sources; a copy leaves
+   * them where they are. Returns how many arrived, which is what tells the
+   * renderer whether to say anything.
+   */
+  ipcMain.handle('file:paste', async (_e, root: string, destDir: string) => {
+    const dest = path.resolve(root, destDir || '.')
+    if (dest !== root && !dest.startsWith(root + path.sep)) return 0
+    const clip = readClipboardFiles()
+    if (!clip) return 0
+
+    const conflicts = clip.paths.filter((src) =>
+      fs.existsSync(path.join(dest, path.basename(src)))
+    )
+    // Pasting a file back into the directory it came from is not a conflict to
+    // ask about — it is a duplicate being made on purpose.
+    const sameDir = clip.paths.every((src) => path.dirname(src) === dest)
+    let replace = false
+    if (conflicts.length > 0 && !sameDir) {
+      const answer = await dialog.showMessageBox(win!, {
+        type: 'question',
+        title: msg.dialog.pasteTitle,
+        message: msg.dialog.pasteConflict(conflicts.length),
+        detail: msg.dialog.pasteConflictDetail,
+        buttons: [msg.dialog.cancelButton, msg.dialog.pasteKeepBothButton, msg.dialog.pasteReplaceButton],
+        defaultId: 1,
+        cancelId: 0
+      })
+      if (answer.response === 0) return 0
+      replace = answer.response === 2
+    }
+
+    let pasted = 0
+    for (const src of clip.paths) {
+      // A directory cannot be pasted into itself or into its own subtree; the
+      // copy would recurse into what it is writing.
+      if (dest === src || dest.startsWith(src + path.sep)) continue
+      const name = replace
+        ? path.basename(src)
+        : copyName(path.basename(src), (c) => fs.existsSync(path.join(dest, c)))
+      const target = path.join(dest, name)
+      try {
+        if (clip.op === 'cut') {
+          try {
+            await fs.promises.rename(src, target)
+          } catch (e) {
+            // Across filesystems rename cannot work; copy and then remove.
+            if ((e as NodeJS.ErrnoException).code !== 'EXDEV') throw e
+            await fs.promises.cp(src, target, { recursive: true, force: true })
+            await fs.promises.rm(src, { recursive: true })
+          }
+        } else {
+          await fs.promises.cp(src, target, { recursive: true, force: replace })
+        }
+        pasted++
+      } catch (e) {
+        dialog.showErrorBox(msg.dialog.pasteFailed, e instanceof Error ? e.message : String(e))
+        break
+      }
+    }
+    // A cut is spent once it has been pasted; leaving it would move the same
+    // files again on the next paste, from a source that is no longer there.
+    if (clip.op === 'cut' && pasted > 0) clipboard.clear()
+    return pasted
+  })
+
   ipcMain.handle('gource:available', () => gource.available())
   ipcMain.handle('gource:play', (_e, root: string) => gource.play(root))
 

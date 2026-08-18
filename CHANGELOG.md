@@ -14,6 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the `/commit/<hash>` hosts are known; where nothing can be inferred the
   item stays away (`src/main/remote.ts`, `test/remote.test.ts`).
 
+- Files copied in a file manager can be **pasted into the file tree** — the
+  tree's own right-click for the repository root, a file's right-click for the
+  directory beside it, or <kbd>Ctrl+V</kbd> with the pane focused. Cut files
+  move; a name already taken is asked about once, keep both or replace. Only in
+  **Changes** and **Working Tree**, the two views that are the directory on
+  disk. The clipboard shapes a desktop uses are parsed in
+  `src/main/clipfiles.ts` (`test/clipfiles.test.ts`).
+
 - <kbd>Ctrl+B</kbd> browses the working tree, and clears the window for it:
   Commits and Terminal go, leaving the tree and what it opens. The **Changes**
   row's menu item takes the same layout. The key is kept from the shell, tmux's

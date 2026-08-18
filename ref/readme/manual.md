@@ -196,6 +196,18 @@ Both keys are listed in the pane title's tooltip.
   Stage / Unstage File, Discard Changes, Delete File.
 - **Click a folder** — collapse or expand it.
 
+Files copied in a file manager can be **pasted into the tree**: right-click the
+empty space below the rows for **Paste**, which writes into the repository
+root, or right-click a file for **Paste into `dir`/**, which writes beside it.
+<kbd>Ctrl+V</kbd> does the same with the pane focused — into the selected
+file's directory, or the root when nothing is selected. Cut files are moved
+rather than copied, and a name the directory already holds is asked about once:
+keep both, which adds `(copy)` to the arriving name, or replace.
+
+Pasting belongs to the two views that *are* the directory on disk — **Changes**
+and **Working Tree**. A commit, a range or a revision's snapshot is a listing of
+something that is not there to write into, so no paste is offered.
+
 <kbd>Ctrl+F</kbd> with this pane focused — or **Filter** on the header's
 search button, whose arrow chooses between searching the repository and
 filtering this list — opens a filter box above the tree and
@@ -665,6 +677,7 @@ highlight** lives here only.
 | <kbd>Esc</kbd> | Back to the changes |
 | <kbd>Ctrl+B</kbd> | Browse the working tree, with Commits and Terminal out of the way |
 | <kbd>Ctrl+D</kbd> | Back to the changes, with all four panes (not in a terminal, where it is end-of-input) |
+| <kbd>Ctrl+V</kbd> | Paste the clipboard's files into the file tree, with that pane focused |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Back and forward through the places viewed |
 | <kbd>Alt</kbd> | Show or hide the application menu bar (not on macOS, where it is always there) |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |

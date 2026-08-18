@@ -328,7 +328,9 @@ export const ja: RendererMessages = {
     blameFile: 'Blame ファイル',
     fileHistory: 'ファイル履歴',
     lineHistory: 'これらの行の履歴',
-    browseWorktree: 'ワークツリーを閲覧'
+    browseWorktree: 'ワークツリーを閲覧',
+    paste: '貼り付け',
+    pasteInto: (dir: string) => `${dir}/ に貼り付け`
   },
   paneChrome: {
     paneLabelFiles: 'ファイル',

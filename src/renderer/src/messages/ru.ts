@@ -349,7 +349,9 @@ export const ru: RendererMessages = {
     blameFile: 'Blame',
     fileHistory: 'История файла',
     lineHistory: 'История этих строк',
-    browseWorktree: 'Просмотреть рабочее дерево'
+    browseWorktree: 'Просмотреть рабочее дерево',
+    paste: 'Вставить',
+    pasteInto: (dir: string) => `Вставить в ${dir}/`
   },
   paneChrome: {
     paneLabelFiles: 'Файлы',

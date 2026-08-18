@@ -26,6 +26,10 @@ export interface FilesViewProps {
   onSelect: (path: string) => void
   onOpen: (path: string) => void
   onMenu: (entry: FileEntry, state: MenuState) => void
+  /** Right-click on the tree itself rather than on one of its rows. */
+  onTreeMenu: (state: MenuState) => void
+  /** Paste the clipboard's files into a directory, relative to the root. */
+  onPasteFiles: (destDir: string) => void
   onToggleStage: (entry: FileEntry) => void
   onSearch: (pattern: string) => void
   onBackToWorkTree: () => void
@@ -55,6 +59,8 @@ export function FilesView({
   onSelect,
   onOpen,
   onMenu,
+  onTreeMenu,
+  onPasteFiles,
   onToggleStage,
   onSearch,
   onBackToWorkTree,
@@ -317,7 +323,21 @@ export function FilesView({
             e.preventDefault()
             e.stopPropagation()
             openFilter()
+          } else if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.code === 'KeyV') {
+            // Pasting into the tree is the pane's own key, so it is only the
+            // pane's while the pane has the focus. Into the directory holding
+            // the selected file, which is what a paste "here" means when a row
+            // is what you are looking at; the root when nothing is selected.
+            e.preventDefault()
+            e.stopPropagation()
+            onPasteFiles(selectedFile ? selectedFile.split('/').slice(0, -1).join('/') : '')
           }
+        }}
+        onContextMenu={(e) => {
+          // Only the empty space below the rows: a row's own menu stops the
+          // event, and this one has nothing to say about a file.
+          e.preventDefault()
+          onTreeMenu({ x: e.clientX, y: e.clientY, items: [] })
         }}
       >
         {commitMeta && <CommitInfo meta={commitMeta} />}
