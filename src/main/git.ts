@@ -925,6 +925,42 @@ export function pull(root: string): Promise<GitOpResult> {
   return remoteOp(root, ['pull', '--ff-only'])
 }
 
+/**
+ * Which paths in the work tree are submodules, read from `.gitmodules` — the
+ * file git itself treats as the list of them. One `git config` call, no walk
+ * of the tree: `ls-files --stage` would name every file in the repository to
+ * find the handful with mode 160000. A repository with no `.gitmodules` makes
+ * git exit non-zero, which is the empty list rather than an error.
+ */
+export async function submodules(root: string): Promise<string[]> {
+  let raw: string
+  try {
+    raw = await git(root, ['config', '-f', '.gitmodules', '-z', '--get-regexp', '\\.path$'])
+  } catch {
+    return []
+  }
+  // `-z` prints `<key>\n<value>\0` per entry: the newline is inside the
+  // record, which is what lets a value hold one.
+  return raw
+    .split('\0')
+    .filter((r) => r.length > 0)
+    .map((r) => r.slice(r.indexOf('\n') + 1))
+    .filter((p) => p.length > 0)
+}
+
+/**
+ * Pull one submodule: fetch its own remote and move it to the tip of the
+ * branch it tracks. `--remote` is what makes this a pull rather than a
+ * checkout of the commit the superproject records — the superproject is left
+ * pointing at the old commit, so the submodule shows up in Changes afterwards
+ * and committing that pointer stays the user's decision. `--init` because a
+ * submodule that was never checked out is the other half of "get me this".
+ * It talks to a remote, so it runs under `remoteOp`'s no-prompt deadline.
+ */
+export function submodulePull(root: string, subPath: string): Promise<GitOpResult> {
+  return remoteOp(root, ['submodule', 'update', '--init', '--remote', '--', subPath])
+}
+
 /* ---------- staging ---------- */
 
 /**

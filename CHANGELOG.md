@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is). Right-click a tab for **Rename tab…** or **Close repository**; a rename
   shows in the tab bar and the title bar, is remembered per repository, and
   leaves the real path in the tooltip.
+- File tree: **Pull Submodule** on a submodule's row, in the Changes and Working
+  Tree views. Moves it to the tip it tracks, cloning one never checked out; the
+  superproject keeps its recorded pointer, so committing that is yours. Git's
+  output lands where push and pull report.
 
 ## [0.1.9] - 2026-08-18
 

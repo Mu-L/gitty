@@ -99,6 +99,18 @@ throwing — the pane shows git's own words, and anything needing an answer is
 finished in the terminal pane. `pull` is `--ff-only`: a merge that needs a
 decision or an editor is not something a button should start.
 
+`submodulePull` is the third caller of `remoteOp`: `submodule update --init
+--remote -- <path>`. `--remote` is what makes the file tree's item a *pull* —
+the submodule moves to the tip of the branch it tracks rather than to the
+commit the superproject records, and the superproject is left pointing at the
+old one, so the pull shows up in Changes and committing the new pointer stays
+the user's decision. `--init` covers a submodule that was never checked out,
+which is the other thing "get me this one" can mean. Which paths are submodules
+is read by `submodules` from `.gitmodules` with one `git config -f .gitmodules
+--get-regexp` — the alternative, `ls-files --stage`, names every file in the
+repository to find the handful with mode 160000. No `.gitmodules` makes git
+exit non-zero, which is the empty list rather than an error.
+
 ## The local web server
 
 `src/main/web.ts` serves commits as plain HTML, and binding `127.0.0.1` is not

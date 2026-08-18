@@ -119,6 +119,11 @@ const api = {
     push: (root: string, branch: string | null = null): Promise<GitOpResult> =>
       ipcRenderer.invoke('git:push', root, branch),
     pull: (root: string): Promise<GitOpResult> => ipcRenderer.invoke('git:pull', root),
+    /** Repo-relative paths of the work tree's submodules, from `.gitmodules`. */
+    submodules: (root: string): Promise<string[]> => ipcRenderer.invoke('git:submodules', root),
+    /** Fetch one submodule's remote and move it to the tip it tracks. */
+    submodulePull: (root: string, subPath: string): Promise<GitOpResult> =>
+      ipcRenderer.invoke('git:submodulePull', root, subPath),
     commitDetail: (root: string, hash: string): Promise<CommitDetail> =>
       ipcRenderer.invoke('git:commitDetail', root, hash),
     commitMeta: (root: string, hash: string): Promise<CommitMeta> =>

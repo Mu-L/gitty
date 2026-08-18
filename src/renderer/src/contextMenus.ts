@@ -72,6 +72,11 @@ export interface ContextMenuDeps {
    * revision into the terminal pane. Never pressed Enter for the user.
    */
   runSnapshotFile: (path: string) => void
+  /**
+   * On-disk views only: fetch a submodule's own remote and move it to the tip
+   * it tracks. The superproject keeps pointing at the old commit.
+   */
+  pullSubmodule: (path: string) => void
   /** Changes view only: move a whole file in or out of the index. */
   toggleStage: (path: string, staged: boolean) => void
   /** Changes view only: throw a tracked file's changes away, after confirming. */
@@ -127,6 +132,7 @@ export function createContextMenus(deps: ContextMenuDeps): {
     canPaste,
     pasteFiles,
     runSnapshotFile,
+    pullSubmodule,
     toggleStage,
     discardChanges,
     copyStagedDiff,
@@ -300,6 +306,16 @@ export function createContextMenus(deps: ContextMenuDeps): {
       items.push({
         label: msg.contextMenu.runFile,
         action: () => runSnapshotFile(rel)
+      })
+    }
+    // A submodule is a repository of its own, and pulling it means running
+    // git inside it — so it is offered only by the two views that are the
+    // directory on disk, never by one describing a revision.
+    if (entry.submodule && pastable) {
+      items.push({
+        label: msg.contextMenu.pullSubmodule,
+        separatorBefore: true,
+        action: () => pullSubmodule(rel)
       })
     }
     // Whole-file questions, in every mode: a commit-mode file blames that

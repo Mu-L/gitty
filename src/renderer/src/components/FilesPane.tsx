@@ -19,6 +19,8 @@ export interface FileEntry {
   ignored?: boolean
   /** Snapshot only: the file's mode says it is a program, so it can be run. */
   exec?: boolean
+  /** On disk only: this path is a submodule, so it can be pulled on its own. */
+  submodule?: boolean
   /** Present for renames: the previous path. */
   origPath?: string
   /** Number of lines, when counted. */

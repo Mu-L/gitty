@@ -251,7 +251,11 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // The push or pull in flight, and what the last external command said —
   // push, pull or gource; the strip below the header is the one place any of
   // them gets to speak in its own words.
-  const [remoteOp, setRemoteOp] = useState<'push' | 'pull' | null>(null)
+  const [remoteOp, setRemoteOp] = useState<'push' | 'pull' | 'submodule' | null>(null)
+  // Which work-tree paths are submodules, so the file tree's menu can offer to
+  // pull one. Read once per repository: `.gitmodules` changes when a submodule
+  // is added or removed, which is not something a refresh is chasing.
+  const [submodulePaths, setSubmodulePaths] = useState<Set<string>>(() => new Set())
   // Which side of the index a work-tree file's diff is read from, when the
   // reader has said. Null follows the file's own state, which is what it did
   // before there was anything to stage.
@@ -388,7 +392,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
           // on top of it. Only the work tree has an index to speak of.
           staged: !f.untracked && f.index !== ' ',
           untracked: f.untracked,
-          origPath: f.origPath
+          origPath: f.origPath,
+          submodule: submodulePaths.has(f.path)
         }))
       } else if (view.mode === 'snapshot') {
         if (view.hash === null) {
@@ -407,7 +412,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
             marks: [],
             deleted: false,
             ignored: f.ignored,
-            exec: f.exec
+            exec: f.exec,
+            submodule: submodulePaths.has(f.path)
           }))
         } else {
           // Snapshot mode: the whole tree at that commit, read-only.
@@ -499,7 +505,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     return () => {
       cancelled = true
     }
-  }, [root, view, status, diffOptions])
+  }, [root, view, status, diffOptions, submodulePaths])
 
   /* ---------- documents (diff + opened files) ---------- */
 
@@ -1061,10 +1067,41 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     [root, status, refresh]
   )
 
+  /**
+   * Pull one submodule from the file tree's menu. It talks to a remote like
+   * the buttons above do, so it reports where they report and locks them
+   * while it runs; the superproject is left pointing at the old commit, which
+   * is why the refresh afterwards is what shows the submodule in Changes.
+   */
+  const pullSubmodule = useCallback(
+    async (rel: string) => {
+      setRemoteOp('submodule')
+      setRemoteMsg({ ok: true, text: msg.contextMenu.pullingSubmodule(rel) })
+      try {
+        const res = await window.gitty.git.submodulePull(root, rel)
+        setRemoteMsg({ ok: res.ok, text: res.output })
+      } finally {
+        setRemoteOp(null)
+        void refresh()
+      }
+    },
+    [root, refresh, msg]
+  )
+
   useEffect(() => {
     let live = true
     void window.gitty.git.remoteCommitBase(root).then((base) => {
       if (live) setRemoteCommitBase(base)
+    })
+    return () => {
+      live = false
+    }
+  }, [root])
+
+  useEffect(() => {
+    let live = true
+    void window.gitty.git.submodules(root).then((paths) => {
+      if (live) setSubmodulePaths(new Set(paths))
     })
     return () => {
       live = false
@@ -1096,10 +1133,12 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // Success has been read by the time it matters; a failure stays until it is
   // dismissed, since it is the only place git's own words appear.
   useEffect(() => {
-    if (!remoteMsg?.ok) return
+    // "Pulling …" is a success message that is not a result: it stays for as
+    // long as the pull it describes runs.
+    if (!remoteMsg?.ok || remoteOp !== null) return
     const t = setTimeout(() => setRemoteMsg(null), 5000)
     return () => clearTimeout(t)
-  }, [remoteMsg])
+  }, [remoteMsg, remoteOp])
 
   /* ---------- context menus ---------- */
 
@@ -1108,6 +1147,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       msg,
       root,
       view,
+      pullSubmodule,
       viewingFile,
       previewing,
       docSource,

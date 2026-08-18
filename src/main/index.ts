@@ -458,6 +458,10 @@ function registerIpc(): void {
     git.push(root, branch ?? undefined)
   )
   ipcMain.handle('git:pull', (_e, root: string) => git.pull(root))
+  ipcMain.handle('git:submodules', (_e, root: string) => git.submodules(root))
+  ipcMain.handle('git:submodulePull', (_e, root: string, subPath: string) =>
+    git.submodulePull(root, subPath)
+  )
   ipcMain.handle('git:commitDetail', (_e, root: string, hash: string) =>
     git.commitDetail(root, hash)
   )
