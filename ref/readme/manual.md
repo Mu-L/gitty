@@ -22,7 +22,8 @@ Left to right, it describes the active repository and then acts on it:
 
 - **Gitty** — the icon and name at the far left open the **About** dialog: the
   version, build time, author, and the Electron, Chromium and Node versions,
-  with a link to the home page.
+  with links to the home page and to the
+  [keyboard shortcuts](#keyboard-shortcuts).
 - **‹ › ▾** — where you have been in this repository. See
   [Going back](#going-back).
 - **The repository path** is a button: it opens the

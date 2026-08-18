@@ -12,6 +12,7 @@ export const zh: RendererMessages = {
       chromium: (v: string) => `Chromium ${v}`,
       node: (v: string) => `Node.js ${v}`,
       github: 'GitHub',
+      shortcuts: '键盘快捷键',
       close: '关闭'
     },
     help: {

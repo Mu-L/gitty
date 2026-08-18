@@ -26,6 +26,7 @@ export const ru: RendererMessages = {
       chromium: (v: string) => `Chromium ${v}`,
       node: (v: string) => `Node.js ${v}`,
       github: 'GitHub',
+      shortcuts: 'Сочетания клавиш',
       close: 'Закрыть'
     },
     help: {

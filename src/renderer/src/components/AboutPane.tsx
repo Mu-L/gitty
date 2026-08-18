@@ -13,6 +13,8 @@ export function AboutPane(props: {
   onClose: () => void
   /** The title-bar icon, which is the app's as well. */
   appIcon: string | null
+  /** Leave for the shortcut sheet; the App swaps one dialog for the other. */
+  onShortcuts: () => void
 }): JSX.Element | null {
   const { msg, locale } = useMsg()
   const [info, setInfo] = useState<AboutInfo | null>(null)
@@ -56,17 +58,24 @@ export function AboutPane(props: {
               </>
             )}
           </div>
-          <a
-            className="about-link"
-            href={info?.github ?? '#'}
-            onClick={(e) => {
-              // The system browser is the app's browser; never navigate here.
-              e.preventDefault()
-              if (info) void window.gitty.file.openExternal(info.github)
-            }}
-          >
-            {msg.app.about.github}
-          </a>
+          <div className="about-links">
+            <a
+              className="about-link"
+              href={info?.github ?? '#'}
+              onClick={(e) => {
+                // The system browser is the app's browser; never navigate here.
+                e.preventDefault()
+                if (info) void window.gitty.file.openExternal(info.github)
+              }}
+            >
+              {msg.app.about.github}
+            </a>
+            {/* The other thing a reader opens this dialog looking for. A
+                button, not a link: it goes to a dialog, not to a URL. */}
+            <button className="about-link" onClick={props.onShortcuts}>
+              {msg.app.about.shortcuts}
+            </button>
+          </div>
         </div>
         <div className="settings-footer">
           <button onClick={props.onClose}>{msg.app.about.close}</button>

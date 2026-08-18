@@ -947,7 +947,15 @@ export default function App(): JSX.Element {
         termLogin={termLogin}
         setTermLogin={setTermLogin}
       />
-      <AboutPane open={aboutOpen} onClose={() => setAboutOpen(false)} appIcon={appIcon} />
+      <AboutPane
+        open={aboutOpen}
+        onClose={() => setAboutOpen(false)}
+        appIcon={appIcon}
+        onShortcuts={() => {
+          setAboutOpen(false)
+          setHelpOpen(true)
+        }}
+      />
       <HelpPane open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
     </TimeProvider>

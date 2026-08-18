@@ -124,6 +124,8 @@ export interface RendererMessages {
       /** The label on the link to the project's home page; the URL is not
        *  translated. */
       readonly github: string
+      /** The link that leaves for the shortcut sheet, beside the GitHub one. */
+      readonly shortcuts: string
       readonly close: string
     }
     /** The keyboard shortcut sheet, opened with F1 or from the Help menu.

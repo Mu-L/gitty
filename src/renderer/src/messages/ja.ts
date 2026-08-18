@@ -12,6 +12,7 @@ export const ja: RendererMessages = {
       chromium: (v: string) => `Chromium ${v}`,
       node: (v: string) => `Node.js ${v}`,
       github: 'GitHub',
+      shortcuts: 'キーボードショートカット',
       close: '閉じる'
     },
     help: {

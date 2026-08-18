@@ -12,6 +12,7 @@ export const ko: RendererMessages = {
       chromium: (v: string) => `Chromium ${v}`,
       node: (v: string) => `Node.js ${v}`,
       github: 'GitHub',
+      shortcuts: '키보드 단축키',
       close: '닫기'
     },
     help: {

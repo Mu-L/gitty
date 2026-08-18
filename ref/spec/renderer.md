@@ -90,7 +90,9 @@ actions go through the message table.
 
 `App.tsx` owns the open state, as it does for settings and About, and passes
 `dialogOpen` down to every `RepoTab` so Escape closes the dialog rather than
-unwinding the tab's view underneath it.
+unwinding the tab's view underneath it. The About dialog links to the sheet
+beside its GitHub link — the two things a reader opens that dialog looking for
+— and `App.tsx` swaps one dialog for the other rather than stacking them.
 
 ## Multiple repositories, tabs
 

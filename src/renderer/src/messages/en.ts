@@ -12,6 +12,7 @@ export const en: RendererMessages = {
       chromium: (v: string) => `Chromium ${v}`,
       node: (v: string) => `Node.js ${v}`,
       github: 'GitHub',
+      shortcuts: 'Keyboard Shortcuts',
       close: 'Close'
     },
     help: {
