@@ -412,7 +412,8 @@ export const fr: RendererMessages = {
     agentCommandPlaceholder: 'commande lancée dans le terminal',
     agentNone: 'Aucune commande',
     agentNoTerminal: 'Aucun shell dans cet onglet pour la lancer.',
-    runExportFailed: 'Impossible de déployer cet instantané sur le disque.'
+    runExportFailed: 'Impossible de déployer cet instantané sur le disque.',
+    runTooLarge: (mb: number) => `Cet instantané dépasse ${mb} Mo ; il n’a pas été extrait.`
   },
   common: {
     loading: 'Chargement…',

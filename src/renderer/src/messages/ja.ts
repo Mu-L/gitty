@@ -407,7 +407,8 @@ export const ja: RendererMessages = {
     agentCommandPlaceholder: 'ターミナルで実行するコマンド',
     agentNone: 'コマンドなし',
     agentNoTerminal: 'このタブには実行できるシェルがありません。',
-    runExportFailed: 'このスナップショットをディスクへ展開できませんでした。'
+    runExportFailed: 'このスナップショットをディスクへ展開できませんでした。',
+    runTooLarge: (mb: number) => `このスナップショットは ${mb} MB を超えるため、チェックアウトしませんでした。`
   },
   common: {
     loading: '読み込み中…',

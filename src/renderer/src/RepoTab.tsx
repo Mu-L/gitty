@@ -75,6 +75,8 @@ import type {
   TerminalOptions,
   WorkingFile
 } from '../../shared/types'
+// A value, not a type: the limit is shown to the user when a snapshot is over it.
+import { MAX_SNAPSHOT_EXPORT_BYTES } from '../../shared/types'
 
 // The two panes that pull in whole libraries are loaded on demand: opening a
 // file costs highlight.js + markdown-it (plus the code and markdown viewers),
@@ -950,11 +952,19 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const runSnapshotFile = useCallback(
     async (rel: string) => {
       if (view.mode !== 'snapshot') return
-      const dir =
-        view.hash === null ? root : await window.gitty.git.snapshotExport(root, view.hash)
-      if (!dir) {
-        setRemoteMsg({ ok: false, text: msg.terminal.runExportFailed })
-        return
+      let dir = root
+      if (view.hash !== null) {
+        const checkout = await window.gitty.git.snapshotExport(root, view.hash)
+        if (!checkout.dir) {
+          setRemoteMsg({
+            ok: false,
+            text: checkout.tooLarge
+              ? msg.terminal.runTooLarge(Math.round(MAX_SNAPSHOT_EXPORT_BYTES / (1024 * 1024)))
+              : msg.terminal.runExportFailed
+          })
+          return
+        }
+        dir = checkout.dir
       }
       const command = `cd ${shellQuote(dir)} && ${shellQuote(`./${rel}`)}`
       if (!panes.terminal) onLayout({ ...panes, terminal: true })

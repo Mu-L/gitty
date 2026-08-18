@@ -234,6 +234,23 @@ export interface SnapshotEntry {
   exec: boolean
 }
 
+/**
+ * How large a commit's tree may be before Gitty refuses to check it out for
+ * **Run in the Terminal**. A repository that carries its binaries, its
+ * datasets or its vendored dependencies would otherwise write gigabytes into
+ * the temp directory on a right-click, and the point of the item is to run a
+ * script, not to clone the repository sideways. Both sides need the number —
+ * main to enforce it, the renderer to say what the limit was.
+ */
+export const MAX_SNAPSHOT_EXPORT_BYTES = 256 * 1024 * 1024
+
+/** The result of checking a snapshot out: its directory, or why there is none. */
+export interface SnapshotExport {
+  dir: string | null
+  /** The tree is over `MAX_SNAPSHOT_EXPORT_BYTES`; nothing was written. */
+  tooLarge: boolean
+}
+
 /** A single file's contents at a commit, for read-only snapshot browsing. */
 export interface SnapshotFileContent {
   content: string

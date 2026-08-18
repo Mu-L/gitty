@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import os from 'node:os'
-import { execFile, spawn } from 'node:child_process'
+import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import path from 'node:path'
 import type {
@@ -22,10 +22,11 @@ import type {
   LogFilterMode,
   RepoStatus,
   SnapshotEntry,
+  SnapshotExport,
   SnapshotFileContent,
   WorktreeFile
 } from '../shared/types'
-import { DEFAULT_DIFF_OPTIONS } from '../shared/types'
+import { DEFAULT_DIFF_OPTIONS, MAX_SNAPSHOT_EXPORT_BYTES } from '../shared/types'
 import {
   parseBlame,
   parseBranches,
@@ -799,7 +800,7 @@ export async function snapshotWriteTemp(
 }
 
 /**
- * Lay a whole commit's tree out in a temp directory, so a program that was
+ * Check a whole commit out into a temp directory, so a program that was
  * committed at that revision can be run as it was then.
  *
  * The whole tree rather than the one file: a script reads its neighbours —
@@ -807,61 +808,72 @@ export async function snapshotWriteTemp(
  * same directory — and giving it only itself would run the old program against
  * today's everything else, which is the one thing this is meant not to do.
  *
- * `git archive` is what writes it, piped into `tar`: it is the only way to get
- * a tree out of git with its file modes intact, and the executable bit is
- * exactly what is being preserved here. (`tar` is present on Linux, macOS and
- * Windows 10 and later.)
+ * A linked work tree (`git worktree add --detach`) rather than an unpacked
+ * `git archive`, because a program in a repository usually asks the repository
+ * questions: `git rev-parse`, `git describe`, the branch it is on. An archive
+ * is only files, and anything that shells out to git inside one fails at the
+ * first line. A linked work tree is a real one — detached at that commit, with
+ * an index and a HEAD of its own, so nothing done inside it can reach the
+ * checkout the user is working in.
  *
- * The export is keyed by hash, which makes it reusable: a commit's tree cannot
- * change, so a second run of anything in it skips the work. The marker file
- * sits *beside* the directory rather than inside it — a file of Gitty's own in
- * the tree would be a file that revision did not have — and is written only
- * after tar succeeds, so a half-extracted directory is never taken for a good
- * one. Null when the export failed; the caller says so rather than running
- * something out of an incomplete tree.
+ * The price is that this writes to the repository: a registration under
+ * `.git/worktrees`. `worktree prune` runs first, which is what clears the
+ * registrations whose directories the system has since cleaned out of `/tmp`;
+ * without it, adding the same snapshot again after a reboot would fail on a
+ * name that is taken but no longer there.
+ *
+ * Keyed by hash and therefore reusable: a commit's tree cannot change, so the
+ * second run of anything in it is immediate. A tree over
+ * `MAX_SNAPSHOT_EXPORT_BYTES` is refused before anything is written, and a
+ * checkout that failed answers with no directory at all — the caller says so
+ * rather than running something out of half a tree.
  */
-export async function snapshotExport(root: string, hash: string): Promise<string | null> {
+export async function snapshotExport(root: string, hash: string): Promise<SnapshotExport> {
   const dir = path.join(os.tmpdir(), `gitty-snapshot-${hash.slice(0, 12)}`)
-  const marker = `${dir}.done`
+  // `.git` here is the file pointing back at the repository, which is what
+  // makes this a work tree rather than a directory of files; its presence is
+  // the whole of "already checked out and still sound".
   try {
-    await fs.promises.access(marker)
-    return dir
+    await fs.promises.access(path.join(dir, '.git'))
+    return { dir, tooLarge: false }
   } catch {
-    // Not exported yet, or exported halfway: do it now.
+    // Never made, or made and since damaged: below, both are made again.
+  }
+  // Asked before anything is written, and of git rather than of the disk: the
+  // tree is not on disk yet, and this is the moment to decide it never will be.
+  if ((await treeBytes(root, hash)) > MAX_SNAPSHOT_EXPORT_BYTES) {
+    return { dir: null, tooLarge: true }
   }
   try {
+    await git(root, ['worktree', 'prune'])
+    // A directory left from a failed attempt would make `add` refuse.
     await fs.promises.rm(dir, { recursive: true, force: true })
-    await fs.promises.mkdir(dir, { recursive: true })
-    await extractTree(root, hash, dir)
-    await fs.promises.writeFile(marker, hash)
-    return dir
+    await git(root, ['worktree', 'add', '--detach', '--force', dir, hash])
+    return { dir, tooLarge: false }
   } catch {
     await fs.promises.rm(dir, { recursive: true, force: true }).catch(() => {})
-    return null
+    await git(root, ['worktree', 'prune']).catch(() => {})
+    return { dir: null, tooLarge: false }
   }
 }
 
-/** `git archive <hash> | tar -x -C dir`, as two processes and a pipe. */
-function extractTree(root: string, hash: string, dir: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const archive = spawn('git', ['archive', '--format=tar', hash], {
-      cwd: root,
-      windowsHide: true,
-      env: { ...process.env, GIT_OPTIONAL_LOCKS: '0', LC_ALL: 'C' }
-    })
-    const untar = spawn('tar', ['-x', '-f', '-', '-C', dir], { windowsHide: true })
-    archive.on('error', reject)
-    untar.on('error', reject)
-    // A git that fails writes nothing to the pipe, so tar succeeds on an empty
-    // archive; its own exit code is the one that has to be checked too.
-    archive.on('close', (code) => {
-      if (code !== 0) reject(new Error(`git archive exited ${code}`))
-    })
-    let said = ''
-    untar.stderr.on('data', (d: Buffer) => (said += d.toString()))
-    untar.on('close', (code) => (code === 0 ? resolve() : reject(new Error(said || `tar exited ${code}`))))
-    archive.stdout.pipe(untar.stdin)
-  })
+/**
+ * What a commit's tree weighs, from `ls-tree -l`: the blob sizes as git has
+ * them, without reading a byte of the objects themselves. A submodule prints
+ * `-` for its size — it is a commit, not content, and a checkout brings none
+ * of it in — so anything that is not a number counts as nothing.
+ */
+async function treeBytes(root: string, hash: string): Promise<number> {
+  const raw = await git(root, ['ls-tree', '-r', '-l', '-z', hash])
+  let total = 0
+  for (const record of raw.split('\0')) {
+    if (!record) continue
+    // `<mode> <type> <sha> <size>\t<path>`, the size right-aligned in a field
+    // wide enough for the largest of them, hence the split on whitespace.
+    const size = Number(record.slice(0, record.indexOf('\t')).split(/\s+/)[3])
+    if (Number.isFinite(size)) total += size
+  }
+  return total
 }
 
 /**

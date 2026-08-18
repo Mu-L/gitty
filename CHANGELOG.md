@@ -19,10 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the `/commit/<hash>` hosts are known; where nothing can be inferred the
   item stays away (`src/main/remote.ts`, `test/remote.test.ts`).
   <kbd>Ctrl/Cmd+Click</kbd> a commit row opens the same page.
-- **Run in the Terminal**, on an executable file in a snapshot: the commit's
-  whole tree is written to a temp directory and `cd <tree> && ./<file>` is typed
-  into the terminal pane, unrun — the program as it was then, beside the files
-  it had then.
+- **Run in the Terminal**, on an executable file in a snapshot: the commit is
+  checked out into a temp work tree and `cd <tree> && ./<file>` is typed into
+  the terminal pane, unrun — the program as it was then, beside the files it
+  had then, and in a work tree git still answers questions about. A tree over
+  256 MB is refused rather than checked out.
 
 ### Changed
 

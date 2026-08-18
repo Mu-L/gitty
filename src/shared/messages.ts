@@ -591,6 +591,7 @@ export interface RendererMessages {
     /** Why nothing happened: there is nowhere to run the command. */
     readonly agentNoTerminal: string
     readonly runExportFailed: string
+    readonly runTooLarge: (mb: number) => string
   }
   readonly common: {
     readonly loading: string

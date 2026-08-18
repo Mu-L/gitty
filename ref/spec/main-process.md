@@ -190,17 +190,32 @@ carries it as `exec` so the context menu can offer **Run in the Terminal**.
 Browsing the work tree answers the same question with `stat` — the same call
 that already checked the file was still there.
 
-`snapshotExport` lays the whole tree out under the system temp directory,
-`git archive` piped into `tar`. The whole tree because a script reads its
+`snapshotExport` checks the commit out into a temp directory with
+`git worktree add --detach`. The whole tree because a script reads its
 neighbours, and giving it only itself would run the old program against today's
-everything else; `git archive` because it is the only way out of git that keeps
-the executable bit, which is the entire point here. The export is keyed by the
-hash and therefore reusable, and its `.done` marker sits *beside* the directory
-— a file of Gitty's own inside the tree would be a file that revision did not
-have — and is written only after `tar` succeeds, so a half-extracted directory
-is never mistaken for a good one. Nothing is ever cleaned up on quit; these are
-temp files with stable names, and the next run overwrites rather than
-accumulates.
+everything else; a **linked work tree** rather than an unpacked `git archive`
+because a program in a repository asks the repository questions — `rev-parse`,
+`describe`, what branch this is — and inside an archive every one of them
+fails. The linked tree is a real one, detached at that commit with an index and
+a HEAD of its own, so nothing run inside it can reach the checkout the user is
+working in.
+
+A tree over `MAX_SNAPSHOT_EXPORT_BYTES` (256 MB, in `shared/types.ts` because
+the renderer names the number when it reports the refusal) is not checked out
+at all. The size comes from `ls-tree -r -l`, which is git's record of the blob
+sizes rather than a byte read from disk, and it is asked *before* anything is
+written — a repository that carries its binaries or its vendored dependencies
+would otherwise put gigabytes into `/tmp` on a right-click. A submodule prints
+`-` for its size and counts as nothing, which is right: a checkout brings none
+of it in.
+
+The price is that this writes to the repository: a registration under
+`.git/worktrees`. `worktree prune` runs first, which is what clears
+registrations whose directories `/tmp` has since been cleaned of — without it,
+the same snapshot after a reboot would fail on a name that is taken but no
+longer there. The export is keyed by the hash and reusable; the `.git` file
+inside the directory is what "already checked out and still sound" is read
+from.
 
 Main writes no processes for this. The renderer types
 `cd <tree> && ./<file>` into the terminal pane **without the Enter**

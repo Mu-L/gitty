@@ -411,7 +411,8 @@ export const es: RendererMessages = {
     agentCommandPlaceholder: 'comando que se ejecuta en la terminal',
     agentNone: 'Sin comando',
     agentNoTerminal: 'No hay ninguna shell en esta pestaña donde ejecutarlo.',
-    runExportFailed: 'No se pudo extraer esa instantánea en el disco.'
+    runExportFailed: 'No se pudo extraer esa instantánea en el disco.',
+    runTooLarge: (mb: number) => `Esa instantánea supera los ${mb} MB; no se extrajo.`
   },
   common: {
     loading: 'Cargando…',

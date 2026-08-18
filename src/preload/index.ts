@@ -24,6 +24,7 @@ import type {
   RepoChanged,
   RepoStatus,
   SnapshotEntry,
+  SnapshotExport,
   SnapshotFileContent,
   TerminalOptions,
   WebUrl,
@@ -171,9 +172,9 @@ const api = {
       ipcRenderer.invoke('git:applyHunks', root, filePath, picks, direction, opts),
     snapshotFiles: (root: string, hash: string): Promise<SnapshotEntry[]> =>
       ipcRenderer.invoke('git:snapshotFiles', root, hash),
-    /** Write a commit's whole tree to a temp directory and answer with its
-     *  path, or null when the export failed. */
-    snapshotExport: (root: string, hash: string): Promise<string | null> =>
+    /** Check a commit out into a temp work tree and answer with its path, or
+     *  with no path and the reason there is none. */
+    snapshotExport: (root: string, hash: string): Promise<SnapshotExport> =>
       ipcRenderer.invoke('git:snapshotExport', root, hash),
     /** Every file on disk now — tracked, untracked and ignored — for browsing
      *  the work tree; each says whether `.gitignore` covers it. */

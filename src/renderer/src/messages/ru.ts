@@ -428,7 +428,8 @@ export const ru: RendererMessages = {
     agentCommandPlaceholder: 'команда, запускаемая в терминале',
     agentNone: 'Нет команды',
     agentNoTerminal: 'В этой вкладке нет оболочки, где её запустить.',
-    runExportFailed: 'Не удалось развернуть этот снимок на диске.'
+    runExportFailed: 'Не удалось развернуть этот снимок на диске.',
+    runTooLarge: (mb: number) => `Этот снимок больше ${mb} МБ — он не был извлечён.`
   },
   common: {
     loading: 'Загрузка…',

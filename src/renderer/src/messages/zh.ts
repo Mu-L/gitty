@@ -403,7 +403,8 @@ export const zh: RendererMessages = {
     agentCommandPlaceholder: '在终端里运行的命令',
     agentNone: '无命令',
     agentNoTerminal: '该标签页里没有可运行它的 shell。',
-    runExportFailed: '无法把这个快照展开到磁盘上。'
+    runExportFailed: '无法把这个快照展开到磁盘上。',
+    runTooLarge: (mb: number) => `这个快照超过 ${mb} MB，没有检出。`
   },
   common: {
     loading: '加载中…',

@@ -411,7 +411,8 @@ export const pt: RendererMessages = {
     agentCommandPlaceholder: 'comando corrido no terminal',
     agentNone: 'Sem comando',
     agentNoTerminal: 'Não há nenhuma shell neste separador para o correr.',
-    runExportFailed: 'Não foi possível extrair esse instantâneo para o disco.'
+    runExportFailed: 'Não foi possível extrair esse instantâneo para o disco.',
+    runTooLarge: (mb: number) => `Esse instantâneo passa dos ${mb} MB; não foi extraído.`
   },
   common: {
     loading: 'A carregar…',

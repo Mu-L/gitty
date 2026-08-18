@@ -408,7 +408,8 @@ export const en: RendererMessages = {
     agentCommandPlaceholder: 'command run in the terminal',
     agentNone: 'No command',
     agentNoTerminal: 'No shell in this tab to run it in.',
-    runExportFailed: 'Could not lay that snapshot out on disk.'
+    runExportFailed: 'Could not lay that snapshot out on disk.',
+    runTooLarge: (mb: number) => `That snapshot is over ${mb} MB; it was not checked out.`
   },
   common: {
     loading: 'Loading…',

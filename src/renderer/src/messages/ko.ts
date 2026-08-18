@@ -406,7 +406,8 @@ export const ko: RendererMessages = {
     agentCommandPlaceholder: '터미널에서 실행할 명령',
     agentNone: '명령 없음',
     agentNoTerminal: '이 탭에는 실행할 셸이 없습니다.',
-    runExportFailed: '이 스냅숏을 디스크에 펼칠 수 없습니다.'
+    runExportFailed: '이 스냅숏을 디스크에 펼칠 수 없습니다.',
+    runTooLarge: (mb: number) => `이 스냅숏은 ${mb} MB를 넘어 체크아웃하지 않았습니다.`
   },
   common: {
     loading: '불러오는 중…',

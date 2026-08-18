@@ -331,15 +331,23 @@ The files in a snapshot never existed on disk at that revision, which is why
 Manager** is not offered. **Back to Changes** (or <kbd>Esc</kbd>) leaves.
 
 A file git recorded as executable — mode `755` — also offers **Run in the
-Terminal**. Choosing it writes the commit's whole tree to a temporary directory
-and types `cd <that directory> && ./<file>` into the terminal pane, so the
-program runs as it was then, next to the neighbours it had then rather than
-today's. The line is only typed: pressing <kbd>Enter</kbd> is yours, and nothing
-runs until you do. The terminal pane is brought back if it was hidden. Browsing
-the working tree offers the same item, and needs no copy — the command runs in
-the repository itself. The exported tree is kept per commit under the system
-temporary directory, so running a second thing from the same snapshot is
-immediate.
+Terminal**. Choosing it checks the commit out into a temporary directory and
+types `cd <that directory> && ./<file>` into the terminal pane, so the program
+runs as it was then, next to the neighbours it had then rather than today's.
+The line is only typed: pressing <kbd>Enter</kbd> is yours, and nothing runs
+until you do. The terminal pane is brought back if it was hidden. Browsing the
+working tree offers the same item, and needs no copy — the command runs in the
+repository itself.
+
+That temporary directory is a real linked work tree (`git worktree`), detached
+at the commit, so a program that asks git where it is gets an answer; it has an
+index and a HEAD of its own, and nothing run there touches your checkout. It
+also means a registration under `.git/worktrees`, which `git worktree list`
+shows and Gitty prunes as it goes; the checkout itself is kept per commit, so
+running a second thing from the same snapshot is immediate. A commit whose tree
+is over 256 MB is refused rather than checked out — the item is for running a
+script, not for writing a repository's worth of binaries into the temporary
+directory.
 
 #### Markdown preview
 
