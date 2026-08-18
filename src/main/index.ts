@@ -540,6 +540,13 @@ function registerIpc(): void {
   ipcMain.handle('git:snapshotFile', (_e, root: string, hash: string, filePath: string) =>
     git.snapshotFile(root, hash, filePath)
   )
+  // Lay a commit's whole tree out on disk, for running something that was
+  // committed at that revision. The path is all that comes back; running it is
+  // the renderer typing a line into the terminal pane, not this process
+  // spawning anything.
+  ipcMain.handle('git:snapshotExport', (_e, root: string, hash: string) =>
+    git.snapshotExport(root, hash)
+  )
   ipcMain.handle('git:snapshotOpen', async (_e, root: string, hash: string, filePath: string) => {
     const tmp = await git.snapshotWriteTemp(root, hash, filePath)
     return (await shell.openPath(tmp)) || null

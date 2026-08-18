@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 // A renderer module, but a DOM-free one — hence the entry for it in
 // tsconfig.node.json, which is the project the tests belong to.
-import { comparePaths } from '../src/renderer/src/paths'
+import { comparePaths, shellQuote } from '../src/renderer/src/paths'
 
 const sorted = (paths: string[]): string[] => [...paths].sort(comparePaths)
 
@@ -62,5 +62,19 @@ describe('comparePaths', () => {
   it('is a total order — ties in the collator still separate', () => {
     expect(comparePaths('a.md', 'A.md')).not.toBe(0)
     expect(comparePaths('a.md', 'A.md')).toBe(-comparePaths('A.md', 'a.md'))
+  })
+})
+
+describe('shellQuote', () => {
+  it('wraps an ordinary path in quotes', () => {
+    expect(shellQuote('/tmp/gitty-snapshot-abc/run.sh')).toBe("'/tmp/gitty-snapshot-abc/run.sh'")
+  })
+
+  it('keeps spaces and shell punctuation inside one word', () => {
+    expect(shellQuote('a b;rm -rf $HOME')).toBe("'a b;rm -rf $HOME'")
+  })
+
+  it('closes, escapes and reopens around a single quote', () => {
+    expect(shellQuote("it's")).toBe("'it'\\''s'")
   })
 })

@@ -82,7 +82,12 @@ export function layoutFor(root: string): { tree: TermNode; focused: string } {
 }
 
 /**
- * Type a command into a repository's focused shell and press Enter.
+ * Type a command into a repository's focused shell, and press Enter unless
+ * told not to.
+ *
+ * `submit` is false for the one caller that types a line the user has not
+ * asked for yet: running a program out of a snapshot leaves the command at the
+ * prompt with the cursor after it, so the Enter is theirs.
  *
  * This is the whole of "hand the index to an agent": Gitty writes text into a
  * pty and stops there. Whatever runs then has a real terminal, so its prompts,
@@ -91,14 +96,14 @@ export function layoutFor(root: string): { tree: TermNode; focused: string } {
  * is no shell to write to — the terminal pane has never been opened in this
  * tab — which the caller reports rather than swallowing.
  */
-export function runInTerminal(root: string, command: string): boolean {
+export function runInTerminal(root: string, command: string, submit = true): boolean {
   const layout = layouts.get(root)
   if (!layout) return false
   const id = sessions.has(layout.focused)
     ? layout.focused
     : leaves(layout.tree).find((leaf) => sessions.has(leaf))
   if (!id) return false
-  window.gitty.terminal.input(id, `${command}\r`)
+  window.gitty.terminal.input(id, submit ? `${command}\r` : command)
   focusSession(id)
   return true
 }

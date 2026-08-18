@@ -323,6 +323,7 @@ export const ja: RendererMessages = {
     copyCommitUrl: 'コミットの URL をコピー',
     openRemoteUrl: 'リモート URL を開く',
     browseSnapshot: 'スナップショットを見る',
+    runFile: 'ターミナルで実行',
     diffAgainstSelected: '選択したコミットと比較',
     diffAgainstAccel: 'Ctrl+クリック',
     blameFile: 'Blame ファイル',
@@ -375,7 +376,8 @@ export const ja: RendererMessages = {
     agentPromptCancel: 'キャンセル',
     agentCommandPlaceholder: 'ターミナルで実行するコマンド',
     agentNone: 'コマンドなし',
-    agentNoTerminal: 'このタブには実行できるシェルがありません。'
+    agentNoTerminal: 'このタブには実行できるシェルがありません。',
+    runExportFailed: 'このスナップショットをディスクへ展開できませんでした。'
   },
   common: {
     loading: '読み込み中…',

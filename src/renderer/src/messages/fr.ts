@@ -328,6 +328,7 @@ export const fr: RendererMessages = {
     copyCommitUrl: 'Copier l’URL du commit',
     openRemoteUrl: 'Ouvrir l’URL distante',
     browseSnapshot: 'Parcourir l’instantané',
+    runFile: 'Exécuter dans le terminal',
     diffAgainstSelected: 'Comparer au commit sélectionné',
     diffAgainstAccel: 'Ctrl+clic',
     blameFile: 'Blâme',
@@ -380,7 +381,8 @@ export const fr: RendererMessages = {
     agentPromptCancel: 'Annuler',
     agentCommandPlaceholder: 'commande lancée dans le terminal',
     agentNone: 'Aucune commande',
-    agentNoTerminal: 'Aucun shell dans cet onglet pour la lancer.'
+    agentNoTerminal: 'Aucun shell dans cet onglet pour la lancer.',
+    runExportFailed: 'Impossible de déployer cet instantané sur le disque.'
   },
   common: {
     loading: 'Chargement…',

@@ -344,6 +344,7 @@ export const ru: RendererMessages = {
     copyCommitUrl: 'Копировать URL коммита',
     openRemoteUrl: 'Открыть URL на сервере',
     browseSnapshot: 'Просмотреть снимок',
+    runFile: 'Запустить в терминале',
     diffAgainstSelected: 'Сравнить с выбранным коммитом',
     diffAgainstAccel: 'Ctrl+щелчок',
     blameFile: 'Blame',
@@ -396,7 +397,8 @@ export const ru: RendererMessages = {
     agentPromptCancel: 'Отмена',
     agentCommandPlaceholder: 'команда, запускаемая в терминале',
     agentNone: 'Нет команды',
-    agentNoTerminal: 'В этой вкладке нет оболочки, где её запустить.'
+    agentNoTerminal: 'В этой вкладке нет оболочки, где её запустить.',
+    runExportFailed: 'Не удалось развернуть этот снимок на диске.'
   },
   common: {
     loading: 'Загрузка…',

@@ -329,6 +329,17 @@ The files in a snapshot never existed on disk at that revision, which is why
 **Open in System App** hands over a temporary copy of it and **Reveal in File
 Manager** is not offered. **Back to Changes** (or <kbd>Esc</kbd>) leaves.
 
+A file git recorded as executable — mode `755` — also offers **Run in the
+Terminal**. Choosing it writes the commit's whole tree to a temporary directory
+and types `cd <that directory> && ./<file>` into the terminal pane, so the
+program runs as it was then, next to the neighbours it had then rather than
+today's. The line is only typed: pressing <kbd>Enter</kbd> is yours, and nothing
+runs until you do. The terminal pane is brought back if it was hidden. Browsing
+the working tree offers the same item, and needs no copy — the command runs in
+the repository itself. The exported tree is kept per commit under the system
+temporary directory, so running a second thing from the same snapshot is
+immediate.
+
 #### Markdown preview
 
 Selecting a `.md` file adds a **Preview** button — off by default, so a diff

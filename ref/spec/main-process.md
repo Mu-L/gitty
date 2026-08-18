@@ -182,6 +182,31 @@ Which views offer it is the renderer's business (`contextMenus.ts`): the
 changes and the working tree are the working directory, and a commit, a range
 or a revision's snapshot describes something that is not on disk to write into.
 
+## Running a snapshot's programs
+
+`snapshotFiles` reads `ls-tree -r -z` rather than `--name-only`, for the mode:
+`100755` is what makes a file a program at that revision, and the file tree
+carries it as `exec` so the context menu can offer **Run in the Terminal**.
+Browsing the work tree answers the same question with `stat` — the same call
+that already checked the file was still there.
+
+`snapshotExport` lays the whole tree out under the system temp directory,
+`git archive` piped into `tar`. The whole tree because a script reads its
+neighbours, and giving it only itself would run the old program against today's
+everything else; `git archive` because it is the only way out of git that keeps
+the executable bit, which is the entire point here. The export is keyed by the
+hash and therefore reusable, and its `.done` marker sits *beside* the directory
+— a file of Gitty's own inside the tree would be a file that revision did not
+have — and is written only after `tar` succeeds, so a half-extracted directory
+is never mistaken for a good one. Nothing is ever cleaned up on quit; these are
+temp files with stable names, and the next run overwrites rather than
+accumulates.
+
+Main writes no processes for this. The renderer types
+`cd <tree> && ./<file>` into the terminal pane **without the Enter**
+(`runInTerminal(root, command, false)`), which keeps the act of running an old
+program the user's own, and gives it a real tty for whatever it prompts for.
+
 ## Recent repositories
 
 `src/main/recent.ts` keeps the list in `app.getPath('userData')` — which is why

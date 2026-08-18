@@ -27,6 +27,7 @@ import { DiffHeader } from './components/DiffHeader'
 import { useMsg } from './locale'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { destroyTerminals, runInTerminal } from './terminals'
+import { shellQuote } from './paths'
 // A leaf module with no imports of its own; see the note on its extension
 // table. Asking it here does not drag the viewers into the main bundle.
 import { hasOutline, outlineLanguage } from './symbols'
@@ -402,23 +403,25 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
             absPath: `${root}/${f.path}`,
             marks: [],
             deleted: false,
-            ignored: f.ignored
+            ignored: f.ignored,
+            exec: f.exec
           }))
         } else {
           // Snapshot mode: the whole tree at that commit, read-only.
           rev = view.hash
-          const [paths, meta] = await Promise.all([
+          const [listed, meta] = await Promise.all([
             window.gitty.git.snapshotFiles(root, view.hash),
             window.gitty.git.commitMeta(root, view.hash)
           ])
           if (cancelled) return
           setCommitMeta(meta)
-          entries = paths.map<FileEntry>((p) => ({
-            path: p,
+          entries = listed.map<FileEntry>((f) => ({
+            path: f.path,
             // Virtual path — no file on disk; fileMenu/onOpen branch on this prefix.
-            absPath: `gitty:snapshot:${view.hash}:${p}`,
+            absPath: `gitty:snapshot:${view.hash}:${f.path}`,
             marks: [],
-            deleted: false
+            deleted: false,
+            exec: f.exec
           }))
         }
       } else {
@@ -930,6 +933,43 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   }, [root])
 
   /**
+   * Run a program the way it was at the revision on screen.
+   *
+   * The whole tree of the snapshot is written to a temp directory first, so
+   * the script finds the neighbours it had then rather than today's; browsing
+   * the working tree needs no such copy, because that directory *is* the work
+   * tree. What is typed is `cd <tree> && ./<file>` — and it is only typed. The
+   * Enter is the user's, which is what keeps a right-click from being the act
+   * of running an old program.
+   *
+   * The terminal pane may be hidden or never opened in this tab; showing it
+   * starts a shell, which takes a moment to exist, so the line is offered
+   * repeatedly until one answers.
+   */
+  const runSnapshotFile = useCallback(
+    async (rel: string) => {
+      if (view.mode !== 'snapshot') return
+      const dir =
+        view.hash === null ? root : await window.gitty.git.snapshotExport(root, view.hash)
+      if (!dir) {
+        setRemoteMsg({ ok: false, text: msg.terminal.runExportFailed })
+        return
+      }
+      const command = `cd ${shellQuote(dir)} && ${shellQuote(`./${rel}`)}`
+      if (!panes.terminal) onLayout({ ...panes, terminal: true })
+      for (let attempt = 0; attempt < 20; attempt++) {
+        if (runInTerminal(root, command, false)) {
+          setRemoteMsg(null)
+          return
+        }
+        await new Promise((r) => setTimeout(r, 100))
+      }
+      setRemoteMsg({ ok: false, text: msg.terminal.agentNoTerminal })
+    },
+    [root, view, panes, onLayout, msg]
+  )
+
+  /**
    * Hand the curated index over. Gitty writes one line into the shell that is
    * already in the window and stops there: no model is called from inside the
    * app, so nothing about the repository leaves the machine that the user did
@@ -1084,6 +1124,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       browseWorktree,
       canPaste: () => window.gitty.file.canPaste(),
       pasteFiles,
+      runSnapshotFile: (path) => void runSnapshotFile(path),
       toggleStage: (path, staged) => void toggleStage(path, staged),
       discardChanges: (path) => void discardChanges(path),
       copyStagedDiff,

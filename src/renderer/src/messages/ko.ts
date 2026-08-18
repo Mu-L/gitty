@@ -322,6 +322,7 @@ export const ko: RendererMessages = {
     copyCommitUrl: '커밋 URL 복사',
     openRemoteUrl: '원격 URL 열기',
     browseSnapshot: '스냅숏 보기',
+    runFile: '터미널에서 실행',
     diffAgainstSelected: '선택한 커밋과 비교',
     diffAgainstAccel: 'Ctrl+클릭',
     blameFile: 'Blame 파일',
@@ -374,7 +375,8 @@ export const ko: RendererMessages = {
     agentPromptCancel: '취소',
     agentCommandPlaceholder: '터미널에서 실행할 명령',
     agentNone: '명령 없음',
-    agentNoTerminal: '이 탭에는 실행할 셸이 없습니다.'
+    agentNoTerminal: '이 탭에는 실행할 셸이 없습니다.',
+    runExportFailed: '이 스냅숏을 디스크에 펼칠 수 없습니다.'
   },
   common: {
     loading: '불러오는 중…',

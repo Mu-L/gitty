@@ -324,6 +324,7 @@ export const en: RendererMessages = {
     copyCommitUrl: 'Copy Commit URL',
     openRemoteUrl: 'Open Remote URL',
     browseSnapshot: 'Browse Snapshot',
+    runFile: 'Run in the Terminal',
     diffAgainstSelected: 'Diff Against Selected',
     diffAgainstAccel: 'Ctrl+Click',
     blameFile: 'Blame File',
@@ -376,7 +377,8 @@ export const en: RendererMessages = {
     agentPromptCancel: 'Cancel',
     agentCommandPlaceholder: 'command run in the terminal',
     agentNone: 'No command',
-    agentNoTerminal: 'No shell in this tab to run it in.'
+    agentNoTerminal: 'No shell in this tab to run it in.',
+    runExportFailed: 'Could not lay that snapshot out on disk.'
   },
   common: {
     loading: 'Loading…',

@@ -23,6 +23,7 @@ import type {
   PtyExit,
   RepoChanged,
   RepoStatus,
+  SnapshotEntry,
   SnapshotFileContent,
   TerminalOptions,
   WebUrl,
@@ -162,8 +163,12 @@ const api = {
       opts: DiffOptions
     ): Promise<GitOpResult> =>
       ipcRenderer.invoke('git:applyHunks', root, filePath, picks, direction, opts),
-    snapshotFiles: (root: string, hash: string): Promise<string[]> =>
+    snapshotFiles: (root: string, hash: string): Promise<SnapshotEntry[]> =>
       ipcRenderer.invoke('git:snapshotFiles', root, hash),
+    /** Write a commit's whole tree to a temp directory and answer with its
+     *  path, or null when the export failed. */
+    snapshotExport: (root: string, hash: string): Promise<string | null> =>
+      ipcRenderer.invoke('git:snapshotExport', root, hash),
     /** Every file on disk now — tracked, untracked and ignored — for browsing
      *  the work tree; each says whether `.gitignore` covers it. */
     worktreeFiles: (root: string): Promise<WorktreeFile[]> =>

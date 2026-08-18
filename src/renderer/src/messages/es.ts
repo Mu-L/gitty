@@ -327,6 +327,7 @@ export const es: RendererMessages = {
     copyCommitUrl: 'Copiar la URL del commit',
     openRemoteUrl: 'Abrir la URL remota',
     browseSnapshot: 'Explorar instantánea',
+    runFile: 'Ejecutar en la terminal',
     diffAgainstSelected: 'Comparar con el commit seleccionado',
     diffAgainstAccel: 'Ctrl+clic',
     blameFile: 'Blame',
@@ -379,7 +380,8 @@ export const es: RendererMessages = {
     agentPromptCancel: 'Cancelar',
     agentCommandPlaceholder: 'comando que se ejecuta en la terminal',
     agentNone: 'Sin comando',
-    agentNoTerminal: 'No hay ninguna shell en esta pestaña donde ejecutarlo.'
+    agentNoTerminal: 'No hay ninguna shell en esta pestaña donde ejecutarlo.',
+    runExportFailed: 'No se pudo extraer esa instantánea en el disco.'
   },
   common: {
     loading: 'Cargando…',

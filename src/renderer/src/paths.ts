@@ -23,6 +23,18 @@ export function isImagePath(path: string): boolean {
 }
 
 /**
+ * One argument of a POSIX shell command line, quoted so the shell reads it as
+ * the single word it is: single quotes take everything literally, and the only
+ * character they cannot hold is the single quote itself, which is closed,
+ * escaped and reopened. Used for the line typed into the terminal pane — a
+ * path with a space, a `$` or a `;` in it must reach the program as the path
+ * it is rather than as shell syntax.
+ */
+export function shellQuote(arg: string): string {
+  return `'${arg.split("'").join(`'\\''`)}'`
+}
+
+/**
  * Names as a reader sorts them: the digits inside a name count as a number, so
  * `W9` comes before `W10` rather than after it, and case is not a first-order
  * difference — `butler/` sorts with the b's rather than after every capital.

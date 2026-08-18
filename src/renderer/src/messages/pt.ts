@@ -327,6 +327,7 @@ export const pt: RendererMessages = {
     copyCommitUrl: 'Copiar o URL do commit',
     openRemoteUrl: 'Abrir o URL remoto',
     browseSnapshot: 'Percorrer o instantâneo',
+    runFile: 'Executar no terminal',
     diffAgainstSelected: 'Comparar com o commit selecionado',
     diffAgainstAccel: 'Ctrl+clique',
     blameFile: 'Blame',
@@ -379,7 +380,8 @@ export const pt: RendererMessages = {
     agentPromptCancel: 'Cancelar',
     agentCommandPlaceholder: 'comando corrido no terminal',
     agentNone: 'Sem comando',
-    agentNoTerminal: 'Não há nenhuma shell neste separador para o correr.'
+    agentNoTerminal: 'Não há nenhuma shell neste separador para o correr.',
+    runExportFailed: 'Não foi possível extrair esse instantâneo para o disco.'
   },
   common: {
     loading: 'A carregar…',

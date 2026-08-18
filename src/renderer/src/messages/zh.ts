@@ -320,6 +320,7 @@ export const zh: RendererMessages = {
     copyCommitUrl: '复制提交 URL',
     openRemoteUrl: '打开远程链接',
     browseSnapshot: '浏览快照',
+    runFile: '在终端里运行',
     diffAgainstSelected: '与选中提交对比',
     diffAgainstAccel: 'Ctrl+单击',
     blameFile: '追溯文件',
@@ -371,7 +372,8 @@ export const zh: RendererMessages = {
     agentPromptCancel: '取消',
     agentCommandPlaceholder: '在终端里运行的命令',
     agentNone: '无命令',
-    agentNoTerminal: '该标签页里没有可运行它的 shell。'
+    agentNoTerminal: '该标签页里没有可运行它的 shell。',
+    runExportFailed: '无法把这个快照展开到磁盘上。'
   },
   common: {
     loading: '加载中…',

@@ -67,6 +67,11 @@ export interface ContextMenuDeps {
   canPaste: () => Promise<boolean>
   /** Paste them into a directory of the work tree, relative to the root. */
   pasteFiles: (destDir: string) => void
+  /**
+   * Snapshot only: type the line that runs this file as it was at that
+   * revision into the terminal pane. Never pressed Enter for the user.
+   */
+  runSnapshotFile: (path: string) => void
   /** Changes view only: move a whole file in or out of the index. */
   toggleStage: (path: string, staged: boolean) => void
   /** Changes view only: throw a tracked file's changes away, after confirming. */
@@ -121,6 +126,7 @@ export function createContextMenus(deps: ContextMenuDeps): {
     browseWorktree,
     canPaste,
     pasteFiles,
+    runSnapshotFile,
     toggleStage,
     discardChanges,
     copyStagedDiff,
@@ -285,6 +291,16 @@ export function createContextMenus(deps: ContextMenuDeps): {
         { label: msg.contextMenu.openInSystemApp, action: () => void window.gitty.file.open(entry.absPath) },
         { label: msg.contextMenu.revealInFileManager, action: () => void window.gitty.file.reveal(entry.absPath) }
       )
+    }
+    // Running it, and only where both halves of the question have an answer:
+    // a tree Gitty can lay out on disk, and a file git recorded as a program.
+    // The command lands at the prompt unrun — a right-click is not the moment
+    // to execute a program, but it is a fine moment to have it typed out.
+    if (view.mode === 'snapshot' && entry.exec) {
+      items.push({
+        label: msg.contextMenu.runFile,
+        action: () => runSnapshotFile(rel)
+      })
     }
     // Whole-file questions, in every mode: a commit-mode file blames that
     // revision, a snapshot file blames the snapshot's tree.

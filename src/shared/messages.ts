@@ -490,6 +490,8 @@ export interface RendererMessages {
     readonly copyCommitUrl: string
     readonly openRemoteUrl: string
     readonly browseSnapshot: string
+    /** Snapshot only: type a command running this file into the terminal. */
+    readonly runFile: string
     readonly diffAgainstSelected: string
     readonly diffAgainstAccel: string
     // file tree — per-file questions, both open a document in the diff pane
@@ -551,6 +553,7 @@ export interface RendererMessages {
     readonly agentNone: string
     /** Why nothing happened: there is nowhere to run the command. */
     readonly agentNoTerminal: string
+    readonly runExportFailed: string
   }
   readonly common: {
     readonly loading: string

@@ -326,6 +326,7 @@ export const de: RendererMessages = {
     copyCommitUrl: 'Commit-URL kopieren',
     openRemoteUrl: 'Remote-URL öffnen',
     browseSnapshot: 'Snapshot ansehen',
+    runFile: 'Im Terminal ausführen',
     diffAgainstSelected: 'Mit ausgewähltem Commit vergleichen',
     diffAgainstAccel: 'Strg+Klick',
     blameFile: 'Blame',
@@ -378,7 +379,8 @@ export const de: RendererMessages = {
     agentPromptCancel: 'Abbrechen',
     agentCommandPlaceholder: 'Befehl, der im Terminal läuft',
     agentNone: 'Kein Befehl',
-    agentNoTerminal: 'In diesem Tab läuft keine Shell, in der er laufen könnte.'
+    agentNoTerminal: 'In diesem Tab läuft keine Shell, in der er laufen könnte.',
+    runExportFailed: 'Dieser Snapshot ließ sich nicht auf die Platte schreiben.'
   },
   common: {
     loading: 'Wird geladen…',

@@ -220,6 +220,18 @@ export interface DiffResult {
 export interface WorktreeFile {
   path: string
   ignored: boolean
+  /** The executable bit is set on disk, so the file tree can offer to run it. */
+  exec: boolean
+}
+
+/**
+ * One entry of a commit's tree listing. `exec` is git's own record of the mode
+ * — `100755` rather than `100644` — which is what "this file was a program at
+ * that revision" means; nothing on disk is consulted for it.
+ */
+export interface SnapshotEntry {
+  path: string
+  exec: boolean
 }
 
 /** A single file's contents at a commit, for read-only snapshot browsing. */

@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import os from 'node:os'
-import { execFile } from 'node:child_process'
+import { execFile, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
 import path from 'node:path'
 import type {
@@ -21,6 +21,7 @@ import type {
   ImageFileContent,
   LogFilterMode,
   RepoStatus,
+  SnapshotEntry,
   SnapshotFileContent,
   WorktreeFile
 } from '../shared/types'
@@ -706,10 +707,22 @@ export async function readImageFile(
   }
 }
 
-/** Full file list of a commit — the tree as it was at that moment. */
-export async function snapshotFiles(root: string, hash: string): Promise<string[]> {
-  const raw = await git(root, ['ls-tree', '-r', '--name-only', '-z', hash])
-  return raw.split('\0').filter((p) => p.length > 0)
+/**
+ * Full file list of a commit — the tree as it was at that moment, each entry
+ * carrying git's mode for it. `-z` prints `<mode> <type> <sha>\t<path>` per
+ * record, which is the long form of `--name-only`: the mode is why it is read
+ * here rather than the shorter one. `100755` is the executable bit, `120000` a
+ * symlink — a link is not a program of its own, so only the first counts.
+ */
+export async function snapshotFiles(root: string, hash: string): Promise<SnapshotEntry[]> {
+  const raw = await git(root, ['ls-tree', '-r', '-z', hash])
+  return raw
+    .split('\0')
+    .filter((r) => r.length > 0)
+    .map((record) => {
+      const tab = record.indexOf('\t')
+      return { path: record.slice(tab + 1), exec: record.startsWith('100755 ') }
+    })
 }
 
 /**
@@ -733,11 +746,19 @@ export async function worktreeFiles(root: string): Promise<WorktreeFile[]> {
   // tree keys its rows by path; three rows would share a key.
   const ignored = new Set(rawIgnored.split('\0').filter((p) => p.length > 0))
   const paths = [...new Set(raw.split('\0').filter((p) => p.length > 0)), ...ignored]
+  // `stat` rather than `access`: the same one call answers both "is it still
+  // there" and "is it a program", and the tree wants the second to offer to
+  // run it. A directory's own executable bit means something else entirely,
+  // so only regular files are ever marked.
   const existing = await Promise.all(
     paths.map((p) =>
       fs.promises
-        .access(path.join(root, p))
-        .then<WorktreeFile | null>(() => ({ path: p, ignored: ignored.has(p) }))
+        .stat(path.join(root, p))
+        .then<WorktreeFile | null>((st) => ({
+          path: p,
+          ignored: ignored.has(p),
+          exec: st.isFile() && (st.mode & 0o111) !== 0
+        }))
         .catch(() => null)
     )
   )
@@ -775,6 +796,72 @@ export async function snapshotWriteTemp(
   const tmp = path.join(os.tmpdir(), name)
   await fs.promises.writeFile(tmp, content)
   return tmp
+}
+
+/**
+ * Lay a whole commit's tree out in a temp directory, so a program that was
+ * committed at that revision can be run as it was then.
+ *
+ * The whole tree rather than the one file: a script reads its neighbours —
+ * sources a library beside it, opens a config, calls another script in the
+ * same directory — and giving it only itself would run the old program against
+ * today's everything else, which is the one thing this is meant not to do.
+ *
+ * `git archive` is what writes it, piped into `tar`: it is the only way to get
+ * a tree out of git with its file modes intact, and the executable bit is
+ * exactly what is being preserved here. (`tar` is present on Linux, macOS and
+ * Windows 10 and later.)
+ *
+ * The export is keyed by hash, which makes it reusable: a commit's tree cannot
+ * change, so a second run of anything in it skips the work. The marker file
+ * sits *beside* the directory rather than inside it — a file of Gitty's own in
+ * the tree would be a file that revision did not have — and is written only
+ * after tar succeeds, so a half-extracted directory is never taken for a good
+ * one. Null when the export failed; the caller says so rather than running
+ * something out of an incomplete tree.
+ */
+export async function snapshotExport(root: string, hash: string): Promise<string | null> {
+  const dir = path.join(os.tmpdir(), `gitty-snapshot-${hash.slice(0, 12)}`)
+  const marker = `${dir}.done`
+  try {
+    await fs.promises.access(marker)
+    return dir
+  } catch {
+    // Not exported yet, or exported halfway: do it now.
+  }
+  try {
+    await fs.promises.rm(dir, { recursive: true, force: true })
+    await fs.promises.mkdir(dir, { recursive: true })
+    await extractTree(root, hash, dir)
+    await fs.promises.writeFile(marker, hash)
+    return dir
+  } catch {
+    await fs.promises.rm(dir, { recursive: true, force: true }).catch(() => {})
+    return null
+  }
+}
+
+/** `git archive <hash> | tar -x -C dir`, as two processes and a pipe. */
+function extractTree(root: string, hash: string, dir: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const archive = spawn('git', ['archive', '--format=tar', hash], {
+      cwd: root,
+      windowsHide: true,
+      env: { ...process.env, GIT_OPTIONAL_LOCKS: '0', LC_ALL: 'C' }
+    })
+    const untar = spawn('tar', ['-x', '-f', '-', '-C', dir], { windowsHide: true })
+    archive.on('error', reject)
+    untar.on('error', reject)
+    // A git that fails writes nothing to the pipe, so tar succeeds on an empty
+    // archive; its own exit code is the one that has to be checked too.
+    archive.on('close', (code) => {
+      if (code !== 0) reject(new Error(`git archive exited ${code}`))
+    })
+    let said = ''
+    untar.stderr.on('data', (d: Buffer) => (said += d.toString()))
+    untar.on('close', (code) => (code === 0 ? resolve() : reject(new Error(said || `tar exited ${code}`))))
+    archive.stdout.pipe(untar.stdin)
+  })
 }
 
 /**
