@@ -34,7 +34,7 @@ export function AboutPane(props: {
       }}
     >
       <div className="about">
-        <div className="about-header">
+        <div className="settings-header">
           <span className="settings-title">{msg.app.about.title}</span>
           <button title={msg.app.about.close} onClick={props.onClose}>
             ×
