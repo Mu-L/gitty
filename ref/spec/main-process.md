@@ -169,3 +169,59 @@ call with a sequence number and drop a reply that a newer call has overtaken.
 Without it the panes disagree — the diff pane re-runs git for every render and
 so always shows the truth, while a stale `git status` landing last leaves the
 Changes pane (and the title bar's count) listing changes already committed.
+
+## The window, and Wayland's scale
+
+The window is created hidden and shown at its first paint, with the fallback
+off `did-finish-load` that the Wayland note in `CLAUDE.md` explains. What it
+does *not* do is choose a size against the screen: no clamp to the work area
+helps with the problem below, and one was measured and taken out again.
+
+A GNOME Wayland session with two monitors at different scales can leave
+Chromium flipping the window's scale factor between them — measured here at
+about thirteen times a second, between a `devicePixelRatio` of 1.203125 (an
+external monitor at scale 1) and 1.50390625 (a built-in one at 1.25), each
+carrying the desktop's 1.2 text scaling. Every flip changes the viewport by a
+pixel and lays the page out again, so the interface shakes. It is not ours: an
+empty `BrowserWindow` loading a blank document does the same, and it reproduced
+on three launches out of three.
+
+What was tried, and what it did:
+
+| | |
+| --- | --- |
+| `--force-device-scale-factor` | still flips |
+| `--enable-features=WaylandFractionalScaleV1` | still flips |
+| `--ozone-platform=x11` | steady, at a `devicePixelRatio` of 2.40625 — twice the size |
+| a window small enough to fit the monitor | steady, but a clamped default still grew to fill it and flipped again |
+| `--disable-features=WaylandFractionalScaleV1` | steady, windowed and full screen, at a `devicePixelRatio` of 1 |
+
+So the last one is what the app sets — but not unconditionally: with it the
+desktop's fractional scaling is ignored, which on a single fractionally scaled
+monitor is a regression, the interface rendering smaller than everything around
+it. It is worth having only where the flip can happen, which is where two
+monitors are scaled differently.
+
+That is knowable from `screen`, and `screen` needs `ready`; the switch is read
+before Chromium starts, which is long before. The two cannot be reconciled in
+one process, so `relaunchWithoutFractionalScale` starts a second one:
+at `ready`, before the web server or any window, it compares the displays'
+`scaleFactor`s and — finding more than one — calls `app.relaunch` with
+`--disable-features=WaylandFractionalScaleV1` appended to `process.argv`, then
+`app.exit(0)`. Nothing has been shown yet, so the restart costs a moment and
+shows nothing. The repository argument survives because it is passed through
+untouched, and `initialPath` skips `-` arguments anyway.
+
+Three guards keep it from starting itself forever: the relaunched process finds
+the switch already on its command line, `GITTY_SCALE_RELAUNCHED` is set in the
+environment it inherits, and `GITTY_DISABLE_FRACTIONAL_SCALE` — `1` to switch
+fractional scaling off whatever the monitors say, `0` to keep it on — takes the
+decision away from the check entirely. The switch itself goes on
+`app.commandLine` before `ready`, so it works for the packaged build as much as
+for `run.sh`.
+
+What it does not catch: a monitor plugged in after the app started. Relaunching
+then would take the terminal panes' shells with it, so nothing happens
+automatically and `GITTY_DISABLE_FRACTIONAL_SCALE=1` is the way to ask. And the
+pid `run.sh` prints is the process that stepped aside, not the one now running.
+Upstream: electron#35325, electron#46843.

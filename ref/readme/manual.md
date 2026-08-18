@@ -696,6 +696,37 @@ bit, so it depends on unprivileged user namespaces — which Ubuntu 24.04's
 AppArmor policy restricts by default. Expect to pass `--no-sandbox` there, or
 to install an AppArmor profile of your own. Prefer the `.deb` where you can.
 
+### Wayland and monitors scaled differently
+
+A GNOME Wayland session driving two monitors at different scales can leave
+Chromium unable to settle on one: it flips the window's scale factor between
+the two several times a second, lays the page out again at each flip, and the
+whole interface shakes by a pixel or two for as long as the window is open.
+Full screen is where it shows worst. Nothing in Gitty causes it — an Electron
+window with no content in it at all shakes the same way — and no window size
+avoids it.
+
+Gitty handles it for you: at startup it asks how the monitors are scaled, and
+if two answers come back it starts itself again with Chromium's fractional
+scaling switched off. That happens before any window exists, so there is
+nothing to see but a slightly later start. The cost is that the desktop's
+fractional scaling is then ignored — the interface renders at scale 1 and looks
+smaller than the rest of the desktop. <kbd>Ctrl+=</kbd> zooms it back, and the
+font sizes in **Settings** are the other way to make up the difference.
+
+Two environment variables override the guess. `GITTY_DISABLE_FRACTIONAL_SCALE=1`
+switches fractional scaling off whatever the monitors say — useful if the second
+monitor is plugged in after Gitty has started, which is the one case the startup
+check cannot catch. `GITTY_DISABLE_FRACTIONAL_SCALE=0` keeps it on and stops the
+restart, shaking and all.
+
+Setting both monitors to the same scale, in **Settings → Displays**, leaves
+Chromium nothing to flip between — the same fix from the other end, where two
+screens can share a scale.
+
+One consequence of the restart: the process id `run.sh` prints belongs to the
+process that stepped aside, so it names nothing a moment later.
+
 ### macOS app bundle
 
 `Gitty.app` is a wrapper, not a package: `Contents/MacOS/Gitty` is a two-line

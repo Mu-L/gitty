@@ -35,6 +35,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as its own two-tone mark, which a reader picks out faster than any tone of
   the shared glyph.
 
+- A Wayland session whose monitors are scaled differently no longer leaves the
+  interface shaking. Chromium could be left flipping the window's scale factor
+  between two monitors — measured at some thirteen times a second — laying the
+  page out again at every flip, worst of all in full screen. Gitty now notices
+  two scales at startup and starts itself again with Chromium's fractional
+  scaling switched off, before any window is on screen. The cost is that the
+  desktop's scaling is then ignored: the interface renders smaller, and
+  <kbd>Ctrl+=</kbd> zooms it back. `GITTY_DISABLE_FRACTIONAL_SCALE=1` asks for
+  it whatever the monitors say, `=0` refuses it.
+
 ### Changed
 
 - The commit filter is behind a **Filter** button in the Commits header instead

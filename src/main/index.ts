@@ -7,6 +7,7 @@ import {
   dialog,
   ipcMain,
   Menu,
+  screen,
   shell,
   type MenuItemConstructorOptions
 } from 'electron'
@@ -31,6 +32,47 @@ import { msg, setMainLocale } from './messages'
 // Fixes the userData directory (~/.config/Gitty) rather than inheriting
 // Electron's default name when running unpackaged.
 app.setName('Gitty')
+
+/**
+ * A Wayland session driving two monitors at different scales can leave
+ * Chromium flipping the window's scale factor between the two several times a
+ * second. Every flip lays the page out again, so the whole interface shakes by
+ * a pixel or two for as long as the window is open — full screen worst of all.
+ * Nothing in the app causes it: an empty `BrowserWindow` shakes the same way,
+ * and no window size avoids it. Switching this feature off is the only thing
+ * measured to stop it, at the cost of ignoring the desktop's fractional
+ * scaling — the interface then renders at scale 1, which is smaller.
+ */
+const FRACTIONAL_SCALE = 'WaylandFractionalScaleV1'
+
+// `GITTY_DISABLE_FRACTIONAL_SCALE=1` switches it off; `=0` keeps it on and
+// stops the relaunch below from second-guessing that. Unset leaves the choice
+// to the monitors, which are not knowable until `ready`.
+const forcedScale = process.env.GITTY_DISABLE_FRACTIONAL_SCALE
+if (forcedScale && forcedScale !== '0') {
+  app.commandLine.appendSwitch('disable-features', FRACTIONAL_SCALE)
+}
+
+/**
+ * Which the monitors decide, once there are monitors to ask: the flip only
+ * happens where two of them are scaled differently, and the switch is only
+ * read before Chromium starts — too early for `screen`. So the app starts
+ * itself again with the switch on the command line, before any window exists
+ * and so before anything is on screen to flicker. The relaunched process sees
+ * the switch it was given and leaves it alone; `GITTY_SCALE_RELAUNCHED` is the
+ * second guard, in case a Chromium that ignored the switch would otherwise
+ * have it start itself forever.
+ */
+function relaunchWithoutFractionalScale(): boolean {
+  if (process.platform !== 'linux' || !process.env.WAYLAND_DISPLAY) return false
+  if (process.env.GITTY_DISABLE_FRACTIONAL_SCALE || process.env.GITTY_SCALE_RELAUNCHED) return false
+  if (app.commandLine.getSwitchValue('disable-features').includes(FRACTIONAL_SCALE)) return false
+  if (new Set(screen.getAllDisplays().map((d) => d.scaleFactor)).size < 2) return false
+  process.env.GITTY_SCALE_RELAUNCHED = '1'
+  app.relaunch({ args: [...process.argv.slice(1), `--disable-features=${FRACTIONAL_SCALE}`] })
+  app.exit(0)
+  return true
+}
 
 let win: BrowserWindow | null = null
 
@@ -564,6 +606,9 @@ function registerIpc(): void {
 }
 
 app.whenReady().then(async () => {
+  // Ends this process and starts another when it fires, so nothing below it
+  // should have run yet.
+  if (relaunchWithoutFractionalScale()) return
   // The web server must be up before the renderer can ask for URLs.
   await web.start()
   registerIpc()
