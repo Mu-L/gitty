@@ -28,6 +28,7 @@ const en: MainMessages = {
     fullscreen: 'Toggle Full Screen',
     help: 'Help',
     about: 'About Gitty',
+    shortcuts: 'Keyboard Shortcuts',
     github: 'GitHub'
   },
   dialog: {
@@ -116,6 +117,7 @@ const zh: MainMessages = {
     fullscreen: '切换全屏',
     help: '帮助',
     about: '关于 Gitty',
+    shortcuts: '键盘快捷键',
     github: 'GitHub'
   },
   dialog: {
@@ -201,6 +203,7 @@ const ja: MainMessages = {
     fullscreen: '全画面表示に切り替え',
     help: 'ヘルプ',
     about: 'Gitty について',
+    shortcuts: 'キーボードショートカット',
     github: 'GitHub'
   },
   dialog: {
@@ -289,6 +292,7 @@ const ko: MainMessages = {
     fullscreen: '전체 화면 전환',
     help: '도움말',
     about: 'Gitty 정보',
+    shortcuts: '키보드 단축키',
     github: 'GitHub'
   },
   dialog: {
@@ -376,6 +380,7 @@ const fr: MainMessages = {
     fullscreen: 'Basculer en plein écran',
     help: 'Aide',
     about: 'À propos de Gitty',
+    shortcuts: 'Raccourcis clavier',
     github: 'GitHub'
   },
   dialog: {
@@ -465,6 +470,7 @@ const de: MainMessages = {
     fullscreen: 'Vollbild umschalten',
     help: 'Hilfe',
     about: 'Über Gitty',
+    shortcuts: 'Tastaturkürzel',
     github: 'GitHub'
   },
   dialog: {
@@ -554,6 +560,7 @@ const es: MainMessages = {
     fullscreen: 'Cambiar a pantalla completa',
     help: 'Ayuda',
     about: 'Acerca de Gitty',
+    shortcuts: 'Atajos de teclado',
     github: 'GitHub'
   },
   dialog: {
@@ -643,6 +650,7 @@ const ru: MainMessages = {
     fullscreen: 'Переключить полноэкранный режим',
     help: 'Справка',
     about: 'О программе Gitty',
+    shortcuts: 'Сочетания клавиш',
     github: 'GitHub'
   },
   dialog: {
@@ -731,6 +739,7 @@ const pt: MainMessages = {
     fullscreen: 'Alternar ecrã inteiro',
     help: 'Ajuda',
     about: 'Sobre o Gitty',
+    shortcuts: 'Atalhos de teclado',
     github: 'GitHub'
   },
   dialog: {

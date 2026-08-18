@@ -84,6 +84,12 @@ const api = {
       const h = (): void => cb()
       ipcRenderer.on('menu:about', h)
       return () => ipcRenderer.removeListener('menu:about', h)
+    },
+    /** Fired by the Help ▸ Keyboard Shortcuts item; F1 is the renderer's. */
+    onMenuShortcuts: (cb: () => void): (() => void) => {
+      const h = (): void => cb()
+      ipcRenderer.on('menu:shortcuts', h)
+      return () => ipcRenderer.removeListener('menu:shortcuts', h)
     }
   },
   git: {

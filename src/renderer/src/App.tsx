@@ -11,6 +11,7 @@ import {
 } from 'react'
 import { ContextMenu, type MenuItem, type MenuState } from './components/ContextMenu'
 import { AboutPane } from './components/AboutPane'
+import { HelpPane } from './components/HelpPane'
 import { SettingsPane, type Theme } from './components/SettingsPane'
 import type { RepoTabHandle } from './RepoTab'
 
@@ -119,6 +120,7 @@ export default function App(): JSX.Element {
   const [panes, setPanes] = useState<PaneVisibility>(loadPanes)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [aboutOpen, setAboutOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem('gitty.theme') === 'light' ? 'light' : 'dark')
   )
@@ -386,6 +388,8 @@ export default function App(): JSX.Element {
 
   useEffect(() => window.gitty.repo.onMenuAbout(() => setAboutOpen(true)), [])
 
+  useEffect(() => window.gitty.repo.onMenuShortcuts(() => setHelpOpen(true)), [])
+
   /* ---------- pane visibility ---------- */
 
   // The last visible pane cannot be hidden: an empty window would leave the
@@ -403,9 +407,15 @@ export default function App(): JSX.Element {
     const onKey = (e: KeyboardEvent): void => {
       // Settings and About are app-wide; Escape closes them before any tab's
       // own unwinding.
-      if (e.key === 'Escape' && (settingsOpen || aboutOpen)) {
+      if (e.key === 'Escape' && (settingsOpen || aboutOpen || helpOpen)) {
         setSettingsOpen(false)
         setAboutOpen(false)
+        setHelpOpen(false)
+      } else if (e.key === 'F1') {
+        // The one key every desktop application spends on help, and the only
+        // place the whole set of shortcuts is written down inside the app.
+        e.preventDefault()
+        setHelpOpen((v) => !v)
       } else if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
         e.preventDefault()
         void pickAndOpen()
@@ -432,7 +442,7 @@ export default function App(): JSX.Element {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [settingsOpen, aboutOpen, pickAndOpen, togglePane, goBack, goForward])
+  }, [settingsOpen, aboutOpen, helpOpen, pickAndOpen, togglePane, goBack, goForward])
 
   const openPanesMenu = (x: number, y: number): void => {
     const items: MenuItem[] = PANE_ORDER.map((id) => ({
@@ -851,7 +861,7 @@ export default function App(): JSX.Element {
                   onHidePane={togglePane}
                   onLayout={setLayout}
                   browsing={browsingByRoot[r] ?? null}
-                  settingsOpen={settingsOpen}
+                  dialogOpen={settingsOpen || aboutOpen || helpOpen}
                   onStatus={onStatus}
                   onNav={onNav}
                 />
@@ -938,6 +948,7 @@ export default function App(): JSX.Element {
         setTermLogin={setTermLogin}
       />
       <AboutPane open={aboutOpen} onClose={() => setAboutOpen(false)} appIcon={appIcon} />
+      <HelpPane open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
     </TimeProvider>
     </LocaleProvider>

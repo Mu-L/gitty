@@ -2129,6 +2129,64 @@ button:disabled:hover {
   border-top: 1px solid var(--border);
 }
 
+/* ---------- keyboard shortcut sheet ---------- */
+
+/* Shares the settings dialog's backdrop, header, body and footer; only the
+   table is its own. Wider than the settings dialog: every row is a chord and a
+   sentence, and neither should wrap. */
+.help {
+  width: 620px;
+  max-width: 92vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-header);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 12px 32px #000a;
+}
+
+/* A heading row inside the table, so it shares the key column's width with
+   the rows it heads. */
+.help-section-title {
+  font-weight: 700;
+  color: var(--fg);
+  text-align: left;
+  padding: 12px 0 4px;
+}
+
+.help-table tr:first-child .help-section-title {
+  padding-top: 0;
+}
+
+.help-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* The keys column sizes to its widest chord and the actions take the rest. */
+.help-keys {
+  width: 1%;
+  white-space: nowrap;
+  padding: 2px 12px 2px 0;
+  vertical-align: baseline;
+}
+
+.help-keys kbd {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+.help-action {
+  color: var(--fg-dim);
+  vertical-align: baseline;
+}
+
 /* ---------- about dialog ---------- */
 
 /* Shares the backdrop and the header/footer of the settings dialog; only the

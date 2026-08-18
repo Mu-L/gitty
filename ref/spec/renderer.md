@@ -70,6 +70,28 @@ read only when a session is created — changing them affects the next split, no
 a running shell — which is deliberate: restarting a shell under the user to
 apply a setting would take whatever is running in it down.
 
+## The shortcut sheet
+
+`components/HelpPane.tsx` is the one place inside the app where every chord is
+written down, opened with <kbd>F1</kbd> or from **Help ▸ Keyboard Shortcuts**.
+It is a modal drawn in the renderer for the same reason the About dialog is —
+a native message box cannot lay a table out — and it shares the settings
+dialog's backdrop, header and footer, with one table for the whole sheet so
+the actions line up under one key column rather than one per section.
+
+Two things keep it from going stale. The chords it can name from a constant
+(`BROWSE_ACCEL`, `CHANGES_ACCEL`, `PASTE_ACCEL`, `ALL_PANES_ACCEL`,
+`PANE_CYCLE_ACCEL`) are taken from `panes.ts`, where the key is defined beside
+its handler. And F1 itself is handled in the renderer, like every other chord;
+the menu item deliberately carries **no accelerator**, which would swallow the
+key before it reached the window — the same reason View ▸ Refresh carries none.
+The keys themselves are never translated: only the section headings and the
+actions go through the message table.
+
+`App.tsx` owns the open state, as it does for settings and About, and passes
+`dialogOpen` down to every `RepoTab` so Escape closes the dialog rather than
+unwinding the tab's view underneath it.
+
 ## Multiple repositories, tabs
 
 `App.tsx` is a thin tab manager: the list of open roots, which is active, the

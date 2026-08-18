@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- <kbd>F1</kbd> shows every shortcut in a sheet over the window, grouped by
+  what it acts on — also **Help ▸ Keyboard Shortcuts**. The chords it names
+  come from the constants the handlers use, so the sheet cannot drift from the
+  keys (`src/renderer/src/components/HelpPane.tsx`).
 - A commit's right-click menu offers **Open Remote URL**: the commit's page on
   the site hosting the repository, inferred from the remote. GitLab, Bitbucket
   and the `/commit/<hash>` hosts are known; where nothing can be inferred the

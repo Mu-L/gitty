@@ -160,8 +160,9 @@ export interface RepoTabProps {
    *  Browsing another branch never touches the work tree — the top-left pane
    *  and its diffs still come from disk. */
   browsing: string | null
-  /** Settings dialog open; Escape belongs to it first, not to this tab. */
-  settingsOpen: boolean
+  /** An app-wide dialog is open — settings, About, the shortcut sheet.
+   *  Escape belongs to it first, not to this tab. */
+  dialogOpen: boolean
   /** Report the latest status so the tab bar and title bar can reflect it. */
   onStatus: (status: RepoStatus) => void
   /** Report the browsing history, which the title bar's buttons act on. */
@@ -210,7 +211,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     onHidePane,
     onLayout,
     browsing,
-    settingsOpen,
+    dialogOpen,
     onStatus,
     onNav
   },
@@ -790,7 +791,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     const onKey = (e: KeyboardEvent): void => {
       // Escape unwinds one level at a time: a dialog, full screen, then view.
       if (e.key === 'Escape') {
-        if (settingsOpen || agentPrompt) return
+        if (dialogOpen || agentPrompt) return
         if (full) setFull(null)
         else backToWorkTree()
       } else if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key === 'r')) {
@@ -825,7 +826,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     return () => window.removeEventListener('keydown', onKey)
   }, [
     active,
-    settingsOpen,
+    dialogOpen,
     agentPrompt,
     full,
     panes,

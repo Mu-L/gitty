@@ -213,6 +213,13 @@ function installMenu(): void {
               ]
             : []),
           {
+            // No accelerator, for the same reason Refresh carries none: F1 is
+            // already handled in the renderer, which toggles the sheet, and a
+            // menu accelerator would swallow the key before it got there.
+            label: msg.menu.shortcuts,
+            click: () => win?.webContents.send('menu:shortcuts')
+          },
+          {
             label: msg.menu.github,
             click: () => void shell.openExternal(GITTY_REPO_URL)
           }

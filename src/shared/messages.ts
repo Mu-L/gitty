@@ -37,6 +37,8 @@ export interface MainMessages {
     readonly fullscreen: string
     readonly help: string
     readonly about: string
+    /** Help ▸ Keyboard Shortcuts — opens the same sheet F1 does. */
+    readonly shortcuts: string
     readonly github: string
   }
   readonly dialog: {
@@ -123,6 +125,39 @@ export interface RendererMessages {
        *  translated. */
       readonly github: string
       readonly close: string
+    }
+    /** The keyboard shortcut sheet, opened with F1 or from the Help menu.
+     *  The key names themselves are not translated — they are what is printed
+     *  on the keyboard — so only the section headings and the actions are. */
+    readonly help: {
+      readonly title: string
+      readonly close: string
+      /** Section headings, in the order the sheet lists them. */
+      readonly sectionCommits: string
+      readonly sectionViews: string
+      readonly sectionPanes: string
+      readonly sectionApp: string
+      readonly moveSelection: string
+      readonly showCommit: string
+      readonly markSecond: string
+      readonly openCommitPage: string
+      readonly openFileTab: string
+      readonly find: string
+      readonly copy: string
+      readonly paste: string
+      readonly backToChanges: string
+      readonly browse: string
+      readonly changesAllPanes: string
+      readonly navHistory: string
+      readonly togglePanes: string
+      readonly allPanes: string
+      readonly fillWindow: string
+      readonly cyclePane: string
+      readonly shortcuts: string
+      readonly refresh: string
+      readonly openRepo: string
+      readonly settings: string
+      readonly menuBar: string
     }
     readonly settings: string
     readonly openRepository: string

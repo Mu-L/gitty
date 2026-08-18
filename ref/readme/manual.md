@@ -682,8 +682,12 @@ highlight** lives here only.
 
 ## Keyboard shortcuts
 
+<kbd>F1</kbd> shows this table inside the app — **Help ▸ Keyboard Shortcuts**
+opens the same sheet.
+
 | Key | Action |
 | --- | --- |
+| <kbd>↑</kbd> <kbd>↓</kbd> / <kbd>PgUp</kbd> <kbd>PgDn</kbd> / <kbd>Home</kbd> <kbd>End</kbd> | Move the selection in the commit list |
 | <kbd>Enter</kbd> | Show the selected commit |
 | <kbd>Space</kbd> / <kbd>Shift+Click</kbd> | Mark a second commit and diff the pair |
 | <kbd>Ctrl+Click</kbd> on a commit | Open its page on the hosting site |
@@ -696,6 +700,7 @@ highlight** lives here only.
 | <kbd>Ctrl+V</kbd> | Paste the clipboard's files into the file tree, with that pane focused |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Back and forward through the places viewed |
 | <kbd>Alt</kbd> | Show or hide the application menu bar (not on macOS, where it is always there) |
+| <kbd>F1</kbd> | The shortcuts, in a sheet over the window |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |
 | <kbd>Ctrl+O</kbd> | Open another repository in a new tab |
 | <kbd>Ctrl+,</kbd> | Settings |
