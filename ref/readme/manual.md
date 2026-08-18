@@ -498,8 +498,12 @@ regular expression reaches git as one argument.
   pane and its full diff the top-right one. The commit's subject, author, date
   and full body appear in a strip above the file list; when the body is long, a
   ▸ toggle folds it away so the file list keeps the room.
-- **Ctrl+Click** (<kbd>Cmd</kbd> on macOS), <kbd>Shift+Click</kbd> or
-  <kbd>Space</kbd> — pick a second commit and diff the two, oldest first.
+- <kbd>Shift+Click</kbd> or <kbd>Space</kbd> — pick a second commit and diff
+  the two, oldest first.
+- **Ctrl+Click** (<kbd>Cmd</kbd> on macOS) — open the commit's page on the site
+  hosting the repository, the same address as **Open Remote URL** below. Where
+  no such page can be worked out the click does nothing, leaving the row as it
+  was.
 - **↑ ↓ / j k / PgUp / PgDn / Home / End** — move the cursor.
 - **Right-click** — show the diff, copy the hash, the short hash or the subject,
   [browse the snapshot](#snapshots), or diff against the currently selected
@@ -670,7 +674,8 @@ highlight** lives here only.
 | Key | Action |
 | --- | --- |
 | <kbd>Enter</kbd> | Show the selected commit |
-| <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Mark a second commit and diff the pair |
+| <kbd>Space</kbd> / <kbd>Shift+Click</kbd> | Mark a second commit and diff the pair |
+| <kbd>Ctrl+Click</kbd> on a commit | Open its page on the hosting site |
 | <kbd>Ctrl+Click</kbd> on a file heading | Open that file in a new document tab |
 | <kbd>Ctrl+F</kbd> | Find in the diff, the file, or whatever the pane is showing — or filter the file tree, with that pane focused |
 | <kbd>Ctrl+C</kbd> / <kbd>Ctrl+Shift+C</kbd> | Copy the selection, anywhere in the window |

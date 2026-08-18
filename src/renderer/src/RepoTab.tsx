@@ -770,6 +770,16 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     [commits, selectedCommit, showCommit, backToWorkTree]
   )
 
+  // Ctrl/Cmd+click on a commit row. Silent where the remote has no page to
+  // point at — the same repositories whose menu leaves the item out.
+  const openRemoteCommit = useCallback(
+    (hash: string) => {
+      if (!remoteCommitBase) return
+      void window.gitty.file.openExternal(remoteCommitBase + hash)
+    },
+    [remoteCommitBase]
+  )
+
   // Only the active tab handles the shared Escape / refresh keys; the others
   // stay mounted and must not react to keys while hidden.
   useEffect(() => {
@@ -1454,6 +1464,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   onFilterMode={setFilterMode}
                   searching={searching}
                   onSelect={onSelectCommit}
+                  onOpenRemote={openRemoteCommit}
                   onWorktreeMenu={worktreeMenu}
                   onEnter={(hash) => {
                     if (hash === WORKTREE_ROW) {

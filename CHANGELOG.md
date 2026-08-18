@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the site hosting the repository, inferred from the remote. GitLab, Bitbucket
   and the `/commit/<hash>` hosts are known; where nothing can be inferred the
   item stays away (`src/main/remote.ts`, `test/remote.test.ts`).
+  <kbd>Ctrl/Cmd+Click</kbd> a commit row opens the same page.
+
+### Changed
+
+- Marking a second commit to diff the pair is <kbd>Shift+Click</kbd> or
+  <kbd>Space</kbd>; <kbd>Ctrl/Cmd+Click</kbd> now opens the commit's page on the
+  hosting site.
 
 - Files copied in a file manager can be **pasted into the file tree** — the
   tree's own right-click for the repository root, a file's right-click for the

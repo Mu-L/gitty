@@ -115,7 +115,9 @@ put the token in a stranger's `Referer`.
 
 `src/main/remote.ts` turns a remote URL into the prefix a commit hash is
 appended to, so the commit menu can offer **Open Remote URL** beside the local
-server's page. It is inference and says so: no protocol asks a remote where its
+server's page, and <kbd>Ctrl/Cmd+Click</kbd> on a commit row to open it without
+the menu — the base is read once per root in `RepoTab`, so the click is local.
+It is inference and says so: no protocol asks a remote where its
 commit pages are, so an address that cannot be named comes back null and the
 menu item is simply absent — a repository with no remote, a `file://` remote, a
 Windows drive letter mistaken for a host, or Azure DevOps, whose commit page is
