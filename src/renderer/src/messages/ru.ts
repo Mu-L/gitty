@@ -342,6 +342,7 @@ export const ru: RendererMessages = {
     copySubject: 'Копировать заголовок',
     openInBrowser: 'Открыть в браузере',
     copyCommitUrl: 'Копировать URL коммита',
+    openRemoteUrl: 'Открыть URL на сервере',
     browseSnapshot: 'Просмотреть снимок',
     diffAgainstSelected: 'Сравнить с выбранным коммитом',
     diffAgainstAccel: 'Ctrl+щелчок',

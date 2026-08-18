@@ -400,6 +400,7 @@ function registerIpc(): void {
     ) => git.log(root, limit, skip, ref, filter, mode, all)
   )
   ipcMain.handle('git:branches', (_e, root: string) => git.branches(root))
+  ipcMain.handle('git:remoteCommitBase', (_e, root: string) => git.remoteCommitBase(root))
   ipcMain.handle('git:push', (_e, root: string, branch: string | null) =>
     git.push(root, branch ?? undefined)
   )

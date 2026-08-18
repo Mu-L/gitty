@@ -111,6 +111,25 @@ must be loopback, which makes DNS rebinding pointless. And `Referrer-Policy:
 no-referrer` is required: the pages link outward, and one click would otherwise
 put the token in a stranger's `Referer`.
 
+## The remote's own pages
+
+`src/main/remote.ts` turns a remote URL into the prefix a commit hash is
+appended to, so the commit menu can offer **Open Remote URL** beside the local
+server's page. It is inference and says so: no protocol asks a remote where its
+commit pages are, so an address that cannot be named comes back null and the
+menu item is simply absent — a repository with no remote, a `file://` remote, a
+Windows drive letter mistaken for a host, or Azure DevOps, whose commit page is
+not derivable from the remote path.
+
+Everything else is a two-branch rule: GitLab keeps its non-file routes under
+`/-/`, Bitbucket says `commits`, and GitHub, Gitea, Forgejo, Codeberg, Gogs and
+sourcehut all say `/commit/<hash>` — which is what an unrecognised host is given
+too, self-hosted Gitea and Forgejo being common and carrying no name to match
+on. `git.ts` picks the remote the current branch tracks, else `origin`, else
+the first one configured; the parsing is pure string work with no repository
+behind it, and `test/remote.test.ts` is the list of forms that must keep
+working.
+
 ## Gource
 
 `src/main/gource.ts` is an *optional* companion, and the shape follows from

@@ -261,6 +261,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // session and starts off again next time.
   const [allBranches, setAllBranches] = useState(false)
   const [remoteMsg, setRemoteMsg] = useState<{ ok: boolean; text: string } | null>(null)
+  // Where this repository is hosted, as a prefix a commit hash is appended to.
+  // A property of the remote, not of the view, so it is read once per root.
+  const [remoteCommitBase, setRemoteCommitBase] = useState<string | null>(null)
   // gource is optional: the button exists only where the binary does.
   const [hasGource, setHasGource] = useState(false)
   const [gourceStarting, setGourceStarting] = useState(false)
@@ -981,6 +984,16 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     [root, status, refresh]
   )
 
+  useEffect(() => {
+    let live = true
+    void window.gitty.git.remoteCommitBase(root).then((base) => {
+      if (live) setRemoteCommitBase(base)
+    })
+    return () => {
+      live = false
+    }
+  }, [root])
+
   /* ---------- gource ---------- */
 
   useEffect(() => {
@@ -1044,7 +1057,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     browseWorktree,
     toggleStage: (path, staged) => void toggleStage(path, staged),
     discardChanges: (path) => void discardChanges(path),
-    copyStagedDiff
+    copyStagedDiff,
+    remoteCommitBase
   })
 
   /* ---------- log header overflow ---------- */

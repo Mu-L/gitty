@@ -480,6 +480,7 @@ export interface RendererMessages {
     readonly copySubject: string
     readonly openInBrowser: string
     readonly copyCommitUrl: string
+    readonly openRemoteUrl: string
     readonly browseSnapshot: string
     readonly diffAgainstSelected: string
     readonly diffAgainstAccel: string

@@ -101,6 +101,12 @@ const api = {
     ): Promise<Commit[]> =>
       ipcRenderer.invoke('git:log', root, limit, skip, ref, filter, mode, all),
     branches: (root: string): Promise<Branch[]> => ipcRenderer.invoke('git:branches', root),
+    /**
+     * Prefix a commit hash is appended to for the remote's web page, or null
+     * when no such page can be inferred from the remote URL.
+     */
+    remoteCommitBase: (root: string): Promise<string | null> =>
+      ipcRenderer.invoke('git:remoteCommitBase', root),
     /** Push the checked-out branch; `branch` is named only to set an upstream. */
     push: (root: string, branch: string | null = null): Promise<GitOpResult> =>
       ipcRenderer.invoke('git:push', root, branch),

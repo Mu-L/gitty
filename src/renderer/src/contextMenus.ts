@@ -69,6 +69,11 @@ export interface ContextMenuDeps {
   discardChanges: (path: string) => void
   /** The whole index as a patch, for a conversation happening elsewhere. */
   copyStagedDiff: () => void
+  /**
+   * Prefix a commit hash is appended to for the hosting site's own page, or
+   * null when the repository has no remote whose page layout can be inferred.
+   */
+  remoteCommitBase: string | null
 }
 
 /** The four context-menu builders, in one factory so RepoTab calls it once. */
@@ -110,7 +115,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
     browseWorktree,
     toggleStage,
     discardChanges,
-    copyStagedDiff
+    copyStagedDiff,
+    remoteCommitBase
   } = deps
 
   const diffMenu = (at: MenuState): void => {
@@ -327,13 +333,23 @@ export function createContextMenus(deps: ContextMenuDeps): {
         separatorBefore: true,
         action: openInBrowser
       },
-      { label: msg.contextMenu.copyCommitUrl, action: copyUrl },
+      { label: msg.contextMenu.copyCommitUrl, action: copyUrl }
+    ]
+    // Only when the remote's own page for this commit could be worked out —
+    // there is no page to offer for a repository nobody hosts.
+    if (remoteCommitBase) {
+      items.push({
+        label: msg.contextMenu.openRemoteUrl,
+        action: () => void window.gitty.file.openExternal(remoteCommitBase + c.hash)
+      })
+    }
+    items.push(
       {
         label: msg.contextMenu.browseSnapshot,
         separatorBefore: true,
         action: () => showSnapshot(c)
       }
-    ]
+    )
     if (selectedCommit && selectedCommit !== c.hash) {
       items.push({
         label: msg.contextMenu.diffAgainstSelected,

@@ -326,6 +326,7 @@ export const fr: RendererMessages = {
     copySubject: 'Copier le sujet',
     openInBrowser: 'Ouvrir dans le navigateur',
     copyCommitUrl: 'Copier l’URL du commit',
+    openRemoteUrl: 'Ouvrir l’URL distante',
     browseSnapshot: 'Parcourir l’instantané',
     diffAgainstSelected: 'Comparer au commit sélectionné',
     diffAgainstAccel: 'Ctrl+clic',

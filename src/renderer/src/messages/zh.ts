@@ -318,6 +318,7 @@ export const zh: RendererMessages = {
     copySubject: '复制标题',
     openInBrowser: '在浏览器中打开',
     copyCommitUrl: '复制提交 URL',
+    openRemoteUrl: '打开远程链接',
     browseSnapshot: '浏览快照',
     diffAgainstSelected: '与选中提交对比',
     diffAgainstAccel: 'Ctrl+单击',

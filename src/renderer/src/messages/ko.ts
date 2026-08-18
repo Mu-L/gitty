@@ -320,6 +320,7 @@ export const ko: RendererMessages = {
     copySubject: '제목 복사',
     openInBrowser: '브라우저에서 열기',
     copyCommitUrl: '커밋 URL 복사',
+    openRemoteUrl: '원격 URL 열기',
     browseSnapshot: '스냅숏 보기',
     diffAgainstSelected: '선택한 커밋과 비교',
     diffAgainstAccel: 'Ctrl+클릭',

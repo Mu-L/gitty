@@ -497,6 +497,13 @@ regular expression reaches git as one argument.
   open repository as a browsable commit list — the commits pane's **Open in
   Browser** button lands there — with each commit's metadata, files and diff,
   and per-file diffs one click away.
+- **Right-click → Open Remote URL** — the commit's page on the site the
+  repository is hosted on, opened in the system browser. The address is
+  inferred from the remote (the one the current branch tracks, else `origin`),
+  and the item appears only when that inference succeeds: GitHub, GitLab,
+  Bitbucket, Gitea, Forgejo, Codeberg and sourcehut are known, as is any
+  self-hosted host that follows the `/commit/<hash>` layout. A repository with
+  no remote, or one on Azure DevOps, does not get the item.
 
   It listens on `127.0.0.1`, and that alone would not be much: loopback keeps
   other machines out, not other pages in your own browser, any of which could

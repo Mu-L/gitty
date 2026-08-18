@@ -321,6 +321,7 @@ export const ja: RendererMessages = {
     copySubject: '件名をコピー',
     openInBrowser: 'ブラウザーで開く',
     copyCommitUrl: 'コミットの URL をコピー',
+    openRemoteUrl: 'リモート URL を開く',
     browseSnapshot: 'スナップショットを見る',
     diffAgainstSelected: '選択したコミットと比較',
     diffAgainstAccel: 'Ctrl+クリック',

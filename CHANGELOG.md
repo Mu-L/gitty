@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A commit's right-click menu offers **Open Remote URL**: the commit's page on
+  the site hosting the repository, inferred from the remote. GitLab, Bitbucket
+  and the `/commit/<hash>` hosts are known; where nothing can be inferred the
+  item stays away (`src/main/remote.ts`, `test/remote.test.ts`).
+
 - <kbd>Ctrl+B</kbd> browses the working tree, and clears the window for it:
   Commits and Terminal go, leaving the tree and what it opens. The **Changes**
   row's menu item takes the same layout. The key is kept from the shell, tmux's

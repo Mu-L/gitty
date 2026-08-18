@@ -38,6 +38,7 @@ import {
   US
 } from './parse'
 import { buildPatch, parseFilePatch, type ApplyDirection, type HunkPick } from './patch'
+import { commitUrlBase } from './remote'
 import { grepExpr, grepPathspecs, parseQuery } from '../shared/query'
 import { msg } from './messages'
 
@@ -110,6 +111,38 @@ export async function branches(root: string): Promise<Branch[]> {
     return []
   }
   return parseBranches(raw)
+}
+
+/**
+ * Where this repository's commits can be read on the web, as a prefix a hash
+ * is appended to — or null when there is no remote, or its host is not one
+ * whose page layout we can infer (see `remote.ts`).
+ *
+ * The remote is whichever one the current branch tracks, else `origin`, else
+ * the first one configured: the same order a reader would use when asking
+ * "where does this repository live".
+ */
+export async function remoteCommitBase(root: string): Promise<string | null> {
+  let names: string[]
+  try {
+    names = (await git(root, ['remote'])).split('\n').map((n) => n.trim()).filter(Boolean)
+  } catch {
+    return null
+  }
+  if (names.length === 0) return null
+  let tracked = ''
+  try {
+    const branch = (await git(root, ['symbolic-ref', '--short', 'HEAD'])).trim()
+    tracked = (await git(root, ['config', '--get', `branch.${branch}.remote`])).trim()
+  } catch {
+    // Detached HEAD, or a branch with no upstream: fall through to origin.
+  }
+  const name = names.includes(tracked) ? tracked : names.includes('origin') ? 'origin' : names[0]
+  try {
+    return commitUrlBase((await git(root, ['remote', 'get-url', name])).trim())
+  } catch {
+    return null
+  }
 }
 
 /**
