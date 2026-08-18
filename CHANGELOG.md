@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.9] - 2026-08-18
 
 ### Added
 
@@ -74,8 +74,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   desktop's scaling is then ignored: the interface renders smaller, and
   <kbd>Ctrl+=</kbd> zooms it back. `GITTY_DISABLE_FRACTIONAL_SCALE=1` asks for
   it whatever the monitors say, `=0` refuses it.
-
-### Changed
 
 - The commit filter is behind a **Filter** button in the Commits header instead
   of standing above the log always. Closing it — the button, the ✕ or
