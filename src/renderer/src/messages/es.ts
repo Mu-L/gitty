@@ -63,7 +63,12 @@ export const es: RendererMessages = {
   tab: {
     uncommittedChanges: (path: string) => `${path} — cambios sin confirmar`,
     closeRepository: 'Cerrar repositorio',
-    openAnotherRepo: 'Abrir otro repositorio'
+    openAnotherRepo: 'Abrir otro repositorio',
+    rename: 'Renombrar pestaña…',
+    renameTitle: 'Renombrar pestaña del repositorio',
+    renamePlaceholder: 'Nombre de la pestaña',
+    renameSubmit: 'Renombrar',
+    renameCancel: 'Cancelar'
   },
   recent: {
     noOtherRepos: 'Aún no hay otros repositorios',
@@ -358,6 +363,8 @@ export const es: RendererMessages = {
     openRemoteUrl: 'Abrir la URL remota',
     browseSnapshot: 'Explorar instantánea',
     runFile: 'Ejecutar en la terminal',
+    pullSubmodule: 'Hacer pull del submódulo',
+    pullingSubmodule: (path: string) => `Haciendo pull de ${path}…`,
     diffAgainstSelected: 'Comparar con el commit seleccionado',
     diffAgainstAccel: 'Ctrl+clic',
     blameFile: 'Blame',

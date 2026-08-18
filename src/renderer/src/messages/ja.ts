@@ -62,7 +62,12 @@ export const ja: RendererMessages = {
   tab: {
     uncommittedChanges: (path: string) => `${path} — 未コミットの変更あり`,
     closeRepository: 'リポジトリを閉じる',
-    openAnotherRepo: '別のリポジトリを開く'
+    openAnotherRepo: '別のリポジトリを開く',
+    rename: 'タブの名前を変更…',
+    renameTitle: 'リポジトリタブの名前を変更',
+    renamePlaceholder: 'タブ名',
+    renameSubmit: '変更',
+    renameCancel: 'キャンセル'
   },
   recent: {
     noOtherRepos: 'ほかのリポジトリはまだありません',
@@ -354,6 +359,8 @@ export const ja: RendererMessages = {
     openRemoteUrl: 'リモート URL を開く',
     browseSnapshot: 'スナップショットを見る',
     runFile: 'ターミナルで実行',
+    pullSubmodule: 'サブモジュールをプル',
+    pullingSubmodule: (path: string) => `${path} をプルしています…`,
     diffAgainstSelected: '選択したコミットと比較',
     diffAgainstAccel: 'Ctrl+クリック',
     blameFile: 'Blame ファイル',

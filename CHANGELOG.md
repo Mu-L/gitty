@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Tab bar: drag a tab to reorder it (the order is remembered like the open set
+  is). Right-click a tab for **Rename tab…** or **Close repository**; a rename
+  shows in the tab bar and the title bar, is remembered per repository, and
+  leaves the real path in the tooltip.
+
 ## [0.1.9] - 2026-08-18
 
 ### Added

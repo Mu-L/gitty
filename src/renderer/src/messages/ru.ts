@@ -78,7 +78,12 @@ export const ru: RendererMessages = {
   tab: {
     uncommittedChanges: (path: string) => `${path} — есть незакоммиченные изменения`,
     closeRepository: 'Закрыть репозиторий',
-    openAnotherRepo: 'Открыть другой репозиторий'
+    openAnotherRepo: 'Открыть другой репозиторий',
+    rename: 'Переименовать вкладку…',
+    renameTitle: 'Переименовать вкладку репозитория',
+    renamePlaceholder: 'Имя вкладки',
+    renameSubmit: 'Переименовать',
+    renameCancel: 'Отмена'
   },
   recent: {
     noOtherRepos: 'Других репозиториев пока нет',
@@ -375,6 +380,8 @@ export const ru: RendererMessages = {
     openRemoteUrl: 'Открыть URL на сервере',
     browseSnapshot: 'Просмотреть снимок',
     runFile: 'Запустить в терминале',
+    pullSubmodule: 'Получить изменения подмодуля',
+    pullingSubmodule: (path: string) => `Получение ${path}…`,
     diffAgainstSelected: 'Сравнить с выбранным коммитом',
     diffAgainstAccel: 'Ctrl+щелчок',
     blameFile: 'Blame',

@@ -105,7 +105,11 @@ so switching never disturbs another repo's view state or shells. The main
 process keeps one watcher per root and tags `repo:changed` with the root, so
 each tab refreshes only its own repository. The tab bar (basename, dirty dot,
 close button, `+` to open) sits below the panes, with an empty state when every
-tab is closed. `react-resizable-panels` keeps layout state per Group id, so
+tab is closed. Tabs can be dragged into a new order — the order is the `roots`
+array, so it is remembered exactly as the open set is — and right-clicking one
+offers **Rename tab…** (names keyed by root in `localStorage['gitty.tabNames']`,
+shown in the tab bar and the title bar's repository button) and **Close
+repository**. `react-resizable-panels` keeps layout state per Group id, so
 `RepoTab` suffixes its ids with the root. Keeping several tabs mounted at once
 is what the `min-width: 0` and `disabled={!active}` rules in CLAUDE.md are
 paying for.

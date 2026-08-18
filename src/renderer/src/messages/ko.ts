@@ -62,7 +62,12 @@ export const ko: RendererMessages = {
   tab: {
     uncommittedChanges: (path: string) => `${path} — 커밋하지 않은 변경 사항 있음`,
     closeRepository: '저장소 닫기',
-    openAnotherRepo: '다른 저장소 열기'
+    openAnotherRepo: '다른 저장소 열기',
+    rename: '탭 이름 바꾸기…',
+    renameTitle: '리포지토리 탭 이름 바꾸기',
+    renamePlaceholder: '탭 이름',
+    renameSubmit: '바꾸기',
+    renameCancel: '취소'
   },
   recent: {
     noOtherRepos: '다른 저장소가 아직 없습니다',
@@ -353,6 +358,8 @@ export const ko: RendererMessages = {
     openRemoteUrl: '원격 URL 열기',
     browseSnapshot: '스냅숏 보기',
     runFile: '터미널에서 실행',
+    pullSubmodule: '서브모듈 풀',
+    pullingSubmodule: (path: string) => `${path} 풀 중…`,
     diffAgainstSelected: '선택한 커밋과 비교',
     diffAgainstAccel: 'Ctrl+클릭',
     blameFile: 'Blame 파일',

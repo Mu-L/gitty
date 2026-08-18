@@ -63,7 +63,12 @@ export const fr: RendererMessages = {
   tab: {
     uncommittedChanges: (path: string) => `${path} — modifications non validées`,
     closeRepository: 'Fermer le dépôt',
-    openAnotherRepo: 'Ouvrir un autre dépôt'
+    openAnotherRepo: 'Ouvrir un autre dépôt',
+    rename: 'Renommer l’onglet…',
+    renameTitle: 'Renommer l’onglet du dépôt',
+    renamePlaceholder: 'Nom de l’onglet',
+    renameSubmit: 'Renommer',
+    renameCancel: 'Annuler'
   },
   recent: {
     noOtherRepos: 'Aucun autre dépôt pour l’instant',
@@ -359,6 +364,8 @@ export const fr: RendererMessages = {
     openRemoteUrl: 'Ouvrir l’URL distante',
     browseSnapshot: 'Parcourir l’instantané',
     runFile: 'Exécuter dans le terminal',
+    pullSubmodule: 'Tirer le sous-module',
+    pullingSubmodule: (path: string) => `Tirage de ${path}…`,
     diffAgainstSelected: 'Comparer au commit sélectionné',
     diffAgainstAccel: 'Ctrl+clic',
     blameFile: 'Blâme',

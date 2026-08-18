@@ -181,6 +181,12 @@ export interface RendererMessages {
     readonly uncommittedChanges: (path: string) => string
     readonly closeRepository: string
     readonly openAnotherRepo: string
+    /** The tab's right-click menu; renames what the tab shows. */
+    readonly rename: string
+    readonly renameTitle: string
+    readonly renamePlaceholder: string
+    readonly renameSubmit: string
+    readonly renameCancel: string
   }
   readonly recent: {
     readonly noOtherRepos: string
@@ -529,6 +535,12 @@ export interface RendererMessages {
     readonly browseSnapshot: string
     /** Snapshot only: type a command running this file into the terminal. */
     readonly runFile: string
+    /**
+     * On a submodule's row in the work tree: fetch its own remote and move it
+     * to the tip it tracks. `pullingSubmodule` names it while that runs.
+     */
+    readonly pullSubmodule: string
+    readonly pullingSubmodule: (path: string) => string
     readonly diffAgainstSelected: string
     readonly diffAgainstAccel: string
     // file tree — per-file questions, both open a document in the diff pane

@@ -10,10 +10,12 @@ import {
   type JSX
 } from 'react'
 import { ContextMenu, type MenuItem, type MenuState } from './components/ContextMenu'
+import { PromptDialog } from './components/PromptDialog'
 import { AboutPane } from './components/AboutPane'
 import { HelpPane } from './components/HelpPane'
 import { SettingsPane, type Theme } from './components/SettingsPane'
 import type { RepoTabHandle } from './RepoTab'
+import { moveTab, renameTab, tabBasename, tabLabel } from './tabs'
 
 // The whole tab content is its own chunk, so the app shell — title bar, tab
 // bar, empty state — paints before any pane code has loaded. The heavy panes
@@ -84,6 +86,8 @@ export default function App(): JSX.Element {
   const msg = getMessages(locale)
   const [roots, setRoots] = useState<string[]>([])
   const [active, setActive] = useState<string | null>(null)
+  // Custom names for the tab bar, keyed by repository root; remembered.
+  const [tabNames, setTabNames] = useState<Record<string, string>>(loadTabNames)
   const [statusByRoot, setStatusByRoot] = useState<Record<string, RepoStatus>>({})
   // Branch each tab is browsing; absent means its checked-out one. Kept here
   // rather than in RepoTab because the title bar is where it is chosen.
@@ -157,6 +161,13 @@ export default function App(): JSX.Element {
   const [recent, setRecent] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
+  // The tab whose name is being typed, if the rename prompt is open.
+  const [renameFor, setRenameFor] = useState<string | null>(null)
+  // The drag in flight over the tab bar: which tab started it, and where the
+  // pointer wants it to land. Dragover fires continuously, so `dropAt` is set
+  // through a functional update that reuses the same object when nothing moved.
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [dropAt, setDropAt] = useState<{ index: number; after: boolean } | null>(null)
   // The four-pane icon, fetched from the main process as a data URL.
   const [appIcon, setAppIcon] = useState<string | null>(null)
 
@@ -266,6 +277,83 @@ export default function App(): JSX.Element {
       if (active === root) setActive(next[Math.min(i, next.length - 1)] ?? null)
     },
     [roots, active]
+  )
+
+  /* ---------- dragging and renaming tabs ---------- */
+
+  const startTabDrag = useCallback(
+    (e: React.DragEvent, i: number) => {
+      setDragIndex(i)
+      e.dataTransfer.effectAllowed = 'move'
+      // Firefox starts a drag only once a type has data in it.
+      e.dataTransfer.setData('text/plain', roots[i])
+    },
+    [roots]
+  )
+
+  const endTabDrag = useCallback(() => {
+    setDragIndex(null)
+    setDropAt(null)
+  }, [])
+
+  /** Point at where the tab under the pointer would land: left or right half. */
+  const overTab = useCallback(
+    (e: React.DragEvent, i: number) => {
+      if (dragIndex === null || dragIndex === i) {
+        // Over the tab being dragged itself: no landing there, and keep the
+        // drop effect from reaching the bar underneath.
+        e.stopPropagation()
+        setDropAt(null)
+        return
+      }
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'move'
+      const rect = e.currentTarget.getBoundingClientRect()
+      const after = e.clientX > rect.left + rect.width / 2
+      // Keep the same object while the pointer stays put, so React skips the
+      // re-render a dragover every few pixels would otherwise cause.
+      setDropAt((prev) => (prev && prev.index === i && prev.after === after ? prev : { index: i, after }))
+    },
+    [dragIndex]
+  )
+
+  const dropOnTab = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (dragIndex !== null && dropAt !== null) {
+        setRoots((prev) => moveTab(prev, dragIndex, dropAt.index, dropAt.after))
+      }
+      endTabDrag()
+    },
+    [dragIndex, dropAt, endTabDrag]
+  )
+
+  const openTabMenu = useCallback(
+    (e: React.MouseEvent, r: string) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setMenu({
+        x: e.clientX,
+        y: e.clientY,
+        items: [
+          {
+            label: msg.tab.rename,
+            title: msg.tab.renameTitle,
+            action: () => {
+              setMenu(null)
+              setRenameFor(r)
+            }
+          },
+          {
+            label: msg.tab.closeRepository,
+            separatorBefore: true,
+            action: () => closeTab(r)
+          }
+        ]
+      })
+    },
+    [msg, closeTab]
   )
 
   const pickAndOpen = useCallback(() => {
@@ -521,6 +609,7 @@ export default function App(): JSX.Element {
     localStorage.setItem('gitty.termShell', termShell)
     localStorage.setItem('gitty.termLogin', termLogin ? 'on' : 'off')
     localStorage.setItem('gitty.agentCommands', JSON.stringify(agentCommands))
+    localStorage.setItem('gitty.tabNames', JSON.stringify(tabNames))
   }, [
     wrap,
     diffView,
@@ -541,7 +630,8 @@ export default function App(): JSX.Element {
     restoreTabs,
     termShell,
     termLogin,
-    agentCommands
+    agentCommands,
+    tabNames
   ])
 
   /**
@@ -722,13 +812,18 @@ export default function App(): JSX.Element {
         )}
         <button
           className="repo-button"
-          title={msg.app.recentlyOpened}
+          title={
+            // A renamed tab hides its repository, so the tooltip names it.
+            active && tabNames[active]
+              ? `${msg.app.recentlyOpened}\n${active}`
+              : msg.app.recentlyOpened
+          }
           onClick={(e) => {
             const r = (e.currentTarget as HTMLElement).getBoundingClientRect()
             openRecentMenu(r.left, r.bottom + 2)
           }}
         >
-          <span className="repo">{active ? active.split('/').pop() : msg.app.noRepo}</span>
+          <span className="repo">{active ? tabLabel(tabNames, active) : msg.app.noRepo}</span>
           <span className="caret">▾</span>
         </button>
         {activeStatus && (
@@ -871,15 +966,48 @@ export default function App(): JSX.Element {
         </div>
       )}
 
-      <div className="tabbar">
-        {roots.map((r) => (
+      <div
+        className="tabbar"
+        onDragOver={(e) => {
+          // The bar itself accepts drops too, so the gaps and the tail beyond
+          // the last tab are landable places to move a tab to.
+          e.preventDefault()
+          e.dataTransfer.dropEffect = 'move'
+        }}
+        onDragLeave={(e) => {
+          // Only leaving the whole bar clears the landing mark; moving between
+          // tabs stays inside it.
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) setDropAt(null)
+        }}
+        onDrop={(e) => {
+          e.preventDefault()
+          // Dropped on the bar itself — a gap or the tail — lands after the
+          // last tab. A drop on a tab is handled by the tab, which stops the
+          // event from reaching here.
+          if (dragIndex !== null) setRoots((prev) => moveTab(prev, dragIndex, prev.length - 1, true))
+          endTabDrag()
+        }}
+      >
+        {roots.map((r, i) => (
           <div
-            className={`tab${r === active ? ' active' : ''}`}
+            className={`tab${r === active ? ' active' : ''}${dragIndex === i ? ' dragging' : ''}${
+              dropAt && dropAt.index === i && dragIndex !== i
+                ? dropAt.after
+                  ? ' drop-after'
+                  : ' drop-before'
+                : ''
+            }`}
             key={r}
+            draggable
             title={statusByRoot[r]?.files.length ? msg.tab.uncommittedChanges(r) : r}
             onClick={() => setActive(r)}
+            onContextMenu={(e) => openTabMenu(e, r)}
+            onDragStart={(e) => startTabDrag(e, i)}
+            onDragEnd={endTabDrag}
+            onDragOver={(e) => overTab(e, i)}
+            onDrop={dropOnTab}
           >
-            <span className="tab-name">{r.split('/').pop() || r}</span>
+            <span className="tab-name">{tabLabel(tabNames, r)}</span>
             {statusByRoot[r]?.files.length ? (
               // No title of its own: hovering the dot would otherwise replace
               // the tab's tooltip with a version that drops the path.
@@ -887,6 +1015,8 @@ export default function App(): JSX.Element {
             ) : null}
             <button
               className="tab-close"
+              // Dragging the × would fight the click that closes the tab.
+              draggable={false}
               title={msg.tab.closeRepository}
               onClick={(e) => {
                 // Closing a tab must not also switch to it.
@@ -904,6 +1034,19 @@ export default function App(): JSX.Element {
       </div>
 
       <ContextMenu state={menu} onClose={() => setMenu(null)} />
+      <PromptDialog
+        open={renameFor !== null}
+        title={msg.tab.renameTitle}
+        placeholder={msg.tab.renamePlaceholder}
+        initial={renameFor ? (tabNames[renameFor] ?? tabBasename(renameFor)) : ''}
+        submitLabel={msg.tab.renameSubmit}
+        cancelLabel={msg.tab.renameCancel}
+        onCancel={() => setRenameFor(null)}
+        onSubmit={(name) => {
+          if (renameFor) setTabNames((prev) => renameTab(prev, renameFor, name))
+          setRenameFor(null)
+        }}
+      />
       <SettingsPane
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
@@ -983,6 +1126,23 @@ function loadRoots(): string[] {
   } catch {
     return []
   }
+}
+
+/** The custom tab names, keyed by repository root. */
+function loadTabNames(): Record<string, string> {
+  try {
+    const v = JSON.parse(localStorage.getItem('gitty.tabNames') ?? 'null')
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      const out: Record<string, string> = {}
+      for (const [k, val] of Object.entries(v)) {
+        if (typeof val === 'string' && val.trim()) out[k] = val
+      }
+      return out
+    }
+  } catch {
+    // A hand-edited or truncated value is not worth a dialog; fall through.
+  }
+  return {}
 }
 
 /** Coarse age of a branch's last commit, to date the branch menu's entries. */

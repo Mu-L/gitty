@@ -62,7 +62,12 @@ export const zh: RendererMessages = {
   tab: {
     uncommittedChanges: (path: string) => `${path} — 有未提交的变更`,
     closeRepository: '关闭仓库',
-    openAnotherRepo: '打开另一个仓库'
+    openAnotherRepo: '打开另一个仓库',
+    rename: '重命名标签页…',
+    renameTitle: '重命名仓库标签页',
+    renamePlaceholder: '标签页名称',
+    renameSubmit: '重命名',
+    renameCancel: '取消'
   },
   recent: {
     noOtherRepos: '暂无其他仓库',
@@ -351,6 +356,8 @@ export const zh: RendererMessages = {
     openRemoteUrl: '打开远程链接',
     browseSnapshot: '浏览快照',
     runFile: '在终端里运行',
+    pullSubmodule: '拉取子模块',
+    pullingSubmodule: (path: string) => `正在拉取 ${path}…`,
     diffAgainstSelected: '与选中提交对比',
     diffAgainstAccel: 'Ctrl+单击',
     blameFile: '追溯文件',

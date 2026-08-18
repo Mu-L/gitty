@@ -2347,6 +2347,20 @@ button:disabled:hover {
   border-color: var(--border-active);
 }
 
+/* The tab being dragged, and the edge of the tab it would land on. The inset
+   shadow marks the side without moving the layout, as a border would. */
+.tab.dragging {
+  opacity: 0.45;
+}
+
+.tab.drop-before {
+  box-shadow: inset 2px 0 0 var(--blue);
+}
+
+.tab.drop-after {
+  box-shadow: inset -2px 0 0 var(--blue);
+}
+
 .tab-name {
   flex: 0 1 auto;
   min-width: 0;

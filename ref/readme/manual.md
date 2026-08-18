@@ -87,9 +87,12 @@ repository and says so in words.
 **+** (and <kbd>Ctrl+O</kbd>) opens another repository into a new tab; the title
 bar always shows the active one. Each tab keeps its own panes and terminal, so a
 commit you are reading and a shell you left running stay exactly where they were
-when you switch away and back. Closing the last tab leaves an empty window with
-a button to open the next repository. (Open tabs are not remembered across
-restarts.)
+when you switch away and back. Drag a tab to a new place in the bar to reorder
+the repositories. Right-clicking a tab offers **Rename tab…** — the name is
+remembered for that repository, shown in the tab bar and the title bar, with the
+real path still in the tooltip — and **Close repository**. Closing the last tab
+leaves an empty window with a button to open the next repository. (Open tabs are
+not remembered across restarts.)
 
 ### Recent repositories
 
@@ -194,7 +197,8 @@ Both keys are listed in the pane title's tooltip.
 - **Click a status column** — stage the file, or unstage it if it is staged.
 - **Right-click** — View File, Open in System App, Reveal in File Manager, Copy
   Relative Path, Copy Absolute Path, Copy File Name, Blame File, File History,
-  Stage / Unstage File, Discard Changes, Delete File.
+  Stage / Unstage File, Discard Changes, Delete File. A submodule's row also
+  offers **Pull Submodule**.
 - **Click a folder** — collapse or expand it.
 
 Files copied in a file manager can be **pasted into the tree**: right-click the
@@ -218,6 +222,15 @@ how many files are left. The text is matched against the whole path, so
 case-insensitive. Nothing stays shut while the box has text — a match five
 directories down is the point of having typed. <kbd>Esc</kbd> or the **✕**
 clears it and puts the whole tree back, and so does moving to another commit.
+
+**Pull Submodule** appears on the row of a path `.gitmodules` names, in the two
+views that are the directory on disk — **Changes** and **Working Tree**. It
+fetches that submodule's own remote and moves it to the tip of the branch it
+tracks (`git submodule update --init --remote`), so a submodule that was never
+checked out is cloned by the same item. The superproject is left pointing at the
+commit it recorded, which is why the submodule shows up in **Changes**
+afterwards: committing the new pointer stays your decision. What git said lands
+in the message strip above the commit log, where push and pull report.
 
 **Discard Changes** puts the file back to what the index holds, after a native
 confirmation that says plainly there is no undo; an untracked file has no index
