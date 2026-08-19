@@ -482,6 +482,10 @@ export interface RendererMessages {
     /** Third group: what happens outside the panes. */
     readonly session: string
     readonly restoreTabs: string
+    /** One Gitty process per user, or one per launch. */
+    readonly instances: string
+    readonly singleInstance: string
+    readonly multipleInstances: string
     readonly shell: string
     readonly loginShell: string
     readonly restoreDefaults: string

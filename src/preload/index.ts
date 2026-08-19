@@ -40,6 +40,15 @@ const api = {
   appIcon: (): Promise<string | null> => ipcRenderer.invoke('app:icon'),
   /** Facts for the About dialog: version, author, home page, build time. */
   about: (): Promise<AboutInfo> => ipcRenderer.invoke('app:about'),
+  /**
+   * One Gitty process per user, or one per launch. The main process keeps this
+   * one — it has to know before a window exists — while every other preference
+   * lives in the renderer's storage. A change applies at the next launch.
+   */
+  singleInstance: {
+    get: (): Promise<boolean> => ipcRenderer.invoke('prefs:single-instance'),
+    set: (on: boolean): Promise<void> => ipcRenderer.invoke('prefs:set-single-instance', on)
+  },
   repo: {
     initial: (): Promise<string> => ipcRenderer.invoke('repo:initial'),
     resolve: (cwd: string): Promise<string | null> => ipcRenderer.invoke('repo:resolve', cwd),
@@ -55,6 +64,15 @@ const api = {
       const h = (_e: unknown, changed: RepoChanged): void => cb(changed)
       ipcRenderer.on('repo:changed', h)
       return () => ipcRenderer.removeListener('repo:changed', h)
+    },
+    /**
+     * Fired when a second `gitty <repo>` hands its directory to this instance
+     * instead of starting one of its own.
+     */
+    onOpenExternal: (cb: (repo: string) => void): (() => void) => {
+      const h = (_e: unknown, repo: string): void => cb(repo)
+      ipcRenderer.on('repo:open-external', h)
+      return () => ipcRenderer.removeListener('repo:open-external', h)
     },
     /** Fired by the File ▸ Open Repository menu item. */
     onMenuOpen: (cb: () => void): (() => void) => {

@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is). Right-click a tab for **Rename tab…** or **Close repository**; a rename
   shows in the tab bar and the title bar, is remembered per repository, and
   leaves the real path in the tooltip.
+- Settings ▸ Session ▸ **Instances**: **Single**, the new default, keeps one
+  Gitty per user — `gitty <repo>` from any directory adds the repository as a
+  tab to the window already running and raises it, and the second launch exits
+  at once. **Multiple** is a window per launch. Applies to the next `gitty`
+  typed, not at the next restart.
 - File tree: **Pull Submodule** on a submodule's row, in the Changes and Working
   Tree views. Moves it to the tip it tracks, cloning one never checked out; the
   superproject keeps its recorded pointer, so committing that is yours. Git's

@@ -146,9 +146,11 @@ sizes are stored per Group id. Every Group of a hidden tab needs
 `display: none` one reports a zero-sized rect.
 
 **Preferences.** `App.tsx` owns every app-wide preference and persists it under
-`gitty.*`. Read a stored number through the `num()` helper, never
-`Number(getItem(…))` — an absent key is `null` and `Number(null)` is `0`, so the
-fallback never runs. Options git or the pty needs (`DiffOptions`,
+`gitty.*`. The one exception is what the main process must know before a window
+exists — the single-instance setting — which lives in `src/main/prefs.ts`; put
+a preference there only when startup itself reads it. Read a stored number
+through the `num()` helper, never `Number(getItem(…))` — an absent key is
+`null` and `Number(null)` is `0`, so the fallback never runs. Options git or the pty needs (`DiffOptions`,
 `TerminalOptions`) travel *with each call*; the main process holds no view
 state.
 
@@ -232,7 +234,7 @@ Terminal sessions end only in `destroySession` / `destroyTerminals(root)`.
 
 | file | what it covers |
 | --- | --- |
-| `ref/spec/main-process.md` | staging and the patch surgery, search and the commit graph, git access, the local web server, gource, recent repositories, terminal sessions, the watcher and refresh |
+| `ref/spec/main-process.md` | staging and the patch surgery, search and the commit graph, git access, the local web server, gource, recent repositories, one instance or several, terminal sessions, the watcher and refresh |
 | `ref/spec/renderer.md` | messages and i18n, time, settings, tabs, full screen, hiding panes, the `View` union and file icons, browsing history, browsing another branch, DiffPane, finding text |
 | `ref/spec/file-viewers.md` | CodePane, MarkdownPane, ImagePane, highlighting, the two outlines, links and images |
 | `ref/spec/lazy-loading.md` | the four chunks, the import invariant, how to add a heavy dependency |

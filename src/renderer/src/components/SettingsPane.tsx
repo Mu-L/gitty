@@ -172,6 +172,8 @@ export function SettingsPane(props: {
   setIgnoreWhitespace: (v: DiffOptions['ignoreWhitespace']) => void
   restoreTabs: boolean
   setRestoreTabs: (v: boolean) => void
+  singleInstance: boolean
+  setSingleInstance: (v: boolean) => void
   termShell: string
   setTermShell: (v: string) => void
   termLogin: boolean
@@ -334,6 +336,15 @@ export function SettingsPane(props: {
               label={msg.settings.restoreTabs}
               checked={props.restoreTabs}
               onChange={props.setRestoreTabs}
+            />
+            <Segmented
+              label={msg.settings.instances}
+              value={props.singleInstance ? 'single' : 'multiple'}
+              options={[
+                { value: 'single', label: msg.settings.singleInstance },
+                { value: 'multiple', label: msg.settings.multipleInstances }
+              ]}
+              onChange={(v) => props.setSingleInstance(v === 'single')}
             />
             <Dropdown
               label={msg.settings.shell}

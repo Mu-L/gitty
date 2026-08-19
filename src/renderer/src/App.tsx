@@ -147,6 +147,9 @@ export default function App(): JSX.Element {
   const [restoreTabs, setRestoreTabs] = useState(
     () => localStorage.getItem('gitty.restoreTabs') !== 'off'
   )
+  // The one preference the main process owns: it has to know before a window
+  // exists, so it is read back from there rather than from localStorage.
+  const [singleInstance, setSingleInstanceState] = useState(true)
   const [termShell, setTermShell] = useState(() => localStorage.getItem('gitty.termShell') ?? '')
   const [termLogin, setTermLogin] = useState(
     () => localStorage.getItem('gitty.termLogin') !== 'off'
@@ -461,6 +464,17 @@ export default function App(): JSX.Element {
     [pickAndOpen]
   )
 
+  useEffect(() => void window.gitty.singleInstance.get().then(setSingleInstanceState), [])
+
+  const setSingleInstance = useCallback((on: boolean) => {
+    setSingleInstanceState(on)
+    void window.gitty.singleInstance.set(on)
+  }, [])
+
+  // A second `gitty <repo>` handed its directory to this instance instead of
+  // starting one of its own.
+  useEffect(() => window.gitty.repo.onOpenExternal((repo) => void openTab(repo)), [openTab])
+
   useEffect(() => window.gitty.repo.onMenuSettings(() => setSettingsOpen(true)), [])
 
   useEffect(
@@ -559,6 +573,7 @@ export default function App(): JSX.Element {
     setDiffContext(DEFAULT_DIFF_OPTIONS.context)
     setIgnoreWhitespace('none')
     setRestoreTabs(true)
+    setSingleInstance(true)
     setTermShell('')
     setTermLogin(true)
     setAgentCommands([...AGENT_COMMANDS])
@@ -572,7 +587,7 @@ export default function App(): JSX.Element {
     setMdLineNumbers(false)
     setNaturalSort(true)
     setGraph(true)
-  }, [])
+  }, [setSingleInstance])
 
   // Push the visual knobs onto <html> as layout effects, so child passive
   // effects (TerminalPane reads the CSS variables) always see the new values.
@@ -1085,6 +1100,8 @@ export default function App(): JSX.Element {
         setIgnoreWhitespace={setIgnoreWhitespace}
         restoreTabs={restoreTabs}
         setRestoreTabs={setRestoreTabs}
+        singleInstance={singleInstance}
+        setSingleInstance={setSingleInstance}
         termShell={termShell}
         setTermShell={setTermShell}
         termLogin={termLogin}

@@ -242,6 +242,32 @@ scatter state into `~/.config/Electron`. Reads filter out paths that no longer
 exist, so a deleted repository disappears from the menu on its own. Remembering
 is best-effort and never blocks opening a repository.
 
+## One instance, or several
+
+The window holds every repository as a tab, so the useful default is one
+process per user: typing `gitty <repo>` in any directory should land a tab in
+the window already open rather than start a second copy of the app. That is
+Electron's single-instance lock. The launching process passes its repository as
+the lock's `additionalData`, and the holder receives it on `second-instance`,
+raises its window and forwards the path to the renderer, which opens it through
+the same `openTab` the File menu uses — so an argument that is not a work tree
+is reported the same way there too.
+
+The lock is requested at module scope, before `ready`: Electron settles the
+race between two launches at the moment the lock is taken, and everything after
+it in startup must not run in a process that is about to quit — hence the
+`quitting` flag the `whenReady` handler checks first. The Wayland scale
+relaunch is safe alongside it because `app.relaunch` starts the new process
+only after this one has exited, so the lock is free by then.
+
+Which makes this the one preference the main process has to know before a
+window exists, and so the one that cannot live in the renderer's
+`localStorage`: `src/main/prefs.ts` keeps it in `settings.json` beside the
+recent list. Changing it takes the lock or releases it there and then, so the
+next `gitty` typed behaves as the setting now says. Taking it can fail — a
+second window started while the setting was off still holds it — and then the
+change waits for the next launch.
+
 ## Terminal
 
 The pane splits, so ptys are kept in a `Map` keyed by a session id the renderer

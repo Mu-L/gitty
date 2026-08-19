@@ -15,6 +15,7 @@ import * as git from './git'
 import * as gource from './gource'
 import { availableShells, createTerminal, type TerminalSession } from './pty'
 import { addRecent, clearRecent, listRecent, removeRecent } from './recent'
+import { readPrefs, writePrefs } from './prefs'
 import { watchRepo, type RepoWatcher } from './watcher'
 import * as web from './web'
 import {
@@ -121,6 +122,41 @@ function initialPath(): string {
   }
   return process.cwd()
 }
+
+/**
+ * One process per user unless the setting says otherwise. A second `gitty
+ * <repo>` then hands its directory to the process already running — which
+ * opens it as another tab and comes to the front — and exits, so the terminal
+ * it was typed in returns at once.
+ *
+ * The lock is taken here rather than at `ready` because Electron delivers
+ * `second-instance` to whoever holds it, and a race between two launches is
+ * exactly what the lock exists to settle. `quitting` stops the rest of the
+ * startup from running in a process that is on its way out.
+ */
+let quitting = false
+if (readPrefs().singleInstance && !app.requestSingleInstanceLock({ repo: initialPath() })) {
+  quitting = true
+  app.quit()
+}
+
+/** Bring the window forward, whatever the window manager has done with it. */
+function focusWindow(): void {
+  if (!win || win.isDestroyed()) return
+  if (win.isMinimized()) win.restore()
+  if (!win.isVisible()) win.show()
+  win.focus()
+}
+
+app.on('second-instance', (_e, _argv, _cwd, extra) => {
+  focusWindow()
+  const repo = (extra as { repo?: unknown } | undefined)?.repo
+  // The renderer resolves it to a work tree, or reports that it is not one —
+  // the same path the File menu takes, so the two behave alike.
+  if (typeof repo === 'string' && win && !win.isDestroyed()) {
+    win.webContents.send('repo:open-external', repo)
+  }
+})
 
 /**
  * The application menu. Without one, Chromium's edit accelerators (Ctrl+C to
@@ -328,6 +364,16 @@ function readClipboardFiles(): ClipboardFiles | null {
 
 function registerIpc(): void {
   ipcMain.handle('repo:initial', () => initialPath())
+  ipcMain.handle('prefs:single-instance', () => readPrefs().singleInstance)
+  ipcMain.handle('prefs:set-single-instance', (_e, on: boolean) => {
+    writePrefs({ ...readPrefs(), singleInstance: on })
+    // Apply it to this process too, so the next `gitty <repo>` behaves as the
+    // setting now says rather than as it said at launch. Taking the lock can
+    // fail — another instance started while the setting was off still holds
+    // it — and then the change waits for the next launch.
+    if (on) app.requestSingleInstanceLock({ repo: initialPath() })
+    else app.releaseSingleInstanceLock()
+  })
 
   // The window icon doubles as the title-bar mark, and the About dialog shows
   // it too. The renderer cannot read build/ for itself, so serve it as a data
@@ -747,6 +793,8 @@ function registerIpc(): void {
 }
 
 app.whenReady().then(async () => {
+  // Another instance owns this session; this one only delivered its path.
+  if (quitting) return
   // Ends this process and starts another when it fires, so nothing below it
   // should have run yet.
   if (relaunchWithoutFractionalScale()) return
