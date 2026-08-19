@@ -41,6 +41,8 @@ import {
 } from './parse'
 import { buildPatch, parseFilePatch, type ApplyDirection, type HunkPick } from './patch'
 import { commitUrlBase } from './remote'
+import { sshConfig } from './sshconfig'
+import { readRemoteCache, writeRemoteCache } from './remoteCache'
 import { grepExpr, grepPathspecs, parseQuery } from '../shared/query'
 import { msg } from './messages'
 
@@ -123,8 +125,31 @@ export async function branches(root: string): Promise<Branch[]> {
  * The remote is whichever one the current branch tracks, else `origin`, else
  * the first one configured: the same order a reader would use when asking
  * "where does this repository live".
+ *
+ * The answer is remembered per repository (`remoteCache.ts`), so reopening a
+ * repository does not re-derive it: a remembered entry is trusted after one
+ * cheap check — the remote it names still resolves to the same URL — plus a
+ * fingerprint that the ssh config has not changed. Remote moved or renamed,
+ * config edited, or no entry: recompute and re-remember.
  */
 export async function remoteCommitBase(root: string): Promise<string | null> {
+  const cached = readRemoteCache(root)
+  if (cached && (await remoteUnchanged(root, cached.name, cached.url)) && sshConfig().fp === cached.sshFp) {
+    return cached.base
+  }
+  return computeRemoteCommitBase(root)
+}
+
+/** Whether the remote the entry was derived from still resolves to that URL. */
+async function remoteUnchanged(root: string, name: string, url: string): Promise<boolean> {
+  try {
+    return (await git(root, ['remote', 'get-url', name])).trim() === url
+  } catch {
+    return false
+  }
+}
+
+async function computeRemoteCommitBase(root: string): Promise<string | null> {
   let names: string[]
   try {
     names = (await git(root, ['remote'])).split('\n').map((n) => n.trim()).filter(Boolean)
@@ -141,7 +166,11 @@ export async function remoteCommitBase(root: string): Promise<string | null> {
   }
   const name = names.includes(tracked) ? tracked : names.includes('origin') ? 'origin' : names[0]
   try {
-    return commitUrlBase((await git(root, ['remote', 'get-url', name])).trim())
+    const url = (await git(root, ['remote', 'get-url', name])).trim()
+    const cfg = sshConfig()
+    const base = commitUrlBase(url, cfg.hosts)
+    writeRemoteCache(root, { name, url, base, sshFp: cfg.fp })
+    return base
   } catch {
     return null
   }

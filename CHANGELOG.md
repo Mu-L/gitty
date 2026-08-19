@@ -23,6 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   superproject keeps its recorded pointer, so committing that is yours. Git's
   output lands where push and pull report.
 
+### Fixed
+
+- **Open Remote URL** expands a bare host through `~/.ssh/config`
+  (`git@github:…` → github.com, restoring `ssh.` transport endpoints) and
+  remembers each repository's resolution on disk, so reopening it skips the
+  re-derivation.
+
 ## [0.1.9] - 2026-08-18
 
 ### Added

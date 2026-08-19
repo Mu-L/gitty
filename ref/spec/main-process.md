@@ -144,6 +144,25 @@ the first one configured; the parsing is pure string work with no repository
 behind it, and `test/remote.test.ts` is the list of forms that must keep
 working.
 
+A bare host (`git@github:user/repo.git`) is an ssh config alias: git stores it
+verbatim, so `remote.ts` expands it through the user's `~/.ssh/config`
+(`src/main/sshconfig.ts`, parsed at most once per file change) before the
+layout branch, falling back to well-known names (`github` → `github.com`) when
+there is no config. A `HostName` of `ssh.<domain>` is a transport endpoint, not
+the site, and loses the `ssh.` prefix; a dotted host is never expanded, because
+the remote keeps the real hostname in the common `Host github.com` → `HostName
+ssh.github.com` SSH-over-443 setup. An internal host that merely contains a
+well-known name is left alone.
+
+The resolution is remembered per repository (`src/main/remoteCache.ts`,
+`userData/remote-cache.json`), so reopening a repository reuses the answer
+after one `git remote get-url` check plus a fingerprint that the ssh config has
+not changed — the fingerprint is what makes an edited config invalidate the
+remembered host, and a moved or renamed remote fails the URL check. Known
+limits: a branch whose upstream moves to a different remote while the app is
+open keeps the remembered base until a recompute is forced, and `Include`
+directives are not followed.
+
 ## Gource
 
 `src/main/gource.ts` is an *optional* companion, and the shape follows from

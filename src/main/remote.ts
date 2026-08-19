@@ -51,6 +51,86 @@ function clean(host: string, repoPath: string): Parsed | null {
 }
 
 /**
+ * The bare host a remote URL may write instead of a domain. An ssh config
+ * alias (`Host github` → `HostName github.com`) or a hand-typed shortcut
+ * leaves git storing `git@github:user/repo.git`, and `git remote get-url`
+ * returns it verbatim. The site's real name usually comes from the user's ssh
+ * config (see `expandHost`); these are the well-known bare names to fall back
+ * on when no config entry names them. An exact match only: `github.example.org`
+ * is an internal host, not a typo.
+ */
+const KNOWN_HOSTS: Record<string, string> = {
+  github: 'github.com',
+  gitlab: 'gitlab.com',
+  bitbucket: 'bitbucket.org',
+  gitee: 'gitee.com',
+}
+
+/**
+ * The `Host`/`HostName` pairs of an ssh config, as an alias → host map.
+ *
+ * Only the fields this tool needs are read, and the OpenSSH rules that matter
+ * are kept: keywords are case-insensitive, the first value for each parameter
+ * wins, and a `Match` or `Include` line ends the previous block so its
+ * `HostName` is not attributed to the wrong `Host`. Patterns — `Host *`, the
+ * ubiquitous defaults block — are skipped, because the alias to expand is a
+ * literal name; `!` negation is skipped too. `Include` is not followed and a
+ * backslash continuation is not joined (spec note).
+ */
+export function parseSshConfig(text: string): Map<string, string> {
+  const hosts = new Map<string, string>()
+  let block: string[] = []
+  let hostName = ''
+  const flush = (): void => {
+    if (hostName) for (const h of block) if (!hosts.has(h)) hosts.set(h, hostName)
+    block = []
+    hostName = ''
+  }
+  for (const line of text.split(/\r?\n/)) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) continue
+    const sp = trimmed.indexOf(' ')
+    const keyword = (sp < 0 ? trimmed : trimmed.slice(0, sp)).toLowerCase()
+    const rest = (sp < 0 ? '' : trimmed.slice(sp + 1)).split('#')[0].trim()
+    if (keyword === 'host') {
+      flush()
+      block = rest
+        .split(/[\s,]+/)
+        .filter(Boolean)
+        .map((h) => h.toLowerCase())
+        .filter((h) => !h.includes('*') && !h.includes('?') && !h.startsWith('!'))
+    } else if (keyword === 'hostname') {
+      if (!hostName) hostName = rest.toLowerCase()
+    } else if (keyword === 'match' || keyword === 'include') {
+      flush()
+    }
+  }
+  flush()
+  return hosts
+}
+
+/**
+ * The web domain a remote's host resolves to.
+ *
+ * A dotted host is already a domain and stays put — GitHub's own SSH-over-443
+ * setup pairs `Host github.com` with `HostName ssh.github.com`, and the remote
+ * keeps the real hostname, so expanding there would lose it. A bare host (an
+ * ssh alias, or a hand-typed shortcut) expands through the user's config
+ * first and the well-known names as a fallback. A `HostName` of `ssh.<domain>`
+ * is a transport endpoint, not the site, so the `ssh.` prefix is stripped —
+ * but only when a domain actually follows it: `ssh.internal` stays whole.
+ */
+export function expandHost(host: string, sshHosts: ReadonlyMap<string, string>): string {
+  if (host.includes('.')) return host
+  const fromSsh = sshHosts.get(host)
+  if (fromSsh) {
+    const web = fromSsh.startsWith('ssh.') ? fromSsh.slice(4) : fromSsh
+    return web.includes('.') ? web : fromSsh
+  }
+  return KNOWN_HOSTS[host] ?? host
+}
+
+/**
  * The prefix a commit hash is appended to, or null when the host is not one
  * whose commit pages we can name.
  *
@@ -65,14 +145,18 @@ function clean(host: string, repoPath: string): Parsed | null {
  * query string (`/_git/repo/commit/<hash>` under a project path that the
  * remote does not spell out the same way), so a guess there is wrong rather
  * than merely unproven.
+ *
+ * `sshHosts` is the parsed ssh config (or empty), used to expand a bare host;
+ * it is optional so the module stays pure and its tests stay repository-free.
  */
-export function commitUrlBase(remote: string): string | null {
+export function commitUrlBase(remote: string, sshHosts: ReadonlyMap<string, string> = new Map()): string | null {
   const parsed = parseRemote(remote)
   if (!parsed) return null
   const { host, path } = parsed
   if (host === 'dev.azure.com' || host.endsWith('.visualstudio.com')) return null
-  const base = `https://${host}/${path}`
-  if (host === 'bitbucket.org') return `${base}/commits/`
-  if (host === 'gitlab.com' || host.includes('gitlab')) return `${base}/-/commit/`
+  const baseHost = expandHost(host, sshHosts)
+  const base = `https://${baseHost}/${path}`
+  if (baseHost === 'bitbucket.org') return `${base}/commits/`
+  if (baseHost === 'gitlab.com' || baseHost.includes('gitlab')) return `${base}/-/commit/`
   return `${base}/commit/`
 }
