@@ -113,8 +113,12 @@ open root renders one `RepoTab` (`src/renderer/src/RepoTab.tsx`) owning that
 repository's whole session — status, log, the `View`, selected file, context
 menu, and its own `TerminalsPane`. The self-contained parts of that session are
 hooks beside it rather than more of the same component: `useDocs` (the strip of
-opened files) and `useStaging` (every write across the index — whole files,
-picked hunks, discards — each of them the same ask, report a failure, refresh). Inactive tabs stay mounted (`display: none`),
+opened files), `useStaging` (every write across the index — whole files, picked
+hunks, discards — each of them the same ask, report a failure, refresh) and
+`useRemoteOps` (push, pull, pulling a submodule, gource, and the strip below
+the header where all of them report). That strip is why the last of those hands
+back `report` and `setMessage`: it is the only place git's own words appear, so
+staging's failures and the terminal hand-over's complaints go through it too. Inactive tabs stay mounted (`display: none`),
 so switching never disturbs another repo's view state or shells. The main
 process keeps one watcher per root and tags `repo:changed` with the root, so
 each tab refreshes only its own repository. The tab bar (basename, dirty dot,

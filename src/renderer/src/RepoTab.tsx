@@ -43,6 +43,7 @@ import {
 } from './nav'
 import { useDocs } from './useDocs'
 import { useStaging } from './useStaging'
+import { useRemoteOps } from './useRemoteOps'
 import {
   PANE_ORDER,
   paneAccel,
@@ -247,10 +248,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     allCollapsed: false
   })
   const [tick, setTick] = useState(0)
-  // The push or pull in flight, and what the last external command said —
-  // push, pull or gource; the strip below the header is the one place any of
-  // them gets to speak in its own words.
-  const [remoteOp, setRemoteOp] = useState<'push' | 'pull' | 'submodule' | null>(null)
   // Which work-tree paths are submodules, so the file tree's menu can offer to
   // pull one. Read once per repository: `.gitmodules` changes when a submodule
   // is added or removed, which is not something a refresh is chasing.
@@ -265,13 +262,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // view like the filter, not a preference: it belongs to this repository's
   // session and starts off again next time.
   const [allBranches, setAllBranches] = useState(false)
-  const [remoteMsg, setRemoteMsg] = useState<{ ok: boolean; text: string } | null>(null)
   // Where this repository is hosted, as a prefix a commit hash is appended to.
   // A property of the remote, not of the view, so it is read once per root.
   const [remoteCommitBase, setRemoteCommitBase] = useState<string | null>(null)
-  // gource is optional: the button exists only where the binary does.
-  const [hasGource, setHasGource] = useState(false)
-  const [gourceStarting, setGourceStarting] = useState(false)
   const loadingMore = useRef(false)
   const exhausted = useRef(false)
   // The log filter. `filter` is what the box shows, so typing stays fluid; the
@@ -861,12 +854,21 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     }
   }, [root, browsing, commits.length, debouncedFilter, filterMode, allBranches])
 
-  /* ---------- staging ---------- */
+  /* ---------- push, pull, gource, and the strip they report on ---------- */
 
-  /** Report what git said; a success is only worth a line when it failed to be one. */
-  const said = useCallback((res: { ok: boolean; output: string } | null) => {
-    if (res && !res.ok) setRemoteMsg({ ok: false, text: res.output })
-  }, [])
+  const {
+    message: remoteMsg,
+    setMessage: setRemoteMsg,
+    report: said,
+    op: remoteOp,
+    runRemote,
+    pullSubmodule,
+    hasGource,
+    gourceStarting,
+    playGource
+  } = useRemoteOps({ root, status, refresh, msg })
+
+  /* ---------- staging ---------- */
 
   const {
     workingFile,
@@ -997,47 +999,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     [agentCommand, msg, sendToAgent, onForgetAgentCommand]
   )
 
-  /* ---------- push and pull ---------- */
-
-  const runRemote = useCallback(
-    async (op: 'push' | 'pull') => {
-      setRemoteOp(op)
-      setRemoteMsg(null)
-      try {
-        const res =
-          op === 'push'
-            ? // A branch with no upstream has to name one; otherwise git knows.
-              await window.gitty.git.push(root, status?.upstream ? null : status?.branch ?? null)
-            : await window.gitty.git.pull(root)
-        setRemoteMsg({ ok: res.ok, text: res.output })
-      } finally {
-        setRemoteOp(null)
-        void refresh()
-      }
-    },
-    [root, status, refresh]
-  )
-
-  /**
-   * Pull one submodule from the file tree's menu. It talks to a remote like
-   * the buttons above do, so it reports where they report and locks them
-   * while it runs; the superproject is left pointing at the old commit, which
-   * is why the refresh afterwards is what shows the submodule in Changes.
-   */
-  const pullSubmodule = useCallback(
-    async (rel: string) => {
-      setRemoteOp('submodule')
-      setRemoteMsg({ ok: true, text: msg.contextMenu.pullingSubmodule(rel) })
-      try {
-        const res = await window.gitty.git.submodulePull(root, rel)
-        setRemoteMsg({ ok: res.ok, text: res.output })
-      } finally {
-        setRemoteOp(null)
-        void refresh()
-      }
-    },
-    [root, refresh, msg]
-  )
+  /* ---------- facts about this repository, read once ---------- */
 
   useEffect(() => {
     let live = true
@@ -1058,38 +1020,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       live = false
     }
   }, [root])
-
-  /* ---------- gource ---------- */
-
-  useEffect(() => {
-    void window.gitty.gource.available().then(setHasGource)
-  }, [])
-
-  /**
-   * Start the animation. gource opens a window of its own and outlives the
-   * click, so the button only waits long enough to learn whether it survived
-   * its first seconds — and says nothing at all when it did.
-   */
-  const playGource = useCallback(async () => {
-    setGourceStarting(true)
-    setRemoteMsg(null)
-    try {
-      const res = await window.gitty.gource.play(root)
-      if (res.output) setRemoteMsg({ ok: res.ok, text: res.output })
-    } finally {
-      setGourceStarting(false)
-    }
-  }, [root])
-
-  // Success has been read by the time it matters; a failure stays until it is
-  // dismissed, since it is the only place git's own words appear.
-  useEffect(() => {
-    // "Pulling …" is a success message that is not a result: it stays for as
-    // long as the pull it describes runs.
-    if (!remoteMsg?.ok || remoteOp !== null) return
-    const t = setTimeout(() => setRemoteMsg(null), 5000)
-    return () => clearTimeout(t)
-  }, [remoteMsg, remoteOp])
 
   /* ---------- context menus ---------- */
 
