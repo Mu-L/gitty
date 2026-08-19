@@ -145,12 +145,16 @@ sizes are stored per Group id. Every Group of a hidden tab needs
 `disabled={!active}`: the library hit-tests every registered group, and a
 `display: none` one reports a zero-sized rect.
 
-**Preferences.** `App.tsx` owns every app-wide preference and persists it under
-`gitty.*`. The one exception is what the main process must know before a window
-exists — the single-instance setting — which lives in `src/main/prefs.ts`; put
-a preference there only when startup itself reads it. Read a stored number
-through the `num()` helper, never `Number(getItem(…))` — an absent key is
-`null` and `Number(null)` is `0`, so the fallback never runs. Options git or the pty needs (`DiffOptions`,
+**Preferences.** `src/renderer/src/prefs.ts` owns every app-wide preference and
+persists it under `gitty.*`; a new one is a field on `Preferences`, a state in
+`usePreferences`, a line in the store effect and a line in `resetSettings` —
+all four, all in that file — plus its row in `SettingsPane`, which takes the
+whole object rather than a prop each. The one exception is what the main
+process must know before a window exists — the single-instance setting — which
+lives in `src/main/prefs.ts`; put a preference there only when startup itself
+reads it. Read a stored number through the `num()` helper, never
+`Number(getItem(…))` — an absent key is `null` and `Number(null)` is `0`, so
+the fallback never runs. Options git or the pty needs (`DiffOptions`,
 `TerminalOptions`) travel *with each call*; the main process holds no view
 state.
 

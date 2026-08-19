@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useMsg } from '../locale'
-import { ALL_LOCALES, type Locale } from '../locale'
+import { ALL_LOCALES } from '../locale'
 import type { JSX } from 'react'
-import type { DiffView } from './DiffPane'
-import { allZones, systemZone, SYSTEM_TZ, type TimeZone } from '../time'
+import { allZones, systemZone, SYSTEM_TZ } from '../time'
 import { monoFonts } from '../fonts'
-import type { DiffOptions } from '../../../shared/types'
+import type { Preferences } from '../prefs'
 
 export type Theme = 'dark' | 'light'
 
@@ -137,47 +136,12 @@ type Tab = 'appearance' | 'view' | 'session'
 export function SettingsPane(props: {
   open: boolean
   onClose: () => void
-  theme: Theme
-  setTheme: (v: Theme) => void
-  fontSize: number
-  setFontSize: (v: number) => void
-  rowHeight: number
-  setRowHeight: (v: number) => void
-  wrap: boolean
-  setWrap: (v: boolean) => void
-  diffView: DiffView
-  setDiffView: (v: DiffView) => void
-  wordDiff: boolean
-  setWordDiff: (v: boolean) => void
-  mdOutline: boolean
-  setMdOutline: (v: boolean) => void
-  mdLineNumbers: boolean
-  setMdLineNumbers: (v: boolean) => void
-  naturalSort: boolean
-  setNaturalSort: (v: boolean) => void
-  graph: boolean
-  setGraph: (v: boolean) => void
-  onReset: () => void
-  locale: Locale
-  setLocale: (v: Locale) => void
-  timeZone: TimeZone
-  setTimeZone: (v: TimeZone) => void
-  relativeTime: boolean
-  setRelativeTime: (v: boolean) => void
-  monoFont: string
-  setMonoFont: (v: string) => void
-  diffContext: number
-  setDiffContext: (v: number) => void
-  ignoreWhitespace: DiffOptions['ignoreWhitespace']
-  setIgnoreWhitespace: (v: DiffOptions['ignoreWhitespace']) => void
-  restoreTabs: boolean
-  setRestoreTabs: (v: boolean) => void
-  singleInstance: boolean
-  setSingleInstance: (v: boolean) => void
-  termShell: string
-  setTermShell: (v: string) => void
-  termLogin: boolean
-  setTermLogin: (v: boolean) => void
+  /**
+   * The whole preference set, rather than forty props that only pass through:
+   * every row here is one of them, so the dialog and the hook stay in step by
+   * construction — a new setting is a new row, not a new prop as well.
+   */
+  prefs: Preferences
 }): JSX.Element | null {
   const { msg } = useMsg()
   // Reset to the first tab between openings: the dialog is short-lived, and
@@ -228,145 +192,145 @@ export function SettingsPane(props: {
           <div className={`settings-group${tab === 'appearance' ? '' : ' hidden'}`}>
             <Segmented
               label={msg.settings.language}
-              value={props.locale}
+              value={props.prefs.locale}
               options={ALL_LOCALES.map((l) => ({ value: l.code, label: l.label }))}
-              onChange={props.setLocale}
+              onChange={props.prefs.setLocale}
             />
             <Dropdown
               label={msg.settings.timeZone}
-              value={props.timeZone}
+              value={props.prefs.timeZone}
               options={[
                 { value: SYSTEM_TZ, label: msg.settings.systemTimeZone(systemZone()) },
                 ...allZones().map((z) => ({ value: z, label: z }))
               ]}
-              onChange={props.setTimeZone}
+              onChange={props.prefs.setTimeZone}
             />
             <Segmented
               label={msg.settings.timeFormat}
-              value={props.relativeTime ? 'relative' : 'absolute'}
+              value={props.prefs.relativeTime ? 'relative' : 'absolute'}
               options={[
                 { value: 'absolute', label: msg.settings.absolute },
                 { value: 'relative', label: msg.settings.relative }
               ]}
-              onChange={(v) => props.setRelativeTime(v === 'relative')}
+              onChange={(v) => props.prefs.setRelativeTime(v === 'relative')}
             />
             <Segmented
               label={msg.settings.theme}
-              value={props.theme}
+              value={props.prefs.theme}
               options={[
                 { value: 'dark', label: msg.settings.dark },
                 { value: 'light', label: msg.settings.light }
               ]}
-              onChange={props.setTheme}
+              onChange={props.prefs.setTheme}
             />
             <Slider
               label={msg.settings.fontSize}
-              value={props.fontSize}
+              value={props.prefs.fontSize}
               min={9}
               max={20}
               step={0.5}
-              onChange={props.setFontSize}
+              onChange={props.prefs.setFontSize}
             />
             <Dropdown
               label={msg.settings.monoFont}
-              value={props.monoFont}
+              value={props.prefs.monoFont}
               options={withValue(
                 [
                   { value: '', label: msg.settings.systemDefault },
                   ...monoFonts().map((f) => ({ value: f, label: f }))
                 ],
-                props.monoFont
+                props.prefs.monoFont
               )}
-              onChange={props.setMonoFont}
+              onChange={props.prefs.setMonoFont}
             />
             <Slider
               label={msg.settings.rowHeight}
-              value={props.rowHeight}
+              value={props.prefs.rowHeight}
               min={18}
               max={26}
               step={1}
-              onChange={props.setRowHeight}
+              onChange={props.prefs.setRowHeight}
             />
           </div>
           <div className={`settings-group${tab === 'view' ? '' : ' hidden'}`}>
             <Segmented
               label={msg.settings.diffLayout}
-              value={props.diffView}
+              value={props.prefs.diffView}
               options={[
                 { value: 'inline', label: msg.settings.inline },
                 { value: 'split', label: msg.settings.sideBySide }
               ]}
-              onChange={props.setDiffView}
+              onChange={props.prefs.setDiffView}
             />
             <Slider
               label={msg.settings.contextLines}
-              value={props.diffContext}
+              value={props.prefs.diffContext}
               min={0}
               max={25}
               step={1}
-              onChange={props.setDiffContext}
+              onChange={props.prefs.setDiffContext}
             />
             <Segmented
               label={msg.settings.ignoreWhitespace}
-              value={props.ignoreWhitespace}
+              value={props.prefs.ignoreWhitespace}
               options={[
                 { value: 'none', label: msg.settings.whitespaceNone },
                 { value: 'change', label: msg.settings.whitespaceChange },
                 { value: 'all', label: msg.settings.whitespaceAll }
               ]}
-              onChange={props.setIgnoreWhitespace}
+              onChange={props.prefs.setIgnoreWhitespace}
             />
-            <CheckRow label={msg.settings.wordWrap} checked={props.wrap} onChange={props.setWrap} />
-            <CheckRow label={msg.settings.wordHighlight} checked={props.wordDiff} onChange={props.setWordDiff} />
-            <CheckRow label={msg.settings.commitGraph} checked={props.graph} onChange={props.setGraph} />
-            <CheckRow label={msg.settings.documentOutline} checked={props.mdOutline} onChange={props.setMdOutline} />
-            <CheckRow label={msg.settings.markdownLineNumbers} checked={props.mdLineNumbers} onChange={props.setMdLineNumbers} />
+            <CheckRow label={msg.settings.wordWrap} checked={props.prefs.wrap} onChange={props.prefs.setWrap} />
+            <CheckRow label={msg.settings.wordHighlight} checked={props.prefs.wordDiff} onChange={props.prefs.setWordDiff} />
+            <CheckRow label={msg.settings.commitGraph} checked={props.prefs.graph} onChange={props.prefs.setGraph} />
+            <CheckRow label={msg.settings.documentOutline} checked={props.prefs.mdOutline} onChange={props.prefs.setMdOutline} />
+            <CheckRow label={msg.settings.markdownLineNumbers} checked={props.prefs.mdLineNumbers} onChange={props.prefs.setMdLineNumbers} />
             <Segmented
               label={msg.settings.fileSort}
-              value={props.naturalSort ? 'natural' : 'byte'}
+              value={props.prefs.naturalSort ? 'natural' : 'byte'}
               options={[
                 { value: 'natural', label: msg.settings.sortNatural },
                 { value: 'byte', label: msg.settings.sortByte }
               ]}
-              onChange={(v) => props.setNaturalSort(v === 'natural')}
+              onChange={(v) => props.prefs.setNaturalSort(v === 'natural')}
             />
           </div>
           <div className={`settings-group${tab === 'session' ? '' : ' hidden'}`}>
             <CheckRow
               label={msg.settings.restoreTabs}
-              checked={props.restoreTabs}
-              onChange={props.setRestoreTabs}
+              checked={props.prefs.restoreTabs}
+              onChange={props.prefs.setRestoreTabs}
             />
             <Segmented
               label={msg.settings.instances}
-              value={props.singleInstance ? 'single' : 'multiple'}
+              value={props.prefs.singleInstance ? 'single' : 'multiple'}
               options={[
                 { value: 'single', label: msg.settings.singleInstance },
                 { value: 'multiple', label: msg.settings.multipleInstances }
               ]}
-              onChange={(v) => props.setSingleInstance(v === 'single')}
+              onChange={(v) => props.prefs.setSingleInstance(v === 'single')}
             />
             <Dropdown
               label={msg.settings.shell}
-              value={props.termShell}
+              value={props.prefs.termShell}
               options={withValue(
                 [
                   { value: '', label: msg.settings.systemDefault },
                   ...shells.map((sh) => ({ value: sh, label: sh }))
                 ],
-                props.termShell
+                props.prefs.termShell
               )}
-              onChange={props.setTermShell}
+              onChange={props.prefs.setTermShell}
             />
             <CheckRow
               label={msg.settings.loginShell}
-              checked={props.termLogin}
-              onChange={props.setTermLogin}
+              checked={props.prefs.termLogin}
+              onChange={props.prefs.setTermLogin}
             />
           </div>
         </div>
         <div className="settings-footer">
-          <button onClick={props.onReset}>{msg.settings.restoreDefaults}</button>
+          <button onClick={props.prefs.resetSettings}>{msg.settings.restoreDefaults}</button>
           <button onClick={props.onClose}>{msg.settings.done}</button>
         </div>
       </div>

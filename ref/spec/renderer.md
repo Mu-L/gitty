@@ -54,9 +54,20 @@ midnight-adjacent commit shows a time on the wrong day.
 
 ## Settings, and where a preference lives
 
-`App.tsx` owns every app-wide preference, persists it under `gitty.*` in
-`localStorage` and hands it down; `SettingsPane` is a dumb dialog of value and
-setter pairs, grouped Appearance / View / Session. The open-repository list
+`prefs.ts` owns every app-wide preference: the state, the `gitty.*`
+`localStorage` write, what it puts on `<html>` (theme, font size, row height,
+mono font — as a layout effect, so a child's passive effect reading the CSS
+variables always sees the new value), and what **Restore Defaults** puts it
+back to. `usePreferences()` returns them all as one `Preferences` object, which
+is what `SettingsPane` takes — a dialog whose every row is one of them, so
+adding a setting is a row and a field rather than a prop threaded through
+`App.tsx` as well. `App.tsx` destructures what its own chrome and `RepoTab`
+need and passes the object itself to the dialog.
+
+One preference does not live there. `singleInstance` has to be known before a
+window exists, so the main process keeps it (`src/main/prefs.ts`) and the hook
+reads it back over IPC — the single asymmetric entry in an otherwise uniform
+set. The open-repository list
 (`gitty.roots`, for **Reopen last session**) is the one with a lifecycle of its
 own: the app holds `[]` until the restore pass has opened anything, so it is
 written only when non-empty and cleared only by closing the last tab.
@@ -64,7 +75,7 @@ written only when non-empty and cleared only by closing the last tab.
 Preferences that git needs (`DiffOptions`) or the pty needs (`TerminalOptions`)
 travel *with each call* rather than being pushed into the main process: it
 holds no view state, and a diff request that carries its own options cannot be
-computed against a stale setting. They are memoised in `App.tsx` because
+computed against a stale setting. They are memoised in the hook because
 `RepoTab`'s diff effect depends on the object identity. Terminal options are
 read only when a session is created — changing them affects the next split, not
 a running shell — which is deliberate: restarting a shell under the user to
