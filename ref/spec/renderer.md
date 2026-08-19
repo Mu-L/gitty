@@ -111,7 +111,10 @@ beside its GitHub link — the two things a reader opens that dialog looking for
 app-wide preferences (theme, font size, wrap, …), and the settings dialog. Each
 open root renders one `RepoTab` (`src/renderer/src/RepoTab.tsx`) owning that
 repository's whole session — status, log, the `View`, selected file, context
-menu, and its own `TerminalsPane`. Inactive tabs stay mounted (`display: none`),
+menu, and its own `TerminalsPane`. The self-contained parts of that session are
+hooks beside it rather than more of the same component: `useDocs` (the strip of
+opened files) and `useStaging` (every write across the index — whole files,
+picked hunks, discards — each of them the same ask, report a failure, refresh). Inactive tabs stay mounted (`display: none`),
 so switching never disturbs another repo's view state or shells. The main
 process keeps one watcher per root and tags `repo:changed` with the root, so
 each tab refreshes only its own repository. The tab bar (basename, dirty dot,

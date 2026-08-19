@@ -42,6 +42,7 @@ import {
   type NavPlace
 } from './nav'
 import { useDocs } from './useDocs'
+import { useStaging } from './useStaging'
 import {
   PANE_ORDER,
   paneAccel,
@@ -59,7 +60,6 @@ import {
   type PaneVisibility
 } from './panes'
 import type {
-  ApplyDirection,
   ChurnSpec,
   Commit,
   CommitFile,
@@ -69,7 +69,6 @@ import type {
   DiffResult,
   DiffSide,
   FileChurn,
-  HunkPick,
   LogFilterMode,
   RepoStatus,
   TerminalOptions,
@@ -260,8 +259,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // reader has said. Null follows the file's own state, which is what it did
   // before there was anything to stage.
   const [sideOverride, setSideOverride] = useState<DiffSide | null>(null)
-  // An apply is in flight; the hunk buttons go quiet rather than queueing.
-  const [staging, setStaging] = useState(false)
   // The repository search box, above the file list. Open is a state of its own
   // rather than a document, so the pattern can be edited before anything runs.
   // Every branch at once, rather than the one the log is pointed at. A log
@@ -866,80 +863,32 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   /* ---------- staging ---------- */
 
-  /** The work-tree file the diff is showing, if that is what it is showing. */
-  const workingFile = useMemo(
-    () =>
-      view.mode === 'worktree' && selectedFile
-        ? (status?.files.find((f) => f.path === selectedFile) ?? null)
-        : null,
-    [view, selectedFile, status]
-  )
-
-  /**
-   * Which way staging goes for the diff on screen — and whether it can be
-   * offered at all. It cannot when the diff is not exactly one tracked file's
-   * work (a whole work tree merges staged and unstaged changes, and the hunks
-   * of a many-file diff are not numbered the way git numbers one file's), and
-   * it must not when whitespace is being ignored: that diff does not hold
-   * every change it would apply, so applying it would drop the rest silently.
-   */
-  const stageDirection: ApplyDirection | null = useMemo(() => {
-    if (!workingFile || workingFile.untracked || viewingFile) return null
-    if (diffOptions.ignoreWhitespace !== 'none') return null
-    const side = sideOverride ?? (workingFile.worktree === ' ' && workingFile.index !== ' ' ? 'index' : 'worktree')
-    return side === 'index' ? 'unstage' : 'stage'
-  }, [workingFile, viewingFile, diffOptions, sideOverride])
-
   /** Report what git said; a success is only worth a line when it failed to be one. */
   const said = useCallback((res: { ok: boolean; output: string } | null) => {
     if (res && !res.ok) setRemoteMsg({ ok: false, text: res.output })
   }, [])
 
-  const applyPicks = useCallback(
-    async (picks: HunkPick[]) => {
-      if (!workingFile || !stageDirection) return
-      setStaging(true)
-      try {
-        said(
-          await window.gitty.git.applyHunks(
-            root,
-            workingFile.path,
-            picks,
-            stageDirection,
-            diffOptions
-          )
-        )
-      } finally {
-        setStaging(false)
-        void refresh()
-      }
-    },
-    [root, workingFile, stageDirection, diffOptions, refresh, said]
-  )
+  const {
+    workingFile,
+    stageDirection,
+    staging,
+    applyPicks,
+    toggleStage,
+    discardChanges,
+    copyStagedDiff
+  } = useStaging({
+    root,
+    view,
+    selectedFile,
+    status,
+    viewingFile,
+    diffOptions,
+    sideOverride,
+    refresh,
+    report: said
+  })
 
-  const toggleStage = useCallback(
-    async (path: string, staged: boolean) => {
-      said(
-        staged
-          ? await window.gitty.git.unstageFile(root, path)
-          : await window.gitty.git.stageFile(root, path)
-      )
-      void refresh()
-    },
-    [root, refresh, said]
-  )
-
-  const discardChanges = useCallback(
-    async (path: string) => {
-      said(await window.gitty.git.discardFile(root, path))
-      void refresh()
-    },
-    [root, refresh, said]
-  )
-
-  const copyStagedDiff = useCallback(() => {
-    void window.gitty.git.stagedDiff(root).then((text) => window.gitty.clipboard.write(text))
-  }, [root])
+  /* ---------- running a snapshot's programs ---------- */
 
   /**
    * Run a program the way it was at the revision on screen.
@@ -985,6 +934,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     },
     [root, view, panes, onLayout, msg]
   )
+
+  /* ---------- handing the index to an agent ---------- */
 
   /**
    * Hand the curated index over. Gitty writes one line into the shell that is

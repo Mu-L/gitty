@@ -12,7 +12,7 @@ shell it types into is the one thing it touches — the files it talks about are
 elsewhere, but the effect is here. The command is picked from the dropdown
 beside the button — remembered commands, plus a prompt for one not remembered
 yet — and there is deliberately no settings row for it: it is answered once per hand-over, not once per install.
-`App.tsx` owns the list (`gitty.agentCommands`, most recently used first) and a
+`prefs.ts` owns the list (`gitty.agentCommands`, most recently used first) and a
 command joins it by having been run, never by having been typed. **The head of
 that list is the current command** — there is no second stored answer to drift
 out of it, which is what an earlier `gitty.agentCommand` was — so the picker

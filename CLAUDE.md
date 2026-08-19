@@ -103,6 +103,16 @@ buttons, or dispatching a `contextmenu` MouseEvent. `out/` is gitignored and
 rebuilt, so the patch is throwaway. Use a repository with real history; this
 repo's own log is short.
 
+**Scope every query to the tab on screen.** An inactive tab keeps its DOM —
+`display: none`, never unmounted — so a bare `document.querySelectorAll('.row')`
+reaches into some other repository's file tree, and a click meant for the test
+repo lands on this one. Start from the visible shell:
+`[...document.querySelectorAll('.repo-tab-shell')].find((e) => e.style.display
+!== 'none')`. A snippet that stages, discards or otherwise **writes** must run
+against a throwaway repository for the same reason — and `discardFile` cannot
+be driven this way at all, because it waits on a native modal the renderer
+cannot click.
+
 ## Rules for changing code
 
 **The process boundary.** `src/main/` owns everything privileged (git
