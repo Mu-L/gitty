@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type JSX } from 'react'
 import { useMsg } from '../locale'
 import type { FileChurn } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
-import { comparePaths } from '../paths'
+import { comparePaths, matchesFilter } from '../paths'
 import { FileIcon } from './FileIcon'
 
 export interface FileEntry {
@@ -103,13 +103,6 @@ function buildRows(entries: FileEntry[], collapsed: (key: string) => boolean): T
     const segs = r.key.split('/')
     return !segs.slice(0, -1).some((_, i) => collapsed(segs.slice(0, i + 1).join('/')))
   })
-}
-
-/** Case-insensitive substring of the whole path, which is what makes a
- *  directory match bring its subtree with it: every file under `src/main`
- *  has that text in its own path. */
-export function matchesFilter(path: string, needle: string): boolean {
-  return path.toLowerCase().includes(needle.toLowerCase())
 }
 
 export function FilesPane({

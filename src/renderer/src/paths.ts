@@ -76,3 +76,43 @@ export function comparePaths(a: string, b: string, natural = true): number {
   }
   return A.length - B.length
 }
+
+/**
+ * The last expression compiled, so a tree of ten thousand paths compiles the
+ * filter once rather than once a row: the box holds one needle at a time.
+ */
+let lastNeedle: string | null = null
+let lastRegex: RegExp | null = null
+
+/**
+ * The filter box's needle as an expression, or `null` when it is not one.
+ * Half-typed text is the ordinary state of a box read on every keystroke —
+ * `src/(` is what `src/(main|renderer)` passes through — so an expression that
+ * does not compile is not an error, it is a needle to match literally.
+ */
+function filterRegex(needle: string): RegExp | null {
+  if (needle !== lastNeedle) {
+    lastNeedle = needle
+    try {
+      lastRegex = new RegExp(needle, 'i')
+    } catch {
+      lastRegex = null
+    }
+  }
+  return lastRegex
+}
+
+/**
+ * Whether a path is shown by the file tree's filter. The needle is a regular
+ * expression — case-insensitive, unanchored, so plain text still reads as the
+ * substring it looks like — falling back to a literal substring while the
+ * expression is unfinished or malformed.
+ *
+ * Matching the whole path rather than the name is what makes a directory match
+ * bring its subtree with it: every file under `src/main` has that text in its
+ * own path.
+ */
+export function matchesFilter(path: string, needle: string): boolean {
+  const re = filterRegex(needle)
+  return re ? re.test(path) : path.toLowerCase().includes(needle.toLowerCase())
+}

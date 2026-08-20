@@ -219,6 +219,11 @@ function searchLog(root: string, args: string[], kind = 'log'): Promise<string> 
  * set, narrows it — by message and author, or through git's pickaxe over the
  * diffs themselves, depending on `mode`.
  *
+ * Every filter is an expression, and an extended one: git's own default is
+ * POSIX basic, where `a|b` and `x+` are literal text and the grouping has to
+ * be backslashed. `--extended-regexp` is what everyone else calls a regular
+ * expression, so what the box is typed with is what it searches for.
+ *
  * Every part of the query is an argument in the array, never text spliced into
  * a command line: a regular expression is made almost entirely of characters a
  * shell would take for itself.
@@ -248,7 +253,7 @@ export async function log(
         `--max-count=${limit}`,
         `--skip=${skip}`,
         `--pretty=format:${fmt}`,
-        mode === 'content' ? `-S${filter}` : `-G${filter}`,
+        ...(mode === 'content' ? [`-S${filter}`] : ['--extended-regexp', `-G${filter}`]),
         ...scope,
         '--'
       ])
@@ -262,6 +267,7 @@ export async function log(
         'log',
         '--format=%H',
         '--regexp-ignore-case',
+        '--extended-regexp',
         `--grep=${filter}`,
         ...base,
         '--'
@@ -270,6 +276,7 @@ export async function log(
         'log',
         '--format=%H',
         '--regexp-ignore-case',
+        '--extended-regexp',
         `--author=${filter}`,
         ...base,
         '--'

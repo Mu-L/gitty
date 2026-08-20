@@ -49,7 +49,10 @@ HEAD and merges both sides.
 
 Three reads that share the log's machinery. The filter box has a
 `LogFilterMode`: message/author as before, or git's pickaxe (`-S` literal,
-`-G` regex) over the diffs. Those walk the whole history, so `searchLog` keeps
+`-G` regex) over the diffs. Every expression git is given is an extended one
+(`--extended-regexp`), git's own default being POSIX basic, where `a|b` is
+literal text — the box is typed in what the rest of the world calls a regular
+expression. Those walk the whole history, so `searchLog` keeps
 one child process per root **per kind** — a grep must not cancel the log — and
 kills the previous one instead of letting it finish for a reader who has moved
 on. Every pattern is an array element, never text in a command line.

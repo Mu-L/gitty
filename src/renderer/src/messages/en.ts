@@ -143,7 +143,7 @@ export const en: RendererMessages = {
     searchClear: 'Close the search box',
     findModeTitle: 'Search the repository, or filter this list',
     filter: 'Filter',
-    filterTitle: 'Filter the listed files by path',
+    filterTitle: 'Filter the listed files by path — a regular expression',
     filterPlaceholder: 'Filter this tree…',
     filterCount: (shown: number, total: number) => `${shown} of ${total}`,
     filterNone: 'no match',
@@ -232,7 +232,7 @@ export const en: RendererMessages = {
     filterModeContent: 'Content',
     filterModeRegex: 'Content regex',
     filterModeTitle:
-      'What to search.\nMessage / Author: the commit message and the author.\nContent (-S): commits where the number of occurrences of the text changed — where it was introduced or removed.\nContent regex (-G): every commit whose diff matches the expression, including ones that only moved the line.',
+      'What to search.\nMessage / Author: the commit message and the author, as a regular expression.\nContent (-S): commits where the number of occurrences of the literal text changed — where it was introduced or removed.\nContent regex (-G): every commit whose diff matches the expression, including ones that only moved the line.',
     searching: 'Searching the diffs…',
     graph: 'Graph',
     graphTitle: 'Draw the lanes beside the hashes — where branches part and merges land',

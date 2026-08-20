@@ -55,6 +55,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Both filter boxes read a **regular expression** by default. The file tree's
+  takes `\.tsx?$` or `main|renderer` over the whole path, falling back to a
+  literal substring while the expression is half typed; the log's
+  **Message / Author** and **Content regex** modes now pass
+  `--extended-regexp`, so `fix|revert` is either word rather than that text.
+
 - Marking a second commit to diff the pair is <kbd>Shift+Click</kbd> or
   <kbd>Space</kbd>; <kbd>Ctrl/Cmd+Click</kbd> now opens the commit's page on the
   hosting site.

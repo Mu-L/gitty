@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 // A renderer module, but a DOM-free one — hence the entry for it in
 // tsconfig.node.json, which is the project the tests belong to.
-import { comparePaths, shellQuote } from '../src/renderer/src/paths'
+import { comparePaths, matchesFilter, shellQuote } from '../src/renderer/src/paths'
 
 const sorted = (paths: string[]): string[] => [...paths].sort(comparePaths)
 
@@ -76,5 +76,37 @@ describe('shellQuote', () => {
 
   it('closes, escapes and reopens around a single quote', () => {
     expect(shellQuote("it's")).toBe("'it'\\''s'")
+  })
+})
+
+describe('matchesFilter', () => {
+  it('matches plain text as the substring it looks like', () => {
+    expect(matchesFilter('src/main/git.ts', 'main')).toBe(true)
+    expect(matchesFilter('src/main/git.ts', 'renderer')).toBe(false)
+  })
+
+  it('ignores case on both sides', () => {
+    expect(matchesFilter('src/README.md', 'readme')).toBe(true)
+    expect(matchesFilter('src/readme.md', 'README')).toBe(true)
+  })
+
+  it('reads the needle as an expression', () => {
+    expect(matchesFilter('src/main/git.ts', 'main|renderer')).toBe(true)
+    expect(matchesFilter('src/renderer/App.tsx', 'main|renderer')).toBe(true)
+    expect(matchesFilter('src/shared/types.ts', 'main|renderer')).toBe(false)
+    expect(matchesFilter('src/main/git.ts', '\\.tsx?$')).toBe(true)
+    expect(matchesFilter('src/main/git.ts', '^main')).toBe(false)
+  })
+
+  it('falls back to a literal substring while the expression is half typed', () => {
+    expect(matchesFilter('src/(main)/a.ts', 'src/(')).toBe(true)
+    expect(matchesFilter('src/main/a.ts', 'src/(')).toBe(false)
+    expect(matchesFilter('a*b.ts', '*b')).toBe(true)
+  })
+
+  it('recompiles when the needle changes', () => {
+    expect(matchesFilter('a.ts', 'a')).toBe(true)
+    expect(matchesFilter('a.ts', 'b')).toBe(false)
+    expect(matchesFilter('a.ts', 'a')).toBe(true)
   })
 })

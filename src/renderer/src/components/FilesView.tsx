@@ -4,9 +4,10 @@ import type { CommitMeta } from '../../../shared/types'
 import { parseQuery } from '../../../shared/query'
 import type { View } from '../contextMenus'
 import { BROWSE_ACCEL, CHANGES_ACCEL, paneControls } from '../panes'
+import { matchesFilter } from '../paths'
 import type { MenuState } from './ContextMenu'
 import { CommitInfo } from './CommitInfo'
-import { FilesPane, matchesFilter, type FileEntry } from './FilesPane'
+import { FilesPane, type FileEntry } from './FilesPane'
 import { Tooltip } from './Tooltip'
 
 export interface FilesViewProps {

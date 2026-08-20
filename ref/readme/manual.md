@@ -217,9 +217,12 @@ something that is not there to write into, so no paste is offered.
 search button, whose arrow chooses between searching the repository and
 filtering this list — opens a filter box above the tree and
 narrows it to the paths holding what you type, with the count of how many of
-how many files are left. The text is matched against the whole path, so
-`src/main` keeps everything under that directory, and matching is
-case-insensitive. Nothing stays shut while the box has text — a match five
+how many files are left. What you type is a **regular expression** —
+`\.tsx?$`, `main|renderer` — matched against the whole path, so `src/main`
+keeps everything under that directory, and matching is case-insensitive.
+Ordinary text is an expression that means itself, and an expression that does
+not compile yet (`src/(`, half of `src/(main|renderer)`) is matched literally
+rather than reported as an error. Nothing stays shut while the box has text — a match five
 directories down is the point of having typed. <kbd>Esc</kbd> or the **✕**
 clears it and puts the whole tree back, and so does moving to another commit.
 
@@ -517,9 +520,9 @@ The dropdown beside it says what is being searched:
 
 | | |
 | --- | --- |
-| **Message / Author** | The commit message and the author, case-insensitively. The default. |
+| **Message / Author** | The commit message and the author, case-insensitively, as an extended regular expression — `fix|revert` is either word. The default. |
 | **Content** | git's `-S`: the commits where the *number of occurrences* of the text changed — where it was introduced or removed. Literal, so a search full of `.` and `(` means those characters. |
-| **Content regex** | git's `-G`: every commit whose diff matches the expression, including the ones that only moved the line about. |
+| **Content regex** | git's `-G`: every commit whose diff matches the expression — extended, like the mode above — including the ones that only moved the line about. |
 
 The two content modes answer the question blame cannot — *which commit
 introduced this line* — and they read every diff in the history to do it, so
