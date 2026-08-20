@@ -27,6 +27,7 @@ import type {
   WorktreeFile
 } from '../shared/types'
 import { DEFAULT_DIFF_OPTIONS, MAX_SNAPSHOT_EXPORT_BYTES } from '../shared/types'
+import { isExpression, literalPattern } from '../shared/regex'
 import {
   parseBlame,
   parseBranches,
@@ -222,7 +223,11 @@ function searchLog(root: string, args: string[], kind = 'log'): Promise<string> 
  * Every filter is an expression, and an extended one: git's own default is
  * POSIX basic, where `a|b` and `x+` are literal text and the grouping has to
  * be backslashed. `--extended-regexp` is what everyone else calls a regular
- * expression, so what the box is typed with is what it searches for.
+ * expression, so what the box is typed with is what it searches for. Text that
+ * is not an expression yet — `(fix`, on the way to `(fix|revert)` — is
+ * searched for literally instead, the file tree's rule for its own filter: the
+ * box is read on every keystroke, and half a query is not an error to show as
+ * an empty log.
  *
  * Every part of the query is an argument in the array, never text spliced into
  * a command line: a regular expression is made almost entirely of characters a
@@ -243,6 +248,7 @@ export async function log(
   // rather than git's default topological-ish ordering, so the rows read as a
   // timeline and the lanes stay narrow.
   const scope = all ? ['--all', '--date-order'] : ref ? [ref] : []
+  const expr = filter === undefined || isExpression(filter)
   let raw: string
   try {
     if (filter && mode !== 'text') {
@@ -253,7 +259,11 @@ export async function log(
         `--max-count=${limit}`,
         `--skip=${skip}`,
         `--pretty=format:${fmt}`,
-        ...(mode === 'content' ? [`-S${filter}`] : ['--extended-regexp', `-G${filter}`]),
+        // -S is literal text and needs nothing; -G is always an expression,
+        // and git's -F does not reach it, so the escaping is ours.
+        ...(mode === 'content'
+          ? [`-S${filter}`]
+          : ['--extended-regexp', `-G${expr ? filter : literalPattern(filter)}`]),
         ...scope,
         '--'
       ])
@@ -263,11 +273,14 @@ export async function log(
       // express the OR — hence a rev-list pass per side, merged by hash, then
       // one --no-walk pass (date-ordered) to shape and page the result.
       const base = scope
+      // One switch for both passes: an expression, or fixed strings, which is
+      // git's own way of saying the pattern means itself.
+      const syntax = expr ? '--extended-regexp' : '--fixed-strings'
       const byMsg = await git(root, [
         'log',
         '--format=%H',
         '--regexp-ignore-case',
-        '--extended-regexp',
+        syntax,
         `--grep=${filter}`,
         ...base,
         '--'
@@ -276,7 +289,7 @@ export async function log(
         'log',
         '--format=%H',
         '--regexp-ignore-case',
-        '--extended-regexp',
+        syntax,
         `--author=${filter}`,
         ...base,
         '--'

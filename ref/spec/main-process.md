@@ -52,7 +52,10 @@ Three reads that share the log's machinery. The filter box has a
 `-G` regex) over the diffs. Every expression git is given is an extended one
 (`--extended-regexp`), git's own default being POSIX basic, where `a|b` is
 literal text — the box is typed in what the rest of the world calls a regular
-expression. Those walk the whole history, so `searchLog` keeps
+expression. `shared/regex.ts` decides whether there is an expression there at
+all; half of one goes to git as fixed strings (`-F`, or an escaped pattern for
+`-G`, which `-F` does not reach), the rule the file tree's filter follows on
+the other side of the boundary. Those walk the whole history, so `searchLog` keeps
 one child process per root **per kind** — a grep must not cancel the log — and
 kills the previous one instead of letting it finish for a reader who has moved
 on. Every pattern is an array element, never text in a command line.

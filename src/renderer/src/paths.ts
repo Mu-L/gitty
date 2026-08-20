@@ -86,6 +86,9 @@ let lastRegex: RegExp | null = null
 
 /**
  * The filter box's needle as an expression, or `null` when it is not one.
+ * `shared/regex.ts` is the same rule on main's side, where a pattern has to
+ * reach git rather than `RegExp`; this stays here because a leaf module
+ * imports nothing.
  * Half-typed text is the ordinary state of a box read on every keystroke —
  * `src/(` is what `src/(main|renderer)` passes through — so an expression that
  * does not compile is not an error, it is a needle to match literally.

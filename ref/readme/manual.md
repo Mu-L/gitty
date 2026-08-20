@@ -520,9 +520,13 @@ The dropdown beside it says what is being searched:
 
 | | |
 | --- | --- |
-| **Message / Author** | The commit message and the author, case-insensitively, as an extended regular expression — `fix|revert` is either word. The default. |
+| **Message / Author** | The commit message and the author, case-insensitively, as an extended regular expression — `fix\|revert` is either word. The default. |
 | **Content** | git's `-S`: the commits where the *number of occurrences* of the text changed — where it was introduced or removed. Literal, so a search full of `.` and `(` means those characters. |
 | **Content regex** | git's `-G`: every commit whose diff matches the expression — extended, like the mode above — including the ones that only moved the line about. |
+
+Text that is not an expression yet — `(fix`, on the way to `(fix|revert)` — is
+searched for literally in both expression modes, so a box read on every
+keystroke does not empty the log while you finish typing.
 
 The two content modes answer the question blame cannot — *which commit
 introduced this line* — and they read every diff in the history to do it, so
