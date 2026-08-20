@@ -142,7 +142,7 @@ export const fr: RendererMessages = {
     searchClear: 'Fermer la recherche',
     findModeTitle: 'Chercher dans le dépôt, ou filtrer cette liste',
     filter: 'Filtrer',
-    filterTitle: 'Filtrer les fichiers listés par chemin',
+    filterTitle: 'Filtrer les fichiers listés par chemin — une expression régulière',
     filterPlaceholder: 'Filtrer cette arborescence…',
     filterCount: (shown: number, total: number) => `${shown} sur ${total}`,
     filterNone: 'aucune correspondance',
@@ -232,7 +232,7 @@ export const fr: RendererMessages = {
     filterModeContent: 'Contenu',
     filterModeRegex: 'Contenu regex',
     filterModeTitle:
-      'Ce qui est cherché.\nMessage / Auteur : le message de commit et l’auteur.\nContenu (-S) : les commits où le nombre d’occurrences du texte a changé — ceux qui l’ont introduit ou retiré.\nContenu regex (-G) : tout commit dont le diff correspond à l’expression, y compris ceux qui n’ont fait que déplacer la ligne.',
+      'Ce qui est cherché.\nMessage / Auteur : le message de commit et l’auteur, comme expression régulière.\nContenu (-S) : les commits où le nombre d’occurrences du texte littéral a changé — ceux qui l’ont introduit ou retiré.\nContenu regex (-G) : tout commit dont le diff correspond à l’expression, y compris ceux qui n’ont fait que déplacer la ligne.',
     searching: 'Recherche dans les diffs…',
     graph: 'Graphe',
     graphTitle:

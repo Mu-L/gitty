@@ -142,7 +142,7 @@ export const de: RendererMessages = {
     searchClear: 'Das Suchfeld schließen',
     findModeTitle: 'Das Repository durchsuchen oder diese Liste filtern',
     filter: 'Filtern',
-    filterTitle: 'Die gelisteten Dateien nach Pfad filtern',
+    filterTitle: 'Die gelisteten Dateien nach Pfad filtern — ein regulärer Ausdruck',
     filterPlaceholder: 'Diesen Baum filtern…',
     filterCount: (shown: number, total: number) => `${shown} von ${total}`,
     filterNone: 'keine Treffer',
@@ -230,7 +230,7 @@ export const de: RendererMessages = {
     filterModeContent: 'Inhalt',
     filterModeRegex: 'Inhalt (Regex)',
     filterModeTitle:
-      'Was gesucht wird.\nNachricht / Autor: die Commit-Nachricht und der Autor.\nInhalt (-S): Commits, in denen sich die Anzahl der Vorkommen des Textes geändert hat — die ihn eingeführt oder entfernt haben.\nInhalt (Regex) (-G): jeder Commit, dessen Diff auf den Ausdruck passt, auch wenn die Zeile nur verschoben wurde.',
+      'Was gesucht wird.\nNachricht / Autor: die Commit-Nachricht und der Autor, als regulärer Ausdruck.\nInhalt (-S): Commits, in denen sich die Anzahl der Vorkommen des wörtlichen Textes geändert hat — die ihn eingeführt oder entfernt haben.\nInhalt (Regex) (-G): jeder Commit, dessen Diff auf den Ausdruck passt, auch wenn die Zeile nur verschoben wurde.',
     searching: 'Diffs werden durchsucht…',
     graph: 'Graph',
     graphTitle:

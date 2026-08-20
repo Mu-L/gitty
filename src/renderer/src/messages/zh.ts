@@ -138,7 +138,7 @@ export const zh: RendererMessages = {
     searchClear: '关闭搜索框',
     findModeTitle: '搜索仓库，或过滤这个列表',
     filter: '过滤',
-    filterTitle: '按路径过滤列出的文件',
+    filterTitle: '按路径过滤列出的文件——正则表达式',
     filterPlaceholder: '过滤此文件树…',
     filterCount: (shown: number, total: number) => `${total} 个中的 ${shown} 个`,
     filterNone: '无匹配',
@@ -226,7 +226,7 @@ export const zh: RendererMessages = {
     filterModeContent: '内容',
     filterModeRegex: '内容正则',
     filterModeTitle:
-      '搜索什么。\n消息 / 作者：提交消息和作者。\n内容 (-S)：该文本出现次数发生变化的提交——即引入或删除它的那次。\n内容正则 (-G)：diff 匹配该正则的所有提交，包括只是移动了那一行的。',
+      '搜索什么。\n消息 / 作者：提交消息和作者，按正则表达式匹配。\n内容 (-S)：该字面文本出现次数发生变化的提交——即引入或删除它的那次。\n内容正则 (-G)：diff 匹配该正则的所有提交，包括只是移动了那一行的。',
     searching: '正在搜索 diff…',
     graph: '图',
     graphTitle:

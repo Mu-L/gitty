@@ -141,7 +141,7 @@ export const es: RendererMessages = {
     searchClear: 'Cerrar la búsqueda',
     findModeTitle: 'Buscar en el repositorio, o filtrar esta lista',
     filter: 'Filtrar',
-    filterTitle: 'Filtrar por ruta los archivos listados',
+    filterTitle: 'Filtrar por ruta los archivos listados — una expresión regular',
     filterPlaceholder: 'Filtrar este árbol…',
     filterCount: (shown: number, total: number) => `${shown} de ${total}`,
     filterNone: 'sin coincidencias',
@@ -231,7 +231,7 @@ export const es: RendererMessages = {
     filterModeContent: 'Contenido',
     filterModeRegex: 'Contenido regex',
     filterModeTitle:
-      'Qué se busca.\nMensaje / Autor: el mensaje del commit y el autor.\nContenido (-S): los commits donde cambió el número de apariciones del texto, es decir, los que lo introdujeron o lo quitaron.\nContenido regex (-G): todo commit cuyo diff coincida con la expresión, incluidos los que solo movieron la línea.',
+      'Qué se busca.\nMensaje / Autor: el mensaje del commit y el autor, como expresión regular.\nContenido (-S): los commits donde cambió el número de apariciones del texto literal, es decir, los que lo introdujeron o lo quitaron.\nContenido regex (-G): todo commit cuyo diff coincida con la expresión, incluidos los que solo movieron la línea.',
     searching: 'Buscando en los diffs…',
     graph: 'Grafo',
     graphTitle:

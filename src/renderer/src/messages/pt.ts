@@ -141,7 +141,7 @@ export const pt: RendererMessages = {
     searchClear: 'Fechar a procura',
     findModeTitle: 'Procurar no repositório, ou filtrar esta lista',
     filter: 'Filtrar',
-    filterTitle: 'Filtrar por caminho os ficheiros listados',
+    filterTitle: 'Filtrar por caminho os ficheiros listados — uma expressão regular',
     filterPlaceholder: 'Filtrar esta árvore…',
     filterCount: (shown: number, total: number) => `${shown} de ${total}`,
     filterNone: 'sem correspondências',
@@ -231,7 +231,7 @@ export const pt: RendererMessages = {
     filterModeContent: 'Conteúdo',
     filterModeRegex: 'Conteúdo regex',
     filterModeTitle:
-      'O que é procurado.\nMensagem / Autor: a mensagem do commit e o autor.\nConteúdo (-S): os commits em que o número de ocorrências do texto mudou — os que o introduziram ou removeram.\nConteúdo regex (-G): todos os commits cujo diff corresponde à expressão, incluindo os que apenas moveram a linha.',
+      'O que é procurado.\nMensagem / Autor: a mensagem do commit e o autor, como expressão regular.\nConteúdo (-S): os commits em que o número de ocorrências do texto literal mudou — os que o introduziram ou removeram.\nConteúdo regex (-G): todos os commits cujo diff corresponde à expressão, incluindo os que apenas moveram a linha.',
     searching: 'A procurar nos diffs…',
     graph: 'Grafo',
     graphTitle:

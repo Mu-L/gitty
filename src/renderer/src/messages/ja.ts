@@ -141,7 +141,7 @@ export const ja: RendererMessages = {
     searchClear: '検索ボックスを閉じる',
     findModeTitle: 'リポジトリを検索するか、この一覧を絞り込む',
     filter: '絞り込み',
-    filterTitle: 'パスで一覧のファイルを絞り込む',
+    filterTitle: 'パスで一覧のファイルを絞り込む — 正規表現',
     filterPlaceholder: 'このツリーを絞り込む…',
     filterCount: (shown: number, total: number) => `${total} 件中 ${shown} 件`,
     filterNone: '一致なし',
@@ -229,7 +229,7 @@ export const ja: RendererMessages = {
     filterModeContent: '内容',
     filterModeRegex: '内容 正規表現',
     filterModeTitle:
-      '何を検索するか。\nメッセージ / 作者：コミットメッセージと作者。\n内容 (-S)：そのテキストの出現回数が変わったコミット——導入または削除したもの。\n内容 正規表現 (-G)：diff が正規表現に一致するすべてのコミット。行を移動しただけのものも含みます。',
+      '何を検索するか。\nメッセージ / 作者：コミットメッセージと作者。正規表現として扱われます。\n内容 (-S)：そのリテラル文字列の出現回数が変わったコミット——導入または削除したもの。\n内容 正規表現 (-G)：diff が正規表現に一致するすべてのコミット。行を移動しただけのものも含みます。',
     searching: 'diff を検索中…',
     graph: 'グラフ',
     graphTitle:

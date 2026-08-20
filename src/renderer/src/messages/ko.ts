@@ -140,7 +140,7 @@ export const ko: RendererMessages = {
     searchClear: '검색 상자 닫기',
     findModeTitle: '저장소를 검색하거나 이 목록을 걸러내기',
     filter: '필터',
-    filterTitle: '경로로 목록의 파일을 걸러내기',
+    filterTitle: '경로로 목록의 파일을 걸러내기 — 정규식',
     filterPlaceholder: '이 트리 걸러내기…',
     filterCount: (shown: number, total: number) => `${total}개 중 ${shown}개`,
     filterNone: '일치 없음',
@@ -228,7 +228,7 @@ export const ko: RendererMessages = {
     filterModeContent: '내용',
     filterModeRegex: '내용 정규식',
     filterModeTitle:
-      '무엇을 찾을지.\n메시지 / 작성자: 커밋 메시지와 작성자.\n내용 (-S): 그 문자열의 등장 횟수가 바뀐 커밋 — 도입하거나 삭제한 커밋.\n내용 정규식 (-G): diff가 정규식과 일치하는 모든 커밋. 줄을 옮기기만 한 것도 포함됩니다.',
+      '무엇을 찾을지.\n메시지 / 작성자: 커밋 메시지와 작성자를 정규식으로.\n내용 (-S): 그 문자열 그대로의 등장 횟수가 바뀐 커밋 — 도입하거나 삭제한 커밋.\n내용 정규식 (-G): diff가 정규식과 일치하는 모든 커밋. 줄을 옮기기만 한 것도 포함됩니다.',
     searching: 'diff를 검색하는 중…',
     graph: '그래프',
     graphTitle:
