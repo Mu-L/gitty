@@ -600,13 +600,17 @@ whichever branch the log is pointed at. **Push** counts what is unpushed —
 **Push 3** — and greys out when there is nothing to send; on a branch that
 tracks nothing it publishes the branch to `origin` and sets the upstream.
 **Pull** fast-forwards from the upstream, and is greyed out when there is no
-upstream to pull from. Whatever git says appears above the log — click to
+upstream to pull from. When the branches have diverged a fast-forward is
+impossible, and Gitty asks whether to pull with a rebase instead — your local
+commits replayed on top of the upstream. Declining leaves the repository as it
+was and shows git's refusal; accepting needs a clean work tree, and a conflict
+stops the rebase for you to finish in the terminal. Whatever git says appears above the log — click to
 dismiss it; failures stay until you do.
 
 Neither can answer a prompt: there is no terminal behind them, so a push that
 wants a password or a passphrase fails with git's own message rather than
-hanging, and a pull that cannot fast-forward says so. Both are then finished by
-hand in the terminal pane, which is right there.
+hanging. Both are then finished by hand in the terminal pane, which is right
+there.
 
 ### Terminal (bottom right)
 

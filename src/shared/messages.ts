@@ -74,6 +74,12 @@ export interface MainMessages {
     readonly forgetConfirm: (command: string) => string
     readonly forgetDetail: string
     readonly forgetButton: string
+    /** A pull that could not fast-forward: the one offer worth making is to
+     *  replay the local commits on top of what was fetched. */
+    readonly rebaseTitle: string
+    readonly rebaseConfirm: string
+    readonly rebaseDetail: string
+    readonly rebaseButton: string
   }
   readonly window: {
     readonly title: string

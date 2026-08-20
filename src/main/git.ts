@@ -947,11 +947,24 @@ export function push(root: string, branch?: string): Promise<GitOpResult> {
 }
 
 /**
- * Pull, fast-forward only: a merge that cannot be resolved without a decision
- * (or an editor) is not something a button should start.
+ * Pull. Fast-forward only by default: a merge that cannot be resolved without
+ * a decision (or an editor) is not something a button should start. `rebase`
+ * is the one alternative worth offering when that fails — it replays the local
+ * commits and, unlike a merge, never opens an editor of its own.
  */
-export function pull(root: string): Promise<GitOpResult> {
-  return remoteOp(root, ['pull', '--ff-only'])
+export function pull(root: string, rebase = false): Promise<GitOpResult> {
+  return remoteOp(root, ['pull', rebase ? '--rebase' : '--ff-only'])
+}
+
+/**
+ * Did a fast-forward-only pull fail because the branches have diverged, as
+ * opposed to the network or the credentials failing? Matched on git's own
+ * words, which `remoteOp` keeps in English by running under `LC_ALL=C`.
+ */
+export function pullNeedsRebase(output: string): boolean {
+  return /not possible to fast-forward|diverging branches|need to specify how to reconcile/i.test(
+    output
+  )
 }
 
 /**

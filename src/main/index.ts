@@ -503,7 +503,24 @@ function registerIpc(): void {
   ipcMain.handle('git:push', (_e, root: string, branch: string | null) =>
     git.push(root, branch ?? undefined)
   )
-  ipcMain.handle('git:pull', (_e, root: string) => git.pull(root))
+  // Pull is fast-forward only, and the one failure worth an offer rather than
+  // a report is a branch that has diverged: the rebase is asked for natively,
+  // where the dialog is modal to the window the way discarding's is.
+  ipcMain.handle('git:pull', async (_e, root: string) => {
+    const res = await git.pull(root)
+    if (res.ok || !git.pullNeedsRebase(res.output)) return res
+    const answer = await dialog.showMessageBox(win!, {
+      type: 'question',
+      title: msg.dialog.rebaseTitle,
+      message: msg.dialog.rebaseConfirm,
+      detail: msg.dialog.rebaseDetail,
+      buttons: [msg.dialog.cancelButton, msg.dialog.rebaseButton],
+      defaultId: 0,
+      cancelId: 0
+    })
+    if (answer.response !== 1) return res
+    return git.pull(root, true)
+  })
   ipcMain.handle('git:submodules', (_e, root: string) => git.submodules(root))
   ipcMain.handle('git:submodulePull', (_e, root: string, subPath: string) =>
     git.submodulePull(root, subPath)

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Pull** offers a rebase when the branches have diverged: the fast-forward
+  fails, a dialog asks, and yes re-runs the pull with `--rebase`. Declining
+  shows git's refusal as before.
 - Tab bar: drag a tab to reorder it (the order is remembered like the open set
   is). Right-click a tab for **Rename tab…** or **Close repository**; a rename
   shows in the tab bar and the title bar, is remembered per repository, and

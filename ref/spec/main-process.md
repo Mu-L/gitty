@@ -99,6 +99,15 @@ throwing — the pane shows git's own words, and anything needing an answer is
 finished in the terminal pane. `pull` is `--ff-only`: a merge that needs a
 decision or an editor is not something a button should start.
 
+Diverged branches are the one pull failure that gets an offer rather than a
+report. The `git:pull` handler matches git's own words with `pullNeedsRebase`
+— `remoteOp` runs under `LC_ALL=C`, so they are in English — and asks natively
+whether to rebase, the dialog modal to the window the way discarding's is. Yes
+re-runs `pull --rebase`, which replays the local commits and, unlike a merge,
+opens no editor; no returns the original failure, and the strip shows what git
+first said. Everything else — credentials, the network, a dirty work tree the
+rebase then refuses — stays a report.
+
 `submodulePull` is the third caller of `remoteOp`: `submodule update --init
 --remote -- <path>`. `--remote` is what makes the file tree's item a *pull* —
 the submodule moves to the tip of the branch it tracks rather than to the
