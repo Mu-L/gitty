@@ -133,19 +133,30 @@ export function parseNumstat(raw: string): Map<string, FileChurn> {
   return out
 }
 
+/** What one commit did to the file a history is following. */
+export interface CommitNumstat {
+  /** Null for a binary revision: it has counts, but not in lines. */
+  churn: FileChurn | null
+  /**
+   * The path the file goes by **at this commit**, which is what a revision has
+   * to be read at. A rename names both sides; the second is this commit's, the
+   * first belongs to everything older.
+   */
+  path: string
+}
+
 /**
- * Parse `git log --format=%H --numstat -z` over a single path: the churn of
- * each commit, keyed by hash. A record is either a bare hash or a numstat
- * entry belonging to the hash before it; git puts a newline in front of the
- * stats, and a rename leaves the path field empty with two more NUL fields
- * behind it. A binary revision maps to null — it has counts, but not in lines.
+ * Parse `git log --format=%H --numstat -z` over a single path: what each commit
+ * did to it, keyed by hash. A record is either a bare hash or a numstat entry
+ * belonging to the hash before it; git puts a newline in front of the stats,
+ * and a rename leaves the path field empty with two more NUL fields behind it.
  */
-export function parseCommitNumstat(raw: string): Map<string, FileChurn | null> {
+export function parseCommitNumstat(raw: string): Map<string, CommitNumstat> {
   const parts = raw
     .split('\0')
     .map((s) => s.replace(/^\n+/, ''))
     .filter((s) => s.length > 0)
-  const out = new Map<string, FileChurn | null>()
+  const out = new Map<string, CommitNumstat>()
   let hash: string | null = null
   for (let i = 0; i < parts.length; i++) {
     const fields = parts[i].split('\t')
@@ -154,15 +165,61 @@ export function parseCommitNumstat(raw: string): Map<string, FileChurn | null> {
       continue
     }
     const [addStr, delStr] = fields
-    // A rename's path sits in the two records that follow, not in this one.
-    if (fields.slice(2).join('\t').length === 0) i += 2
+    // A rename's path sits in the two records that follow, not in this one, and
+    // the newer of the two is the name this commit knows the file by.
+    let path = fields.slice(2).join('\t')
+    if (path.length === 0) {
+      path = parts[i + 2] ?? parts[i + 1] ?? ''
+      i += 2
+    }
     if (hash === null) continue
-    out.set(
-      hash,
-      addStr === '-' || delStr === '-' ? null : { added: Number(addStr), deleted: Number(delStr) }
-    )
+    out.set(hash, {
+      churn:
+        addStr === '-' || delStr === '-'
+          ? null
+          : { added: Number(addStr), deleted: Number(delStr) },
+      path
+    })
   }
   return out
+}
+
+/** One object as `git cat-file --batch` answers for it. */
+export interface BatchObject {
+  /** The object's bytes, or null where git answered that it has no such one. */
+  body: Buffer | null
+}
+
+/**
+ * Split what `git cat-file --batch` has written so far into whole objects,
+ * handing back the tail that is still incomplete. The stream is length-framed
+ * rather than delimited — `<oid> <type> <size>\n`, the bytes, a newline — so a
+ * reader that does not carry its remainder across chunks loses its place, and
+ * every object after it. A request git cannot answer is a single
+ * `<what was asked> missing\n` line with no body at all.
+ */
+export function readBatchObjects(buf: Buffer): { objects: BatchObject[]; rest: Buffer } {
+  const objects: BatchObject[] = []
+  let at = 0
+  for (;;) {
+    const nl = buf.indexOf(0x0a, at)
+    if (nl < 0) break
+    const header = buf.toString('latin1', at, nl)
+    if (header.endsWith(' missing')) {
+      objects.push({ body: null })
+      at = nl + 1
+      continue
+    }
+    const size = Number(header.slice(header.lastIndexOf(' ') + 1))
+    // A header that is not a size is a stream we can no longer follow; stop
+    // rather than guess, and let the caller see fewer objects than it asked for.
+    if (!Number.isFinite(size) || size < 0) break
+    const end = nl + 1 + size
+    if (buf.length < end + 1) break
+    objects.push({ body: buf.subarray(nl + 1, end) })
+    at = end + 1
+  }
+  return { objects, rest: buf.subarray(at) }
 }
 
 export interface NameStatusEntry {

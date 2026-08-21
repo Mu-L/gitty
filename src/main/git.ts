@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import os from 'node:os'
-import { execFile } from 'node:child_process'
+import { execFile, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
 import path from 'node:path'
 import type {
@@ -34,6 +34,8 @@ import {
   parseBranches,
   parseLog,
   parseCommitNumstat,
+  readBatchObjects,
+  type CommitNumstat,
   parseNameStatus,
   parseGrep,
   parseNumstat,
@@ -55,6 +57,14 @@ const MAX_PATCH_BYTES = 2 * 1024 * 1024
 
 /** How many bytes to read when counting lines; skip files larger than this. */
 const MAX_LINE_COUNT_BYTES = 8 * 1024 * 1024
+
+/**
+ * How much of a file's past to read when counting the lines of every revision
+ * in its history. One pass over a source file's revisions is nothing; a large
+ * file with a long history is not, so the read stops here and the rest of the
+ * rows are derived rather than measured.
+ */
+const MAX_HISTORY_COUNT_BYTES = 64 * 1024 * 1024
 
 /** Untracked files inlined into the whole-work-tree diff before giving up. */
 const MAX_UNTRACKED_IN_DIFF = 50
@@ -389,32 +399,107 @@ export async function fileHistory(
 }
 
 /**
- * How long the file was at each of its commits. Reading every revision would be
- * one `git show` per row, so only the newest is counted and the rest are walked
- * backwards through the churn: what the file was before a commit is what it was
- * after it, less the lines that commit added, plus the ones it deleted. Only
- * this direction works — the newest name is the one the caller asked about,
- * while an older one may have been renamed since. A revision whose churn is not
- * in lines ends the walk: nothing older than a binary revision can be derived.
+ * Count the lines of many revisions of a file in **one** git process, by asking
+ * `cat-file --batch` for `<rev>:<path>` and reading the objects back in the
+ * order they were asked for. A `git show` per revision is what this replaces:
+ * a file with three hundred commits behind it would be three hundred processes.
+ *
+ * Each pair carries its own path, because a rename means older revisions of the
+ * same file answer to an older name. A revision that is binary, oversized or
+ * simply not there comes back null.
+ */
+async function countLinesAtRevs(
+  root: string,
+  pairs: Array<{ rev: string; filePath: string }>,
+  budget = MAX_HISTORY_COUNT_BYTES
+): Promise<Array<number | null>> {
+  if (pairs.length === 0) return []
+  return new Promise((resolve) => {
+    const out: Array<number | null> = []
+    let buf: Buffer = Buffer.alloc(0)
+    let read = 0
+    let done = false
+    const child = spawn('git', ['cat-file', '--batch'], {
+      cwd: root,
+      windowsHide: true,
+      env: { ...process.env, GIT_OPTIONAL_LOCKS: '0', LC_ALL: 'C' }
+    })
+    // Whatever has been counted stands; the rows past it are the caller's to
+    // derive. Killing the child is how the budget is enforced, since the stream
+    // would otherwise go on arriving long after the answer stopped being read.
+    const finish = (): void => {
+      if (done) return
+      done = true
+      child.kill()
+      resolve(out)
+    }
+    child.on('error', finish)
+    child.on('close', finish)
+    child.stdout.on('data', (chunk: Buffer) => {
+      read += chunk.length
+      buf = buf.length === 0 ? chunk : Buffer.concat([buf, chunk])
+      const { objects, rest } = readBatchObjects(buf)
+      buf = rest
+      for (const o of objects) {
+        const body = o.body
+        out.push(
+          body === null || body.length > MAX_LINE_COUNT_BYTES || body.includes(0x00)
+            ? null
+            : countNewlines(body)
+        )
+      }
+      if (out.length >= pairs.length || read > budget) finish()
+    })
+    // stdin is closed at once: git answers a whole batch without being paced,
+    // and nothing here reads its answers before it has asked everything.
+    child.stdin.on('error', () => {
+      /* a killed child's pipe; the objects already counted are the answer */
+    })
+    child.stdin.end(pairs.map((p) => `${p.rev}:${p.filePath}\n`).join(''))
+  })
+}
+
+/**
+ * How long the file was at each of its commits — measured, one revision at a
+ * time, in a single `cat-file` pass.
+ *
+ * Deriving them instead is what this used to do: count the newest revision and
+ * walk backwards through the churn, since what the file was before a commit is
+ * what it was after it, less the lines that commit added, plus the ones it
+ * deleted. That is exact only down a single lineage, and a file's history is
+ * not one whenever two branches both touched it: the rows are a timeline, so
+ * two lineages interleave, and every subtraction after the first crossing
+ * belongs to the wrong branch. Nothing marks the crossing in the list.
+ *
+ * The walk survives as the fallback for what the budget did not reach, anchored
+ * at the last measured row rather than only at the first. A revision whose
+ * churn is not in lines ends it: nothing older than a binary revision can be
+ * derived.
  */
 async function withLineCounts(
   root: string,
   filePath: string,
   commits: Commit[],
-  churn: Map<string, FileChurn | null>
+  numstat: Map<string, CommitNumstat>
 ): Promise<FileHistoryEntry[]> {
   if (commits.length === 0) return []
-  // Nothing newer touched the file, so at its newest commit it still goes by
-  // the name that was asked for.
-  const [head] = await countFileLines(root, [{ rev: commits[0].hash, filePath }])
-  let lines = head
-  return commits.map((commit) => {
+  // The path each revision answers to. A commit git listed without a numstat
+  // record of its own — a merge — is read at whatever name its neighbours use.
+  let name = filePath
+  const pairs = commits.map((c) => {
+    name = numstat.get(c.hash)?.path ?? name
+    return { rev: c.hash, filePath: name }
+  })
+  const measured = await countLinesAtRevs(root, pairs)
+  let lines: number | null = null
+  return commits.map((commit, i) => {
+    if (i < measured.length) lines = measured[i]
     const entry = { commit, lines }
-    const c = churn.get(commit.hash)
+    const c = numstat.get(commit.hash)
     // A merge git kept in the history has no numstat of its own; it changed
     // nothing about this file, so the count carries over untouched.
     if (lines !== null && c !== undefined) {
-      lines = c === null ? null : lines - c.added + c.deleted
+      lines = c.churn === null ? null : lines - c.churn.added + c.churn.deleted
       if (lines !== null && lines < 0) lines = null // the walk lost the thread
     }
     return entry

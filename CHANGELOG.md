@@ -46,6 +46,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   request moves to the day the work was replayed — so a branch merged from
   someone else landed in a block of its own instead of among the dates it was
   written on. A file's history is ordered the same way.
+- A file's history counts the lines of every revision instead of deriving all of
+  them from the newest one's churn. The derivation only held down a single
+  lineage, so any file two branches had both touched showed wrong lengths from
+  the first crossing downwards. One `git cat-file --batch` reads them all.
 - A rebase no longer hides the newest commits in a log that has been scrolled:
   refreshing re-reads the whole loaded window and replaces it, where it used to
   append what it did not recognise.

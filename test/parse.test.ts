@@ -7,6 +7,7 @@ import {
   parseNameStatus,
   parseNumstat,
   parseCommitNumstat,
+  readBatchObjects,
   parseStatus,
   UNCOMMITTED_SHA,
   RS,
@@ -239,17 +240,78 @@ describe('parseCommitNumstat', () => {
       `${HASH2}\0\n1\t1\t\0src/old.ts\0src/a.ts\0` +
       `${HASH3}\0\n80\t0\tsrc/old.ts\0`
     expect([...parseCommitNumstat(raw)]).toEqual([
-      [HASH, { added: 25, deleted: 8 }],
-      [HASH2, { added: 1, deleted: 1 }],
-      [HASH3, { added: 80, deleted: 0 }]
+      [HASH, { churn: { added: 25, deleted: 8 }, path: 'src/a.ts' }],
+      // The rename's newer name is the one that commit reads at; everything
+      // older answers to the name before it.
+      [HASH2, { churn: { added: 1, deleted: 1 }, path: 'src/a.ts' }],
+      [HASH3, { churn: { added: 80, deleted: 0 }, path: 'src/old.ts' }]
     ])
   })
 
   it('marks a binary revision null and leaves a commit with no stats out', () => {
     const raw = `${HASH}\0\n-\t-\timg.png\0` + `${HASH2}\0` + `${HASH3}\0\n2\t0\timg.png\0`
     const m = parseCommitNumstat(raw)
-    expect(m.get(HASH)).toBeNull()
+    expect(m.get(HASH)).toEqual({ churn: null, path: 'img.png' })
     expect(m.has(HASH2)).toBe(false)
-    expect(m.get(HASH3)).toEqual({ added: 2, deleted: 0 })
+    expect(m.get(HASH3)).toEqual({ churn: { added: 2, deleted: 0 }, path: 'img.png' })
+  })
+
+  it('keeps a tab in a path, which splits the record but not the name', () => {
+    const raw = `${HASH}\0\n1\t0\ta\tb.ts\0`
+    expect(parseCommitNumstat(raw).get(HASH)).toEqual({ churn: { added: 1, deleted: 0 }, path: 'a\tb.ts' })
+  })
+})
+
+describe('readBatchObjects', () => {
+  const obj = (oid: string, body: string): Buffer =>
+    Buffer.concat([Buffer.from(`${oid} blob ${body.length}\n`), Buffer.from(body), Buffer.from('\n')])
+
+  it('reads whole objects and keeps the incomplete tail', () => {
+    const whole = Buffer.concat([obj('a'.repeat(40), 'one\ntwo\n'), obj('b'.repeat(40), 'x\n')])
+    const { objects, rest } = readBatchObjects(whole)
+    expect(objects.map((o) => o.body?.toString())).toEqual(['one\ntwo\n', 'x\n'])
+    expect(rest.length).toBe(0)
+  })
+
+  it('does not lose its place when an object is split across chunks', () => {
+    const whole = Buffer.concat([obj('a'.repeat(40), 'one\ntwo\n'), obj('b'.repeat(40), 'x\n')])
+    for (let cut = 1; cut < whole.length; cut++) {
+      const first = readBatchObjects(whole.subarray(0, cut))
+      const second = readBatchObjects(Buffer.concat([first.rest, whole.subarray(cut)]))
+      const bodies = [...first.objects, ...second.objects].map((o) => o.body?.toString())
+      expect(bodies).toEqual(['one\ntwo\n', 'x\n'])
+    }
+  })
+
+  it('reads a missing object as a body-less record, and goes on', () => {
+    const raw = Buffer.concat([
+      Buffer.from('deadbeef:no/such.ts missing\n'),
+      obj('a'.repeat(40), 'x\n')
+    ])
+    const { objects } = readBatchObjects(raw)
+    expect(objects.map((o) => o.body?.toString() ?? null)).toEqual([null, 'x\n'])
+  })
+
+  it('counts a zero-length object rather than skipping it', () => {
+    const { objects } = readBatchObjects(obj('a'.repeat(40), ''))
+    expect(objects).toHaveLength(1)
+    expect(objects[0].body?.length).toBe(0)
+  })
+
+  it('keeps bytes that are not text intact', () => {
+    const body = Buffer.from([0x00, 0x0a, 0xff])
+    const raw = Buffer.concat([
+      Buffer.from(`${'a'.repeat(40)} blob ${body.length}\n`),
+      body,
+      Buffer.from('\n')
+    ])
+    const { objects } = readBatchObjects(raw)
+    expect([...(objects[0].body ?? [])]).toEqual([0x00, 0x0a, 0xff])
+  })
+
+  it('stops at a header it cannot read rather than guessing', () => {
+    const { objects, rest } = readBatchObjects(Buffer.from('nonsense\nmore\n'))
+    expect(objects).toEqual([])
+    expect(rest.length).toBeGreaterThan(0)
   })
 })

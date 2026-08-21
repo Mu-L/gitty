@@ -91,6 +91,24 @@ another. A file's history is read the same way, for the same reason: its rows
 carry the same date column. Its churn pass is not, because that one is read
 into a map from hash to numbers and has no order to be in.
 
+That history's other column, how long the file was at each commit, is measured
+rather than derived: one `git cat-file --batch` process is asked for every
+`<rev>:<path>` at once and the objects come back in the order they were asked
+for, so three hundred revisions cost one process rather than three hundred
+`git show`s — and on a thousand-commit file the read is a fraction of the two
+`--follow` passes that found the commits. The path travels with each revision
+because a rename means an older one answers to an older name, which is what the
+numstat records carry (a rename names both sides; the newer is that commit's).
+
+Deriving them is what this used to do — count the newest revision, then walk
+backwards subtracting each commit's churn — and it is exact only down a single
+lineage. A file's history is not one whenever two branches both touched it: the
+rows are a timeline, so the two lineages interleave, nothing in the list marks
+the crossing, and every subtraction after the first one belongs to the wrong
+branch. The walk survives as the fallback for rows past
+`MAX_HISTORY_COUNT_BYTES`, where it is anchored at the last measured row rather
+than only at the first.
+
 `src/renderer/src/lanes.ts` computes the commit graph — deliberately not by
 parsing `git log --graph`, whose ASCII is typeset for a terminal. A lane holds
 the hash it expects next; a commit takes the first lane expecting it or opens
