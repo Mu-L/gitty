@@ -219,6 +219,8 @@ export const ko: RendererMessages = {
     worktreeClean: '(깨끗함)',
     worktreeUncommitted: (n: number) => `(커밋 안 함 ${n}개)`,
     noCommitsYet: '커밋이 아직 없습니다.',
+    dateOutOfOrder:
+      '이 행의 날짜가 바로 위 행보다 늦습니다. 로그는 작성 날짜순이지만 시간보다 계보가 우선합니다. 부모 커밋은 항상 자식 아래에 그려지며, 리베이스나 체리픽된 커밋은 작성된 당시의 날짜를 유지합니다.',
     filter: '필터',
     filterTitle: '커밋 목록 걸러내기',
     filterPlaceholder: '커밋 필터링…',

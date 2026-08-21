@@ -223,6 +223,8 @@ export const en: RendererMessages = {
     worktreeClean: '(clean)',
     worktreeUncommitted: (n: number) => `(${n} uncommitted)`,
     noCommitsYet: 'No commits yet.',
+    dateOutOfOrder:
+      'This row is dated later than the one above it. The log reads by the author date, but ancestry outranks the clock: a parent is always drawn below its children, and a commit that was rebased or cherry-picked keeps the date it was written on.',
     filter: 'Filter',
     filterTitle: 'Filter the commit list',
     filterPlaceholder: 'Filter commits…',

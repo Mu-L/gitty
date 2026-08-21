@@ -84,7 +84,8 @@ whenever a commit is replayed rather than made — a rebase, a cherry-pick, a
 squashed pull request, an `am`'d patch. Merge such work from several people and
 the dates on screen stop reading downwards. The flag also settles which lane
 advances next where several are open, so the graph stays narrow; what it cannot
-do is put a child below its parent, since ancestry outranks the clock. Every
+do is put a child below its parent, since ancestry outranks the clock — the
+rows that leaves out of order are marked in `LogPane` rather than re-sorted. Every
 pass that pages or shapes the log takes it, the filter's two rev-list passes
 included, or a page boundary would fall in one order and its rows be shaped in
 another. A file's history is read the same way, for the same reason: its rows

@@ -221,6 +221,8 @@ export const de: RendererMessages = {
     worktreeClean: '(sauber)',
     worktreeUncommitted: (n: number) => `(${n} nicht committet)`,
     noCommitsYet: 'Noch keine Commits.',
+    dateOutOfOrder:
+      'Diese Zeile ist später datiert als die darüber. Das Log folgt dem Autordatum, doch die Abstammung geht der Uhr vor: ein Eltern-Commit steht immer unter seinen Kindern, und ein rebaseter oder gecherrypickter Commit behält das Datum, an dem er geschrieben wurde.',
     filter: 'Filter',
     filterTitle: 'Die Commit-Liste filtern',
     filterPlaceholder: 'Commits filtern…',

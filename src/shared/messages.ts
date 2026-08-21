@@ -389,6 +389,9 @@ export interface RendererMessages {
     readonly worktreeClean: string
     readonly worktreeUncommitted: (n: number) => string
     readonly noCommitsYet: string
+    /** Hover text on a date that is later than the row above it, which
+     *  ancestry rather than the clock put there. */
+    readonly dateOutOfOrder: string
     /** The header button that opens and closes the filter strip. */
     readonly filter: string
     readonly filterTitle: string

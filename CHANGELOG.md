@@ -45,7 +45,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   orders by the commit date, which a rebase, a cherry-pick or a squashed pull
   request moves to the day the work was replayed — so a branch merged from
   someone else landed in a block of its own instead of among the dates it was
-  written on. A file's history is ordered the same way.
+  written on. A file's history is ordered the same way. Where ancestry still
+  puts a date out of order — a parent authored later than the children replayed
+  on top of it — the stamp is marked and its tooltip says why.
 - A file's history counts the lines of every revision instead of deriving all of
   them from the newest one's churn. The derivation only held down a single
   lineage, so any file two branches had both touched showed wrong lengths from

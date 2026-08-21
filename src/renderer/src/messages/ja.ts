@@ -220,6 +220,8 @@ export const ja: RendererMessages = {
     worktreeClean: '（クリーン）',
     worktreeUncommitted: (n: number) => `（未コミット ${n} 件）`,
     noCommitsYet: 'コミットはまだありません。',
+    dateOutOfOrder:
+      'この行の日付は一つ上の行より新しくなっています。ログは作成日時順ですが、時刻より系譜が優先されます。親コミットは常に子より下に描かれ、リベースやチェリーピックされたコミットは書かれた時の日付を保ちます。',
     filter: 'フィルタ',
     filterTitle: 'コミット一覧を絞り込む',
     filterPlaceholder: 'コミットをフィルタ…',

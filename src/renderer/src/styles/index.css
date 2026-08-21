@@ -837,6 +837,15 @@ button:disabled:hover {
   color: var(--fg-dim);
 }
 
+/* A date later than the row above it: ancestry put the row there, not the
+   clock. Marked without taking a column's width — the stamps are already at
+   the edge of theirs — so the run of dates still lines up. */
+.commit-time.out-of-order {
+  color: var(--yellow);
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+
 /* Fixed widths keep the subject column aligned across rows. */
 .commit-author {
   flex: none;

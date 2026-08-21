@@ -223,6 +223,8 @@ export const fr: RendererMessages = {
     worktreeClean: '(propre)',
     worktreeUncommitted: (n: number) => `(${n} non validé${n === 1 ? '' : 's'})`,
     noCommitsYet: 'Aucun commit pour l’instant.',
+    dateOutOfOrder:
+      'Cette ligne est datée après celle du dessus. Le journal suit la date de création, mais la filiation prime sur l’horloge : un parent est toujours dessiné sous ses enfants, et un commit rebasé ou picoré garde la date à laquelle il a été écrit.',
     filter: 'Filtrer',
     filterTitle: 'Filtrer la liste des commits',
     filterPlaceholder: 'Filtrer les commits…',

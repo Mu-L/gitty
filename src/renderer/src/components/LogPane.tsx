@@ -128,6 +128,19 @@ export function LogPane({
   // Recomputed over the whole loaded list, which is what keeps the first page
   // identical once the second arrives — see lanes.ts.
   const lanes = useMemo(() => (graph ? layoutLanes(commits) : null), [graph, commits])
+
+  /**
+   * Rows whose date is later than the row above them. The log is ordered by
+   * the author date, but a parent is always drawn below its children, so a
+   * commit replayed onto newer work — rebased, cherry-picked, `am`'d — sits
+   * among rows it predates and the column stops reading downwards. Marking
+   * the row is all that can be done: re-sorting past the ancestry would draw
+   * the lanes running backwards.
+   */
+  const backwards = useMemo(() => {
+    const times = commits.map((c) => Date.parse(c.date))
+    return times.map((t, i) => i > 0 && !Number.isNaN(t) && !Number.isNaN(times[i - 1]) && t > times[i - 1])
+  }, [commits])
   // The Changes row sits above the log and takes part in keyboard navigation.
   const hashes = [WORKTREE_ROW, ...commits.map((c) => c.hash)]
   const index = hashes.indexOf(selected ?? '')
@@ -270,7 +283,12 @@ export function LogPane({
           >
             {lanes && <GraphCell row={lanes.rows[i]} lanes={lanes.lanes} />}
             <span className="commit-hash">{c.short}</span>
-            <span className="commit-time">{stamp(c.date, time, msg.time)}</span>
+            <span
+              className={`commit-time${backwards[i] ? ' out-of-order' : ''}`}
+              title={backwards[i] ? msg.log.dateOutOfOrder : undefined}
+            >
+              {stamp(c.date, time, msg.time)}
+            </span>
             <span className="commit-author">{c.author}</span>
             {c.refs && <span className="commit-refs">({c.refs})</span>}
             <span className="commit-subject">{c.subject}</span>

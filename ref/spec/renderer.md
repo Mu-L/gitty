@@ -52,6 +52,14 @@ that outlived its zone name looks like). And "today" is a calendar day *in the
 displayed zone*, so `stamp` reads both the commit and now through it, or a
 midnight-adjacent commit shows a time on the wrong day.
 
+A date that still reads backwards is **marked, not re-sorted**. The log is
+ordered by the author date, but a parent is always drawn below its children, so
+a commit replayed onto newer work — rebased, cherry-picked, `am`'d — sits among
+rows it predates. `LogPane` compares each stamp with the row above it and gives
+the ones that go the wrong way a colour, a dotted underline and a tooltip
+saying why. Sorting past the ancestry is the alternative, and it would draw the
+lanes running backwards.
+
 ## Settings, and where a preference lives
 
 `prefs.ts` owns every app-wide preference: the state, the `gitty.*`

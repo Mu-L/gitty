@@ -222,6 +222,8 @@ export const es: RendererMessages = {
     worktreeClean: '(limpio)',
     worktreeUncommitted: (n: number) => `(${n} sin confirmar)`,
     noCommitsYet: 'Aún no hay commits.',
+    dateOutOfOrder:
+      'Esta fila tiene una fecha posterior a la de arriba. El registro se ordena por la fecha de autoría, pero la ascendencia manda sobre el reloj: un commit padre siempre se dibuja debajo de sus hijos, y un commit rebasado o aplicado con cherry-pick conserva la fecha en que se escribió.',
     filter: 'Filtrar',
     filterTitle: 'Filtrar la lista de commits',
     filterPlaceholder: 'Filtrar commits…',

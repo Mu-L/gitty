@@ -217,6 +217,8 @@ export const zh: RendererMessages = {
     worktreeClean: '（干净）',
     worktreeUncommitted: (n: number) => `（${n} 个未提交）`,
     noCommitsYet: '暂无提交。',
+    dateOutOfOrder:
+      '这一行的日期晚于它上面一行。日志按作者日期排序，但祖先关系优先于时间：父提交永远画在子提交下方，而经过 rebase 或 cherry-pick 的提交保留它被写下时的日期。',
     filter: '过滤',
     filterTitle: '过滤提交列表',
     filterPlaceholder: '过滤提交…',
