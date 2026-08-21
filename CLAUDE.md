@@ -251,4 +251,5 @@ Terminal sessions end only in `destroySession` / `destroyTerminals(root)`.
 | `ref/spec/main-process.md` | staging and the patch surgery, search and the commit graph, git access, the local web server, gource, recent repositories, one instance or several, terminal sessions, the watcher and refresh |
 | `ref/spec/renderer.md` | messages and i18n, time, settings, tabs, full screen, hiding panes, the `View` union and file icons, browsing history, browsing another branch, DiffPane, finding text |
 | `ref/spec/file-viewers.md` | CodePane, MarkdownPane, ImagePane, highlighting, the two outlines, links and images |
+| `ref/spec/prose.md` | reading marks: the analysers, the reader's two config files, how a mark reaches the document |
 | `ref/spec/lazy-loading.md` | the four chunks, the import invariant, how to add a heavy dependency |

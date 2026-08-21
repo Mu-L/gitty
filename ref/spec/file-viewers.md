@@ -70,6 +70,10 @@ later would drag the reader back up. A hover title says so, written onto the
 token before rendering rather than onto the DOM after it — same reason as the
 images — and never over a title the author wrote.
 
+Prose can be marked as well as markup — proper nouns underlined by a language
+analyser — through a `text` render rule fed from the main process. It is off by
+default and has a spec of its own: `ref/spec/prose.md`.
+
 ## Images
 
 Images are the one thing the renderer cannot resolve for itself: a relative
