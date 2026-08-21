@@ -43,9 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the rows built on it stay as they are, everything else recedes. The walk
   covers the commits loaded so far.
 
-- Dragging the separator between the two rows to a window edge folds that row
-  away and gives the other one the whole window; dragging the separator back
-  restores the split.
+- Dragging a separator to a window edge folds that side away — a row, or one
+  side of a row — and gives its neighbour the freed space; dragging the
+  separator back restores the split.
 
 ### Fixed
 

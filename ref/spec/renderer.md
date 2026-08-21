@@ -228,13 +228,15 @@ shells. Its split tree therefore lives beside the xterm registry in
 `destroyTerminals(root)`, which `RepoTab` calls when it unmounts — that is, when
 the repository tab closes.
 
-A row folds away the way a pane hides, but by dragging rather than by button.
-The two row panels are `collapsible`, so dragging their separator past the
-midpoint of `minSize` collapses the row to zero height and the other row takes
-the whole window. The collapse is a resize, not a hide: the row stays mounted,
-a terminal in it keeps running and re-fits through `TerminalPane`'s
+A row or a side of a row folds away the way a pane hides, but by dragging
+rather than by button. The two row panels and the two panels of each row are
+`collapsible`, so dragging a separator past the midpoint of `minSize` collapses
+the panel it is pressed against to zero and its neighbour takes the freed space
+— the row separator folds the opposite row, either vertical separator the pane
+on the far side. The collapse is a resize, not a hide: the panels stay mounted,
+a terminal in one keeps running and re-fits through `TerminalPane`'s
 `ResizeObserver`, and dragging the separator back restores the split. Because a
-collapsed size is an ordinary layout size, a folded row is persisted — and
+collapsed size is an ordinary layout size, a folded pane is persisted — and
 stays folded — across restarts like any other.
 
 ## The `View` union drives the UI

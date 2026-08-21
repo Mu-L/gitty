@@ -1336,7 +1336,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         <Panel defaultSize={bottomRow ? '55%' : undefined} minSize="20%" collapsible>
           <Group orientation="horizontal" id={groupId(root, `top-${topKey}`)} disabled={!active}>
             {panes.files && (
-            <Panel defaultSize={panes.diff ? '38%' : undefined} minSize="15%">
+            // The vertical separator folds a side away the way the row one does.
+            <Panel defaultSize={panes.diff ? '38%' : undefined} minSize="15%" collapsible>
               <FilesView
                 view={view}
                 title={filesTitle}
@@ -1375,7 +1376,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
             )}
             {panes.files && panes.diff && <Separator className="sep-v" />}
             {panes.diff && (
-            <Panel minSize="20%">
+            // Its pair: dragging the separator the other way folds the diff.
+            <Panel minSize="20%" collapsible>
               <div className={paneClass('diff')}>
                 <DiffHeader
                   view={view}
@@ -1486,7 +1488,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
             disabled={!active}
           >
             {panes.log && (
-            <Panel defaultSize={panes.terminal ? '58%' : undefined} minSize="20%">
+            // The same fold in the bottom row: the log or the terminal gives
+            // the other one the whole width.
+            <Panel defaultSize={panes.terminal ? '58%' : undefined} minSize="20%" collapsible>
               <div className={paneClass('log')}>
                 <div className="pane-header" onDoubleClick={headerDoubleClick('log')}>
                   {fullButton('log')}
@@ -1596,7 +1600,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
             )}
             {panes.log && panes.terminal && <Separator className="sep-v" />}
             {panes.terminal && (
-            <Panel minSize="15%">
+            // Its pair: the terminal folds away the same way.
+            <Panel minSize="15%" collapsible>
               {/* A repo tab owns its terminal group; the shells are keyed by
                   session id in the main process, so they survive tab switches
                   and hiding this pane, and are disposed when the tab closes.
