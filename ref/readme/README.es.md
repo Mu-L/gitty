@@ -75,7 +75,7 @@ Cosas que los demás navegadores de git, en su mayoría, no hacen:
   elección de zona; aquí la eliges tú, y toda la interfaz — log, blame, historial
   de archivo, la frontera entre «hoy» y una fecha — la sigue.
 
-![Gitty 0.1.8](../../ref/gitty-0.1.8.png)
+![Gitty 0.2.0](../../ref/gitty-0.2.0.png)
 
 ## ¿Por qué otro más? <a id="why-another-one"></a>
 
@@ -109,18 +109,18 @@ Dos cosas más que quería y que casi nadie ofrecía: **vista previa de Markdown
 El `.deb` es el camino más corto — sin Node, sin compilación:
 
 ```bash
-wget https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_amd64.deb
-sudo dpkg -i gitty-desktop_0.1.8_amd64.deb
+wget https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_amd64.deb
+sudo dpkg -i gitty-desktop_0.2.0_amd64.deb
 ```
 
 Instala `/usr/bin/gitty`, una entrada del menú de aplicaciones con su icono, y
 corre con la sandbox de Chromium **activada** — véase
 [Integración de escritorio en Linux](manual.es.md#linux-desktop-integration).
 
-A su lado hay un [`.deb` arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_arm64.deb)
+A su lado hay un [`.deb` arm64](https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_arm64.deb)
 y un AppImage para las distribuciones sin dpkg
-([x86_64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-x86_64.AppImage),
-[arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-arm64.AppImage)) —
+([x86_64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-x86_64.AppImage),
+[arm64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-arm64.AppImage)) —
 la segunda opción, porque un AppImage no puede instalar el ayudante de la sandbox.
 Las versiones anteriores están en la
 [página de versiones](https://github.com/baojie/gitty/releases).

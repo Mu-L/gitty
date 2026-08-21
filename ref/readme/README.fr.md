@@ -81,7 +81,7 @@ Ce que les autres navigateurs git ne font pour la plupart pas :
   journal, blame, historique de fichier, la frontière entre « aujourd'hui » et
   une date — suit.
 
-![Gitty 0.1.8](../../ref/gitty-0.1.8.png)
+![Gitty 0.2.0](../../ref/gitty-0.2.0.png)
 
 ## Pourquoi un de plus ? <a id="why-another-one"></a>
 
@@ -116,18 +116,18 @@ Markdown**, et un **copier-coller qui marche** partout dans la fenêtre.
 Le `.deb` est le chemin le plus court — pas de Node, pas de build :
 
 ```bash
-wget https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_amd64.deb
-sudo dpkg -i gitty-desktop_0.1.8_amd64.deb
+wget https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_amd64.deb
+sudo dpkg -i gitty-desktop_0.2.0_amd64.deb
 ```
 
 Il installe `/usr/bin/gitty`, une entrée de menu d'application avec son icône, et
 tourne avec le bac à sable de Chromium **activé** — voir
 [Intégration au bureau Linux](manual.fr.md#linux-desktop-integration).
 
-À côté se trouvent un [`.deb` arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_arm64.deb)
+À côté se trouvent un [`.deb` arm64](https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_arm64.deb)
 et une AppImage pour les distributions sans dpkg
-([x86_64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-x86_64.AppImage),
-[arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-arm64.AppImage)) —
+([x86_64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-x86_64.AppImage),
+[arm64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-arm64.AppImage)) —
 le second choix, car une AppImage ne peut pas installer l'aide au bac à sable. Les
 versions plus anciennes sont sur la [page des versions](https://github.com/baojie/gitty/releases).
 

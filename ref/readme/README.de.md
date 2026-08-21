@@ -79,7 +79,7 @@ Dinge, die die anderen Git-Browser meist nicht tun:
   der Zone; hier trifft man sie, und die ganze Oberfläche — Log, Blame,
   Datei-Historie, die Grenze zwischen „heute" und einem Datum — folgt.
 
-![Gitty 0.1.8](../../ref/gitty-0.1.8.png)
+![Gitty 0.2.0](../../ref/gitty-0.2.0.png)
 
 ## Warum noch einer? <a id="why-another-one"></a>
 
@@ -114,18 +114,18 @@ im Fenster.
 Die `.deb`-Datei ist der kürzeste Weg — kein Node, kein Build:
 
 ```bash
-wget https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_amd64.deb
-sudo dpkg -i gitty-desktop_0.1.8_amd64.deb
+wget https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_amd64.deb
+sudo dpkg -i gitty-desktop_0.2.0_amd64.deb
 ```
 
 Sie installiert `/usr/bin/gitty`, einen Eintrag im Anwendungsmenü mit Symbol, und
 läuft mit Chromiums Sandbox **an** — siehe
 [Linux-Desktop-Integration](manual.de.md#linux-desktop-integration).
 
-Daneben liegen ein [arm64-`.deb`](https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_arm64.deb)
+Daneben liegen ein [arm64-`.deb`](https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_arm64.deb)
 und ein AppImage für Distributionen ohne dpkg
-([x86_64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-x86_64.AppImage),
-[arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-arm64.AppImage)) —
+([x86_64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-x86_64.AppImage),
+[arm64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-arm64.AppImage)) —
 die zweite Wahl, weil ein AppImage den Sandbox-Helfer nicht installieren kann.
 Ältere Fassungen liegen auf der
 [Releases-Seite](https://github.com/baojie/gitty/releases).

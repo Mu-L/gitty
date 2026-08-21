@@ -57,7 +57,7 @@
   永远是一个时区选择；在这里你来定，整个 UI——日志、blame、文件历史、"今天"与某个日
   期的分界——都会跟随。
 
-![Gitty 0.1.8](../../ref/gitty-0.1.8.png)
+![Gitty 0.2.0](../../ref/gitty-0.2.0.png)
 
 ## 为什么又造一个？ <a id="why-another-one"></a>
 
@@ -89,17 +89,17 @@
 `.deb` 是上手最快的路——不用装 Node，不用构建：
 
 ```bash
-wget https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_amd64.deb
-sudo dpkg -i gitty-desktop_0.1.8_amd64.deb
+wget https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_amd64.deb
+sudo dpkg -i gitty-desktop_0.2.0_amd64.deb
 ```
 
 它会装上 `/usr/bin/gitty`、一个带图标的应用程序菜单条目，并且带着 Chromium 沙箱
 **开启**运行——见[Linux 桌面集成](manual.zh-CN.md#linux-desktop-integration)。
 
-旁边还有 [arm64 的 `.deb`](https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_arm64.deb)，
+旁边还有 [arm64 的 `.deb`](https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_arm64.deb)，
 以及给没有 dpkg 的发行版用的 AppImage
-（[x86_64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-x86_64.AppImage)、
-[arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-arm64.AppImage)）——
+（[x86_64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-x86_64.AppImage)、
+[arm64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-arm64.AppImage)）——
 它是第二选择，因为 AppImage 装不了沙箱辅助程序。旧版本都在
 [releases 页](https://github.com/baojie/gitty/releases)。
 

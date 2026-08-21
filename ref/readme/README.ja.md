@@ -68,7 +68,7 @@
   セット付きで記録するので、タイムスタンプは常にゾーンの選択です。ここでそれを選べ
   ば、ログ・blame・ファイル履歴・「今日」と日付の境目まで、UI 全体がそれに従います。
 
-![Gitty 0.1.8](../../ref/gitty-0.1.8.png)
+![Gitty 0.2.0](../../ref/gitty-0.2.0.png)
 
 ## なぜもう一つ作るのか <a id="why-another-one"></a>
 
@@ -100,18 +100,18 @@
 `.deb` が最短の入り口です。Node もビルドも不要です:
 
 ```bash
-wget https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_amd64.deb
-sudo dpkg -i gitty-desktop_0.1.8_amd64.deb
+wget https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_amd64.deb
+sudo dpkg -i gitty-desktop_0.2.0_amd64.deb
 ```
 
 これで `/usr/bin/gitty`、アイコン付きのアプリケーションメニューエントリがインストー
 ルされ、Chromium のサンドボックスを**有効にしたまま**動きます —
 [Linux デスクトップ統合](manual.ja.md#linux-desktop-integration)を参照。
 
-隣には [arm64 の `.deb`](https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_arm64.deb)
+隣には [arm64 の `.deb`](https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_arm64.deb)
 があり、dpkg の無いディストリビューション向けには AppImage
-（[x86_64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-x86_64.AppImage)、
-[arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-arm64.AppImage)）
+（[x86_64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-x86_64.AppImage)、
+[arm64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-arm64.AppImage)）
 があります。こちらは第二候補です。AppImage はサンドボックスのヘルパーをインストール
 できないからです。旧バージョンは[リリースページ](https://github.com/baojie/gitty/releases)
 にあります。

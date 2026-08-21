@@ -72,7 +72,7 @@
   и весь интерфейс — журнал, blame, история файла, граница между «сегодня» и датой —
   следует за ним.
 
-![Gitty 0.1.8](../../ref/gitty-0.1.8.png)
+![Gitty 0.2.0](../../ref/gitty-0.2.0.png)
 
 ## Зачем ещё один? <a id="why-another-one"></a>
 
@@ -105,18 +105,18 @@ markdown** и **копирование-вставку, которая прост
 `.deb` — самый короткий путь: ни Node, ни сборки:
 
 ```bash
-wget https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_amd64.deb
-sudo dpkg -i gitty-desktop_0.1.8_amd64.deb
+wget https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_amd64.deb
+sudo dpkg -i gitty-desktop_0.2.0_amd64.deb
 ```
 
 Он ставит `/usr/bin/gitty`, запись в меню приложений со значком, и работает с
 песочницей Chromium **включённой** — см.
 [Интеграция с рабочим столом Linux](manual.ru.md#linux-desktop-integration).
 
-Рядом лежат [`.deb` для arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_arm64.deb)
+Рядом лежат [`.deb` для arm64](https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_arm64.deb)
 и AppImage для дистрибутивов без dpkg
-([x86_64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-x86_64.AppImage),
-[arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-arm64.AppImage)) —
+([x86_64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-x86_64.AppImage),
+[arm64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-arm64.AppImage)) —
 это второй выбор, потому что AppImage не может установить помощник песочницы. Более
 старые версии — на [странице релизов](https://github.com/baojie/gitty/releases).
 

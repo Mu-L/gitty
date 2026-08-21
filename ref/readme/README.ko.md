@@ -64,7 +64,7 @@
   함께 기록하므로, 시간 표시는 언제나 시간대의 선택입니다. 여기서는 당신이 선택하고,
   UI 전체 — 로그, blame, 파일 히스토리, "오늘"과 어떤 날짜의 경계 — 가 따라갑니다.
 
-![Gitty 0.1.8](../../ref/gitty-0.1.8.png)
+![Gitty 0.2.0](../../ref/gitty-0.2.0.png)
 
 ## 왜 또 하나를? <a id="why-another-one"></a>
 
@@ -96,18 +96,18 @@
 `.deb`가 가장 빠른 길입니다 — Node도 빌드도 필요 없습니다:
 
 ```bash
-wget https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_amd64.deb
-sudo dpkg -i gitty-desktop_0.1.8_amd64.deb
+wget https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_amd64.deb
+sudo dpkg -i gitty-desktop_0.2.0_amd64.deb
 ```
 
 `/usr/bin/gitty`, 아이콘이 딸린 애플리케이션 메뉴 항목이 설치되고, Chromium 샌드박스가
 **켜진** 채로 실행됩니다 —
 [Linux 데스크톱 통합](manual.ko.md#linux-desktop-integration)을 보세요.
 
-옆에는 [arm64 `.deb`](https://github.com/baojie/gitty/releases/download/v0.1.8/gitty-desktop_0.1.8_arm64.deb)가
+옆에는 [arm64 `.deb`](https://github.com/baojie/gitty/releases/download/v0.2.0/gitty-desktop_0.2.0_arm64.deb)가
 있고, dpkg가 없는 배포판을 위한 AppImage
-([x86_64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-x86_64.AppImage),
-[arm64](https://github.com/baojie/gitty/releases/download/v0.1.8/Gitty-0.1.8-arm64.AppImage))도
+([x86_64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-x86_64.AppImage),
+[arm64](https://github.com/baojie/gitty/releases/download/v0.2.0/Gitty-0.2.0-arm64.AppImage))도
 있습니다. AppImage는 샌드박스 헬퍼를 설치할 수 없으므로 두 번째 선택입니다. 예전
 버전은 [릴리스 페이지](https://github.com/baojie/gitty/releases)에 있습니다.
 
