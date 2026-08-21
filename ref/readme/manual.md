@@ -144,6 +144,11 @@ would leave nothing to click. Hidden panes are remembered across restarts, and
 the terminal pane is only put away, never closed: its shells keep running and
 come back with their scrollback when it does.
 
+A row can also be folded away by dragging the separator between the two rows to
+a window edge — the other row then takes the whole window, and dragging the
+separator back restores the split. Useful when one half of the window deserves
+reading at full height.
+
 ## The panes
 
 ### Changes (top left)

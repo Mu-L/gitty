@@ -43,6 +43,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the rows built on it stay as they are, everything else recedes. The walk
   covers the commits loaded so far.
 
+- Dragging the separator between the two rows to a window edge folds that row
+  away and gives the other one the whole window; dragging the separator back
+  restores the split.
+
 ### Fixed
 
 - The commit log is ordered by the author date, the one in its column. git

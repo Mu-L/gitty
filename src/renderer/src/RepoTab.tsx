@@ -1331,7 +1331,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         disabled={!active}
       >
         {topRow && (
-        <Panel defaultSize={bottomRow ? '55%' : undefined} minSize="20%">
+        // Collapsible: dragging the row separator past its minSize folds the
+        // row away entirely, so the other row can be read at full height.
+        <Panel defaultSize={bottomRow ? '55%' : undefined} minSize="20%" collapsible>
           <Group orientation="horizontal" id={groupId(root, `top-${topKey}`)} disabled={!active}>
             {panes.files && (
             <Panel defaultSize={panes.diff ? '38%' : undefined} minSize="15%">
@@ -1476,7 +1478,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         {topRow && bottomRow && <Separator className="sep-h" />}
 
         {bottomRow && (
-        <Panel minSize="20%">
+        // Its pair: dragging the separator down folds this row the same way.
+        <Panel minSize="20%" collapsible>
           <Group
             orientation="horizontal"
             id={groupId(root, `bottom-${bottomKey}`)}
