@@ -2,7 +2,7 @@
 
 [English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Français](README.fr.md) · **Deutsch** · [Español](README.es.md) · [Русский](README.ru.md) · [Português](README.pt.md)
 
-> **Übersetzt am 2026-08-16.**
+> **Übersetzt am 2026-08-21.**
 > Die [englische README](../../README.md) ist die offizielle Fassung und die
 > einzige, die weiter gepflegt wird. Dieses Dokument ist eine Momentaufnahme
 > davon; wo beide sich widersprechen, gilt das Englische. Dieses Dokument deckt
@@ -67,9 +67,10 @@ Dinge, die die anderen Git-Browser meist nicht tun:
 - **Die Historie, an deinen Browser ausgeliefert.** **Open in Browser** reicht
   einen Commit — seine Metadaten, seine Dateien, seine Diffs — an den
   System-Browser weiter, von einem Webserver in der Anwendung, der an
-  `127.0.0.1` gebunden ist — dein eigener Browser und sonst niemand. Commits sind
-  echte URLs, also lässt sich die Historie in Tabs lesen, offen halten und mit
-  der Suche des Browsers durchsuchen, solange das Repository offen ist.
+  `127.0.0.1` gebunden ist und dessen URLs ein für diese Sitzung geprägtes Token
+  tragen. Commits sind echte URLs, also lässt sich die Historie in Tabs lesen,
+  offen halten und mit der Suche des Browsers durchsuchen, solange die Anwendung
+  läuft.
 - **[gource](https://gource.io/) aus dem Commits-Menü**, wenn es installiert ist:
   die ganze Historie des Repositories als Animation, in einem eigenen Fenster. Wo
   gource fehlt, wird der Eintrag nicht gezeichnet — es wird nichts
@@ -101,9 +102,10 @@ im Fenster.
 
 ## Voraussetzungen <a id="requirements"></a>
 
-- Node.js 20 oder neuer
 - `git` im `PATH`
 - Linux, macOS oder Windows mit einer Desktop-Sitzung
+- Node.js 22.12 oder neuer — nur für die npm- und die Quellinstallation unten;
+  das `.deb` bringt seine eigene Laufzeit mit
 - Optional [gource](https://gource.io/) im `PATH`, für
   [die Animation](manual.de.md#gource); nichts ändert sich, wenn es fehlt
 

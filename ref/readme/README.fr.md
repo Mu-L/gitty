@@ -2,7 +2,7 @@
 
 [English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · **Français** · [Deutsch](README.de.md) · [Español](README.es.md) · [Русский](README.ru.md) · [Português](README.pt.md)
 
-> **Traduit le 2026-08-16.**
+> **Traduit le 2026-08-21.**
 > Le [README en anglais](../../README.md) est la version officielle et la seule
 > tenue à jour. Ce document en est un instantané ; en cas de divergence, c'est
 > l'anglais qui fait foi. Ce document ne couvre que ce fichier — le
@@ -67,10 +67,10 @@ Ce que les autres navigateurs git ne font pour la plupart pas :
   cadre de l'aperçu HTML.
 - **L'historique, servi à votre navigateur.** **Open in Browser** remet un commit
   — ses métadonnées, ses fichiers, ses diffs — au navigateur du système, depuis
-  un serveur web à l'intérieur de l'application lié à `127.0.0.1` — votre
-  navigateur et personne d'autre. Les commits sont de vraies URL, donc
+  un serveur web à l'intérieur de l'application lié à `127.0.0.1`, dont les URL
+  portent un jeton forgé pour cette session. Les commits sont de vraies URL, donc
   l'historique peut se lire en onglets, rester ouvert et se chercher avec la
-  recherche du navigateur, tant que le dépôt est ouvert.
+  recherche du navigateur, tant que l'application tourne.
 - **[gource](https://gource.io/) depuis le menu des commits**, quand il est
   installé : tout l'historique du dépôt en animation, dans sa propre fenêtre. Là où gource est
   absent, le bouton n'est pas dessiné — rien n'est téléchargé ni proposé qui ne
@@ -103,9 +103,10 @@ Markdown**, et un **copier-coller qui marche** partout dans la fenêtre.
 
 ## Prérequis <a id="requirements"></a>
 
-- Node.js 20 ou plus récent
 - `git` dans le `PATH`
 - Linux, macOS ou Windows avec une session de bureau
+- Node.js 22.12 ou plus récent — uniquement pour les installations par npm et
+  depuis les sources ci-dessous ; le `.deb` apporte son propre runtime
 - [gource](https://gource.io/) dans le `PATH`, optionnel, pour
   [l'animation](manual.fr.md#gource) ; rien ne change s'il est absent
 

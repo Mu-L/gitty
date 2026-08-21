@@ -2,7 +2,7 @@
 
 [English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · [Español](README.es.md) · [Русский](README.ru.md) · **Português**
 
-> **Traduzido em 2026-08-16.**
+> **Traduzido em 2026-08-21.**
 > O [README em inglês](../../README.md) é a versão oficial e a única mantida
 > em dia. Este documento é um instantâneo daquele momento; onde houver
 > divergência, prevalece o inglês. Este documento cobre apenas este arquivo — o
@@ -64,10 +64,10 @@ Coisas que os outros navegadores de git em geral não fazem:
   pré-visualização de HTML.
 - **O histórico, servido para o seu navegador.** **Open in Browser** entrega um
   commit — seus metadados, seus arquivos, seus diffs — ao navegador do sistema, a
-  partir de um servidor web dentro do app ligado a `127.0.0.1` — o seu navegador
-  e de mais ninguém. Os commits são URLs reais, então o histórico pode ser lido
-  em abas, mantido aberto e pesquisado com a busca do próprio navegador, enquanto
-  o repositório estiver aberto.
+  partir de um servidor web dentro do app ligado a `127.0.0.1`, cujas URLs levam
+  um token cunhado para esta sessão. Os commits são URLs reais, então o histórico
+  pode ser lido em abas, mantido aberto e pesquisado com a busca do próprio
+  navegador, enquanto o app estiver rodando.
 - **[gource](https://gource.io/) a partir do menu dos commits**, quando
   instalado: todo o histórico do repositório como uma animação, em sua própria
   janela. Onde o gource está ausente, a entrada não é desenhada — nada é baixado
@@ -99,9 +99,10 @@ em qualquer lugar da janela.
 
 ## Requisitos <a id="requirements"></a>
 
-- Node.js 20 ou mais recente
 - `git` no `PATH`
 - Linux, macOS ou Windows com uma sessão de desktop
+- Node.js 22.12 ou mais recente — apenas para as instalações via npm e a partir
+  do código abaixo; o `.deb` traz seu próprio runtime
 - Opcionalmente [gource](https://gource.io/) no `PATH`, para
   [a animação](manual.pt.md#gource); nada muda se estiver ausente
 

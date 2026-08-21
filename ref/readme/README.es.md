@@ -2,7 +2,7 @@
 
 [English](../../README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Français](README.fr.md) · [Deutsch](README.de.md) · **Español** · [Русский](README.ru.md) · [Português](README.pt.md)
 
-> **Traducido el 2026-08-16.**
+> **Traducido el 2026-08-21.**
 > El [README en inglés](../../README.md) es la versión oficial y la única que se
 > mantiene al día. Este documento es una instantánea de ese momento; donde
 > discrepen, manda el inglés. Este documento solo cubre este archivo: el
@@ -62,10 +62,10 @@ Cosas que los demás navegadores de git, en su mayoría, no hacen:
   dentro del marco de la vista previa de HTML.
 - **El historial, servido a tu navegador.** **Open in Browser** entrega un commit
   — sus metadatos, sus archivos, sus diffs — al navegador del sistema, desde un
-  servidor web dentro de la aplicación vinculado a `127.0.0.1`: tu propio
-  navegador y el de nadie más. Los commits son URLs reales, así que el historial
-  se puede leer en pestañas, mantener abierto y buscar con el buscador del
-  navegador, mientras el repositorio esté abierto.
+  servidor web dentro de la aplicación vinculado a `127.0.0.1` cuyas URLs llevan
+  un token acuñado para esta sesión. Los commits son URLs reales, así que el
+  historial se puede leer en pestañas, mantener abierto y buscar con el buscador
+  del navegador, mientras la aplicación siga en marcha.
 - **[gource](https://gource.io/) desde el menú de commits**, cuando está
   instalado: todo el historial del repositorio como una animación, en su propia
   ventana. Donde gource no está, la entrada no se dibuja — no se descarga ni se
@@ -96,9 +96,10 @@ Dos cosas más que quería y que casi nadie ofrecía: **vista previa de Markdown
 
 ## Requisitos <a id="requirements"></a>
 
-- Node.js 20 o posterior
 - `git` en el `PATH`
 - Linux, macOS o Windows con una sesión de escritorio
+- Node.js 22.12 o posterior — solo para las instalaciones por npm y desde el
+  código de abajo; el `.deb` trae su propio runtime
 - Opcionalmente [gource](https://gource.io/) en el `PATH`, para
   [la animación](manual.es.md#gource); nada cambia si no está
 
