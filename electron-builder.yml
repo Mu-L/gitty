@@ -22,13 +22,21 @@ files:
   # be 300 MB of a second copy of the binary that is already running.
   - '!node_modules/**'
   - 'node_modules/node-pty/**'
+  # The other module the main process requires at runtime: jieba, behind the
+  # reading marks, whose dictionary and prebuilt binary cannot be bundled
+  # either. The platform package is the one npm installed for *this* machine,
+  # so a cross-architecture build ships without it — the marks then stay off
+  # for that arch rather than the app failing to start.
+  - 'node_modules/@node-rs/**'
 
-# node-pty is a native module: the `.node` inside an asar cannot be loaded, so
-# it is unpacked beside it. Rebuilding it against Electron's ABI is
-# electron-builder's job (npmRebuild, on by default) — never a prebuilt binary
-# checked in by hand.
+# node-pty and @node-rs/jieba are native modules: a `.node` inside an asar
+# cannot be loaded, so both are unpacked beside it. Rebuilding node-pty against
+# Electron's ABI is electron-builder's job (npmRebuild, on by default) — never
+# a prebuilt binary checked in by hand. jieba needs no rebuild at all: it is
+# N-API, which is stable across Electron versions.
 asarUnpack:
   - '**/node_modules/node-pty/**'
+  - '**/node_modules/@node-rs/**'
 
 linux:
   executableName: gitty

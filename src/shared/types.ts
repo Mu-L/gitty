@@ -301,3 +301,105 @@ export interface AboutInfo {
   readonly chromium: string
   readonly node: string
 }
+
+/**
+ * Reading marks: the extra colour a language analyser puts on the prose of a
+ * rendered markdown document. See `ref/spec/prose.md`.
+ */
+
+/** Which analyser finds the spans: local segmentation, or a configured model. */
+export type ProseAnalyzer = 'jieba' | 'llm'
+
+export const PROSE_ANALYZERS: readonly ProseAnalyzer[] = ['jieba', 'llm']
+
+/**
+ * What was found. `proper` is the catch-all among the proper nouns — one that
+ * is none of the other three — and is what an analyser that cannot tell them
+ * apart says. `latin` is not a proper noun at all: it is a run of latin
+ * letters and digits inside CJK prose, which is a different thing to see and
+ * so a different thing to paint.
+ */
+export type ProseKind = 'person' | 'place' | 'org' | 'proper' | 'latin'
+
+export const PROSE_KINDS: readonly ProseKind[] = [
+  'person',
+  'place',
+  'org',
+  'proper',
+  'latin'
+]
+
+/**
+ * One marked range of a segment: half-open, in JavaScript string indices.
+ * Spans never overlap and always arrive in ascending order.
+ */
+export interface ProseSpan {
+  start: number
+  end: number
+  kind: ProseKind
+}
+
+/** How a line is drawn under a marked span; `none` leaves it undrawn. */
+export type ProseUnderline = 'none' | 'solid' | 'dotted' | 'dashed' | 'double' | 'wavy'
+
+export const PROSE_UNDERLINES: readonly ProseUnderline[] = [
+  'none',
+  'solid',
+  'dotted',
+  'dashed',
+  'double',
+  'wavy'
+]
+
+/**
+ * What one kind looks like. Every field is validated before it reaches a
+ * stylesheet — the values come from a file the reader writes, so there is no
+ * "any CSS you like" field, on purpose.
+ */
+export interface ProseDecoration {
+  underline: ProseUnderline
+  /** `#rgb`, `#rrggbb` or `#rrggbbaa`; null leaves the text's own colour. */
+  underlineColor: string | null
+  color: string | null
+  background: string | null
+  bold: boolean
+  italic: boolean
+}
+
+/** The reader's `prose-rules.json`, one decoration per kind. */
+export type ProseRules = Record<ProseKind, ProseDecoration>
+
+/** Underline in the accent blue, which is what a first run gets. */
+const DEFAULT_MARK: ProseDecoration = {
+  underline: 'solid',
+  underlineColor: '#7aa2f7',
+  color: null,
+  background: null,
+  bold: false,
+  italic: false
+}
+
+export const DEFAULT_PROSE_RULES: ProseRules = {
+  person: { ...DEFAULT_MARK },
+  place: { ...DEFAULT_MARK },
+  org: { ...DEFAULT_MARK },
+  proper: { ...DEFAULT_MARK },
+  // A colour rather than a line, so the two marks use different channels and
+  // an English name inside a Chinese sentence can be both at once. The palette
+  // here is the dark theme's; the file holds literal colours and knows nothing
+  // about themes, so a reader on the light one edits it.
+  latin: {
+    underline: 'none',
+    underlineColor: null,
+    color: '#4fc3d0',
+    background: null,
+    bold: false,
+    italic: false
+  }
+}
+
+/** Where the two files live, for the settings pane to name and open. */
+export interface ProseConfigPaths {
+  rules: string
+  models: string
+}

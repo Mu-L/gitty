@@ -16,6 +16,8 @@ import * as gource from './gource'
 import { availableShells, createTerminal, type TerminalSession } from './pty'
 import { addRecent, clearRecent, listRecent, removeRecent } from './recent'
 import { readPrefs, writePrefs } from './prefs'
+import { analyze } from './prose'
+import { proseConfigPaths, proseModel, proseRules } from './proseConfig'
 import { watchRepo, type RepoWatcher } from './watcher'
 import * as web from './web'
 import {
@@ -33,6 +35,7 @@ import type {
   DiffRequest,
   HunkPick,
   LogFilterMode,
+  ProseAnalyzer,
   TerminalOptions
 } from '../shared/types'
 import { msg, setMainLocale } from './messages'
@@ -643,6 +646,24 @@ function registerIpc(): void {
   ipcMain.handle('git:fileChurn', (_e, root: string, spec: ChurnSpec, opts?: DiffOptions) =>
     git.fileChurn(root, spec, opts)
   )
+
+  /**
+   * Reading marks. The renderer sends text and gets spans back: which analyser
+   * is configured, and above all how to reach a model, stay on this side of
+   * the bridge. See `ref/spec/prose.md`.
+   */
+  ipcMain.handle('prose:analyze', (_e, analyzer: ProseAnalyzer, segments: string[]) =>
+    analyze(analyzer, segments, proseModel())
+  )
+  ipcMain.handle('prose:rules', () => proseRules())
+  // Reading both is what creates them: each is written with its defaults the
+  // first time it is read, and the settings pane asks for the paths in order
+  // to open the files.
+  ipcMain.handle('prose:configPaths', () => {
+    proseRules()
+    proseModel()
+    return proseConfigPaths()
+  })
 
   ipcMain.handle('file:openExternal', (_e, url: string) => {
     // Only ever hand real web links to the system browser.

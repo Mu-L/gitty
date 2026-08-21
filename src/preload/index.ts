@@ -20,6 +20,10 @@ import type {
   HunkPick,
   ImageFileContent,
   LogFilterMode,
+  ProseAnalyzer,
+  ProseConfigPaths,
+  ProseRules,
+  ProseSpan,
   PtyExit,
   RepoChanged,
   RepoStatus,
@@ -222,6 +226,17 @@ const api = {
       spec: ChurnSpec,
       opts: DiffOptions
     ): Promise<Record<string, FileChurn>> => ipcRenderer.invoke('git:fileChurn', root, spec, opts)
+  },
+  /** Reading marks: the analysis of a document's prose, and the rules for
+   *  drawing it. Text goes over, spans come back — how an analyser is reached,
+   *  and any token it needs, never leave the main process. */
+  prose: {
+    analyze: (analyzer: ProseAnalyzer, segments: string[]): Promise<ProseSpan[][]> =>
+      ipcRenderer.invoke('prose:analyze', analyzer, segments),
+    rules: (): Promise<ProseRules> => ipcRenderer.invoke('prose:rules'),
+    /** Where the reader's two files are — and, since reading one writes its
+     *  defaults, this is also what creates them. */
+    configPaths: (): Promise<ProseConfigPaths> => ipcRenderer.invoke('prose:configPaths')
   },
   file: {
     open: (abs: string): Promise<string | null> => ipcRenderer.invoke('file:open', abs),
