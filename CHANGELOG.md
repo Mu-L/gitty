@@ -45,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   orders by the commit date, which a rebase, a cherry-pick or a squashed pull
   request moves to the day the work was replayed — so a branch merged from
   someone else landed in a block of its own instead of among the dates it was
-  written on.
+  written on. A file's history is ordered the same way.
 - A rebase no longer hides the newest commits in a log that has been scrolled:
   refreshing re-reads the whole loaded window and replaces it, where it used to
   append what it did not recognise.

@@ -367,7 +367,9 @@ export async function fileHistory(
   filePath: string
 ): Promise<FileHistoryEntry[]> {
   const fmt = ['%H', '%h', '%an', '%ae', '%aI', '%s', '%D', '%P'].join(US) + RS
-  const args = ['log', '--follow', `--pretty=format:${fmt}`]
+  // Ordered by the date the rows show, as the log pane is. The churn pass below
+  // needs no such thing: it is read into a map from hash to numbers.
+  const args = ['log', '--follow', '--author-date-order', `--pretty=format:${fmt}`]
   if (rev) args.push(rev)
   args.push('--', filePath)
   const [raw, churnRaw] = await Promise.all([
