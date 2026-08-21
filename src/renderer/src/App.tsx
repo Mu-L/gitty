@@ -70,6 +70,8 @@ export default function App(): JSX.Element {
     mdOutline,
     setMdOutline,
     mdLineNumbers,
+    proseReading,
+    proseAnalyzer,
     naturalSort,
     graph,
     setGraph,
@@ -765,6 +767,8 @@ export default function App(): JSX.Element {
                   setWordDiff={setWordDiff}
                   mdOutline={mdOutline}
                   mdLineNumbers={mdLineNumbers}
+                  proseReading={proseReading}
+                  proseAnalyzer={proseAnalyzer}
                   naturalSort={naturalSort}
                   setMdOutline={setMdOutline}
                   fontFamily={monoFont}

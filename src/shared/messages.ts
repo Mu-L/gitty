@@ -461,6 +461,20 @@ export interface RendererMessages {
     readonly documentOutline: string
     /** Number each markdown block with the source line it starts on. */
     readonly markdownLineNumbers: string
+    /** Mark the prose of a rendered markdown document, not just its markup. */
+    readonly readingMarks: string
+    /** Which language analyser the marks come from. */
+    readonly readingAnalyzer: string
+    /** Local word segmentation, no network and no key. */
+    readonly analyzerJieba: string
+    /** A configured model, reached over the network. */
+    readonly analyzerModel: string
+    /** The file that says what a mark looks like. */
+    readonly readingRules: string
+    /** The file that says how to reach the model. */
+    readonly readingModel: string
+    /** Opens one of those two files in the system editor. */
+    readonly openConfigFile: string
     /** How the file tree orders names. */
     readonly fileSort: string
     readonly sortNatural: string

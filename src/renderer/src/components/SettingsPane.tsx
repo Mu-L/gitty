@@ -26,6 +26,36 @@ function CheckRow({
   )
 }
 
+/**
+ * A row naming one of the reading-mark config files, with a button that opens
+ * it in whatever the system opens JSON with. Asking for the paths is what
+ * creates the files — both are written with their defaults the first time they
+ * are read — so there is always something to open.
+ */
+function FileRow({
+  label,
+  open,
+  action
+}: {
+  label: string
+  open: () => Promise<string>
+  action: string
+}): JSX.Element {
+  return (
+    <div className="setting-row">
+      <span>{label}</span>
+      <button
+        className="toggle"
+        onClick={() => {
+          void open().then((abs) => window.gitty.file.open(abs))
+        }}
+      >
+        {action}
+      </button>
+    </div>
+  )
+}
+
 /** A two-value segmented control, e.g. Dark / Light or Inline / Side-by-Side. */
 function Segmented<T extends string>({
   label,
@@ -285,6 +315,34 @@ export function SettingsPane(props: {
             <CheckRow label={msg.settings.commitGraph} checked={props.prefs.graph} onChange={props.prefs.setGraph} />
             <CheckRow label={msg.settings.documentOutline} checked={props.prefs.mdOutline} onChange={props.prefs.setMdOutline} />
             <CheckRow label={msg.settings.markdownLineNumbers} checked={props.prefs.mdLineNumbers} onChange={props.prefs.setMdLineNumbers} />
+            <CheckRow
+              label={msg.settings.readingMarks}
+              checked={props.prefs.proseReading}
+              onChange={props.prefs.setProseReading}
+            />
+            {props.prefs.proseReading ? (
+              <>
+                <Segmented
+                  label={msg.settings.readingAnalyzer}
+                  value={props.prefs.proseAnalyzer}
+                  options={[
+                    { value: 'jieba', label: msg.settings.analyzerJieba },
+                    { value: 'llm', label: msg.settings.analyzerModel }
+                  ]}
+                  onChange={props.prefs.setProseAnalyzer}
+                />
+                <FileRow
+                  label={msg.settings.readingRules}
+                  action={msg.settings.openConfigFile}
+                  open={() => window.gitty.prose.configPaths().then((p) => p.rules)}
+                />
+                <FileRow
+                  label={msg.settings.readingModel}
+                  action={msg.settings.openConfigFile}
+                  open={() => window.gitty.prose.configPaths().then((p) => p.models)}
+                />
+              </>
+            ) : null}
             <Segmented
               label={msg.settings.fileSort}
               value={props.prefs.naturalSort ? 'natural' : 'byte'}
