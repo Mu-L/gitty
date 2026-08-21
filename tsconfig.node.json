@@ -19,6 +19,7 @@
     "src/shared/**/*.ts",
     "src/renderer/src/paths.ts",
     "src/renderer/src/lanes.ts",
+    "src/renderer/src/kin.ts",
     "src/renderer/src/symbols.ts",
     "src/renderer/src/icons.ts",
     "src/renderer/src/tabs.ts",

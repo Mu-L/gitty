@@ -39,6 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   opens the file pane on that folder — the work tree for a document read from
   the disk, that commit's snapshot for one read at a commit.
 
+- Selecting a commit shades the log by ancestry: the rows it is built on and
+  the rows built on it stay as they are, everything else recedes. The walk
+  covers the commits loaded so far.
+
 ### Fixed
 
 - The commit log is ordered by the author date, the one in its column. git

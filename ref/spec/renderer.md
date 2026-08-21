@@ -52,6 +52,17 @@ that outlived its zone name looks like). And "today" is a calendar day *in the
 displayed zone*, so `stamp` reads both the commit and now through it, or a
 midnight-adjacent commit shows a time on the wrong day.
 
+Selecting a commit shades the rows by ancestry — kin as they are, everything
+else at 0.4 opacity. `kin.ts` is the leaf module behind it: two walks over the
+loaded window, parents for the ancestors and a reversed map for the
+descendants, returning both sets and a `partial` flag for an ancestry that runs
+past what has been paged in. Only the unrelated rows carry a CSS rule, so kin
+are the log's ordinary weight rather than a highlight of their own — a log is
+read for its subjects, and shading is the one way to answer "what is this built
+on" without spending a column. The graph's lines are not shaded with them:
+`LaneEdge` holds lane numbers, not the hashes those lanes are waiting for, so
+that would take a wider layout.
+
 A date that still reads backwards is **marked, not re-sorted**. The log is
 ordered by the author date, but a parent is always drawn below its children, so
 a commit replayed onto newer work — rebased, cherry-picked, `am`'d — sits among

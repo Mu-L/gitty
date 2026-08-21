@@ -837,6 +837,14 @@ button:disabled:hover {
   color: var(--fg-dim);
 }
 
+/* Selecting a commit shades the rest of the log by ancestry: what it is built
+   on and what was built on it stay as they are, everything else recedes. Only
+   the unrelated rows carry a rule, so the kin are the log's ordinary weight
+   rather than a highlight of their own. */
+.commit-row.kin-unrelated {
+  opacity: 0.4;
+}
+
 /* A date later than the row above it: ancestry put the row there, not the
    clock. Marked without taking a column's width — the stamps are already at
    the edge of theirs — so the run of dates still lines up. */

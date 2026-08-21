@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, type JSX } from 'react'
 import { column, layoutLanes, MAX_LANES, type LaneRow } from '../lanes'
+import { kinship } from '../kin'
 import type { Commit, LogFilterMode } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { useMsg } from '../locale'
@@ -137,6 +138,16 @@ export function LogPane({
    * the row is all that can be done: re-sorting past the ancestry would draw
    * the lanes running backwards.
    */
+  /**
+   * The selected commit's ancestry, which is the one relation the rows cannot
+   * show by position: the row above may be on another branch, and a parent may
+   * sit a hundred rows down. Kin stay as they are and everything else recedes,
+   * so what the selection is built on — and what was built on it — reads off
+   * the list. Recomputed on every selection, which is one pass over the loaded
+   * window.
+   */
+  const kin = useMemo(() => kinship(commits, selected), [commits, selected])
+
   const backwards = useMemo(() => {
     const times = commits.map((c) => Date.parse(c.date))
     return times.map((t, i) => i > 0 && !Number.isNaN(t) && !Number.isNaN(times[i - 1]) && t > times[i - 1])
@@ -262,10 +273,19 @@ export function LogPane({
       {commits.map((c, i) => {
         const cls =
           c.hash === selected ? ' selected' : c.hash === compare ? ' compare' : ''
+        const kinCls = !kin
+          ? ''
+          : kin.ancestors.has(c.hash)
+            ? ' kin-ancestor'
+            : kin.descendants.has(c.hash)
+              ? ' kin-descendant'
+              : c.hash === selected
+                ? ''
+                : ' kin-unrelated'
         return (
           <div
             key={c.hash}
-            className={`commit-row${cls}`}
+            className={`commit-row${cls}${kinCls}`}
             onClick={(e) => {
               // Ctrl/Cmd+click is the browser's own "open this link" and does
               // that here too; Shift+click and Space are what mark a second

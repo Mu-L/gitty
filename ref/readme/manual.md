@@ -520,6 +520,20 @@ the pane. **All Branches** shows every branch at once (`git log --all`), which
 is how two branches can be seen relating to each other; the branch menu still
 reads one at a time.
 
+The log is ordered by the **author date**, the one in the column, so a commit
+replayed rather than made — rebased, cherry-picked, merged from a squashed pull
+request — reads among the dates it was written on rather than the day it landed.
+What no ordering can change is that a parent is always drawn below its
+children, so such a commit can still sit among rows it predates; where that
+happens the date is marked, and its tooltip says why.
+
+Selecting a commit **shades the log by ancestry**: the rows it is built on and
+the rows built on it stay as they are, everything else recedes. That is the one
+relation position cannot show — the row directly above may be on another
+branch, and a parent may sit a hundred rows down. The walk covers what has been
+loaded, so an ancestry running past the last row is shown as far as the log
+reaches.
+
 The dropdown beside it says what is being searched:
 
 | | |
