@@ -53,6 +53,9 @@ interface RenderEnv {
   loaded: Map<string, string | null>
   /** Number source lines in the gutter. */
   lines: boolean
+  /** New-side source lines the diff marks as added; those gutter numbers are
+   *  drawn green. Null when there is no diff to mirror. */
+  changed: Set<number> | null
   /** Lines of front matter sliced off before parsing; see `render`. */
   lineOffset: number
   /** Every enabled plugin's marks for this document, or null when none is —
@@ -115,7 +118,9 @@ md.renderer.rules.fence = (tokens, idx, options, rawEnv, self) => {
   const env = rawEnv as unknown as RenderEnv
   const map = tokens[idx].map
   if (!env.lines || !map) return out
-  return out.replace('<pre', `<pre data-line="${map[0] + 1 + env.lineOffset}"`)
+  const line = map[0] + 1 + env.lineOffset
+  const changed = env.changed?.has(line) ? ' data-changed=""' : ''
+  return out.replace('<pre', `<pre data-line="${line}"${changed}`)
 }
 
 /**
@@ -128,8 +133,10 @@ md.renderer.rules.table_open = (tokens, idx, options, rawEnv, self) => {
   const map = tokens[idx].map
   const open = self.renderToken(tokens, idx, options)
   if (!env.lines) return open
-  const at = map ? ` data-line="${map[0] + 1 + env.lineOffset}"` : ''
-  return `<div class="md-table"${at}>${open}`
+  const line = map ? map[0] + 1 + env.lineOffset : 0
+  const at = map ? ` data-line="${line}"` : ''
+  const changed = map && env.changed?.has(line) ? ' data-changed=""' : ''
+  return `<div class="md-table"${at}${changed}>${open}`
 }
 md.renderer.rules.table_close = (tokens, idx, options, rawEnv, self) => {
   const env = rawEnv as unknown as RenderEnv
@@ -146,7 +153,7 @@ md.renderer.rules.table_close = (tokens, idx, options, rawEnv, self) => {
  * inside a table would do the same. Fences and tables are left to the rules
  * above, which have their own reasons to write the attribute themselves.
  */
-function markLines(tokens: Token[], offset: number): void {
+function markLines(tokens: Token[], offset: number, changed: Set<number> | null): void {
   let depth = 0
   for (const t of tokens) {
     if (t.nesting === -1) {
@@ -157,7 +164,11 @@ function markLines(tokens: Token[], offset: number): void {
     if (t.nesting === 1) depth++
     if (!t.map || t.type === 'fence' || t.type === 'table_open') continue
     if (t.type === 'bullet_list_open' || t.type === 'ordered_list_open') continue
-    if (t.type === 'list_item_open' || top) t.attrSet('data-line', String(t.map[0] + 1 + offset))
+    if (t.type === 'list_item_open' || top) {
+      const line = t.map[0] + 1 + offset
+      t.attrSet('data-line', String(line))
+      if (changed?.has(line)) t.attrSet('data-changed', '')
+    }
   }
 }
 
@@ -258,7 +269,7 @@ function slugger(): (text: string) => string {
 /** YAML front matter, which markdown-it would otherwise read as a rule + text. */
 const FRONT_MATTER = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/
 
-function renderFrontMatter(yaml: string, lines: boolean): string {
+function renderFrontMatter(yaml: string, lines: boolean, changed: Set<number> | null): string {
   let inner: string
   try {
     inner = hljs.highlight(yaml, { language: 'yaml', ignoreIllegals: true }).value
@@ -267,7 +278,8 @@ function renderFrontMatter(yaml: string, lines: boolean): string {
   }
   // Front matter is always the top of the file, so its own line is 1.
   const at = lines ? ' data-line="1"' : ''
-  return `<div class="md-frontmatter"${at}><pre><code>${inner}</code></pre></div>`
+  const ch = lines && changed?.has(1) ? ' data-changed=""' : ''
+  return `<div class="md-frontmatter"${at}${ch}><pre><code>${inner}</code></pre></div>`
 }
 
 /** Render markdown, collecting its headings and its image references. */
@@ -275,6 +287,7 @@ function render(
   source: string,
   loaded: Map<string, string | null>,
   lines: boolean,
+  changed: Set<number> | null,
   docPath: string,
   linkHint: string,
   marks: DocumentMarks | null
@@ -284,12 +297,12 @@ function render(
   // Token line numbers count from the start of what was parsed, and front
   // matter was sliced off first — so the gutter has to add it back.
   const lineOffset = fm ? (fm[0].match(/\n/g)?.length ?? 0) : 0
-  const env: RenderEnv = { refs: new Set(), loaded, lines, lineOffset, marks, wanted: new Set() }
+  const env: RenderEnv = { refs: new Set(), loaded, lines, changed, lineOffset, marks, wanted: new Set() }
   const tokens = md.parse(body, env as never)
   const headings: Heading[] = []
   const slug = slugger()
 
-  if (lines) markLines(tokens, lineOffset)
+  if (lines) markLines(tokens, lineOffset, changed)
   markRepoLinks(tokens, docPath, linkHint)
 
   for (let i = 0; i < tokens.length; i++) {
@@ -304,7 +317,7 @@ function render(
 
   const html = md.renderer.render(tokens, md.options, env as never)
   return {
-    html: fm ? renderFrontMatter(fm[1], lines) + html : html,
+    html: fm ? renderFrontMatter(fm[1], lines, changed) + html : html,
     headings,
     refs: [...env.refs],
     segments: [...env.wanted]
@@ -319,6 +332,7 @@ export function MarkdownPane({
   rev,
   outline,
   lineNumbers,
+  changedLines = null,
   wrap,
   active,
   onMenu,
@@ -338,6 +352,10 @@ export function MarkdownPane({
   outline: boolean
   /** Number each block in the gutter with the source line it starts on. */
   lineNumbers: boolean
+  /** New-side source lines the diff on screen marks as added; their gutter
+   *  numbers are drawn green, the diff's own add colour. Null when the diff
+   *  does not cover this document. */
+  changedLines?: Set<number> | null
   /** Wrap fenced code blocks and tables instead of scrolling them sideways. */
   wrap: boolean
   /** On screen in the active tab — only then does Ctrl+F belong to it. */
@@ -362,8 +380,8 @@ export function MarkdownPane({
   const [segments, setSegments] = useState<string[]>([])
   const marks = useDocumentMarks(docKey, segments)
   const { html, headings, refs, segments: found } = useMemo(
-    () => render(source, images, lineNumbers, docPath, msg.diff.openLinkHint, marks),
-    [source, images, lineNumbers, docPath, msg, marks]
+    () => render(source, images, lineNumbers, changedLines, docPath, msg.diff.openLinkHint, marks),
+    [source, images, lineNumbers, changedLines, docPath, msg, marks]
   )
   const bodyRef = useRef<HTMLDivElement>(null)
   // Which heading the outline marks — not to be confused with the `active`

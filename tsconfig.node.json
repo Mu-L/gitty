@@ -23,6 +23,7 @@
     "src/renderer/src/symbols.ts",
     "src/renderer/src/icons.ts",
     "src/renderer/src/tabs.ts",
+    "src/renderer/src/diffLines.ts",
     "src/plugins/**/*.ts",
     "test/**/*.ts"
   ],

@@ -1515,6 +1515,13 @@ button:disabled:hover {
   pointer-events: none;
 }
 
+/* A source line the diff on screen marks as inserted or changed keeps the
+   diff's own add colour, so the gutter mirrors what the diff said. */
+.md-body.lines [data-line][data-changed]::before {
+  color: var(--green);
+  opacity: 1;
+}
+
 /* Headings set their own line-height and size, so the number would ride up
    with them; pin it to the document's own leading instead. */
 .md-body.lines :is(h1, h2, h3, h4, h5, h6)[data-line]::before {

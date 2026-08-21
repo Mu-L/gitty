@@ -27,10 +27,11 @@ import { DiffHeader } from './components/DiffHeader'
 import { useMsg } from './locale'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { destroyTerminals, runInTerminal } from './terminals'
-import { shellQuote } from './paths'
+import { isMarkdownPath, shellQuote } from './paths'
 // A leaf module with no imports of its own; see the note on its extension
 // table. Asking it here does not drag the viewers into the main bundle.
 import { hasOutline, outlineLanguage } from './symbols'
+import { addedNewLines } from './diffLines'
 import { FullButton, HideButton } from './components/PaneChrome'
 import type { Theme } from './components/SettingsPane'
 import { Tooltip } from './components/Tooltip'
@@ -651,6 +652,16 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     if (!doc) return
     setDocs((prev) => prev.map((d) => (d.id === doc.id ? { ...d, preview: !d.preview } : d)))
   }, [doc, setDocs])
+
+  // Which source lines of a previewed markdown the diff on screen marks as
+  // added, for the gutter to colour green. Only when the document is read at
+  // the side the diff writes to — its own revision is the diff's new side — so
+  // a document opened at another revision carries its own diff, not this one.
+  const mdChangedLines = useMemo(() => {
+    if (!doc || doc.kind !== 'file' || !doc.preview || !isMarkdownPath(doc.path)) return null
+    if (doc.rev !== revForView()) return null
+    return addedNewLines(diff?.patch ?? '', doc.path)
+  }, [doc, diff, revForView])
 
   // Which side to read is a choice about the file in front of you; another
   // file starts from its own state again.
@@ -1426,6 +1437,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       wrap={wrap}
                       outline={mdOutline}
                       lineNumbers={mdLineNumbers}
+                      changedLines={mdChangedLines}
                       active={active}
                       reloadKey={tick}
                       onSource={setDocSource}

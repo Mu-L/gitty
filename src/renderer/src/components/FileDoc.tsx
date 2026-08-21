@@ -30,6 +30,7 @@ export function FileDoc({
   wrap,
   outline,
   lineNumbers,
+  changedLines,
   active,
   reloadKey,
   onSource,
@@ -57,6 +58,9 @@ export function FileDoc({
   outline: boolean
   /** Number markdown blocks with their source lines. */
   lineNumbers: boolean
+  /** New-side source lines the diff on screen marks as added; a rendered
+   *  markdown's gutter numbers for those lines are drawn green. */
+  changedLines?: Set<number> | null
   /** On screen in the active tab, so document-level keys belong to it. */
   active: boolean
   /** Bumped when the repository changes, to re-read a work-tree file. */
@@ -199,6 +203,7 @@ export function FileDoc({
       rev={rev}
       outline={outline}
       lineNumbers={lineNumbers}
+      changedLines={changedLines}
       wrap={wrap}
       active={active}
       onMenu={onMenu}

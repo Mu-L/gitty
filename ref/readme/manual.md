@@ -396,8 +396,11 @@ glance.
   [Settings](#settings): every heading, paragraph, list item, table, fenced
   block and image is numbered in the left gutter with the line it starts on in
   the source. The numbers are drawn rather than inserted, so they stay out of a
-  selection you copy and out of what <kbd>Ctrl+F</kbd> searches. An image
-  written inside a sentence takes its paragraph's line, having none of its own.
+  selection you copy and out of what <kbd>Ctrl+F</kbd> searches. When the
+  document is one the diff on screen is about, a number for a line that diff
+  marks as inserted or changed is drawn green — the diff's own add colour — so
+  the gutter mirrors what the diff said. An image written inside a sentence
+  takes its paragraph's line, having none of its own.
 - **<kbd>Ctrl+F</kbd>** — find in the document; see
   [Finding text](#finding-text).
 - **Right-click** — Copy Selection, Copy Markdown Source, the wrap and outline
