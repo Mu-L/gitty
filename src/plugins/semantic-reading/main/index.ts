@@ -1,11 +1,12 @@
-import type { ProseAnalyzer, ProseKind, ProseSpan } from '../shared/types'
-import type { ModelAccess } from './proseConfig'
+import type { PluginHost, PluginMain } from '../../types'
+import { locateTerms, taggedSpans, withLatin, type TaggedWord } from '../analyze'
+import { configPaths, model as readModel, rules as readRules, type ModelAccess } from './config'
+import { ANALYZERS, ID, METHOD, type Analyzer, type Kind, type Span } from '../shared'
 
 /**
- * The analysers behind the reading marks — see `ref/spec/prose.md`. This file
- * knows nothing about Electron or about where the reader's files live: the
- * model access it needs is handed to it, so the string work below can be
- * tested without a repository or an app.
+ * The main half of semantic reading — see `ref/spec/semantic-reading.md`. Text
+ * comes over `plugin:invoke` and spans go back: which analyser is configured,
+ * and above all how a model is reached, never leave this process.
  *
  * Nothing here throws. An analyser that is missing, unconfigured, slow or
  * wrong answers with no spans for the segment, and the document stays the
@@ -13,134 +14,8 @@ import type { ModelAccess } from './proseConfig'
  */
 
 /** Caps on one analysis, so a long document cannot grow the request forever. */
-export const MAX_PROSE_SEGMENTS = 400
-export const MAX_PROSE_CHARS = 60_000
-
-/** A word jieba tagged, in the shape `@node-rs/jieba` returns it. */
-export interface TaggedWord {
-  tag: string
-  word: string
-}
-
-/**
- * jieba's own part-of-speech tags for the four kinds we mark. Everything else
- * — ordinary nouns, verbs, the `eng` it gives every latin word — is not a
- * proper noun and is left alone.
- */
-const TAG_KIND: Record<string, ProseKind> = {
-  nr: 'person',
-  ns: 'place',
-  nt: 'org',
-  nz: 'proper'
-}
-
-/**
- * A one-character word is dropped whatever its tag: jieba calls a lone
- * character a name often enough that keeping them turns the marks into noise.
- */
-const MIN_TERM = 2
-
-/**
- * Where each tagged word sits in the segment it came from. jieba tags words
- * but does not locate them, so the offsets are accumulated here.
- *
- * Words are expected to be contiguous, and are checked rather than trusted: a
- * span placed at the wrong offset underlines the wrong text and never says so.
- * When a word does not appear where it should the search moves to where it
- * does; when it does not appear at all the rest of the segment is abandoned,
- * because every later offset would be built on the miss.
- */
-export function taggedSpans(segment: string, tagged: readonly TaggedWord[]): ProseSpan[] {
-  const spans: ProseSpan[] = []
-  let pos = 0
-  for (const { tag, word } of tagged) {
-    if (!word) continue
-    const at = segment.startsWith(word, pos) ? pos : segment.indexOf(word, pos)
-    if (at < 0) break
-    pos = at + word.length
-    const kind = TAG_KIND[tag]
-    if (kind && word.length >= MIN_TERM) spans.push({ start: at, end: pos, kind })
-  }
-  return spans
-}
-
-/**
- * The spans where `terms` occur in `segment`. This is how a model's answer
- * becomes offsets: a model asked to count UTF-16 indices gets them wrong, so
- * it is asked for the text instead and the text is found here.
- *
- * Longest first, so a full name wins over the part of it that is also a term
- * on its own, and an occurrence overlapping one already taken is skipped —
- * between them that is what keeps the result non-overlapping and in order,
- * which is what the renderer is allowed to assume.
- */
-export function locateTerms(
-  segment: string,
-  terms: readonly { text: string; kind: ProseKind }[]
-): ProseSpan[] {
-  const taken: ProseSpan[] = []
-  const sorted = [...terms].sort((a, b) => b.text.length - a.text.length)
-  for (const { text, kind } of sorted) {
-    if (text.length < MIN_TERM) continue
-    let from = 0
-    for (;;) {
-      const at = segment.indexOf(text, from)
-      if (at < 0) break
-      const end = at + text.length
-      from = end
-      if (!taken.some((s) => at < s.end && s.start < end)) taken.push({ start: at, end, kind })
-    }
-  }
-  return taken.sort((a, b) => a.start - b.start)
-}
-
-/**
- * Han, kana and hangul — what makes a segment CJK prose, and so what makes a
- * run of latin letters in it worth pointing at.
- */
-const CJK = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u
-
-/**
- * A run of latin letters and digits, with the joiners a version or a product
- * name is written with. Each joiner has to be followed by more of the run, so
- * the full stop ending a sentence is not swallowed into `v1`.
- */
-const LATIN = /[A-Za-z0-9]+(?:[-._+][A-Za-z0-9]+)*/gu
-
-/**
- * The latin runs in a CJK segment — `GPT-4` and `Anthropic` in a Chinese
- * sentence, which are the words the eye loses when everything else is Han.
- *
- * Only in a CJK segment, and deliberately: in an English paragraph every word
- * is a latin run, and marking all of them marks nothing. A run has to contain
- * a letter, so a bare number is left alone — a number reads as a number
- * already.
- *
- * This needs no analyser at all, which is the point: it holds even when jieba
- * is not installed or the model cannot be reached.
- */
-export function latinSpans(segment: string): ProseSpan[] {
-  if (!CJK.test(segment)) return []
-  const spans: ProseSpan[] = []
-  LATIN.lastIndex = 0
-  for (const m of segment.matchAll(LATIN)) {
-    if (!/[A-Za-z]/.test(m[0])) continue
-    spans.push({ start: m.index, end: m.index + m[0].length, kind: 'latin' })
-  }
-  return spans
-}
-
-/**
- * The analyser's spans plus the latin runs around them, still non-overlapping
- * and still ascending. The analyser wins every overlap: it said what a piece
- * of text *is*, where the latin run only says what script it is written in.
- */
-export function withLatin(segment: string, found: readonly ProseSpan[]): ProseSpan[] {
-  const latin = latinSpans(segment).filter(
-    (l) => !found.some((f) => l.start < f.end && f.start < l.end)
-  )
-  return [...found, ...latin].sort((a, b) => a.start - b.start)
-}
+export const MAX_SEGMENTS = 400
+export const MAX_CHARS = 60_000
 
 /**
  * Loaded on first use, and only ever once — the default dictionary is several
@@ -177,7 +52,7 @@ interface ModelTerm {
   i: number
   /** The term as it appears in that segment, verbatim. */
   t: string
-  k: ProseKind
+  k: Kind
 }
 
 const PROMPT = [
@@ -207,7 +82,7 @@ function parseReply(text: string): ModelTerm[] {
   return terms.flatMap((raw): ModelTerm[] => {
     const t = raw as Record<string, unknown>
     if (typeof t?.t !== 'string' || typeof t.i !== 'number') return []
-    const kind = typeof t.k === 'string' && kinds.has(t.k) ? (t.k as ProseKind) : 'proper'
+    const kind = typeof t.k === 'string' && kinds.has(t.k) ? (t.k as Kind) : 'proper'
     return [{ i: Math.trunc(t.i), t: t.t, k: kind }]
   })
 }
@@ -215,8 +90,8 @@ function parseReply(text: string): ModelTerm[] {
 /** How long to wait on a model before giving the document up as unmarked. */
 const MODEL_TIMEOUT = 30_000
 
-async function askModel(segments: string[], model: ModelAccess): Promise<ProseSpan[][]> {
-  const empty = segments.map(() => [] as ProseSpan[])
+async function askModel(segments: string[], model: ModelAccess): Promise<Span[][]> {
+  const empty = segments.map(() => [] as Span[])
   if (!model.baseUrl || !model.model) return empty
   // The environment first: a key there is a key not sitting in a file.
   const key = (model.apiKeyEnv && process.env[model.apiKeyEnv]) || model.apiKey
@@ -245,7 +120,7 @@ async function askModel(segments: string[], model: ModelAccess): Promise<ProseSp
   } catch {
     return empty // unreachable, refused, timed out — all the same to the reader
   }
-  const byIndex = new Map<number, { text: string; kind: ProseKind }[]>()
+  const byIndex = new Map<number, { text: string; kind: Kind }[]>()
   for (const { i, t, k } of parseReply(reply)) {
     if (i < 0 || i >= segments.length) continue
     const list = byIndex.get(i) ?? []
@@ -257,7 +132,7 @@ async function askModel(segments: string[], model: ModelAccess): Promise<ProseSp
   return segments.map((seg, i) => locateTerms(seg, byIndex.get(i) ?? []))
 }
 
-async function askJieba(segments: string[]): Promise<ProseSpan[][]> {
+async function askJieba(segments: string[]): Promise<Span[][]> {
   const j = await loadJieba()
   if (!j) return segments.map(() => [])
   return segments.map((seg) => {
@@ -278,20 +153,20 @@ async function askJieba(segments: string[]): Promise<ProseSpan[][]> {
  * Dropped whole when full rather than evicted one at a time: it holds
  * analyses, not documents, so nothing depends on an entry still being there.
  */
-const cache = new Map<string, ProseSpan[]>()
+const cache = new Map<string, Span[]>()
 const CACHE_LIMIT = 20_000
 
 /**
  * The spans for each segment, in the order the segments came in. Segments
  * already analysed are answered from the cache and never sent anywhere.
  */
-export async function analyze(
-  analyzer: ProseAnalyzer,
+export async function analyse(
+  analyzer: Analyzer,
   segments: string[],
   model: ModelAccess
-): Promise<ProseSpan[][]> {
-  const wanted = segments.slice(0, MAX_PROSE_SEGMENTS)
-  const out: ProseSpan[][] = segments.map(() => [])
+): Promise<Span[][]> {
+  const wanted = segments.slice(0, MAX_SEGMENTS)
+  const out: Span[][] = segments.map(() => [])
   const ask: string[] = []
   const askAt: number[] = []
   let chars = 0
@@ -303,7 +178,7 @@ export async function analyze(
     }
     // Past the character cap the rest of the document goes unmarked, rather
     // than the request growing with the document.
-    if (chars + wanted[i].length > MAX_PROSE_CHARS) break
+    if (chars + wanted[i].length > MAX_CHARS) break
     chars += wanted[i].length
     ask.push(wanted[i])
     askAt.push(i)
@@ -321,4 +196,34 @@ export async function analyze(
     cache.set(`${analyzer} ${ask[k]}`, spans)
   }
   return out
+}
+
+/**
+ * An analyser name that came over the channel. It is a string until it has
+ * been checked against the ones that exist — the renderer sends a preference
+ * the reader could have hand-edited in `localStorage`.
+ */
+function asAnalyzer(v: unknown): Analyzer {
+  return ANALYZERS.find((a) => a === v) ?? 'jieba'
+}
+
+function asSegments(v: unknown): string[] {
+  return Array.isArray(v) ? v.filter((s): s is string => typeof s === 'string') : []
+}
+
+export const main: PluginMain = {
+  id: ID,
+  methods: {
+    [METHOD.analyse]: (host: PluginHost, args: unknown[]) =>
+      analyse(asAnalyzer(args[0]), asSegments(args[1]), readModel(host)),
+    [METHOD.rules]: (host: PluginHost) => readRules(host),
+    // Reading both is what creates them: each is written with its defaults the
+    // first time it is read, and the settings rows ask for the paths in order
+    // to open the files.
+    [METHOD.configPaths]: (host: PluginHost) => {
+      readRules(host)
+      readModel(host)
+      return configPaths(host)
+    }
+  }
 }

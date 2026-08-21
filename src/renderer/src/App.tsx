@@ -35,6 +35,7 @@ import {
 import { navLabel, type NavHistory } from './nav'
 import type { Branch, RepoStatus } from '../../shared/types'
 import { LocaleProvider, loadLocale } from './locale'
+import { PluginPrefsProvider } from './plugins'
 import { TimeProvider } from './time'
 import { copySelection, isCopyChord } from './copy'
 import { ALL_LOCALES } from './locale'
@@ -70,8 +71,8 @@ export default function App(): JSX.Element {
     mdOutline,
     setMdOutline,
     mdLineNumbers,
-    proseReading,
-    proseAnalyzer,
+    pluginPrefs,
+    setPluginPrefs,
     naturalSort,
     graph,
     setGraph,
@@ -582,6 +583,7 @@ export default function App(): JSX.Element {
   return (
     <LocaleProvider locale={locale} setLocale={setLocale}>
     <TimeProvider time={time}>
+    <PluginPrefsProvider state={pluginPrefs} setState={setPluginPrefs}>
     <div className="app" onContextMenu={(e) => e.preventDefault()}>
       <div className="titlebar" title={isMac ? undefined : msg.app.menuTitle(MENU_ACCEL)}>
         {/* The brand opens the About dialog, like the application menu's
@@ -767,8 +769,6 @@ export default function App(): JSX.Element {
                   setWordDiff={setWordDiff}
                   mdOutline={mdOutline}
                   mdLineNumbers={mdLineNumbers}
-                  proseReading={proseReading}
-                  proseAnalyzer={proseAnalyzer}
                   naturalSort={naturalSort}
                   setMdOutline={setMdOutline}
                   fontFamily={monoFont}
@@ -891,6 +891,7 @@ export default function App(): JSX.Element {
       />
       <HelpPane open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
+    </PluginPrefsProvider>
     </TimeProvider>
     </LocaleProvider>
   )

@@ -1,10 +1,11 @@
 import { createContext, createElement, useContext, type ReactNode } from 'react'
-import type { RendererMessages } from '../../shared/messages'
+import type { Locale, RendererMessages } from '../../shared/messages'
 import { getMessages } from './messages'
 
 // ── Locale type and list ─────────────────────────────────────────────────────
 
-export type Locale = 'en' | 'zh' | 'ja' | 'ko' | 'fr' | 'de' | 'es' | 'ru' | 'pt'
+// Declared in shared/messages.ts: both processes and every plugin name it.
+export type { Locale }
 
 export interface LocaleInfo {
   /** Label in the language's own script, shown in the settings selector. */

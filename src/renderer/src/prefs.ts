@@ -10,12 +10,13 @@ import {
 import { ALL_PANES, loadPanes, type PaneVisibility } from './panes'
 import { loadLocale, type Locale } from './locale'
 import { loadTimeZone, SYSTEM_TZ, type TimeZone } from './time'
+import { DEFAULT_DIFF_OPTIONS, type DiffOptions, type TerminalOptions } from '../../shared/types'
 import {
-  DEFAULT_DIFF_OPTIONS,
-  type DiffOptions,
-  type ProseAnalyzer,
-  type TerminalOptions
-} from '../../shared/types'
+  defaultPluginPrefs,
+  loadPluginPrefs,
+  storePluginPrefs,
+  type PluginPrefState
+} from './plugins'
 import type { DiffView } from './components/DiffPane'
 import type { Theme } from './components/SettingsPane'
 
@@ -88,10 +89,10 @@ export interface Preferences {
   setMdOutline: Dispatch<SetStateAction<boolean>>
   mdLineNumbers: boolean
   setMdLineNumbers: Dispatch<SetStateAction<boolean>>
-  proseReading: boolean
-  setProseReading: Dispatch<SetStateAction<boolean>>
-  proseAnalyzer: ProseAnalyzer
-  setProseAnalyzer: Dispatch<SetStateAction<ProseAnalyzer>>
+  /** Every plugin's preferences in one object, whatever they are and however
+   *  many plugins there are — see `ref/spec/plugins.md`. */
+  pluginPrefs: PluginPrefState
+  setPluginPrefs: Dispatch<SetStateAction<PluginPrefState>>
   naturalSort: boolean
   setNaturalSort: Dispatch<SetStateAction<boolean>>
   graph: boolean
@@ -148,17 +149,9 @@ export function usePreferences(): Preferences {
   const [mdLineNumbers, setMdLineNumbers] = useState(
     () => localStorage.getItem('gitty.mdLineNumbers') === 'on'
   )
-  // Off by default, and deliberately: marking the prose costs an analyser per
-  // document — a dictionary loaded, or a request sent — and a wrong mark reads
-  // worse than no mark. See `ref/spec/prose.md`.
-  const [proseReading, setProseReading] = useState(
-    () => localStorage.getItem('gitty.proseReading') === 'on'
-  )
-  // Remembered whatever the marks are set to, so turning them off and on again
-  // does not forget which analyser was chosen.
-  const [proseAnalyzer, setProseAnalyzer] = useState<ProseAnalyzer>(() =>
-    localStorage.getItem('gitty.proseAnalyzer') === 'llm' ? 'llm' : 'jieba'
-  )
+  // One state for every plugin's settings. What they are is the plugins'
+  // business; that they are stored, restored and reset is this file's.
+  const [pluginPrefs, setPluginPrefs] = useState<PluginPrefState>(loadPluginPrefs)
   // Natural by default: it is what a reader expects. Off gives git's own byte
   // order, which is what the command line shows.
   const [naturalSort, setNaturalSort] = useState(
@@ -261,8 +254,7 @@ export function usePreferences(): Preferences {
     setWordDiff(true)
     setMdOutline(true)
     setMdLineNumbers(false)
-    setProseReading(false)
-    setProseAnalyzer('jieba')
+    setPluginPrefs(defaultPluginPrefs())
     setNaturalSort(true)
     setGraph(true)
   }, [setSingleInstance])
@@ -287,8 +279,7 @@ export function usePreferences(): Preferences {
     localStorage.setItem('gitty.wordDiff', wordDiff ? 'on' : 'off')
     localStorage.setItem('gitty.mdOutline', mdOutline ? 'on' : 'off')
     localStorage.setItem('gitty.mdLineNumbers', mdLineNumbers ? 'on' : 'off')
-    localStorage.setItem('gitty.proseReading', proseReading ? 'on' : 'off')
-    localStorage.setItem('gitty.proseAnalyzer', proseAnalyzer)
+    storePluginPrefs(pluginPrefs)
     localStorage.setItem('gitty.naturalSort', naturalSort ? 'on' : 'off')
     localStorage.setItem('gitty.graph', graph ? 'on' : 'off')
     localStorage.setItem('gitty.theme', theme)
@@ -310,8 +301,7 @@ export function usePreferences(): Preferences {
     wordDiff,
     mdOutline,
     mdLineNumbers,
-    proseReading,
-    proseAnalyzer,
+    pluginPrefs,
     naturalSort,
     graph,
     theme,
@@ -348,10 +338,8 @@ export function usePreferences(): Preferences {
     setMdOutline,
     mdLineNumbers,
     setMdLineNumbers,
-    proseReading,
-    setProseReading,
-    proseAnalyzer,
-    setProseAnalyzer,
+    pluginPrefs,
+    setPluginPrefs,
     naturalSort,
     setNaturalSort,
     graph,

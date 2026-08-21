@@ -1460,12 +1460,11 @@ button:disabled:hover {
   line-height: 1.65;
 }
 
-/* Reading marks: the spans a language analyser found in the prose. What one
-   looks like comes from the reader's own prose-rules.json, generated into a
-   <style> inside the pane — see ref/spec/prose.md. Only what every mark shares
-   belongs here, and an underline that breaks around descenders reads as a
-   typo rather than as a mark. */
-.md-body .prose-mark {
+/* A plugin's inline marks on a rendered document — see ref/spec/plugins.md.
+   What one looks like is the plugin's own business, generated into a <style>
+   inside the pane; only what every mark shares belongs here, and an underline
+   that breaks around descenders reads as a typo rather than as a mark. */
+.md-body .pl-mark {
   text-decoration-skip-ink: none;
 }
 
@@ -2053,6 +2052,16 @@ button:disabled:hover {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--fg-faint);
+}
+
+.settings-plugin + .settings-plugin {
+  margin-top: 14px;
+}
+
+/* The line under a plugin's name, saying what turning it on does. */
+.settings-plugin-summary {
+  margin: -4px 0 6px;
+  color: var(--fg-dim);
 }
 
 .setting-row {

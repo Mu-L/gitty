@@ -3,8 +3,8 @@ import MarkdownIt, { type Token } from 'markdown-it'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { hljs } from '../highlight'
 import { useMsg } from '../locale'
-import { decorateSegment, proseCss, worthAnalysing } from '../prose'
-import type { ProseAnalyzer, ProseRules, ProseSpan } from '../../../shared/types'
+import { useDocumentMarks, type DocumentMarks } from '../plugins'
+import { decorateSegment } from '../../../plugins/marks'
 import type { MenuState } from './ContextMenu'
 import { useFind } from './useFind'
 
@@ -55,33 +55,33 @@ interface RenderEnv {
   lines: boolean
   /** Lines of front matter sliced off before parsing; see `render`. */
   lineOffset: number
-  /** Mark the prose as well as the markup — off unless the reader asked. */
-  prose: boolean
-  /** Every text segment worth analysing, collected as the document renders. */
-  proseWanted: Set<string>
-  /** Analyses already in hand: the segment's text → where its marks go. */
-  proseSpans: Map<string, ProseSpan[]>
+  /** Every enabled plugin's marks for this document, or null when none is —
+   *  see `ref/spec/plugins.md`. */
+  marks: DocumentMarks | null
+  /** Every text segment some plugin wants, collected as the document renders. */
+  wanted: Set<string>
 }
 
 /**
- * Reading marks go on here, in the render pass, for the same reason the images
- * are substituted here: React owns the document through
+ * A plugin's marks go on here, in the render pass, for the same reason the
+ * images are substituted here: React owns the document through
  * `dangerouslySetInnerHTML` and rewrites it wholesale, so a mark painted onto
  * the rendered DOM would be discarded by the next change to anything at all.
  *
  * Overriding `text` also gets the scope right for free: a fence, an inline
  * code span and an HTML block are other token types, so code is never marked
  * as if it were prose.
+ *
+ * The pane knows nothing about what is being marked — see the `marks`
+ * extension point in `ref/spec/plugins.md`.
  */
 md.renderer.rules.text = (tokens, idx, _options, rawEnv) => {
   const env = rawEnv as unknown as RenderEnv
   const content = tokens[idx].content
-  if (!env.prose || !worthAnalysing(content)) return md.utils.escapeHtml(content)
-  env.proseWanted.add(content)
-  const spans = env.proseSpans.get(content)
-  return spans && spans.length > 0
-    ? decorateSegment(content, spans)
-    : md.utils.escapeHtml(content)
+  if (!env.marks || !env.marks.wanted(content)) return md.utils.escapeHtml(content)
+  env.wanted.add(content)
+  const placed = env.marks.placed(content)
+  return placed.length > 0 ? decorateSegment(content, placed) : md.utils.escapeHtml(content)
 }
 
 md.renderer.rules.image = (tokens, idx, options, rawEnv, self) => {
@@ -277,23 +277,14 @@ function render(
   lines: boolean,
   docPath: string,
   linkHint: string,
-  prose: boolean,
-  proseSpans: Map<string, ProseSpan[]>
+  marks: DocumentMarks | null
 ): { html: string; headings: Heading[]; refs: string[]; segments: string[] } {
   const fm = FRONT_MATTER.exec(source)
   const body = fm ? source.slice(fm[0].length) : source
   // Token line numbers count from the start of what was parsed, and front
   // matter was sliced off first — so the gutter has to add it back.
   const lineOffset = fm ? (fm[0].match(/\n/g)?.length ?? 0) : 0
-  const env: RenderEnv = {
-    refs: new Set(),
-    loaded,
-    lines,
-    lineOffset,
-    prose,
-    proseWanted: new Set(),
-    proseSpans
-  }
+  const env: RenderEnv = { refs: new Set(), loaded, lines, lineOffset, marks, wanted: new Set() }
   const tokens = md.parse(body, env as never)
   const headings: Heading[] = []
   const slug = slugger()
@@ -316,7 +307,7 @@ function render(
     html: fm ? renderFrontMatter(fm[1], lines) + html : html,
     headings,
     refs: [...env.refs],
-    segments: [...env.proseWanted]
+    segments: [...env.wanted]
   }
 }
 
@@ -329,8 +320,6 @@ export function MarkdownPane({
   outline,
   lineNumbers,
   wrap,
-  proseReading,
-  proseAnalyzer,
   active,
   onMenu,
   onOpenPath,
@@ -350,10 +339,6 @@ export function MarkdownPane({
   lineNumbers: boolean
   /** Wrap fenced code blocks and tables instead of scrolling them sideways. */
   wrap: boolean
-  /** Mark the prose — proper nouns and the like — as well as the markup. */
-  proseReading: boolean
-  /** Which analyser finds them; only consulted while the marks are on. */
-  proseAnalyzer: ProseAnalyzer
   /** On screen in the active tab — only then does Ctrl+F belong to it. */
   active: boolean
   onMenu: (state: MenuState) => void
@@ -367,12 +352,14 @@ export function MarkdownPane({
 }): JSX.Element {
   const { msg } = useMsg()
   const [images, setImages] = useState<Map<string, string | null>>(new Map())
-  const [spans, setSpans] = useState<Map<string, ProseSpan[]>>(new Map())
-  const [rules, setRules] = useState<ProseRules | null>(null)
-  const { html, headings, refs, segments } = useMemo(
-    () =>
-      render(source, images, lineNumbers, docPath, msg.diff.openLinkHint, proseReading, spans),
-    [source, images, lineNumbers, docPath, msg, proseReading, spans]
+  // Whatever the enabled plugins make of this document's text. The pane hands
+  // them the segments its own render pass collected and draws what comes back;
+  // see `ref/spec/plugins.md`.
+  const [segments, setSegments] = useState<string[]>([])
+  const marks = useDocumentMarks(docKey, segments)
+  const { html, headings, refs, segments: found } = useMemo(
+    () => render(source, images, lineNumbers, docPath, msg.diff.openLinkHint, marks),
+    [source, images, lineNumbers, docPath, msg, marks]
   )
   const bodyRef = useRef<HTMLDivElement>(null)
   // Which heading the outline marks — not to be confused with the `active`
@@ -391,11 +378,9 @@ export function MarkdownPane({
     // Images are keyed by the src as written, which means different files in
     // different documents — and different bytes at different revisions.
     setImages(new Map())
-    // Analyses are keyed by their text, so they would still be right for
-    // another document — but this map would then grow for as long as the pane
-    // lives. The main process keeps the real cache; this one only has to hold
-    // the document on screen.
-    setSpans(new Map())
+    // What the last document wanted marked is not what this one does; the
+    // hook drops its own answers on the same key.
+    setSegments([])
     // headings belong to this source, and source changes with docKey.
   }, [docKey])
 
@@ -445,64 +430,13 @@ export function MarkdownPane({
     }
   }, [refsKey, images, root, docPath, rev])
 
-  // The reader's drawing rules, re-read whenever a document is opened: the
-  // file is theirs to edit, and editing it then reopening the document is the
-  // whole of the reload story. The main process only touches the disk when the
-  // file has actually moved, so asking again is cheap.
+  // What the render pass found worth marking, handed back to the hook. Kept as
+  // state rather than passed straight through, because the render is what
+  // discovers it and the analysis is what changes it.
+  const foundKey = found.join('\u0000')
   useEffect(() => {
-    if (!proseReading) return
-    let cancelled = false
-    void window.gitty.prose
-      .rules()
-      .then((r) => {
-        if (!cancelled) setRules(r)
-      })
-      .catch(() => {
-        /* no rules is no marks, which is where the document started */
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [proseReading, docKey])
-
-  // Analyse what this document is made of, then hand it all to one re-render —
-  // the same shape as the images above, and for the same reasons: one round
-  // trip rather than one per segment, and one `setSpans` rather than a
-  // re-render per answer.
-  const segmentsKey = segments.join('\u0000')
-  useEffect(() => {
-    if (!proseReading) return
-    const wanted = segmentsKey ? segmentsKey.split('\u0000') : []
-    if (wanted.length === 0) return
-    // Every segment already answered for: nothing to do, and re-running would
-    // loop, since the answer is what this effect depends on.
-    if (wanted.every((t) => spans.has(t))) return
-
-    let cancelled = false
-    void (async () => {
-      let found: ProseSpan[][] = []
-      try {
-        found = await window.gitty.prose.analyze(proseAnalyzer, wanted)
-      } catch {
-        // An analyser that cannot answer leaves the document unmarked; the
-        // empty answers below stop it being asked again.
-      }
-      const next = new Map<string, ProseSpan[]>()
-      wanted.forEach((text, i) => next.set(text, found[i] ?? []))
-      if (!cancelled) setSpans(next)
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [segmentsKey, spans, proseReading, proseAnalyzer])
-
-  // The rules as a stylesheet for this pane. Generated rather than written
-  // into index.css because the values come from the reader's file — see
-  // `ref/spec/prose.md` for why that is safe.
-  const css = useMemo(
-    () => (proseReading && rules ? proseCss(rules) : ''),
-    [proseReading, rules]
-  )
+    setSegments(foundKey ? foundKey.split('\u0000') : [])
+  }, [foundKey])
 
   // Highlight the outline entry for the heading currently at the top.
   useEffect(() => {
@@ -603,7 +537,7 @@ export function MarkdownPane({
       onMenu({ x: e.clientX, y: e.clientY, items: [] })
     }}>
       {find.bar}
-      {css ? <style>{css}</style> : null}
+      {marks.css ? <style>{marks.css}</style> : null}
       {outline && headings.length > 0 ? (
         // The width is shared by every document in this repository rather than
         // kept per file: it is a reading preference, not a property of the text.

@@ -71,7 +71,6 @@ import type {
   DiffSide,
   FileChurn,
   LogFilterMode,
-  ProseAnalyzer,
   RepoStatus,
   TerminalOptions,
   WorkingFile
@@ -134,10 +133,6 @@ export interface RepoTabProps {
   setMdOutline: Dispatch<SetStateAction<boolean>>
   /** Number markdown blocks with their source lines. */
   mdLineNumbers: boolean
-  /** Mark the prose of a rendered markdown document, not just its markup. */
-  proseReading: boolean
-  /** Which analyser the marks come from. */
-  proseAnalyzer: ProseAnalyzer
   /** Sort file names the way a reader does, rather than by code unit. */
   naturalSort: boolean
   /** The monospace font setting, passed through to the terminal. */
@@ -204,8 +199,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     mdOutline,
     setMdOutline,
     mdLineNumbers,
-    proseReading,
-    proseAnalyzer,
     naturalSort,
     fontFamily,
     diffOptions,
@@ -1292,8 +1285,6 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       wrap={wrap}
                       outline={mdOutline}
                       lineNumbers={mdLineNumbers}
-                      proseReading={proseReading}
-                      proseAnalyzer={proseAnalyzer}
                       active={active}
                       reloadKey={tick}
                       onSource={setDocSource}

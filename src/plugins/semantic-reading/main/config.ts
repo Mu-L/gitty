@@ -1,21 +1,21 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { app } from 'electron'
+import type { PluginHost } from '../../types'
 import {
-  DEFAULT_PROSE_RULES,
-  PROSE_KINDS,
-  PROSE_UNDERLINES,
-  type ProseConfigPaths,
-  type ProseDecoration,
-  type ProseRules
-} from '../shared/types'
+  DEFAULT_RULES,
+  KINDS,
+  UNDERLINES,
+  type ConfigPaths,
+  type Decoration,
+  type Rules
+} from '../shared'
 
 /**
- * The two files the reader owns behind the reading marks: what a mark looks
- * like, and how to reach a model. Both are JSON beside the rest of the app's
- * state, and both are written with their defaults the first time they are read
- * — an empty file that has to be invented from documentation is a feature
- * nobody finds. See `ref/spec/prose.md`.
+ * The two files the reader owns: what a mark looks like, and how to reach a
+ * model. Both are JSON in the plugin's own config directory, and both are
+ * written with their defaults the first time they are read — an empty file
+ * that has to be invented from documentation is a feature nobody finds. See
+ * `ref/spec/semantic-reading.md`.
  */
 
 /** How to reach an OpenAI-compatible endpoint. Never leaves this process. */
@@ -34,9 +34,9 @@ const DEFAULT_MODEL: ModelAccess = {
   apiKey: ''
 }
 
-export function proseConfigPaths(): ProseConfigPaths {
-  const dir = app.getPath('userData')
-  return { rules: path.join(dir, 'prose-rules.json'), models: path.join(dir, 'prose-models.json') }
+export function configPaths(host: PluginHost): ConfigPaths {
+  const dir = host.configDir()
+  return { rules: path.join(dir, 'rules.json'), models: path.join(dir, 'models.json') }
 }
 
 /**
@@ -50,7 +50,7 @@ export function proseConfigPaths(): ProseConfigPaths {
  * their file, and overwriting it would throw away the edit they got wrong.
  */
 function cachedFile<T>(
-  file: () => string,
+  file: (host: PluginHost) => string,
   fallback: () => unknown,
   parse: (raw: unknown) => T,
   /**
@@ -64,8 +64,8 @@ function cachedFile<T>(
 ) {
   let at = ''
   let value: T | null = null
-  return (): T => {
-    const p = file()
+  return (host: PluginHost): T => {
+    const p = file(host)
     let stat: fs.Stats | null = null
     try {
       stat = fs.statSync(p)
@@ -118,9 +118,9 @@ function bool(v: unknown, fallback: boolean): boolean {
  * values end up inside a stylesheet, so a value that is not one of ours falls
  * back to the default rather than reaching the document.
  */
-function decoration(raw: unknown, fallback: ProseDecoration): ProseDecoration {
+function decoration(raw: unknown, fallback: Decoration): Decoration {
   const d = (raw ?? {}) as Record<string, unknown>
-  const line = PROSE_UNDERLINES.find((u) => u === d.underline) ?? fallback.underline
+  const line = UNDERLINES.find((u) => u === d.underline) ?? fallback.underline
   return {
     underline: line,
     underlineColor: color(d.underlineColor, fallback.underlineColor),
@@ -131,23 +131,23 @@ function decoration(raw: unknown, fallback: ProseDecoration): ProseDecoration {
   }
 }
 
-export const proseRules = cachedFile<ProseRules>(
-  () => proseConfigPaths().rules,
-  () => DEFAULT_PROSE_RULES,
+export const rules = cachedFile<Rules>(
+  (host) => configPaths(host).rules,
+  () => DEFAULT_RULES,
   (raw) => {
     const src = (raw ?? {}) as Record<string, unknown>
-    const out = {} as ProseRules
-    for (const kind of PROSE_KINDS) out[kind] = decoration(src[kind], DEFAULT_PROSE_RULES[kind])
+    const out = {} as Rules
+    for (const kind of KINDS) out[kind] = decoration(src[kind], DEFAULT_RULES[kind])
     return out
   },
   (raw) => {
     const src = (raw ?? {}) as Record<string, unknown>
-    return PROSE_KINDS.some((kind) => !(kind in src))
+    return KINDS.some((kind) => !(kind in src))
   }
 )
 
-export const proseModel = cachedFile<ModelAccess>(
-  () => proseConfigPaths().models,
+export const model = cachedFile<ModelAccess>(
+  (host) => configPaths(host).models,
   () => ({ llm: DEFAULT_MODEL }),
   (raw) => {
     const llm = ((raw as Record<string, unknown>)?.llm ?? {}) as Record<string, unknown>

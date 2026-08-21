@@ -17,6 +17,11 @@
     "src/renderer/src/**/*.ts",
     "src/renderer/src/**/*.tsx",
     "src/shared/**/*.ts",
+    "src/plugins/**/*.ts",
+    "src/plugins/**/*.tsx",
     "test/panes.test.ts"
-  ]
+  ],
+  // The mirror of the node project's exclusion: a plugin's `main/` half opens
+  // files and talks to Electron, and has no business in a DOM project.
+  "exclude": ["src/plugins/*/main/**"]
 }

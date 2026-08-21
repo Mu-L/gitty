@@ -5,6 +5,8 @@ import type { JSX } from 'react'
 import { allZones, systemZone, SYSTEM_TZ } from '../time'
 import { monoFonts } from '../fonts'
 import type { Preferences } from '../prefs'
+import { PLUGINS, usePluginPrefs } from '../plugins'
+import type { Plugin, PluginPrefs, SettingsRow } from '../../../plugins/types'
 
 export type Theme = 'dark' | 'light'
 
@@ -27,10 +29,9 @@ function CheckRow({
 }
 
 /**
- * A row naming one of the reading-mark config files, with a button that opens
- * it in whatever the system opens JSON with. Asking for the paths is what
- * creates the files — both are written with their defaults the first time they
- * are read — so there is always something to open.
+ * A row naming a file a plugin lets the reader edit, with a button that opens
+ * it in whatever the system opens JSON with. Resolving the path is usually
+ * also what creates the file, so there is always something to open.
  */
 function FileRow({
   label,
@@ -157,11 +158,62 @@ function Slider({
 }
 
 /**
+ * One plugin in Settings ▸ Plugins: its name, a line of summary, the switch
+ * that turns it on, and the rows it declared — drawn here, decided there. A
+ * plugin that is off shows only the switch: everything under it is about how
+ * it behaves, which is nothing while it does not.
+ */
+function PluginGroup({ plugin }: { plugin: Plugin }): JSX.Element {
+  const { locale } = useMsg()
+  const prefs = usePluginPrefs(plugin.id)
+  return (
+    <div className="settings-plugin">
+      <div className="settings-group-title">{plugin.name(locale)}</div>
+      <div className="settings-plugin-summary">{plugin.summary(locale)}</div>
+      <CheckRow
+        label={plugin.name(locale)}
+        checked={prefs.enabled}
+        onChange={(on) => prefs.set('enabled', on)}
+      />
+      {prefs.enabled
+        ? plugin.rows(locale, prefs).map((row) => (
+            <PluginRow key={`${row.kind}:${row.label}`} row={row} prefs={prefs} />
+          ))
+        : null}
+    </div>
+  )
+}
+
+/** A declared row, drawn with the controls the app already has. */
+function PluginRow({ row, prefs }: { row: SettingsRow; prefs: PluginPrefs }): JSX.Element {
+  if (row.kind === 'check') {
+    return (
+      <CheckRow
+        label={row.label}
+        checked={prefs.get(row.pref) === true}
+        onChange={(v) => prefs.set(row.pref, v)}
+      />
+    )
+  }
+  if (row.kind === 'segmented') {
+    return (
+      <Segmented
+        label={row.label}
+        value={String(prefs.get(row.pref))}
+        options={row.options}
+        onChange={(v) => prefs.set(row.pref, v)}
+      />
+    )
+  }
+  return <FileRow label={row.label} action={row.action} open={row.open} />
+}
+
+/**
  * Modal settings dialog. Escape is handled by the App (which owns the open
  * state), so this component does not register its own key listeners.
  */
 /** The dialog's sections, each its own tab. */
-type Tab = 'appearance' | 'view' | 'session'
+type Tab = 'appearance' | 'view' | 'session' | 'plugins'
 
 export function SettingsPane(props: {
   open: boolean
@@ -189,7 +241,8 @@ export function SettingsPane(props: {
   const tabs: Array<{ id: Tab; label: string }> = [
     { id: 'appearance', label: msg.settings.appearance },
     { id: 'view', label: msg.settings.view },
-    { id: 'session', label: msg.settings.session }
+    { id: 'session', label: msg.settings.session },
+    { id: 'plugins', label: msg.settings.plugins }
   ]
 
   return (
@@ -315,34 +368,6 @@ export function SettingsPane(props: {
             <CheckRow label={msg.settings.commitGraph} checked={props.prefs.graph} onChange={props.prefs.setGraph} />
             <CheckRow label={msg.settings.documentOutline} checked={props.prefs.mdOutline} onChange={props.prefs.setMdOutline} />
             <CheckRow label={msg.settings.markdownLineNumbers} checked={props.prefs.mdLineNumbers} onChange={props.prefs.setMdLineNumbers} />
-            <CheckRow
-              label={msg.settings.readingMarks}
-              checked={props.prefs.proseReading}
-              onChange={props.prefs.setProseReading}
-            />
-            {props.prefs.proseReading ? (
-              <>
-                <Segmented
-                  label={msg.settings.readingAnalyzer}
-                  value={props.prefs.proseAnalyzer}
-                  options={[
-                    { value: 'jieba', label: msg.settings.analyzerJieba },
-                    { value: 'llm', label: msg.settings.analyzerModel }
-                  ]}
-                  onChange={props.prefs.setProseAnalyzer}
-                />
-                <FileRow
-                  label={msg.settings.readingRules}
-                  action={msg.settings.openConfigFile}
-                  open={() => window.gitty.prose.configPaths().then((p) => p.rules)}
-                />
-                <FileRow
-                  label={msg.settings.readingModel}
-                  action={msg.settings.openConfigFile}
-                  open={() => window.gitty.prose.configPaths().then((p) => p.models)}
-                />
-              </>
-            ) : null}
             <Segmented
               label={msg.settings.fileSort}
               value={props.prefs.naturalSort ? 'natural' : 'byte'}
@@ -385,6 +410,11 @@ export function SettingsPane(props: {
               checked={props.prefs.termLogin}
               onChange={props.prefs.setTermLogin}
             />
+          </div>
+          <div className={`settings-group${tab === 'plugins' ? '' : ' hidden'}`}>
+            {PLUGINS.map((plugin) => (
+              <PluginGroup key={plugin.id} plugin={plugin} />
+            ))}
           </div>
         </div>
         <div className="settings-footer">

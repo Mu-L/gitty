@@ -120,9 +120,9 @@ subprocesses, the pty, the fs watcher, dialogs, clipboard, `shell.openPath`);
 `src/preload/` is the only bridge, exposing a frozen `window.gitty` over
 `contextBridge`; `src/renderer/` is pure presentation over that API, with no
 node integration and no direct IPC; `src/shared/types.ts` is the contract both
-sides import. **Adding a capability means touching all three**: an
+sides import. **Adding a capability to the core means touching all three**: an
 `ipcMain.handle` in `src/main/index.ts`, a method in `src/preload/index.ts`, and
-a type in `src/shared/types.ts`.
+a type in `src/shared/types.ts`. A **plugin** touches none of them — see below.
 
 **Strings.** Add a string to the interface in `src/shared/messages.ts` and to
 `en`; `npm run typecheck` then names every table that is missing it. Never reach
@@ -148,6 +148,18 @@ chunk drags the library back into the main bundle. `paths.ts`, `icons.ts`,
 `nav.ts`, `panes.ts` and `symbols.ts` are leaf modules and must stay
 import-free; `terminals.ts` imports xterm **only as `import type`**. Full rules:
 `ref/spec/lazy-loading.md`.
+
+**Plugins.** Non-core features are plugins: a directory under
+`src/plugins/<id>/` owning both halves of the process boundary, its own
+storage, its own strings and its own settings rows. Adding one is its directory
+plus one import and one array entry in `src/main/plugins.ts` and
+`src/renderer/src/plugins.ts` — **never** a new IPC channel, a preload method, a
+field in `src/shared/types.ts`, a string in the core message tables or an edit
+to `SettingsPane`. A plugin holds its strings as `Record<Locale, …>` inside
+itself, so adding a language means every plugin's table as well. `main/` and
+`ui/` are compiled by different projects; anything outside them is compiled by
+both, which is where a plugin's testable string work goes. Full rules:
+`ref/spec/plugins.md`.
 
 **Panels.** Every `react-resizable-panels` `Group` id must carry the repository
 root and, where the child set varies, the visible set (`top-fd`, `bottom-lt`) —
@@ -251,5 +263,6 @@ Terminal sessions end only in `destroySession` / `destroyTerminals(root)`.
 | `ref/spec/main-process.md` | staging and the patch surgery, search and the commit graph, git access, the local web server, gource, recent repositories, one instance or several, terminal sessions, the watcher and refresh |
 | `ref/spec/renderer.md` | messages and i18n, time, settings, tabs, full screen, hiding panes, the `View` union and file icons, browsing history, browsing another branch, DiffPane, finding text |
 | `ref/spec/file-viewers.md` | CodePane, MarkdownPane, ImagePane, highlighting, the two outlines, links and images |
-| `ref/spec/prose.md` | reading marks: the analysers, the reader's two config files, how a mark reaches the document |
+| `ref/spec/plugins.md` | what a plugin is and is not, the one channel, preferences and settings rows, strings, the `marks` extension point |
+| `ref/spec/semantic-reading.md` | the semantic-reading plugin: the analysers, the reader's two config files, how a mark reaches the document |
 | `ref/spec/lazy-loading.md` | the four chunks, the import invariant, how to add a heavy dependency |

@@ -22,10 +22,13 @@
     "src/renderer/src/symbols.ts",
     "src/renderer/src/icons.ts",
     "src/renderer/src/tabs.ts",
-    "src/renderer/src/prose.ts",
+    "src/plugins/**/*.ts",
     "test/**/*.ts"
   ],
   // panes.ts reads a KeyboardEvent and names a type declared in a .tsx, so its
   // test belongs to the web project — this one has neither DOM nor jsx.
-  "exclude": ["test/panes.test.ts"]
+  // A plugin's `ui/` half is the renderer's: it reaches for the DOM and for
+  // the renderer's own modules, so it belongs to the web project. Everything
+  // else under a plugin is compiled by both.
+  "exclude": ["test/panes.test.ts", "src/plugins/*/ui/**"]
 }

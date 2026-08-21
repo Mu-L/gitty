@@ -10,7 +10,7 @@ import { ImagePane } from './ImagePane'
 import { MarkdownPane } from './MarkdownPane'
 import { isHtmlPath, isImagePath, isMarkdownPath } from '../paths'
 import type { MenuState } from './ContextMenu'
-import type { Commit, ProseAnalyzer } from '../../../shared/types'
+import type { Commit } from '../../../shared/types'
 
 /** What kind of document a diff-pane tab holds. */
 export type FileDocKind = 'file' | 'blame' | 'history' | 'lines' | 'grep'
@@ -30,8 +30,6 @@ export function FileDoc({
   wrap,
   outline,
   lineNumbers,
-  proseReading,
-  proseAnalyzer,
   active,
   reloadKey,
   onSource,
@@ -58,10 +56,6 @@ export function FileDoc({
   outline: boolean
   /** Number markdown blocks with their source lines. */
   lineNumbers: boolean
-  /** Mark proper nouns and the like in rendered markdown. */
-  proseReading: boolean
-  /** Which analyser finds them. */
-  proseAnalyzer: ProseAnalyzer
   /** On screen in the active tab, so document-level keys belong to it. */
   active: boolean
   /** Bumped when the repository changes, to re-read a work-tree file. */
@@ -203,8 +197,6 @@ export function FileDoc({
       outline={outline}
       lineNumbers={lineNumbers}
       wrap={wrap}
-      proseReading={proseReading}
-      proseAnalyzer={proseAnalyzer}
       active={active}
       onMenu={onMenu}
       onOpenPath={onOpenPath}
