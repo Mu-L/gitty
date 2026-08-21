@@ -13,8 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   history browser. Each is a directory of its own with its own switch,
   settings, strings and files, and all of them start off.
 - The first plugin, **Semantic reading**: a language analyser underlines the
-  proper nouns in a rendered markdown document, and latin words inside CJK
-  prose (`GPT-4`, `Claude`) take a colour of their own. **Analyser** is
+  proper nouns in a rendered markdown document, latin words inside CJK prose
+  (`GPT-4`, `Claude`) take a colour of their own, and the end of each sentence
+  takes weight and a little extra room after it. **Analyser** is
   **jieba** (local, CJK) or **Model** (any OpenAI-compatible endpoint). Two
   JSON files hold what a mark looks like and how to reach the model; both open
   from its settings rows, and neither is in any repository.
@@ -34,6 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Tree views. Moves it to the tip it tracks, cloning one never checked out; the
   superproject keeps its recorded pointer, so committing that is yours. Git's
   output lands where push and pull report.
+- Markdown preview: **Ctrl/Cmd+click** a link that names a repository directory
+  opens the file pane on that folder — the work tree for a document read from
+  the disk, that commit's snapshot for one read at a commit.
 
 ### Fixed
 

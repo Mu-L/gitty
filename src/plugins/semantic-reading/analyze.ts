@@ -122,15 +122,66 @@ export function latinSpans(segment: string): Span[] {
 }
 
 /**
- * The analyser's spans plus the latin runs around them, still non-overlapping
- * and still ascending. The analyser wins every overlap: it said what a piece
- * of text *is*, where the latin run only says what script it is written in.
+ * Sentence terminators that are never anything else. A full-width stop, an
+ * ideographic question or exclamation mark and an ellipsis are punctuation and
+ * nothing but — no abbreviation is written with one, so a run of them ends a
+ * sentence wherever it appears.
  */
-export function withLatin(segment: string, found: readonly Span[]): Span[] {
-  const latin = latinSpans(segment).filter(
-    (l) => !found.some((f) => l.start < f.end && f.start < l.end)
-  )
-  return [...found, ...latin].sort((a, b) => a.start - b.start)
+const CJK_END = /[。｡．！？…‼⁇⁈⁉]+/gu
+
+/**
+ * The ASCII ones, which are not so simple: a full stop is also what an
+ * abbreviation and a decimal point are made of. A run only counts when
+ * whitespace or the end of the segment follows it — `v0.1.9` and `google.com`
+ * go by untouched — and a lone `.` is refused after a single letter that
+ * itself follows a `.` or a space, which is what `e.g.`, `U.S.` and the `J.`
+ * of an initial look like.
+ *
+ * It is a heuristic and it is meant to be: this marks where a sentence ends
+ * to be read faster, and the cost of missing one is that a full stop looks
+ * like every other full stop did before.
+ */
+const ASCII_END = /[.!?]+(?=\s|$)/gu
+
+function isInitial(segment: string, at: number, run: string): boolean {
+  if (run !== '.') return false
+  const before = segment[at - 1]
+  if (!before || !/[A-Za-z]/.test(before)) return false
+  const two = segment[at - 2]
+  return two === undefined || two === '.' || /\s/.test(two)
+}
+
+/**
+ * Where the sentences end. Like the latin runs, this needs no analyser and is
+ * therefore still there when none can answer.
+ */
+export function sentenceSpans(segment: string): Span[] {
+  const spans: Span[] = []
+  CJK_END.lastIndex = 0
+  for (const m of segment.matchAll(CJK_END)) {
+    spans.push({ start: m.index, end: m.index + m[0].length, kind: 'sentence-end' })
+  }
+  ASCII_END.lastIndex = 0
+  for (const m of segment.matchAll(ASCII_END)) {
+    if (isInitial(segment, m.index, m[0])) continue
+    spans.push({ start: m.index, end: m.index + m[0].length, kind: 'sentence-end' })
+  }
+  return spans.sort((a, b) => a.start - b.start)
+}
+
+/**
+ * The analyser's spans plus the ones found by pattern — the latin runs and the
+ * sentence endings — still non-overlapping and still ascending. The analyser
+ * wins every overlap: it said what a piece of text *is*, where a pattern only
+ * says what a piece of it is written with.
+ */
+export function withPatterns(segment: string, found: readonly Span[]): Span[] {
+  const taken = [...found]
+  for (const span of [...latinSpans(segment), ...sentenceSpans(segment)]) {
+    if (taken.some((t) => span.start < t.end && t.start < span.end)) continue
+    taken.push(span)
+  }
+  return taken.sort((a, b) => a.start - b.start)
 }
 
 /**

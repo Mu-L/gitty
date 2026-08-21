@@ -1,5 +1,5 @@
 import type { PluginHost, PluginMain } from '../../types'
-import { locateTerms, taggedSpans, withLatin, type TaggedWord } from '../analyze'
+import { locateTerms, taggedSpans, withPatterns, type TaggedWord } from '../analyze'
 import { configPaths, model as readModel, rules as readRules, type ModelAccess } from './config'
 import { ANALYZERS, ID, METHOD, type Analyzer, type Kind, type Span } from '../shared'
 
@@ -188,10 +188,10 @@ export async function analyse(
   const found = analyzer === 'llm' ? await askModel(ask, model) : await askJieba(ask)
   if (cache.size > CACHE_LIMIT) cache.clear()
   for (let k = 0; k < askAt.length; k++) {
-    // The latin runs are added here rather than inside either analyser: they
-    // are the same whichever one answered, and they are still there when
-    // neither could.
-    const spans = withLatin(ask[k], found[k] ?? [])
+    // The patterns — latin runs, sentence endings — are added here rather than
+    // inside either analyser: they are the same whichever one answered, and
+    // they are still there when neither could.
+    const spans = withPatterns(ask[k], found[k] ?? [])
     out[askAt[k]] = spans
     cache.set(`${analyzer} ${ask[k]}`, spans)
   }

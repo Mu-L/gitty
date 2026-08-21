@@ -47,11 +47,11 @@ turning it off and on again does not forget which analyser was chosen.
 ```
 src/plugins/semantic-reading/
   shared.ts        kinds, spans, rules, defaults, the method names
-  analyze.ts       pure: taggedSpans, locateTerms, latinSpans, withLatin
+  analyze.ts       pure: taggedSpans, locateTerms, latinSpans, sentenceSpans
   render.ts        pure: marksCss — the reader's rules as a stylesheet
   main/index.ts    the method table: analyse, rules, configPaths
   main/config.ts   the reader's two files
-  ui/index.tsx     the manifest: prefs, rows, the marks extension
+  ui/index.ts      the manifest: prefs, rows, the marks extension
   ui/messages.ts   its strings, every locale
 ```
 
@@ -75,19 +75,40 @@ rules file exists.
 
 The fifth, `latin`, is not a proper noun and comes from no analyser: a run of
 latin letters and digits inside CJK prose — `GPT-4`, `Claude`, `v0.1.9` in a
-Chinese sentence. `latinSpans` finds them by pattern and `withLatin` merges them
-into whatever the analyser said, the analyser winning every overlap: it named
-what a piece of text *is*, where the run only says what script it is written in.
-The merge happens in `analyse`, not inside either analyser, so the runs are the
-same whichever one answered — and are still there when neither could.
+Chinese sentence. `latinSpans` finds them by pattern; the analyser wins every
+overlap, because it named what a piece of text *is*, where a pattern only says
+what a piece of it is written with. The merge happens in `analyse`, not inside
+either analyser, so the runs are the same whichever one answered — and are still
+there when neither could.
 
 Only in a CJK segment, and deliberately: in an English paragraph every word is a
 latin run, so marking them all marks nothing. A run has to contain a letter, so
 a bare number is left alone; it already reads as a number.
 
+The sixth, `sentence-end`, is the terminator itself — the full stop, not the
+sentence. It is the smallest mark on the line and the one that says "you may
+stop here", so the eye should find it without reading up to it.
+
+`sentenceSpans` finds them, and the two scripts are not the same problem. A
+full-width `。｡．！？…` is punctuation and nothing else — no abbreviation is
+written with one — so a run of them ends a sentence wherever it appears. An
+ASCII `.` is also what a decimal point and an abbreviation are made of, so a run
+only counts when whitespace or the end of the segment follows it (`v0.1.9` and
+`google.com` go by untouched), and a lone `.` is refused after a single letter
+that itself follows a `.` or a space, which is what `e.g.`, `U.S.` and the `J.`
+of an initial look like.
+
+That last rule is a heuristic and is meant to be. It costs the full stop of a
+sentence that really does end in a single letter — "…was graded A." — and what
+that costs is a full stop looking like every other full stop did before. The
+marks are for reading faster, not for parsing.
+
 A kind becomes the `className` the plugin hands the pane, which the pane turns
 into `pl-semantic-reading-<kind>` — the same helper `render.ts` writes the
 selectors with, so the two cannot drift.
+
+`latin` and `sentence-end` are merged into the analyser's answer by
+`withPatterns`, which is where anything found by pattern goes.
 
 ## The analysers
 
@@ -156,19 +177,31 @@ finds.
   "place":  { "underline": "solid", "underlineColor": "#7aa2f7" },
   "org":    { "underline": "solid", "underlineColor": "#7aa2f7" },
   "proper": { "underline": "solid", "underlineColor": "#7aa2f7" },
-  "latin":  { "underline": "none",  "color": "#4fc3d0" }
+  "latin":  { "underline": "none",  "color": "#4fc3d0" },
+  "sentence-end": {
+    "underline": "none", "color": "#e09a52", "bold": true, "spaceAfter": 0.35
+  }
 }
 ```
 
-The defaults use two different channels on purpose. A proper noun gets a line
+The defaults use three different channels on purpose. A proper noun gets a line
 under it and keeps the text colour; a latin run gets a colour and no line — so
-`Claude` in a Chinese sentence, which is both, reads as both. The colours are
+`Claude` in a Chinese sentence, which is both, reads as both. A sentence ending
+gets weight and a **gap**, which is the one thing the other two never ask for:
+what a full stop is worth is not a fourth hue to tell apart from the others but
+room, which is what a printer would have given it. The colours are
 literal and the file knows nothing about themes, so they are the dark palette's;
 a reader on the light theme edits them.
 
 A decoration may set `underline` (`none`, `solid`, `dotted`, `dashed`, `double`,
-`wavy`), `underlineColor`, `color`, `background`, `bold` and `italic`. Every
-field is validated against an enum or a colour pattern and a bad one falls back
+`wavy`), `underlineColor`, `color`, `background`, `bold`, `italic` and
+`spaceAfter` — extra room after the span in em, 0 to 2, written as a
+`margin-right` so that a background the same rule asked for is not stretched
+with it. A gap wider than 2em is not a pause, it is a hole, so it is clamped
+rather than refused: a reader who typed four wanted the widest pause there is.
+
+Every field is validated against an enum, a range or a colour pattern, and a bad
+one falls back
 to the default rather than to nothing — these values end up inside a stylesheet,
 so a value that is not recognised must not be passed through. There is no
 "anything CSS" escape hatch for exactly that reason. The check is the plugin's
@@ -204,9 +237,12 @@ Both are re-read when their mtime or size moves, the way `sshconfig.ts` does it,
 so editing the rules and reopening the document is enough to see the change — no
 restart. A file that cannot be parsed is left exactly as it was written: it is
 the reader's file, and overwriting it would throw away the edit they got wrong.
-A rules file missing a kind — one written before that kind existed — is written
-back with the kind filled in; additive only, and every value the reader wrote has
-already been carried into what is written.
+A rules file missing a kind — or a decoration missing a field — is one written
+before that kind or that field existed, and is written back with the rest filled
+in; additive only, and every value the reader wrote has already been carried
+into what is written. The point is that the file stays a complete reference to
+what the marks can do rather than silently working while describing an older
+version of itself.
 
 ## Limits
 

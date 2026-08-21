@@ -26,11 +26,20 @@ export const ANALYZERS: readonly Analyzer[] = ['jieba', 'llm']
  * What was found. Four are proper nouns an analyser distinguished — `proper`
  * being the one that is none of the other three. `latin` is not a proper noun
  * at all: it is a run of latin letters and digits inside CJK prose, which is a
- * different thing to see and so a different thing to paint.
+ * different thing to see and so a different thing to paint. Nor is
+ * `sentence-end`, which is the terminator itself — the full stop, not the
+ * sentence — so that the eye finds the end of one without reading to it.
  */
-export type Kind = 'person' | 'place' | 'org' | 'proper' | 'latin'
+export type Kind = 'person' | 'place' | 'org' | 'proper' | 'latin' | 'sentence-end'
 
-export const KINDS: readonly Kind[] = ['person', 'place', 'org', 'proper', 'latin']
+export const KINDS: readonly Kind[] = [
+  'person',
+  'place',
+  'org',
+  'proper',
+  'latin',
+  'sentence-end'
+]
 
 /**
  * One marked range of a segment: half-open, in JavaScript string indices.
@@ -67,7 +76,17 @@ export interface Decoration {
   background: string | null
   bold: boolean
   italic: boolean
+  /**
+   * Extra room after the span, in em, 0 to 2. A pause the eye can see: what a
+   * sentence ending is worth is not another colour among the colours but a
+   * gap, which is what a printer would have given it.
+   */
+  spaceAfter: number
 }
+
+/** The widest gap a rule may ask for. Past this it is not a pause, it is a
+ *  hole, and the line stops reading as a line. */
+export const MAX_SPACE_AFTER = 2
 
 /** The reader's `rules.json`, one decoration per kind. */
 export type Rules = Record<Kind, Decoration>
@@ -79,7 +98,8 @@ const DEFAULT_MARK: Decoration = {
   color: null,
   background: null,
   bold: false,
-  italic: false
+  italic: false,
+  spaceAfter: 0
 }
 
 export const DEFAULT_RULES: Rules = {
@@ -97,7 +117,21 @@ export const DEFAULT_RULES: Rules = {
     color: '#4fc3d0',
     background: null,
     bold: false,
-    italic: false
+    italic: false,
+    spaceAfter: 0
+  },
+  // A third channel again: not a line and not the colour a word gets, but
+  // weight and a gap. A full stop is small, easy to miss and the one mark on
+  // the line that says "you may stop here" — so it is given room rather than
+  // another hue to tell apart from the two above.
+  'sentence-end': {
+    underline: 'none',
+    underlineColor: null,
+    color: '#e09a52',
+    background: null,
+    bold: true,
+    italic: false,
+    spaceAfter: 0.35
   }
 }
 

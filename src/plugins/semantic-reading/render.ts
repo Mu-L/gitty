@@ -29,6 +29,10 @@ function declarations(d: Decoration): string {
   if (d.background) out.push(`background: ${d.background}`)
   if (d.bold) out.push('font-weight: 600')
   if (d.italic) out.push('font-style: italic')
+  // A gap after the mark rather than inside it: padding would stretch the
+  // background a rule may also have asked for, and the pause belongs between
+  // this span and the next word, not around this one.
+  if (d.spaceAfter > 0) out.push(`margin-right: ${d.spaceAfter}em`)
   return out.join('; ')
 }
 

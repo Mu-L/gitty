@@ -408,6 +408,10 @@ would on a forge — and a heading this document does not have simply opens it a
 the top. Hovering such a link says so. A plain click does nothing, as before,
 and a link that climbs out past the repository root is not one of these.
 
+A link that names a directory instead — `src/`, `ref/spec` — opens the file pane
+on that folder, at the same revision: the work tree for a document read from
+the disk, that commit's snapshot for one read at a commit.
+
 Images written relative to the document are read out of the repository — at the same revision as the document, so an old
 commit shows the screenshots it shipped with. One the repository does not have
 there leaves a dashed placeholder with its alt text. Images from the web are not
@@ -718,7 +722,7 @@ them start off.
 
 | plugin | what it does |
 | --- | --- |
-| **Semantic reading** | A language analyser reads the prose of a rendered markdown document and underlines the proper nouns in it — the names of people, places and organisations — so a paragraph can be skimmed for who and where it is about. Latin words inside CJK prose (`GPT-4`, `Claude`, `v0.1.9` in a Chinese sentence) get a colour of their own instead of a line, which needs no analyser and holds even when none can answer. Markup is untouched, and so is code: a fenced block, an inline code span and a link target are never marked. |
+| **Semantic reading** | A language analyser reads the prose of a rendered markdown document and underlines the proper nouns in it — the names of people, places and organisations — so a paragraph can be skimmed for who and where it is about. Latin words inside CJK prose (`GPT-4`, `Claude`, `v0.1.9` in a Chinese sentence) get a colour of their own instead of a line, and the end of each sentence gets weight and a little extra room after it, so a paragraph can be counted in sentences at a glance. Neither of those two needs an analyser, so both hold even when none can answer. Markup is untouched, and so is code: a fenced block, an inline code span and a link target are never marked. |
 
 Semantic reading has three settings of its own, shown once it is on.
 **Analyser** is who does the reading: **jieba** segments the text on this
@@ -729,8 +733,11 @@ analyser that cannot answer leaves the document exactly as it was.
 
 **Mark styles** opens `rules.json`, which says what each kind of mark looks
 like: `underline` (`none`, `solid`, `dotted`, `dashed`, `double`, `wavy`),
-`underlineColor`, `color`, `background`, `bold` and `italic`, one entry each for
-`person`, `place`, `org`, `proper` and `latin`. Colours are `#rgb`, `#rrggbb` or
+`underlineColor`, `color`, `background`, `bold`, `italic` and `spaceAfter`, one
+entry each for
+`person`, `place`, `org`, `proper`, `latin` and `sentence-end`. `spaceAfter` is
+extra room after the mark, in em, up to 2 — which is what the default gives a
+sentence ending instead of another colour. Colours are `#rgb`, `#rrggbb` or
 `#rrggbbaa`, and are the dark theme's — the file has no second palette for the
 light one. Edit it, reopen the document, and the change is there.
 

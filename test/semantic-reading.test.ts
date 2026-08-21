@@ -3,7 +3,8 @@ import {
   latinSpans,
   locateTerms,
   taggedSpans,
-  withLatin,
+  sentenceSpans,
+  withPatterns,
   worthAnalysing
 } from '../src/plugins/semantic-reading/analyze'
 import { marksCss } from '../src/plugins/semantic-reading/render'
@@ -120,19 +121,46 @@ describe('latinSpans', () => {
   })
 })
 
-describe('withLatin', () => {
+describe('sentenceSpans', () => {
+  const marked = (text: string): string[] =>
+    sentenceSpans(text).map((s) => text.slice(s.start, s.end))
+
+  it('marks the full-width terminators wherever they are', () => {
+    expect(marked('好了。真的吗？走！')).toEqual(['。', '？', '！'])
+  })
+
+  it('takes a run of them as one ending', () => {
+    expect(marked('等等……')).toEqual(['……'])
+    expect(marked('what?! now')).toEqual(['?!'])
+  })
+
+  it('needs whitespace or the end after an ascii terminator', () => {
+    expect(marked('v0.1.9 shipped')).toEqual([])
+    expect(marked('see google.com now')).toEqual([])
+    expect(marked('It shipped. Then it broke.')).toEqual(['.', '.'])
+  })
+
+  it('leaves an abbreviation and an initial alone', () => {
+    expect(marked('e.g. this one')).toEqual([])
+    expect(marked('the U.S. again')).toEqual([])
+    expect(marked('J. Smith wrote it')).toEqual([])
+  })
+})
+
+describe('withPatterns', () => {
   it('lets the analyser keep what it claimed', () => {
     const text = '我们用 Claude 做评测'
-    const found = withLatin(text, [{ start: 4, end: 10, kind: 'org' }])
+    const found = withPatterns(text, [{ start: 4, end: 10, kind: 'org' }])
     expect(found).toEqual([{ start: 4, end: 10, kind: 'org' }])
   })
 
-  it('answers in ascending order with the runs merged in', () => {
-    const text = '北京的 Claude 团队'
-    const found = withLatin(text, [{ start: 0, end: 2, kind: 'place' }])
+  it('answers in ascending order with every pattern merged in', () => {
+    const text = '北京的 Claude 团队。'
+    const found = withPatterns(text, [{ start: 0, end: 2, kind: 'place' }])
     expect(found).toEqual([
       { start: 0, end: 2, kind: 'place' },
-      { start: 4, end: 10, kind: 'latin' }
+      { start: 4, end: 10, kind: 'latin' },
+      { start: 13, end: 14, kind: 'sentence-end' }
     ])
   })
 })
@@ -156,9 +184,11 @@ describe('marksCss', () => {
     const css = marksCss(DEFAULT_RULES)
     expect(css).toContain('.md-body .pl-semantic-reading-person {')
     expect(css).toContain('text-decoration-color: #7aa2f7')
-    // Four proper-noun kinds underlined, and the latin run coloured.
+    // Four proper-noun kinds underlined, the latin run coloured, and the
+    // sentence ending given weight and a gap.
     expect(css).toContain('.md-body .pl-semantic-reading-latin { color: #4fc3d0 }')
-    expect(css.split('\n')).toHaveLength(5)
+    expect(css).toContain('margin-right: 0.35em')
+    expect(css.split('\n')).toHaveLength(6)
   })
 
   it('leaves out a kind the reader asked for nothing on', () => {
@@ -170,7 +200,8 @@ describe('marksCss', () => {
         color: null,
         background: null,
         bold: false,
-        italic: false
+        italic: false,
+        spaceAfter: 0
       }
     }
     expect(marksCss(rules)).not.toContain('prose-org')

@@ -4,6 +4,7 @@ import type { PluginHost } from '../../types'
 import {
   DEFAULT_RULES,
   KINDS,
+  MAX_SPACE_AFTER,
   UNDERLINES,
   type ConfigPaths,
   type Decoration,
@@ -113,6 +114,13 @@ function bool(v: unknown, fallback: boolean): boolean {
   return typeof v === 'boolean' ? v : fallback
 }
 
+/** A gap in em, clamped rather than refused: a reader who asked for four
+ *  wanted a wide pause, and the widest one there is says the same thing. */
+function em(v: unknown, fallback: number): number {
+  if (typeof v !== 'number' || !Number.isFinite(v)) return fallback
+  return Math.min(MAX_SPACE_AFTER, Math.max(0, v))
+}
+
 /**
  * One kind's decoration, field by field. Nothing is passed through: these
  * values end up inside a stylesheet, so a value that is not one of ours falls
@@ -127,7 +135,8 @@ function decoration(raw: unknown, fallback: Decoration): Decoration {
     color: color(d.color, fallback.color),
     background: color(d.background, fallback.background),
     bold: bool(d.bold, fallback.bold),
-    italic: bool(d.italic, fallback.italic)
+    italic: bool(d.italic, fallback.italic),
+    spaceAfter: em(d.spaceAfter, fallback.spaceAfter)
   }
 }
 
@@ -140,9 +149,16 @@ export const rules = cachedFile<Rules>(
     for (const kind of KINDS) out[kind] = decoration(src[kind], DEFAULT_RULES[kind])
     return out
   },
-  (raw) => {
+  // A kind this version knows and the file does not, or a field a decoration
+  // has grown: either way the file is describing an older version of itself,
+  // and is written back with the rest filled in.
+  (raw, value) => {
     const src = (raw ?? {}) as Record<string, unknown>
-    return KINDS.some((kind) => !(kind in src))
+    return KINDS.some((kind) => {
+      const had = src[kind]
+      if (!had || typeof had !== 'object') return true
+      return Object.keys(value[kind]).some((field) => !(field in had))
+    })
   }
 )
 
