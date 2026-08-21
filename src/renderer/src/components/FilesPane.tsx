@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type JSX } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type JSX } from 'react'
 import { useMsg } from '../locale'
 import type { FileChurn } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
@@ -116,7 +116,9 @@ export function FilesPane({
   onOpen,
   onMenu,
   onToggleStage,
-  emptyText
+  emptyText,
+  reveal,
+  onRevealConsumed
 }: {
   entries: FileEntry[]
   /** Sort names the way a reader does rather than by code unit. */
@@ -138,6 +140,11 @@ export function FilesPane({
    *  it to and the marks are just a status. */
   onToggleStage?: (entry: FileEntry) => void
   emptyText: string
+  /** A directory a rendered document linked to: open the way to it and bring
+   *  it into view. The key lets the same folder be asked for again. */
+  reveal?: { dir: string; key: number } | null
+  /** The revealed folder was found and scrolled to; the asker can drop it. */
+  onRevealConsumed?: () => void
 }): JSX.Element {
   const { msg } = useMsg()
   // What the user has changed from the default, rather than what is shut: the
@@ -175,15 +182,52 @@ export function FilesPane({
       return next
     })
 
+  // A link in a rendered document named this directory: open the way to it and
+  // bring it into view. Consumed once — `key` lets the same folder be asked for
+  // again — and only when the row actually exists, because the entries arrive
+  // in two passes and a reveal that lands before the tree is there retries.
+  const rootRef = useRef<HTMLDivElement>(null)
+  const consumedReveal = useRef(-1)
+  useEffect(() => {
+    if (!reveal || consumedReveal.current === reveal.key) return
+    const parts = reveal.dir.split('/')
+    const ancestors: string[] = []
+    for (let i = 1; i <= parts.length; i++) ancestors.push(parts.slice(0, i).join('/'))
+    setToggled((prev) => {
+      const next = new Set(prev)
+      for (const a of ancestors) {
+        // Closed is `toggled.has(key) !== startCollapsed`, so opening an
+        // ancestor means having it in the set when collapsed and out when not.
+        if (startCollapsed) next.add(a)
+        else next.delete(a)
+      }
+      return next
+    })
+    // The rows rebuild from the new `toggled`, so the scroll waits two frames.
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const el = rootRef.current?.querySelector<HTMLElement>(
+          `[data-dir="${CSS.escape(reveal.dir)}"]`
+        )
+        if (!el) return
+        el.scrollIntoView({ block: 'center' })
+        consumedReveal.current = reveal.key
+        onRevealConsumed?.()
+      })
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [reveal, startCollapsed, entries, onRevealConsumed])
+
   if (entries.length === 0) return <div className="empty">{emptyText}</div>
   if (rows.length === 0) return <div className="empty">{msg.files.filterNone}</div>
 
   return (
-    <div>
+    <div ref={rootRef}>
       {rows.map((row) =>
         row.kind === 'dir' ? (
           <div
             key={`d:${row.key}`}
+            data-dir={row.key}
             className="row"
             onClick={() => toggle(row.key)}
             title={row.key}

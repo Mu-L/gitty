@@ -38,6 +38,9 @@ export interface FilesViewProps {
   onBrowseWorkTree: () => void
   setMenu: (m: MenuState | null) => void
   revForView: () => string | null
+  /** A directory a rendered document linked to; handed down to the tree. */
+  reveal?: { dir: string; key: number } | null
+  onRevealConsumed?: () => void
 }
 
 /**
@@ -67,7 +70,9 @@ export function FilesView({
   onBackToWorkTree,
   onBrowseWorkTree,
   setMenu,
-  revForView
+  revForView,
+  reveal,
+  onRevealConsumed
 }: FilesViewProps): JSX.Element {
   const { msg } = useMsg()
   const [searchOpen, setSearchOpen] = useState(false)
@@ -357,6 +362,8 @@ export function FilesView({
           onMenu={onMenu}
           onToggleStage={view.mode === 'worktree' ? onToggleStage : undefined}
           emptyText={emptyText}
+          reveal={reveal}
+          onRevealConsumed={onRevealConsumed}
         />
       </div>
     </div>

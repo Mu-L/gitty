@@ -166,7 +166,7 @@ export const ko: RendererMessages = {
     previewTitle: '이 마크다운 파일을 렌더링해 diff 옆에 열기',
     viewImageTitle: '이 이미지를 diff 옆에 표시',
     viewFileTitle: '파일 전체를 diff 옆에 열기',
-    openLinkHint: 'Ctrl+클릭하면 이 파일을 Gitty에서 열기',
+    openLinkHint: 'Ctrl+클릭하면 Gitty에서 열기',
     markdownSourceTitle: '마크다운 원본 보기',
     renderMarkdownTitle: '이 마크다운 파일 렌더링하기',
     htmlPreviewTitle: '이 HTML 파일을 렌더링하여 열기',

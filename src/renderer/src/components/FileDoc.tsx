@@ -41,6 +41,7 @@ export function FileDoc({
   gotoLine,
   onLineHistory,
   onOpenPath,
+  onOpenDir,
   anchor
 }: {
   root: string
@@ -77,6 +78,8 @@ export function FileDoc({
   onLineHistory?: (start: number, end: number) => void
   /** Ctrl+click on a rendered markdown link into this repository. */
   onOpenPath?: (path: string, rev: string | null, anchor?: string) => void
+  /** A markdown link that names a directory, Ctrl+clicked. */
+  onOpenDir?: (path: string, rev: string | null) => void
   /** Heading to open a rendered document at, from a link's `#fragment`. */
   anchor?: string
 }): JSX.Element {
@@ -200,6 +203,7 @@ export function FileDoc({
       active={active}
       onMenu={onMenu}
       onOpenPath={onOpenPath}
+      onOpenDir={onOpenDir}
       anchor={anchor}
     />
   ) : preview && isHtmlPath(path) ? (

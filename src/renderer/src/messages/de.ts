@@ -168,7 +168,7 @@ export const de: RendererMessages = {
     previewTitle: 'Diese Markdown-Datei gerendert neben dem Diff öffnen',
     viewImageTitle: 'Dieses Bild neben dem Diff anzeigen',
     viewFileTitle: 'Die ganze Datei neben dem Diff öffnen',
-    openLinkHint: 'Strg+Klick, um diese Datei in Gitty zu öffnen',
+    openLinkHint: 'Strg+Klick, um dies in Gitty zu öffnen',
     markdownSourceTitle: 'Stattdessen den Markdown-Quelltext anzeigen',
     renderMarkdownTitle: 'Diese Markdown-Datei rendern',
     htmlPreviewTitle: 'Diese HTML-Datei gerendert öffnen',

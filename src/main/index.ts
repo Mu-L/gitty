@@ -631,6 +631,10 @@ function registerIpc(): void {
     git.readWorkingFile(root, filePath)
   )
 
+  ipcMain.handle('git:pathKind', (_e, root: string, rev: string | null, filePath: string) =>
+    git.pathKind(root, rev, filePath)
+  )
+
   ipcMain.handle('git:readImage', (_e, root: string, rev: string | null, filePath: string) =>
     git.readImageFile(root, rev, filePath)
   )

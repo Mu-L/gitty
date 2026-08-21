@@ -20,6 +20,7 @@ import type {
   HunkPick,
   ImageFileContent,
   LogFilterMode,
+  PathKind,
   PtyExit,
   RepoChanged,
   RepoStatus,
@@ -209,6 +210,11 @@ const api = {
       ipcRenderer.invoke('git:snapshotOpen', root, hash, filePath),
     readWorking: (root: string, filePath: string): Promise<SnapshotFileContent> =>
       ipcRenderer.invoke('git:readWorking', root, filePath),
+    /** Whether a path is a file or a directory, at the revision it was asked
+     *  about — the work tree when `rev` is null. A markdown link can name
+     *  either, and which it is decides what Gitty does with the click. */
+    pathKind: (root: string, rev: string | null, filePath: string): Promise<PathKind> =>
+      ipcRenderer.invoke('git:pathKind', root, rev, filePath),
     readImage: (root: string, rev: string | null, filePath: string): Promise<ImageFileContent> =>
       ipcRenderer.invoke('git:readImage', root, rev, filePath),
     /** Count lines for a batch of files; returns counts in the same order. */

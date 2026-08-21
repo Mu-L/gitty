@@ -231,6 +231,9 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const [diff, setDiff] = useState<DiffResult | null>(null)
   const [selectedCommit, setSelectedCommit] = useState<string | null>(WORKTREE_ROW)
   const [compareCommit, setCompareCommit] = useState<string | null>(null)
+  // A directory a rendered document linked to; the file pane opens the way to
+  // it and reports back, whereupon this is dropped.
+  const [revealDir, setRevealDir] = useState<{ dir: string; key: number } | null>(null)
   const [menu, setMenu] = useState<MenuState | null>(null)
   // The "New command…" prompt from the agent dropdown.
   const [agentPrompt, setAgentPrompt] = useState(false)
@@ -716,6 +719,44 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setView({ mode: 'snapshot', hash: null, short: '', subject: '' })
     onLayout(BROWSE_PANES)
   }, [onLayout])
+
+  /**
+   * A link inside a rendered document named a directory rather than a file:
+   * browse to that folder in the file pane, at the document's own revision —
+   * the work tree when the document is read from it, that commit's snapshot
+   * otherwise. A folder has no document of its own to open beside the diff.
+   */
+  const openLinkedDir = useCallback(
+    (dir: string, rev: string | null) => {
+      setCompareCommit(null)
+      setSelectedFile(null)
+      setDocs([])
+      setActiveDoc(null)
+      if (rev === null) {
+        setSelectedCommit(WORKTREE_ROW)
+        setView({ mode: 'snapshot', hash: null, short: '', subject: '' })
+      } else {
+        const c = commits.find((x) => x.hash === rev)
+        setSelectedCommit(rev)
+        setView({
+          mode: 'snapshot',
+          hash: rev,
+          short: c?.short ?? rev.slice(0, 8),
+          subject: c?.subject ?? ''
+        })
+      }
+      // The reading layout has a place for the tree; a full-screen diff would
+      // sit on top of it. The folder is asked for after, so the tree is on
+      // screen when the request lands.
+      onLayout(BROWSE_PANES)
+      setFull(null)
+      setRevealDir((prev) => ({ dir, key: (prev?.key ?? 0) + 1 }))
+    },
+    [commits, onLayout]
+  )
+
+  /** The file pane found the linked folder; nothing left to reveal. */
+  const clearReveal = useCallback(() => setRevealDir(null), [])
 
   /**
    * Paste whatever files the system clipboard holds into a directory of the
@@ -1231,6 +1272,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                 onBrowseWorkTree={browseWorktree}
                 setMenu={setMenu}
                 revForView={revForView}
+                reveal={revealDir}
+                onRevealConsumed={clearReveal}
               />
             </Panel>
             )}
@@ -1295,6 +1338,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       gotoLine={doc.line}
                       onOpenHit={openHit}
                       onOpenPath={openLinkedPath}
+                      onOpenDir={openLinkedDir}
                       anchor={doc.anchor}
                       onLineHistory={(start, end) => openLineHistory(doc.path, start, end)}
                     />

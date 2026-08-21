@@ -225,6 +225,13 @@ export interface WorktreeFile {
 }
 
 /**
+ * What a path in the repository is, asked at one revision. A link in a rendered
+ * document can name a directory as easily as a file; which one it is decides
+ * whether Gitty opens a document or browses to the folder.
+ */
+export type PathKind = 'file' | 'dir' | 'missing'
+
+/**
  * One entry of a commit's tree listing. `exec` is git's own record of the mode
  * — `100755` rather than `100644` — which is what "this file was a program at
  * that revision" means; nothing on disk is consulted for it.

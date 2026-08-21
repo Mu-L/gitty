@@ -323,6 +323,7 @@ export function MarkdownPane({
   active,
   onMenu,
   onOpenPath,
+  onOpenDir,
   anchor
 }: {
   source: string
@@ -346,6 +347,9 @@ export function MarkdownPane({
    *  document's own revision rather than the view's — the link was written
    *  about the text it sits in. */
   onOpenPath?: (path: string, rev: string | null, anchor?: string) => void
+  /** A link that names a directory: jump the file pane to that folder, at the
+   *  document's own revision — a folder has no document of its own to open. */
+  onOpenDir?: (path: string, rev: string | null) => void
   /** Heading this document was opened at, from the `#fragment` of the link
    *  that opened it. */
   anchor?: string
@@ -518,13 +522,24 @@ export function MarkdownPane({
         if (/^https?:\/\//i.test(href)) void window.gitty.file.openExternal(href)
         else if (href.startsWith('#')) goto(href.slice(1))
         else if (e.ctrlKey || e.metaKey) {
-          // A path in the repository, opened as a document of its own. Anything
-          // that escapes the root — or names another scheme — is left alone.
+          // A path in the repository. Anything that escapes the root — or names
+          // another scheme — is left alone.
           if (/^[a-z][a-z0-9+.-]*:/i.test(href)) return
           const target = resolveInRepo(docPath, href)
+          if (!target) return
           // The fragment travels with it: `manual.md#the-window` opens the
           // manual at that heading, the way it would on a forge.
-          if (target) onOpenPath?.(target, rev, href.split('#')[1] || undefined)
+          const anchor = href.split('#')[1] || undefined
+          // A link can name a directory as well as a file, and a folder has no
+          // document of its own — so the kind is settled before anything is
+          // opened, and a directory jumps the file pane to that folder instead.
+          void window.gitty.git
+            .pathKind(root, rev, target)
+            .then((kind) => {
+              if (kind === 'dir') onOpenDir?.(target, rev)
+              else onOpenPath?.(target, rev, anchor)
+            })
+            .catch(() => onOpenPath?.(target, rev, anchor))
         }
       }}
       dangerouslySetInnerHTML={htmlProp}

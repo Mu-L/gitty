@@ -20,6 +20,7 @@ import type {
   GrepResult,
   ImageFileContent,
   LogFilterMode,
+  PathKind,
   RepoStatus,
   SnapshotEntry,
   SnapshotExport,
@@ -680,6 +681,45 @@ export async function readWorkingFile(
   if (stat.size > MAX_PATCH_BYTES) return { content: '', binary: true }
   const content = await fs.promises.readFile(abs, 'utf8')
   return content.includes('\0') ? { content: '', binary: true } : { content, binary: false }
+}
+
+/**
+ * Whether a path is a file or a directory, at the revision the asker is reading
+ * — the work tree when `rev` is null, that commit's tree otherwise. A link in a
+ * rendered document can name either; which it is decides how Gitty follows it.
+ */
+export async function pathKind(
+  root: string,
+  rev: string | null,
+  filePath: string
+): Promise<PathKind> {
+  if (rev === null) {
+    const abs = path.resolve(root, filePath)
+    // Never read outside the repository, whatever the renderer asks for.
+    if (abs !== root && !abs.startsWith(root + path.sep)) {
+      throw new Error(msg.git.pathEscapesRepo)
+    }
+    try {
+      const s = await fs.promises.stat(abs)
+      return s.isDirectory() ? 'dir' : 'file'
+    } catch {
+      return 'missing'
+    }
+  }
+  // `-d` matches a directory itself (or a submodule) without listing its
+  // children; a plain `ls-tree -- <path>` then distinguishes a file from a miss.
+  try {
+    const dirs = await git(root, ['ls-tree', '-d', '-z', rev, '--', filePath])
+    if (dirs.length > 0) return 'dir'
+  } catch {
+    return 'missing'
+  }
+  try {
+    const files = await git(root, ['ls-tree', '-z', rev, '--', filePath])
+    return files.length > 0 ? 'file' : 'missing'
+  } catch {
+    return 'missing'
+  }
 }
 
 /**

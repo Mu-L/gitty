@@ -164,7 +164,7 @@ export const zh: RendererMessages = {
     previewTitle: '在差异旁以渲染模式打开此 Markdown 文件',
     viewImageTitle: '在差异旁显示此图片',
     viewFileTitle: '在差异旁打开完整文件',
-    openLinkHint: 'Ctrl+单击在 Gitty 中打开这个文件',
+    openLinkHint: 'Ctrl+单击在 Gitty 中打开此项',
     markdownSourceTitle: '改为显示 Markdown 源码',
     renderMarkdownTitle: '渲染此 Markdown 文件',
     htmlPreviewTitle: '以渲染形式打开此 HTML 文件',
