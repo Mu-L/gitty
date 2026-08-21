@@ -121,7 +121,27 @@ back `report` and `setMessage`: it is the only place git's own words appear, so
 staging's failures and the terminal hand-over's complaints go through it too. Inactive tabs stay mounted (`display: none`),
 so switching never disturbs another repo's view state or shells. The main
 process keeps one watcher per root and tags `repo:changed` with the root, so
-each tab refreshes only its own repository. The tab bar (basename, dirty dot,
+each tab refreshes only its own repository. A refresh re-reads the log from the
+top, as far down as it has been paged in (`loaded`, a ref, because reading it
+inside `refresh` would rebuild the callback out of its own result), and the
+answer **replaces** the loaded rows. Merging them is what paging does, and only
+paging: it appends, and a rebase rewrites hashes, so every replayed commit looks
+new and would land below the stale rows it had just replaced — the newest
+commits gone from the top of a log that had been scrolled.
+
+The rewritten commits leave something behind, too. `git show` still answers for
+a commit that has left the branch, so a selection naming one does not fail: the
+log highlights nothing while the diff pane goes on showing it. When the rows
+change, a commit that **was** in the window and is not in the new one is taken
+as rewritten — the view goes back to Changes, the compare mark and the
+documents read at it are dropped, and `prunePlaces` (`nav.ts`,
+`test/nav.test.ts`) takes the places naming it out of the browsing history.
+Two conditions keep that from misfiring, and both are needed. The rows must be
+the whole history rather than a filtered slice of it, and the last row of the
+old window must still be in the new one — both lists start at HEAD, so that is
+what says the window has not merely slid under newly arrived commits. Absence
+alone proves nothing: a commit reached from a file's history, from blame or
+from a search can sit deeper than the log has ever paged in. The tab bar (basename, dirty dot,
 close button, `+` to open) sits below the panes, with an empty state when every
 tab is closed. Tabs can be dragged into a new order — the order is the `roots`
 array, so it is remembered exactly as the open set is — and right-clicking one

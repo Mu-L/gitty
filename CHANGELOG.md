@@ -41,6 +41,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A rebase no longer hides the newest commits in a log that has been scrolled:
+  refreshing re-reads the whole loaded window and replaces it, where it used to
+  append what it did not recognise.
+- A selection whose commit a rebase rewrote goes back to **Changes**, closes the
+  documents read at it and leaves the browsing history. The panes used to go on
+  showing a commit that had left the branch.
 - **Open Remote URL** expands a bare host through `~/.ssh/config`
   (`git@github:…` → github.com, restoring `ssh.` transport endpoints) and
   remembers each repository's resolution on disk, so reopening it skips the

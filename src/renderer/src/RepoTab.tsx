@@ -37,6 +37,7 @@ import { Tooltip } from './components/Tooltip'
 import { createContextMenus, type View } from './contextMenus'
 import {
   newNavHistory,
+  prunePlaces,
   pushPlace,
   type NavHistory,
   type NavPlace
@@ -270,6 +271,15 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const [remoteCommitBase, setRemoteCommitBase] = useState<string | null>(null)
   const loadingMore = useRef(false)
   const exhausted = useRef(false)
+  // How many rows a refresh re-reads: everything paged in so far, so the whole
+  // loaded window is replaced rather than patched. A ref, not state, or reading
+  // it would rebuild `refresh` out of its own result and loop.
+  const loaded = useRef(PAGE)
+  // The rows as they were last rendered, so a refresh can be compared with what
+  // it replaces, and whether they were the whole history rather than a filtered
+  // slice of it.
+  const rows = useRef<Commit[]>([])
+  const comparable = useRef(false)
   // The log filter. `filter` is what the box shows, so typing stays fluid; the
   // debounced copy is what git sees, so a keystroke per character does not each
   // fire a git log.
@@ -301,6 +311,14 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // The filter of the last run; a change means old results belong to a
   // different query and must be swapped for the new ones, never merged.
   const lastFilter = useRef('')
+  // Another query — another branch, another filter, another mode — has a window
+  // of its own and starts at one page. Declared above the effect that runs
+  // `refresh`, so the reset lands before the read it applies to: a pickaxe
+  // sized by the previous query's window would read far more history than the
+  // one page it is being asked for.
+  useEffect(() => {
+    loaded.current = PAGE
+  }, [browsing, debouncedFilter, filterMode, allBranches])
 
   const refresh = useCallback(async () => {
     const seq = ++refreshSeq.current
@@ -308,7 +326,15 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     if (pickaxe) setSearching(true)
     const [st, log] = await Promise.all([
       window.gitty.git.status(root),
-      window.gitty.git.log(root, PAGE, 0, browsing, debouncedFilter, filterMode, allBranches)
+      window.gitty.git.log(
+        root,
+        loaded.current,
+        0,
+        browsing,
+        debouncedFilter,
+        filterMode,
+        allBranches
+      )
     ])
     if (seq !== refreshSeq.current) return
     setSearching(false)
@@ -319,12 +345,80 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     const query = `${filterMode}\u0000${allBranches}\u0000${debouncedFilter}`
     const filterChanged = lastFilter.current !== query
     lastFilter.current = query
-    if (filterChanged) exhausted.current = false
-    setCommits(
-      filterChanged ? log : (prev) => (prev.length > PAGE ? mergeLog(prev, log) : log)
-    )
+    if (filterChanged || log.length >= loaded.current) exhausted.current = false
+    // A refresh re-reads the log from the top, as far down as it has been paged
+    // in, and the answer replaces what was there. Merging would be wrong: a
+    // rebase rewrites hashes, so every replayed commit looks new and would be
+    // appended below the stale rows it replaced — which is where the newest
+    // commits went missing.
+    // Whether these rows can be read as the whole history: a filtered log is
+    // missing commits that are perfectly alive, and the first log of a new
+    // query has nothing before it to compare against.
+    comparable.current = !filterChanged && debouncedFilter === ''
+    setCommits(log)
     setTick((t) => t + 1)
   }, [root, browsing, onStatus, debouncedFilter, filterMode, allBranches])
+
+  /**
+   * The rows changed, and two things follow. How far the next refresh re-reads
+   * — everything paged in so far. And whether the selection still names a
+   * commit this history has: a rebase replays every commit under a new hash,
+   * and the old ones stay readable in the object database, so a stale
+   * selection does not fail. The log simply highlights nothing while the diff
+   * pane goes on showing a commit that has left the branch. Going back to
+   * Changes is the honest answer, and the browsing history is pruned with it,
+   * since stepping back into a rewritten commit is the same lie.
+   *
+   * The tail is what makes that safe to decide from the rows alone. Both lists
+   * start at HEAD, so if the last row of the old window is still in the new
+   * one, the new window reaches at least as far back as the old did and
+   * anything missing from it is really gone. When the tail is missing too, the
+   * window has merely slid under newly arrived commits and nothing can be
+   * concluded — so nothing is.
+   *
+   * The view and the selection are read without being listed as dependencies:
+   * React keeps the newest closure, so what runs sees the current values, and
+   * listing them would run this on every click instead of when the log moves.
+   */
+  useEffect(() => {
+    const before = rows.current
+    rows.current = commits
+    loaded.current = Math.max(PAGE, commits.length)
+    if (!comparable.current || before.length === 0 || commits.length === 0) return
+    const here = new Set(commits.map((c) => c.hash))
+    if (!here.has(before[before.length - 1].hash)) return
+    // Gone means it was in the window and no longer is. Merely being absent
+    // proves nothing: a commit reached from a file's history, from blame or
+    // from a search can sit far deeper than the log has ever paged in, and it
+    // is as alive as any other.
+    const was = new Set(before.map((c) => c.hash))
+    const gone = (h: string): boolean => h !== WORKTREE_ROW && was.has(h) && !here.has(h)
+    setNav((h) => prunePlaces(h, gone))
+    if (compareCommit && gone(compareCommit)) setCompareCommit(null)
+    // A document read at a rewritten commit is stale the same way, and closing
+    // it is also what keeps the strip and the pruned history describing the
+    // same place.
+    const stale = docs.filter((d) => d.rev !== null && gone(d.rev))
+    if (stale.length > 0) {
+      const kept = docs.filter((d) => !stale.includes(d))
+      setDocs(kept)
+      if (activeDoc !== null && stale.some((d) => d.id === activeDoc)) {
+        setActiveDoc(kept.length > 0 ? kept[kept.length - 1].id : null)
+      }
+    }
+    const dead =
+      view.mode === 'commit'
+        ? gone(view.hash)
+        : view.mode === 'snapshot'
+          ? view.hash !== null && gone(view.hash)
+          : view.mode === 'range' && (gone(view.from) || gone(view.to))
+    if (!dead) return
+    setView({ mode: 'worktree' })
+    setSelectedCommit(WORKTREE_ROW)
+    setSelectedFile(null)
+    setDocs([])
+    setActiveDoc(null)
+  }, [commits])
 
   // Another branch means another history: drop what is loaded rather than
   // merging two logs, and let go of a selection that may not be in it. The
@@ -1559,7 +1653,11 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   )
 })
 
-/** Append newly fetched commits, skipping any we already hold. */
+/**
+ * Append the next page of older commits, skipping any we already hold. Paging
+ * only: a refresh replaces the loaded rows instead, because these are appended
+ * and a rebase's rewritten commits would be appended too.
+ */
 function mergeLog(prev: Commit[], next: Commit[]): Commit[] {
   const seen = new Set(prev.map((c) => c.hash))
   return [...prev, ...next.filter((c) => !seen.has(c.hash))]

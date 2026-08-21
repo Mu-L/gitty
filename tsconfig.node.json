@@ -30,5 +30,5 @@
   // A plugin's `ui/` half is the renderer's: it reaches for the DOM and for
   // the renderer's own modules, so it belongs to the web project. Everything
   // else under a plugin is compiled by both.
-  "exclude": ["test/panes.test.ts", "src/plugins/*/ui/**"]
+  "exclude": ["test/panes.test.ts", "test/nav.test.ts", "src/plugins/*/ui/**"]
 }

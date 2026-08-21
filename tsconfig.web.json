@@ -19,7 +19,8 @@
     "src/shared/**/*.ts",
     "src/plugins/**/*.ts",
     "src/plugins/**/*.tsx",
-    "test/panes.test.ts"
+    "test/panes.test.ts",
+    "test/nav.test.ts"
   ],
   // The mirror of the node project's exclusion: a plugin's `main/` half opens
   // files and talks to Electron, and has no business in a DOM project.

@@ -125,3 +125,40 @@ export function navLabel(p: NavPlace, msg: RendererMessages): string {
   if (p.doc?.kind === 'grep') return msg.nav.search(p.doc.path)
   return label
 }
+
+/**
+ * Drop the places that name a commit the repository no longer has. A rebase
+ * replays every commit under a new hash, and the old ones stay readable in the
+ * object database — `git show` answers for them — so a stale place does not
+ * fail, it quietly shows a commit that has left the branch. It must not stay
+ * walkable.
+ *
+ * `dead` is asked about a view's hashes and about a document's revision. The
+ * index follows the place it was on, or the nearest surviving one before it,
+ * and the same object comes back when nothing is dropped, so the caller's
+ * state keeps its identity.
+ */
+export function prunePlaces(h: NavHistory, dead: (hash: string) => boolean): NavHistory {
+  const alive = (p: NavPlace): boolean => {
+    const v = p.view
+    // A null hash is the work tree, which no rewrite can take away.
+    if (v.mode === 'commit' || v.mode === 'snapshot') {
+      if (v.hash !== null && dead(v.hash)) return false
+    } else if (v.mode === 'range') {
+      if (dead(v.from) || dead(v.to)) return false
+    }
+    return !(p.doc?.rev != null && dead(p.doc.rev))
+  }
+  const kept: NavPlace[] = []
+  let index = -1
+  h.places.forEach((p, i) => {
+    if (!alive(p)) return
+    // Removing what sat between two stops can leave the same stop twice over,
+    // which `pushPlace` would never have recorded.
+    if (kept.length === 0 || !samePlace(kept[kept.length - 1], p)) kept.push(p)
+    if (i <= h.index) index = kept.length - 1
+  })
+  if (kept.length === h.places.length) return h
+  if (kept.length === 0) return newNavHistory()
+  return { places: kept, index: index < 0 ? 0 : index }
+}
