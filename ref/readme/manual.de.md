@@ -6,7 +6,7 @@ Alles, was Gitty tut, Bereich für Bereich. Das [README](../../README.md) ist di
 Kurzfassung — was es ist, warum es existiert, wie man es installiert — und bleibt
 das; hier leben die Details.
 
-> **Übersetzt am 2026-08-16.**
+> **Übersetzt am 2026-08-22.**
 > Das [englische Handbuch](manual.md) ist die offizielle Fassung und die einzige,
 > die weiter gepflegt wird. Dieses Dokument ist eine Momentaufnahme davon; wo
 > beide sich widersprechen, gilt das Englische. Die Oberfläche selbst ist
@@ -24,7 +24,8 @@ Von links nach rechts beschreibt sie das aktive Repository und handelt dann dara
 
 - **Gitty** — das Symbol und der Name ganz links öffnen den **About**-Dialog:
   Version, Build-Zeit, Autor sowie die Versionen von Electron, Chromium und
-  Node, mit einem Link zur Startseite.
+  Node, mit Links zur Startseite und zu den
+  [Tastenkürzeln](#keyboard-shortcuts).
 - **‹ › ▾** — wo du in diesem Repository gewesen bist. Siehe
   [Zurückgehen](#going-back).
 - **Der Repository-Pfad** ist eine Schaltfläche: sie öffnet das Menü der
@@ -93,9 +94,12 @@ und sagt es in Worten.
 die Titelleiste zeigt stets das aktive. Jeder Tab behält seine eigenen Bereiche
 und sein Terminal, sodass ein Commit, den man gerade liest, und eine laufen
 gelassene Shell genau dort sind, wo sie waren, wenn man weg- und zurückwechselt.
-Den letzten Tab zu schließen hinterlässt ein leeres Fenster mit einer
-Schaltfläche für das nächste Repository. (Offene Tabs werden über Neustarts
-hinweg nicht gemerkt.)
+Einen Tab an eine neue Stelle in der Leiste zu ziehen ordnet die Repositories um.
+Ein Rechtsklick auf einen Tab bietet **Rename tab…** — der Name wird für dieses
+Repository gemerkt, in der Tab-Leiste und der Titelleiste gezeigt, der echte Pfad
+bleibt im Hover-Text — und **Close repository**. Den letzten Tab zu schließen
+hinterlässt ein leeres Fenster mit einer Schaltfläche für das nächste Repository.
+(Offene Tabs werden über Neustarts hinweg nicht gemerkt.)
 
 ### Zuletzt geöffnete Repositories <a id="recent-repositories"></a>
 
@@ -119,7 +123,9 @@ Fenster mit diesem Bereich, **×** rechts blendet ihn aus.
 
 Das Vollbild deckt alles andere ab, Titel- und Tab-Leiste eingeschlossen, und die
 Bereiche darunter arbeiten weiter — das Terminal läuft auch verdeckt weiter.
-**⤡** in derselben Ecke, <kbd>Esc</kbd>, ein Doppelklick auf die Kopfzeile oder
+**⤡** in derselben Ecke, <kbd>Esc</kbd>, ein Doppelklick auf die Kopfzeile (auf
+ihre leere Fläche — die Schaltflächen und das Titelmenü des Changes-Bereichs haben
+ihre eigene Bedeutung) oder
 <kbd>Strg+Umschalt+1</kbd> … <kbd>Strg+Umschalt+4</kbd> stellen das Layout wieder
 her. Nur ein Bereich ist gleichzeitig im Vollbild.
 
@@ -149,6 +155,12 @@ leeres Fenster ließe nichts zum Anklicken übrig. Ausgeblendete Bereiche werden
 über Neustarts gemerkt, und der Terminal-Bereich wird nur weggeräumt, nie
 geschlossen: seine Shells laufen weiter und kommen mit ihrem Scrollback zurück.
 
+Ein Bereich lässt sich auch wegklappen, indem man einen Trenner an den Fensterrand
+zieht: der Trenner zwischen den beiden Reihen klappt jene Reihe weg, und jeder der
+senkrechten Trenner klappt den Bereich auf seiner Seite weg — der Nachbar nimmt den
+frei gewordenen Platz. Den Trenner zurückzuziehen stellt die Teilung wieder her.
+Nützlich, wenn ein Teil des Fensters die volle Breite oder Höhe verdient.
+
 ## Die Bereiche <a id="the-panes"></a>
 
 ### Changes (oben links) <a id="changes-top-left"></a>
@@ -162,7 +174,16 @@ Verzeichnisse vor Dateien, und innerhalb jeder Gruppe sind Namen so sortiert,
 wie es ein Leser erwartet, statt wie es ein Bytevergleich tut: die Ziffern in
 einem Namen zählen als Zahl, also kommt `W9` vor `W10`, und Groß-/Kleinschreibung
 ist kein Unterschied erster Ordnung, also sortiert `butler/` zu den b's statt
-hinter jeden Großbuchstaben. Zwei Statusspalten werden gezeigt: der Zustand im
+hinter jeden Großbuchstaben.
+
+Jeder Name trägt ein Typ-Symbol: die Form ist die Familie — Quelltext,
+strukturierte Daten, Markup, Stylesheet, Prosa, Bild, Archiv, Shell-Skript,
+Lockfile, Kompilat — und die Farbe ist die Sprache, `.ts` und `.py` sind also
+dieselbe Glyphe in verschiedenen Farben. Python ist die eine Sprache, die als sie
+selbst gezeichnet wird, in ihrem eigenen Blau und Gelb. Eine Endung, die Gitty
+nicht kennt, bekommt ein schlichtes Blatt statt einer Vermutung.
+
+Zwei Statusspalten werden gezeigt: der Zustand im
 Index (grün) und der im Arbeitsverzeichnis (gelb / rot); unversionierte Dateien
 sind `??`. Die Zahl wird im Arbeitsverzeichnis von der Platte und sonst aus der
 Revision gelesen; Binärdateien, gelöschte Dateien und alles über 8 MB zeigen
@@ -173,6 +194,28 @@ Eine Momentaufnahme ist ein Baum und keine Änderung, daher hat sie keinen
 Änderungsumfang; ebenso Binärdateien oder ein Merge-Commit, dessen kombiniertes
 Diff nichts zuschreibt.
 
+Der Titel des Bereichs sagt, was aufgelistet ist, und ein Klick darauf öffnet ein
+Menü der beiden ständigen Ansichten: **Changes**, die nicht committeten, und
+**Working Tree**, jede Datei im Verzeichnis auf der Platte, nur lesbar. Ein Haken
+markiert die, die auf dem Schirm ist; aus einem Commit, einem Bereich oder einer
+Momentaufnahme ist dasselbe Menü der Weg zurück zu beiden.
+
+**Working Tree** heißt jede Datei: die, die `.gitignore` abdeckt — Build-Ausgaben,
+`node_modules`, was auch immer — stehen wie die übrigen in der Liste, in gedämpfter
+Kursive, und ein Ordner, der nichts als ignorierte Dateien enthält, ist ebenfalls
+gedämpft. Sie öffnen und lesen sich wie jede andere Datei; nur ihre Zeilenzahlen
+bleiben weg, denn sie zu zählen hieße, jedes Byte eines Verzeichnisses zu lesen,
+das für gewöhnlich das größte auf der Platte ist. `.git` selbst wird nicht
+aufgelistet.
+
+<kbd>Strg+B</kbd> — b wie browse — ist das Kürzel dorthin von überall her, und es
+richtet das Fenster ebenso zum Lesen ein, wie es die Ansicht wechselt: Commits und
+das Terminal treten beiseite und lassen den Baum und das, was er öffnet. Zurück
+führt <kbd>Strg+D</kbd>: wieder die Änderungen, mit allen vier Bereichen. Im
+Terminal bleibt diese Taste das Eingabeende — so verlässt man eine Shell — das Paar
+funktioniert also überall sonst. Beide Tasten stehen im Hover-Text des
+Bereichstitels.
+
 - **Klick** — das Diff der Datei rechts zeigen.
 - **Doppelklick** — die ganze Datei als Dokument neben dem Diff öffnen, mit
   Zeilennummern und Syntaxhervorhebung (ein gerendertes Dokument bei Markdown,
@@ -181,46 +224,53 @@ Diff nichts zuschreibt.
   gestaged, wieder unstagen.
 - **Rechtsklick** — View File, Open in System App, Reveal in File Manager, Copy
   Relative Path, Copy Absolute Path, Copy File Name, Blame File, File History,
-  Stage / Unstage File, Discard Changes, Delete File.
+  Stage / Unstage File, Discard Changes, Delete File. Die Zeile eines Submoduls
+  bietet zusätzlich **Pull Submodule**.
 - **Klick auf einen Ordner** — ein- oder ausklappen.
 
-**Discard Changes** setzt die Datei auf das zurück, was der Index hält, nach einer
-nativen Bestätigung, die klar sagt, dass es kein Zurück gibt; eine unversionierte
-Datei hat keine Index-Fassung, auf die sie zurückfällt, also bietet sie stattdessen
-**Delete File** an, das in den System-Papierkorb geht.
+In einem Dateimanager kopierte Dateien lassen sich **in den Baum einfügen**: ein
+Rechtsklick auf die leere Fläche unter den Zeilen gibt **Paste**, das in die
+Wurzel des Repositories schreibt, ein Rechtsklick auf eine Datei gibt
+**Paste into `dir`/**, das daneben schreibt. <kbd>Strg+V</kbd> tut dasselbe bei
+fokussiertem Bereich — in das Verzeichnis der gewählten Datei oder in die Wurzel,
+wenn nichts gewählt ist. Ausgeschnittene Dateien werden verschoben statt kopiert,
+und nach einem Namen, den das Verzeichnis schon hat, wird einmal gefragt: beide
+behalten, was dem ankommenden Namen ein `(copy)` anhängt, oder ersetzen.
+
+Einfügen gehört zu den beiden Ansichten, die das Verzeichnis auf der Platte
+*sind* — **Changes** und **Working Tree**. Ein Commit, ein Bereich oder die
+Momentaufnahme einer Revision ist die Auflistung von etwas, das nicht da ist, um
+hineinzuschreiben; also wird kein Einfügen angeboten.
 
 <kbd>Strg+F</kbd> bei fokussiertem Bereich — oder **Filter** auf der
 Such-Schaltfläche der Kopfzeile, deren Pfeil zwischen „das Repository
 durchsuchen" und „diese Liste filtern" wählt — öffnet ein Filterfeld über dem
 Baum und grenzt ihn auf die Pfade ein, die das Getippte enthalten, mit der Zahl,
-wie viele von wie vielen Dateien übrig sind. Der Text wird gegen den ganzen Pfad
-geprüft, `src/main` behält also alles unter jenem Verzeichnis, und
-Groß-/Kleinschreibung zählt nicht. Nichts bleibt zu, solange das Feld Text hat —
-ein Treffer fünf Verzeichnisse tiefer ist ja der Sinn des Tippens.
-<kbd>Esc</kbd> oder das **✕** löscht es und stellt den ganzen Baum wieder her,
-und ein Wechsel zu einem anderen Commit ebenso.
+wie viele von wie vielen Dateien übrig sind. Was man tippt, ist ein **regulärer
+Ausdruck** — `\.tsx?$`, `main|renderer` — geprüft gegen den ganzen Pfad,
+`src/main` behält also alles unter jenem Verzeichnis, und Groß-/Kleinschreibung
+zählt nicht. Gewöhnlicher Text ist ein Ausdruck, der sich selbst meint, und ein
+Ausdruck, der noch nicht kompiliert (`src/(`, die Hälfte von
+`src/(main|renderer)`), wird wörtlich geprüft, statt als Fehler gemeldet zu
+werden. Nichts bleibt zu, solange das Feld Text hat — ein Treffer fünf
+Verzeichnisse tiefer ist ja der Sinn des Tippens. <kbd>Esc</kbd> oder das **✕**
+löscht es und stellt den ganzen Baum wieder her, und ein Wechsel zu einem anderen
+Commit ebenso.
 
-**Send** in der Kopfzeile übergibt den Index. Es tippt einen Befehl in
-die Shell im Bereich unten rechts und drückt Enter, und das ist alles: aus Gitty
-heraus wird kein Modell aufgerufen, nichts verlässt die Maschine, das du nicht
-gesendet hast. Die Prompts und die Ausgabe des Agenten erscheinen im Terminal, wo
-ein echtes tty ist, also funktionieren Hooks und gpg-Signatur wie immer.
+**Pull Submodule** erscheint in der Zeile eines Pfads, den `.gitmodules` nennt, in
+den beiden Ansichten, die das Verzeichnis auf der Platte sind — **Changes** und
+**Working Tree**. Es holt das eigene Remote jenes Submoduls und setzt es auf die
+Spitze des Branches, den es verfolgt (`git submodule update --init --remote`),
+sodass ein nie ausgechecktes Submodul von demselben Eintrag geklont wird. Das
+Superprojekt bleibt auf dem Commit stehen, den es aufgezeichnet hat, und darum
+taucht das Submodul danach in **Changes** auf: den neuen Zeiger zu committen
+bleibt deine Entscheidung. Was git gesagt hat, landet im Meldungsstreifen über dem
+Commit-Log, dort wo Push und Pull berichten.
 
-Das Feld links davon nennt den Befehl, den sie ausführen würde, und ist der Ort,
-an dem ein anderer gewählt wird — es gibt keine Einstellung dafür, denn es ist
-eine Frage, die einmal pro Übergabe gestellt wird, nicht einmal pro Installation.
-Das Dropdown listet die Befehle, an die Gitty sich erinnert, den zuletzt
-ausgeführten zuerst, und führt den aus, den du wählst; ein ausgeführter Befehl
-rückt nach oben, sodass das Feld stets den zuletzt benutzten zeigt. Ist nichts
-gemerkt, ist das Feld blass und **Send** ausgegraut. Das **×** rechts an einem Eintrag nimmt ihn nach
-einer Bestätigung aus der Liste — die Liste ist der einzige Ort, an dem ein Befehl
-festgehalten wird, und das Menü bleibt offen, sodass mehrere hintereinander
-entfernt werden können. **New command…** unten öffnet ein einzeiliges Feld, mit
-dem aktuellen Befehl
-vorbefüllt, für alles, was nicht in der Liste steht. Die Liste beginnt mit
-einigen Vorschlägen — welcher Agent installiert ist, kann Gitty nicht wissen — und
-ein Befehl kommt in die Liste, indem er ausgeführt wurde; gemerkt wird also nichts
-aufgrund einer halb getippten Zeile.
+**Discard Changes** setzt die Datei auf das zurück, was der Index hält, nach einer
+nativen Bestätigung, die klar sagt, dass es kein Zurück gibt; eine unversionierte
+Datei hat keine Index-Fassung, auf die sie zurückfällt, also bietet sie stattdessen
+**Delete File** an, das in den System-Papierkorb geht.
 
 Ein Rechtsklick auf die Arbeitsverzeichnis-Zeile im Commit-Log bietet außerdem
 **Copy Staged Diff**, für ein Gespräch, das in einem anderen Fenster stattfindet.
@@ -228,7 +278,9 @@ Ein Rechtsklick auf die Arbeitsverzeichnis-Zeile im Commit-Log bietet außerdem
 Ist ein Commit oder ein Commit-Bereich gewählt, listet dieser Bereich stattdessen
 die Dateien jenes Commits; **Back to Changes** (oder <kbd>Esc</kbd>) führt
 zurück. In einer [Momentaufnahme](#snapshots) listet er den gesamten Baum zu
-diesem Commit, nicht nur das Geänderte.
+diesem Commit, nicht nur das Geänderte. Das Arbeitsverzeichnis zu durchsehen hat
+keine solche Schaltfläche — der Titel-Auswähler, aus dem es geöffnet wurde, ist
+auch der Weg hinaus.
 
 ### Diff (oben rechts) <a id="diff-top-right"></a>
 
@@ -340,6 +392,27 @@ existiert; darum reicht **Open in System App** eine temporäre Kopie weiter, und
 **Reveal in File Manager** wird gar nicht erst angeboten. **Back to Changes**
 (oder <kbd>Esc</kbd>) verlässt sie.
 
+Eine Datei, die git als ausführbar aufgezeichnet hat — Modus `755` — bietet
+außerdem **Run in the Terminal**. Das zu wählen checkt den Commit in ein
+temporäres Verzeichnis aus und tippt `cd <jenes Verzeichnis> && ./<Datei>` in den
+Terminal-Bereich, sodass das Programm so läuft, wie es damals war, neben den
+Nachbarn, die es damals hatte, statt neben den heutigen. Die Zeile wird nur
+getippt: <kbd>Enter</kbd> zu drücken ist deine Sache, und bis dahin läuft nichts.
+Der Terminal-Bereich wird zurückgeholt, falls er ausgeblendet war. Das
+Arbeitsverzeichnis zu durchsehen bietet denselben Eintrag und braucht keine
+Kopie — der Befehl läuft im Repository selbst.
+
+Jenes temporäre Verzeichnis ist ein echtes verknüpftes Arbeitsverzeichnis
+(`git worktree`), losgelöst auf dem Commit, sodass ein Programm, das git fragt, wo
+es ist, eine Antwort bekommt; es hat einen eigenen Index und ein eigenes HEAD, und
+nichts, was dort läuft, rührt an dein Auschecken. Es bedeutet auch einen Eintrag
+unter `.git/worktrees`, den `git worktree list` zeigt und den Gitty nebenbei
+aufräumt; das Auschecken selbst wird je Commit behalten, ein zweites Ding aus
+derselben Momentaufnahme zu starten geht also sofort. Ein Commit, dessen Baum über
+256 MB liegt, wird abgelehnt statt ausgecheckt — der Eintrag ist dafür da, ein
+Skript zu starten, nicht dafür, ein Repository voller Binärdateien in das
+temporäre Verzeichnis zu schreiben.
+
 #### Markdown-Vorschau <a id="markdown-preview"></a>
 
 Eine `.md`-Datei auszuwählen fügt eine Schaltfläche **Preview** hinzu —
@@ -386,6 +459,12 @@ Handbuch bei jener Überschrift, wie es auf einer Forge täte — und eine
 Überschrift, die dieses Dokument nicht hat, öffnet es einfach oben. Das Überfahren
 eines solchen Links sagt das. Ein einfacher Klick tut wie bisher nichts, und ein
 Link, der über die Wurzel des Repositories hinausklettert, gehört nicht dazu.
+
+Ein Link, der stattdessen ein Verzeichnis nennt — `src/`, `ref/spec` — öffnet den
+Dateibereich auf jenem Ordner, in derselben Revision: das Arbeitsverzeichnis bei
+einem von der Platte gelesenen Dokument, die Momentaufnahme jenes Commits bei
+einem, das bei einem Commit gelesen wurde.
+
 Bilder, die relativ zum Dokument angegeben sind, werden aus dem Repository
 gelesen — in derselben Revision wie das Dokument, sodass ein alter Commit die
 Screenshots zeigt, mit denen er ausgeliefert wurde. Eines, das das Repository dort
@@ -455,17 +534,35 @@ jener Zeile, wobei die Zeile markiert ist.
 Die Suche folgt der Revision auf dem Schirm: im Arbeitsverzeichnis liest sie, was
 auf der Platte ist, uncommittete Arbeit eingeschlossen, und bei einem Commit oder
 einer Momentaufnahme jene Revision — das Feld sagt, welche. Über 2000 Treffer
-hört sie auf und sagt es, wie ein übergroßes Diff. Das Muster erreicht git als ein
-einziges Argument, ein regulärer Ausdruck wird also unterwegs nicht zerlegt.
+hört sie auf und sagt es, wie ein übergroßes Diff.
+
+Das Feld nimmt eine Abfrage statt eines nackten Musters, in der Form, die ein
+Mailprogramm allen beigebracht hat:
+
+| Getippt | Gefunden |
+| --- | --- |
+| `foo bar` | Zeilen, die beide Wörter enthalten |
+| `"foo bar"` | die Wendung, samt Leerzeichen |
+| `-foo` | Zeilen ohne es |
+| `foo in:*.py` | nur Dateien, die auf das Glob passen; `in:*.py,*.pyi` für mehrere |
+| `foo -in:test/*` | jene Dateien ausgelassen |
+| `foo in *.py` | dasselbe wie `in:` — ohne Doppelpunkt liest es sich nur dann als Operator, wenn ein Pfad folgt, `for x in list` bleibt also vier Wörter |
+
+Anführungszeichen schalten die Operatoren ab; so sucht man `"in:*.py"` wörtlich.
+Jeder Begriff und jedes Glob erreicht git als eigenes Argument — es wird nichts in
+eine Befehlszeile eingefügt — ein regulärer Ausdruck wird also unterwegs nicht
+zerlegt. Eine Abfrage, die sagt, wo zu schauen ist, aber nicht wonach (`in:*.py`
+allein), läuft nicht; der Streifen sagt, dass es nichts zu suchen gibt.
 
 ### Commits (unten links) <a id="commits-bottom-left"></a>
 
 Das Log des aktuellen Branches, in Schritten von 300 geladen und beim Scrollen
 verlängert. Die erste Zeile ist **Changes** — die nicht committeten Änderungen,
 mit der Zahl geänderter Dateien; sie auszuwählen holt die oberen Bereiche dorthin
-zurück. Ein Filterfeld über dem Log grenzt die
-Liste ein — entprellt, mit einem ✕ zum Löschen — und das Ergebnis blättert auf
-dieselbe Weise.
+zurück. **Filter** rechts in der Kopfzeile öffnet ein Filterfeld über dem Log, das
+die Liste eingrenzt — entprellt — und das Ergebnis blättert auf dieselbe Weise.
+Das ✕, <kbd>Esc</kbd> oder die Schaltfläche erneut räumen das Feld weg und holen
+das ganze Log zurück.
 
 Die Kopfzeile behält **Push** und **Pull**, die beiden häufig gebrauchten; alles
 Übrige zum Log liegt einen Klick hinter **⋯** — **Graph**, **All Branches**,
@@ -481,15 +578,39 @@ vom SHA abgeleitet sind und „wer" bedeuten. Jenseits von zehn Bahnen teilt sic
 der Überlauf die letzte Spalte, umringt, sodass ein Repository mit vielen Köpfen
 die Betreffzeilen nicht aus dem Bereich drängen kann. **All Branches** zeigt alle
 Branches auf einmal (`git log --all`), und so sieht man zwei Branches in ihrem
-Verhältnis zueinander; das Branch-Menü liest weiterhin einen nach dem anderen.
+liest weiterhin einen nach dem anderen.
+
+Das Log ist nach dem **Autorendatum** geordnet, dem in der Spalte: ein Commit, der
+abgespielt statt geschrieben wurde — rebased, cherry-gepickt, aus einem
+gequetschten Pull Request übernommen — liest sich also zwischen den Daten, an
+denen er geschrieben wurde, und nicht am Tag, an dem er landete. Was keine
+Ordnung ändern kann: ein Elternteil wird immer unter seinen Kindern gezeichnet,
+ein solcher Commit kann also trotzdem zwischen Zeilen sitzen, die er zeitlich
+vorwegnimmt; wo das passiert, ist das Datum markiert und sein Hover-Text sagt
+warum. Unter einem Filter ist die Markierung aus: die Zeile darüber ist dann nicht
+der Commit davor, ein rückwärts laufendes Datum sagt also nur, dass die Zeilen
+dazwischen nicht gepasst haben.
+
+Einen Commit auszuwählen **schattiert das Log nach Abstammung**: die Zeilen, auf
+denen er aufbaut, und die, die auf ihm aufbauen, bleiben wie sie sind, alles
+andere tritt zurück. Das ist die eine Beziehung, die die Position nicht zeigen
+kann — die Zeile direkt darüber mag auf einem anderen Branch liegen, und ein
+Elternteil mag hundert Zeilen tiefer sitzen. Der Gang deckt ab, was geladen ist,
+eine Abstammung über die letzte Zeile hinaus wird also so weit gezeigt, wie das
+Log reicht; unter einem Filter, wo die Zeilen eine Teilmenge sind und die Ketten
+dazwischen fehlen, wird nichts schattiert.
 
 Das Dropdown daneben sagt, wonach gesucht wird:
 
 | | |
 | --- | --- |
-| **Message / Author** | Die Commit-Nachricht und der Autor, unabhängig von Groß-/Kleinschreibung. Der Standard. |
+| **Message / Author** | Die Commit-Nachricht und der Autor, unabhängig von Groß-/Kleinschreibung, als erweiterter regulärer Ausdruck — `fix\|revert` ist eines der beiden Wörter. Der Standard. |
 | **Content** | gits `-S`: die Commits, in denen sich die *Anzahl der Vorkommen* des Texts geändert hat — wo er eingeführt oder entfernt wurde. Wörtlich, eine Suche voller `.` und `(` meint also jene Zeichen. |
-| **Content regex** | gits `-G`: jeder Commit, dessen Diff zum Ausdruck passt, einschließlich jener, die die Zeile nur herumgeschoben haben. |
+| **Content regex** | gits `-G`: jeder Commit, dessen Diff zum Ausdruck passt — erweitert, wie im Modus darüber — einschließlich jener, die die Zeile nur herumgeschoben haben. |
+
+Text, der noch kein Ausdruck ist — `(fix`, auf dem Weg zu `(fix|revert)` — wird in
+beiden Ausdrucksmodi wörtlich gesucht, damit ein Feld, das bei jedem Tastendruck
+gelesen wird, das Log nicht leert, während man zu Ende tippt.
 
 Die beiden Inhaltsmodi beantworten die Frage, die Blame nicht kann — *welcher
 Commit diese Zeile eingeführt hat* — und lesen dafür jedes Diff der Historie; das
@@ -502,9 +623,12 @@ ein regulärer Ausdruck erreicht git also als ein Argument.
   Autor, Datum und der vollständige Nachrichtentext des Commits erscheinen in
   einem Streifen über der Dateiliste; ist der Text lang, klappt ihn ein
   ▸-Schalter weg, sodass die Dateiliste den Platz behält.
-- **Strg+Klick** (<kbd>Cmd</kbd> unter macOS), <kbd>Umschalt+Klick</kbd> oder
-  <kbd>Leertaste</kbd> — einen zweiten Commit wählen und beide vergleichen, den
-  älteren zuerst.
+- <kbd>Umschalt+Klick</kbd> oder <kbd>Leertaste</kbd> — einen zweiten Commit
+  wählen und beide vergleichen, den älteren zuerst.
+- **Strg+Klick** (<kbd>Cmd</kbd> unter macOS) — die Seite des Commits auf der
+  Website öffnen, die das Repository hostet, dieselbe Adresse wie
+  **Open Remote URL** weiter unten. Lässt sich keine solche Seite ermitteln, tut
+  der Klick nichts und die Zeile bleibt, wie sie war.
 - **↑ ↓ / j k / Bild↑ / Bild↓ / Pos1 / Ende** — den Cursor bewegen.
 - **Rechtsklick** — das Diff zeigen, Hash, Kurz-Hash oder Betreff kopieren,
   [die Momentaufnahme durchsehen](#snapshots) oder gegen den gewählten Commit
@@ -514,6 +638,13 @@ ein regulärer Ausdruck erreicht git also als ein Argument.
   jedes offene Repository als durchklickbare Commit-Liste aus — die Schaltfläche
   **Open in Browser** im Commit-Bereich landet dort — mit Metadaten, Dateien und
   Diff jedes Commits und Diffs je Datei einen Klick entfernt.
+- **Rechtsklick → Open Remote URL** — die Seite dieses Commits auf der Website,
+  die das Repository hostet, im System-Browser geöffnet. Die Adresse wird aus dem
+  Remote abgeleitet (dem, den der aktuelle Branch verfolgt, sonst `origin`), und
+  der Eintrag erscheint nur, wenn diese Ableitung gelingt: GitHub, GitLab,
+  Bitbucket, Gitea, Forgejo, Codeberg und sourcehut sind bekannt, ebenso jeder
+  selbst gehostete Server, der dem Schema `/commit/<hash>` folgt. Ein Repository
+  ohne Remote oder eines auf Azure DevOps bekommt den Eintrag nicht.
 
   Er lauscht auf `127.0.0.1`, und das allein wäre nicht viel: die Loopback-Adresse
   hält andere Rechner draußen, nicht andere Seiten im eigenen Browser, von denen
@@ -555,7 +686,9 @@ wählen zeigt dessen Historie. Es ist ein Blick, der nur liest: gitty führt kei
 Terminals genau dort, wo git sie gelassen hat. Während man einen anderen Branch
 ansieht, liest sich die Titelleiste als `⎇ main › other-branch`, und der
 Commit-Bereich nennt den Branch, den er auflistet; **Back to \<branch\>** führt
-zurück. Jeder Tab sieht für sich durch.
+zurück. Jeder der beiden Namen hat seinen eigenen Hover-Text, der sagt, welcher
+welcher ist — der Unterschied ist ja der ganze Sinn der Sache. Jeder Tab sieht
+für sich durch.
 
 #### Push und Pull <a id="push-and-pull"></a>
 
@@ -564,14 +697,18 @@ ausgecheckten Branch, gleich auf welchen das Log zeigt. **Push** zählt, was
 ungepusht ist — **Push 3** — und wird grau, wenn es nichts zu senden gibt; auf
 einem Branch, der nichts verfolgt, veröffentlicht er den Branch auf `origin` und
 setzt den Upstream. **Pull** holt per Fast-Forward vom Upstream und ist grau,
-wenn es keinen gibt. Was git sagt, erscheint über dem Log — ein Klick schiebt es
-weg; Fehlschläge bleiben, bis man das tut.
+wenn es keinen gibt. Sind die Branches auseinandergelaufen, ist ein Fast-Forward
+unmöglich, und Gitty fragt, ob stattdessen mit einem Rebase geholt werden soll —
+die eigenen Commits über dem Upstream neu abgespielt. Wer ablehnt, lässt das
+Repository, wie es war, und sieht gits Absage; wer zustimmt, braucht ein sauberes
+Arbeitsverzeichnis, und ein Konflikt hält den Rebase an, damit man ihn im Terminal
+zu Ende bringt. Was git sagt, erscheint über dem Log — ein Klick schiebt es weg;
+Fehlschläge bleiben, bis man das tut.
 
 Keiner von beiden kann auf eine Eingabeaufforderung antworten: hinter ihnen steht
 kein Terminal, also scheitert ein Push, der ein Passwort oder eine Passphrase
-will, mit gits eigener Meldung, statt hängen zu bleiben, und ein Pull, der nicht
-vorspulen kann, sagt es. Beides wird danach von Hand im Terminal-Bereich zu Ende
-gebracht, der ja gleich daneben liegt.
+will, mit gits eigener Meldung, statt hängen zu bleiben. Beides wird danach von
+Hand im Terminal-Bereich zu Ende gebracht, der ja gleich daneben liegt.
 
 ### Terminal (unten rechts) <a id="terminal-bottom-right"></a>
 
@@ -595,7 +732,30 @@ gegeneinander in der Größe verändert werden.
 
 **Close** beendet die fokussierte Shell; eine Shell mit `exit` zu verlassen
 schließt ihre Teilung von selbst. Das letzte Terminal bleibt immer: es zu
+**Close** beendet die fokussierte Shell; eine Shell mit `exit` zu verlassen
+schließt ihre Teilung von selbst. Das letzte Terminal bleibt immer: es zu
 verlassen hinterlässt den Hinweis auf dem Schirm statt eines leeren Bereichs.
+
+**Send** in der Kopfzeile dieses Bereichs übergibt den Index. Es tippt einen
+Befehl in die fokussierte Shell und drückt Enter, und das ist alles: aus Gitty
+heraus wird kein Modell aufgerufen, nichts verlässt die Maschine, das du nicht
+gesendet hast. Die Prompts und die Ausgabe des Agenten erscheinen im Terminal, wo
+ein echtes tty ist, also funktionieren Hooks und gpg-Signatur wie immer.
+
+Das Feld links davon nennt den Befehl, den sie ausführen würde, und ist der Ort,
+an dem ein anderer gewählt wird — es gibt keine Einstellung dafür, denn es ist
+eine Frage, die einmal pro Übergabe gestellt wird, nicht einmal pro Installation.
+Das Dropdown listet die Befehle, an die Gitty sich erinnert, den zuletzt
+ausgeführten zuerst, und führt den aus, den du wählst; ein ausgeführter Befehl
+rückt nach oben, sodass das Feld stets den zuletzt benutzten zeigt. Ist nichts
+gemerkt, ist das Feld blass und **Send** ausgegraut. Das **×** rechts an einem
+Eintrag nimmt ihn nach einer Bestätigung aus der Liste — die Liste ist der einzige
+Ort, an dem ein Befehl festgehalten wird, und das Menü bleibt offen, sodass
+mehrere hintereinander entfernt werden können. **New command…** unten öffnet ein
+einzeiliges Feld, mit dem aktuellen Befehl vorbefüllt, für alles, was nicht in der
+Liste steht. Die Liste beginnt mit einigen Vorschlägen — welcher Agent installiert
+ist, kann Gitty nicht wissen — und ein Befehl kommt in die Liste, indem er
+ausgeführt wurde; gemerkt wird also nichts aufgrund einer halb getippten Zeile.
 
 ## Text suchen <a id="finding-text"></a>
 
@@ -643,10 +803,45 @@ in dieser Reihenfolge.
 | **Markdown source lines** | Jeden Block eines gerenderten Dokuments mit der Zeile nummerieren, mit der er in der Quelle beginnt. Überschriften, Absätze, Listeneinträge, Tabellen, Codeblöcke und Bilder tragen alle eine, in einem Rand links hinunter. Standardmäßig aus. |
 | **File sorting** | Natürliche oder Byte-Reihenfolge. Natürlich liest die Ziffern eines Namens als Zahl (`W9` vor `W10`) und stellt Groß-/Kleinschreibung an zweite Stelle; Byte-Reihenfolge ist gits eigene, wo jeder Großbuchstabe vor jedem Kleinbuchstaben sortiert. |
 | **Reopen last session** | Die Repositories wieder öffnen, die beim letzten Beenden der Anwendung offen waren. Das Repository, mit dem Gitty gestartet wurde, bleibt der aktive Tab; inzwischen gelöschte werden still fallengelassen. |
+| **Instances** | **Single** — der Standard — hält ein Gitty je Nutzer: `gitty <repo>` aus jedem Verzeichnis reicht das Repository an das bereits offene Fenster, das es als Tab hinzufügt und nach vorn kommt, und der zweite Start endet sofort. **Multiple** öffnet stattdessen für jeden Start ein eigenes Fenster. Anders als der Rest der Tabelle wird dies von der Anwendung und nicht vom Fenster gehalten, ist also für jedes Fenster gleich; eine Änderung wirkt beim nächsten getippten `gitty`, nicht beim nächsten Neustart. |
 | **Shell** | Die Shell, die ein Terminal startet, aufgelistet aus `/etc/shells` plus den üblichen Pfaden (`COMSPEC` und PowerShell unter Windows). **System default** ist `$SHELL`. Ein Pfad, der inzwischen weg ist, fällt darauf zurück, statt einen toten Bereich zu hinterlassen. |
 | **Login shell** | Sie mit `-l` starten, damit das Profil des Nutzers geladen wird. Abschalten für eine schnellere, stillere Shell — keine Profilausgabe, keine Prüfungen beim Login. Windows-Shells haben kein solches Flag und ignorieren dies. |
 
-**Shell** und **Login shell** werden gelesen, wenn ein Terminal entsteht, greifen
+### Plugins <a id="plugins"></a>
+
+Der letzte Einstellungs-Tab. Alles, was nicht der Kern eines Historien-Browsers
+ist, lebt hier als Plugin: mit eigenem Schalter, eigenen Einstellungen, eigenen
+Dateien. Alle beginnen abgeschaltet.
+
+| Plugin | was es tut |
+| --- | --- |
+| **Semantic reading** | Ein Sprachanalysator liest die Prosa eines gerenderten Markdown-Dokuments und unterstreicht die Eigennamen darin — Namen von Personen, Orten und Organisationen — sodass sich ein Absatz danach überfliegen lässt, um wen und um wo es geht. Lateinische Wörter in CJK-Prosa (`GPT-4`, `Claude`, `v0.1.9` in einem chinesischen Satz) bekommen eine eigene Farbe statt einer Linie, und das Ende jedes Satzes bekommt Gewicht und ein wenig Luft dahinter, sodass ein Absatz sich auf einen Blick in Sätzen zählen lässt. Beides braucht keinen Analysator, beides gilt also auch, wenn keiner antworten kann. Das Markup bleibt unangetastet, ebenso der Code: ein abgegrenzter Block, eine Inline-Code-Spanne und ein Linkziel werden nie markiert. |
+
+Semantic reading hat drei eigene Einstellungen, sichtbar sobald es an ist.
+**Analyser** ist, wer liest: **jieba** segmentiert den Text auf dieser Maschine,
+braucht weder Netz noch Schlüssel und kann Chinesisch; **Model** schickt den Text
+an den OpenAI-kompatiblen Endpunkt, den `Model access` nennt, was einen Umlauf je
+Dokument kostet und jede Sprache liest, die das Modell liest. So oder so lässt ein
+Analysator, der nicht antworten kann, das Dokument genau so, wie es war.
+
+**Mark styles** öffnet `rules.json`, das sagt, wie jede Art Markierung aussieht:
+`underline` (`none`, `solid`, `dotted`, `dashed`, `double`, `wavy`),
+`underlineColor`, `color`, `background`, `bold`, `italic` und `spaceAfter`, je ein
+Eintrag für `person`, `place`, `org`, `proper`, `latin` und `sentence-end`.
+`spaceAfter` ist zusätzliche Luft nach der Markierung, in em, bis 2 — genau das
+gibt der Standard einem Satzende, statt noch einer Farbe. Farben sind `#rgb`,
+`#rrggbb` oder `#rrggbbaa` und gehören zum dunklen Thema — die Datei hat keine
+zweite Palette für das helle. Bearbeiten, das Dokument neu öffnen, und die
+Änderung ist da.
+
+**Model access** öffnet `models.json`: `baseUrl`, `model` und Schlüssel für den
+Analysator **Model**. `apiKeyEnv` nennt eine Umgebungsvariable, aus der der
+Schlüssel gelesen wird, was ihn aus der Datei heraushält; `apiKey` hält ihn
+direkt, für alle, denen das lieber ist. Beide Dateien liegen in Gittys eigenem
+Zustandsverzeichnis unter `plugins/semantic-reading/`, nie in einem Repository,
+und ihr Inhalt verlässt nie den Hauptprozess.
+
+
 also bei der nächsten Teilung oder dem nächsten Repository-Tab, nicht in den
 bereits laufenden Shells. **Word wrap**, **Diff layout** und **Outline**
 sind dieselben Schalter, die die Diff-Kopfzeile trägt: eine Änderung an einer
@@ -654,16 +849,25 @@ Stelle wirkt an beiden. **Word highlight** gibt es nur hier.
 
 ## Tastenkürzel <a id="keyboard-shortcuts"></a>
 
+<kbd>F1</kbd> zeigt diese Tabelle in der Anwendung — **Help ▸ Keyboard
+Shortcuts** öffnet dasselbe Blatt.
+
 | Taste | Aktion |
 | --- | --- |
+| <kbd>↑</kbd> <kbd>↓</kbd> / <kbd>Bild↑</kbd> <kbd>Bild↓</kbd> / <kbd>Pos1</kbd> <kbd>Ende</kbd> | Die Auswahl in der Commit-Liste bewegen |
 | <kbd>Enter</kbd> | Den gewählten Commit zeigen |
-| <kbd>Space</kbd> / <kbd>Ctrl+Click</kbd> | Einen zweiten Commit markieren und das Paar vergleichen |
+| <kbd>Space</kbd> / <kbd>Shift+Click</kbd> | Einen zweiten Commit markieren und das Paar vergleichen |
+| <kbd>Ctrl+Click</kbd> auf einen Commit | Seine Seite auf der hostenden Website öffnen |
 | <kbd>Ctrl+Click</kbd> auf eine Dateiüberschrift | Diese Datei in einem neuen Dokument-Tab öffnen |
 | <kbd>Strg+F</kbd> | Im Diff, in der Datei oder worin auch immer der Bereich zeigt, suchen — oder den Dateibaum filtern, wenn dieser Bereich fokussiert ist |
 | <kbd>Strg+C</kbd> / <kbd>Strg+Umschalt+C</kbd> | Die Auswahl kopieren, überall im Fenster |
 | <kbd>Esc</kbd> | Zurück zu den nicht committeten Änderungen |
+| <kbd>Strg+B</kbd> | Das Arbeitsverzeichnis durchsehen, Commits und Terminal treten beiseite |
+| <kbd>Strg+D</kbd> | Zurück zu den Änderungen, mit allen vier Bereichen (nicht im Terminal, wo es das Eingabeende ist) |
+| <kbd>Strg+V</kbd> | Die Dateien der Zwischenablage in den Dateibaum einfügen, wenn dieser Bereich fokussiert ist |
 | <kbd>Alt+←</kbd> / <kbd>Alt+→</kbd> | Zurück und vorwärts durch die besuchten Orte |
 | <kbd>Alt</kbd> | Die Menüleiste der Anwendung ein- oder ausblenden (nicht unter macOS, wo sie immer da ist) |
+| <kbd>F1</kbd> | Die Tastenkürzel, als Blatt über dem Fenster |
 | <kbd>F5</kbd> / <kbd>Strg+R</kbd> | Status und Log aktualisieren |
 | <kbd>Strg+O</kbd> | Ein weiteres Repository in einem neuen Tab öffnen |
 | <kbd>Strg+,</kbd> | Einstellungen |
@@ -703,6 +907,40 @@ tragen, also hängt es von unprivilegierten User-Namespaces ab — die die
 AppArmor-Richtlinie von Ubuntu 24.04 standardmäßig einschränkt. Erwarte, dort
 `--no-sandbox` zu übergeben oder ein eigenes AppArmor-Profil zu installieren.
 Bevorzuge das `.deb`, wo du kannst.
+
+### Wayland und unterschiedlich skalierte Monitore <a id="wayland-and-monitors-scaled-differently"></a>
+
+Eine GNOME-Wayland-Sitzung mit zwei unterschiedlich skalierten Monitoren kann
+Chromium daran hindern, sich auf einen Wert festzulegen: es kippt den
+Skalierungsfaktor des Fensters mehrmals pro Sekunde zwischen beiden hin und her,
+setzt bei jedem Kippen die Seite neu und die ganze Oberfläche zittert um ein, zwei
+Pixel, solange das Fenster offen ist. Im Vollbild zeigt es sich am deutlichsten.
+Nichts an Gitty verursacht es — ein Electron-Fenster ganz ohne Inhalt zittert
+genauso — und keine Fenstergröße entgeht ihm.
+
+Gitty nimmt es einem ab: beim Start fragt es, wie die Monitore skaliert sind, und
+kommen zwei Antworten zurück, startet es sich selbst mit abgeschalteter
+fraktionaler Skalierung von Chromium neu. Das geschieht, bevor ein Fenster
+existiert, zu sehen ist also nichts außer einem etwas späteren Start. Der Preis
+ist, dass die fraktionale Skalierung des Desktops dann ignoriert wird — die
+Oberfläche wird mit Skalierung 1 gezeichnet und wirkt kleiner als der Rest des
+Desktops. <kbd>Strg+=</kbd> zoomt sie zurück, und die Schriftgrößen in
+**Settings** sind der andere Weg, den Unterschied auszugleichen.
+
+Zwei Umgebungsvariablen übergehen die Vermutung.
+`GITTY_DISABLE_FRACTIONAL_SCALE=1` schaltet die fraktionale Skalierung ab, was
+immer die Monitore sagen — nützlich, wenn der zweite Monitor erst nach dem Start
+von Gitty angesteckt wird, der eine Fall, den die Prüfung beim Start nicht fangen
+kann. `GITTY_DISABLE_FRACTIONAL_SCALE=0` lässt sie an und unterbindet den
+Neustart, Zittern inklusive.
+
+Beide Monitore in **Settings → Displays** auf dieselbe Skalierung zu setzen lässt
+Chromium nichts, wozwischen es kippen könnte — dieselbe Behebung vom anderen Ende
+her, dort wo zwei Bildschirme sich eine Skalierung teilen können.
+
+Eine Folge des Neustarts: die Prozess-ID, die `run.sh` ausgibt, gehört dem
+Prozess, der zur Seite getreten ist, und benennt einen Augenblick später nichts
+mehr.
 
 ### macOS-App-Bundle <a id="macos-app-bundle"></a>
 
