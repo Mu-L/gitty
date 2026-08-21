@@ -9,13 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Settings ▸ View ▸ **Reading marks**, off by default: a language analyser
-  underlines the proper nouns in a rendered markdown document, and latin words
-  inside CJK prose (`GPT-4`, `Claude`) take a colour of their own. **Analyser** is
+- Settings ▸ **Plugins**, a tab for the features that are not the core of a
+  history browser. Each is a directory of its own with its own switch,
+  settings, strings and files, and all of them start off.
+- The first plugin, **Semantic reading**: a language analyser underlines the
+  proper nouns in a rendered markdown document, and latin words inside CJK
+  prose (`GPT-4`, `Claude`) take a colour of their own. **Analyser** is
   **jieba** (local, CJK) or **Model** (any OpenAI-compatible endpoint). Two
-  JSON files beside the app's settings hold what a mark looks like and how to
-  reach the model; both open from the settings rows, and neither is in any
-  repository.
+  JSON files hold what a mark looks like and how to reach the model; both open
+  from its settings rows, and neither is in any repository.
 - **Pull** offers a rebase when the branches have diverged: the fast-forward
   fails, a dialog asks, and yes re-runs the pull with `--rebase`. Declining
   shows git's refusal as before.
