@@ -22,6 +22,7 @@
     "src/renderer/src/symbols.ts",
     "src/renderer/src/icons.ts",
     "src/renderer/src/tabs.ts",
+    "src/renderer/src/prose.ts",
     "test/**/*.ts"
   ],
   // panes.ts reads a KeyboardEvent and names a type declared in a .tsx, so its
