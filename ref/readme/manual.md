@@ -525,14 +525,17 @@ replayed rather than made — rebased, cherry-picked, merged from a squashed pul
 request — reads among the dates it was written on rather than the day it landed.
 What no ordering can change is that a parent is always drawn below its
 children, so such a commit can still sit among rows it predates; where that
-happens the date is marked, and its tooltip says why.
+happens the date is marked, and its tooltip says why. Under a filter the mark
+is off: the row above is then not the commit before this one, so a date going
+backwards says only that the rows in between did not match.
 
 Selecting a commit **shades the log by ancestry**: the rows it is built on and
 the rows built on it stay as they are, everything else recedes. That is the one
 relation position cannot show — the row directly above may be on another
 branch, and a parent may sit a hundred rows down. The walk covers what has been
 loaded, so an ancestry running past the last row is shown as far as the log
-reaches.
+reaches; under a filter, where the rows are a subset and the chains between
+them are missing, nothing is shaded.
 
 The dropdown beside it says what is being searched:
 

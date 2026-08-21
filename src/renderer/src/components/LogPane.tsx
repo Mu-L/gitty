@@ -131,14 +131,6 @@ export function LogPane({
   const lanes = useMemo(() => (graph ? layoutLanes(commits) : null), [graph, commits])
 
   /**
-   * Rows whose date is later than the row above them. The log is ordered by
-   * the author date, but a parent is always drawn below its children, so a
-   * commit replayed onto newer work — rebased, cherry-picked, `am`'d — sits
-   * among rows it predates and the column stops reading downwards. Marking
-   * the row is all that can be done: re-sorting past the ancestry would draw
-   * the lanes running backwards.
-   */
-  /**
    * The selected commit's ancestry, which is the one relation the rows cannot
    * show by position: the row above may be on another branch, and a parent may
    * sit a hundred rows down. Kin stay as they are and everything else recedes,
@@ -146,12 +138,32 @@ export function LogPane({
    * the list. Recomputed on every selection, which is one pass over the loaded
    * window.
    */
-  const kin = useMemo(() => kinship(commits, selected), [commits, selected])
+  const kin = useMemo(
+    // Not under a filter: those rows are a subset picked by a match, so the
+    // chains between them are missing and almost everything would come out
+    // unrelated — which would say "no kin" where the truth is "the rows in
+    // between are not on screen".
+    () => (filter ? null : kinship(commits, selected)),
+    [commits, selected, filter]
+  )
 
+  /**
+   * Rows whose date is later than the row above them. The log is ordered by
+   * the author date, but a parent is always drawn below its children, so a
+   * commit replayed onto newer work — rebased, cherry-picked, `am`'d — sits
+   * among rows it predates and the column stops reading downwards. Marking
+   * the row is all that can be done: re-sorting past the ancestry would draw
+   * the lanes running backwards.
+   *
+   * Not under a filter, where the row above is not the commit before this one
+   * and a date going backwards says only that the rows in between did not
+   * match.
+   */
   const backwards = useMemo(() => {
+    if (filter) return commits.map(() => false)
     const times = commits.map((c) => Date.parse(c.date))
     return times.map((t, i) => i > 0 && !Number.isNaN(t) && !Number.isNaN(times[i - 1]) && t > times[i - 1])
-  }, [commits])
+  }, [commits, filter])
   // The Changes row sits above the log and takes part in keyboard navigation.
   const hashes = [WORKTREE_ROW, ...commits.map((c) => c.hash)]
   const index = hashes.indexOf(selected ?? '')

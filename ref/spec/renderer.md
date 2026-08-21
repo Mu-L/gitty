@@ -56,7 +56,10 @@ Selecting a commit shades the rows by ancestry — kin as they are, everything
 else at 0.4 opacity. `kin.ts` is the leaf module behind it: two walks over the
 loaded window, parents for the ancestors and a reversed map for the
 descendants, returning both sets and a `partial` flag for an ancestry that runs
-past what has been paged in. Only the unrelated rows carry a CSS rule, so kin
+past what has been paged in. Under a filter the shading is off altogether:
+those rows are a subset picked by a match, so the chains between them are gone
+and nearly every row would read as unrelated — "no kin" where the truth is "the
+rows in between are not on screen". Only the unrelated rows carry a CSS rule, so kin
 are the log's ordinary weight rather than a highlight of their own — a log is
 read for its subjects, and shading is the one way to answer "what is this built
 on" without spending a column. The graph's lines are not shaded with them:
@@ -68,7 +71,9 @@ ordered by the author date, but a parent is always drawn below its children, so
 a commit replayed onto newer work — rebased, cherry-picked, `am`'d — sits among
 rows it predates. `LogPane` compares each stamp with the row above it and gives
 the ones that go the wrong way a colour, a dotted underline and a tooltip
-saying why. Sorting past the ancestry is the alternative, and it would draw the
+saying why — under a filter neither, since the row above is not the commit
+before this one, and a date going backwards then says only that the rows in
+between did not match. Sorting past the ancestry is the alternative, and it would draw the
 lanes running backwards.
 
 ## Settings, and where a preference lives
