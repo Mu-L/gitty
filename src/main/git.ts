@@ -244,11 +244,22 @@ export async function log(
   all = false
 ): Promise<Commit[]> {
   const fmt = ['%H', '%h', '%an', '%ae', '%aI', '%s', '%D', '%P'].join(US) + RS
+  /**
+   * Author date, because that is the date in the column. git orders a log by
+   * the *commit* date, and the two part company whenever a commit is replayed
+   * rather than made — a rebase, a cherry-pick, a squashed pull request, an
+   * `am`'d patch. Merge such work from several people and the dates on screen
+   * stop reading downwards, which is the one thing a log is for.
+   *
+   * `--author-date-order` also settles which lane advances next where several
+   * are open, so the graph stays narrow. What it cannot do is put a child below
+   * its parent: ancestry outranks the clock, and a commit authored before the
+   * one it was written on top of still comes first.
+   */
+  const order = '--author-date-order'
   // Every branch at once, which is how two branches can be seen relating to
-  // each other; it replaces a named ref rather than narrowing it. Date order
-  // rather than git's default topological-ish ordering, so the rows read as a
-  // timeline and the lanes stay narrow.
-  const scope = all ? ['--all', '--date-order'] : ref ? [ref] : []
+  // each other; it replaces a named ref rather than narrowing it.
+  const scope = all ? [order, '--all'] : ref ? [order, ref] : [order]
   const expr = filter === undefined || isExpression(filter)
   let raw: string
   try {
@@ -306,7 +317,7 @@ export async function log(
       raw = await git(root, [
         'log',
         '--no-walk',
-        '--date-order',
+        order,
         `--pretty=format:${fmt}`,
         ...paged,
         '--'

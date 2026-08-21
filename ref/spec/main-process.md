@@ -78,6 +78,17 @@ dash literally. And a bare `in` is the operator **only when a path follows**
 (`looksLikePath`) — code is full of `for x in list`, and eating that word would
 be a worse bug than not supporting the colon-less form at all.
 
+The log is read in `--author-date-order`, because the author date is the date
+in the column. git orders a log by the *commit* date, and the two part company
+whenever a commit is replayed rather than made — a rebase, a cherry-pick, a
+squashed pull request, an `am`'d patch. Merge such work from several people and
+the dates on screen stop reading downwards. The flag also settles which lane
+advances next where several are open, so the graph stays narrow; what it cannot
+do is put a child below its parent, since ancestry outranks the clock. Every
+pass that pages or shapes the log takes it, the filter's two rev-list passes
+included, or a page boundary would fall in one order and its rows be shaped in
+another.
+
 `src/renderer/src/lanes.ts` computes the commit graph — deliberately not by
 parsing `git log --graph`, whose ASCII is typeset for a terminal. A lane holds
 the hash it expects next; a commit takes the first lane expecting it or opens
