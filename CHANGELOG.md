@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-21
+
 ### Added
 
 - Settings ▸ **Plugins**, a tab for the features that are not the core of a
@@ -866,7 +868,9 @@ Initial release.
   `chrome-sandbox` cannot keep its root-owned setuid bit inside `node_modules`.
 - README shows a screenshot of the interface (`ref/gitty-0.1.0.png`).
 
-[Unreleased]: https://github.com/baojie/gitty/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/baojie/gitty/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/baojie/gitty/compare/v0.1.9...v0.2.0
+[0.1.9]: https://github.com/baojie/gitty/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/baojie/gitty/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/baojie/gitty/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/baojie/gitty/compare/v0.1.5...v0.1.6
