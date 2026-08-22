@@ -108,6 +108,23 @@ md.renderer.rules.image = (tokens, idx, options, rawEnv, self) => {
 }
 
 /**
+ * Does the diff mark any source line of a block as added? The gutter number
+ * names the block's first line, but a change anywhere inside it — the body of
+ * a fence, a later row of a table, the second sentence of a paragraph — is
+ * what the diff drew green, so the one number answers for the whole span.
+ * `map` is markdown-it's `[start, end)` in 0-based lines.
+ */
+function changedIn(
+  changed: Set<number> | null | undefined,
+  map: [number, number],
+  offset: number
+): boolean {
+  if (!changed || changed.size === 0) return false
+  for (let n = map[0] + 1 + offset; n <= map[1] + offset; n++) if (changed.has(n)) return true
+  return false
+}
+
+/**
  * A fence carries its attributes on the inner `<code>`, which scrolls sideways
  * with the code when wrapping is off — so the gutter number, which has to stay
  * put, is written onto the `<pre>` here instead of through `markLines`.
@@ -119,7 +136,7 @@ md.renderer.rules.fence = (tokens, idx, options, rawEnv, self) => {
   const map = tokens[idx].map
   if (!env.lines || !map) return out
   const line = map[0] + 1 + env.lineOffset
-  const changed = env.changed?.has(line) ? ' data-changed=""' : ''
+  const changed = changedIn(env.changed, map, env.lineOffset) ? ' data-changed=""' : ''
   return out.replace('<pre', `<pre data-line="${line}"${changed}`)
 }
 
@@ -135,7 +152,7 @@ md.renderer.rules.table_open = (tokens, idx, options, rawEnv, self) => {
   if (!env.lines) return open
   const line = map ? map[0] + 1 + env.lineOffset : 0
   const at = map ? ` data-line="${line}"` : ''
-  const changed = map && env.changed?.has(line) ? ' data-changed=""' : ''
+  const changed = map && changedIn(env.changed, map, env.lineOffset) ? ' data-changed=""' : ''
   return `<div class="md-table"${at}${changed}>${open}`
 }
 md.renderer.rules.table_close = (tokens, idx, options, rawEnv, self) => {
@@ -167,7 +184,7 @@ function markLines(tokens: Token[], offset: number, changed: Set<number> | null)
     if (t.type === 'list_item_open' || top) {
       const line = t.map[0] + 1 + offset
       t.attrSet('data-line', String(line))
-      if (changed?.has(line)) t.attrSet('data-changed', '')
+      if (changedIn(changed, t.map, offset)) t.attrSet('data-changed', '')
     }
   }
 }

@@ -1515,11 +1515,15 @@ button:disabled:hover {
   pointer-events: none;
 }
 
-/* A source line the diff on screen marks as inserted or changed keeps the
-   diff's own add colour, so the gutter mirrors what the diff said. */
+/* A source line the diff on screen marks as inserted or changed wears the
+   diff's own add colours, so the gutter mirrors what the diff said. The
+   number alone was too quiet to see against the dimmed column, so the block
+   carries the add background the diff paints behind a `+` line. */
 .md-body.lines [data-line][data-changed]::before {
   color: var(--green);
+  background: var(--diff-add-bg);
   opacity: 1;
+  border-radius: 2px;
 }
 
 /* Headings set their own line-height and size, so the number would ride up

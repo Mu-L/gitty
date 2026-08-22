@@ -14,9 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- A rendered markdown preview numbers a source line the diff marks as inserted
-  or changed in green — the diff's own add colour — so the gutter mirrors the
-  diff it was opened from.
+- A rendered markdown preview marks the blocks the diff on screen inserted or
+  changed: the gutter number wears the diff's own add colours, green on the
+  green background a `+` line is drawn on. A block counts as changed when any
+  of the source lines it spans does, so a fence whose body was edited is
+  marked even though its opening line was not.
 
 ## [0.2.0] - 2026-08-21
 

@@ -397,9 +397,11 @@ glance.
   block and image is numbered in the left gutter with the line it starts on in
   the source. The numbers are drawn rather than inserted, so they stay out of a
   selection you copy and out of what <kbd>Ctrl+F</kbd> searches. When the
-  document is one the diff on screen is about, a number for a line that diff
-  marks as inserted or changed is drawn green — the diff's own add colour — so
-  the gutter mirrors what the diff said. An image written inside a sentence
+  document is one the diff on screen is about, the number of a block that diff
+  inserted or changed is drawn green on green — the colours the diff itself
+  paints a `+` line in — so the gutter mirrors what the diff said. A block
+  counts as changed when any line it spans does, so an edited fence is marked
+  even though its opening line is untouched. An image written inside a sentence
   takes its paragraph's line, having none of its own.
 - **<kbd>Ctrl+F</kbd>** — find in the document; see
   [Finding text](#finding-text).
