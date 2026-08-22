@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The recent-repositories menu lists a renamed repository under its tab name,
+  matching the button above it; the path stays on the row.
+
 ### Added
 
 - A rendered markdown preview numbers a source line the diff marks as inserted

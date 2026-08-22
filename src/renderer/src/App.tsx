@@ -496,7 +496,9 @@ export default function App(): JSX.Element {
   function recentItems(list: string[]): MenuItem[] {
     const others = list.filter((p) => p !== active)
     const items: MenuItem[] = others.map((p) => ({
-      label: p.split('/').pop() || p,
+      // A tab's custom name follows the repository into this list, so the one
+      // name names it everywhere; the path is still on the row as its accel.
+      label: tabLabel(tabNames, p),
       accel: shortenPath(p),
       title: `${p}${msg.recent.tooltip}`,
       action: (mods) => void (mods?.ctrl ? openInActiveTab(p) : openTab(p)),
