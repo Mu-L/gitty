@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- A file with no line count says how big it is instead — a binary file in the
+  file tree, and every binary revision in a file's history. Sizes are measured
+  for a whole history however long it is, the object headers alone being
+  enough.
 - A file's history reads like the commit log: a click picks a row, a double
   click opens that commit, and Shift+click on a second row diffs the file
   between the two revisions.

@@ -2642,13 +2642,20 @@ button:disabled:hover {
   color: var(--fg-dim);
 }
 
-/* Right-aligned, so the digits line up down the column. */
+/* Right-aligned, so the digits line up down the column. Wide enough for a size
+   with its unit, which is what a revision with no line count shows there. */
 .history-lines {
   flex: none;
-  width: 5ch;
+  width: 8ch;
   text-align: right;
   font-variant-numeric: tabular-nums;
   color: var(--fg-dim);
+}
+
+/* A size is two tokens where a count is one; the smaller type keeps it inside
+   the column at the row heights the setting allows. */
+.history-lines.size {
+  font-size: 0.9em;
 }
 
 .history-author {

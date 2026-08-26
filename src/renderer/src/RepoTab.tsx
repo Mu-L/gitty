@@ -572,7 +572,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
               : view.mode === 'range'
                 ? { kind: 'range', from: view.from, to: view.to }
                 : null
-        const [counts, churn] = await Promise.all([
+        const [measures, churn] = await Promise.all([
           window.gitty.git.fileLines(root, pairs),
           spec
             ? window.gitty.git.fileChurn(root, spec, diffOptions)
@@ -581,7 +581,12 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         if (!cancelled) {
           for (let k = 0; k < counted.length; k++) {
             const { i } = counted[k]
-            entries[i] = { ...entries[i], lines: counts[k], churn: churn[entries[i].path] ?? null }
+            entries[i] = {
+              ...entries[i],
+              lines: measures[k].lines,
+              bytes: measures[k].bytes,
+              churn: churn[entries[i].path] ?? null
+            }
           }
         }
       }

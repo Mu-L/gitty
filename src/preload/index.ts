@@ -15,6 +15,7 @@ import type {
   DiffResult,
   FileChurn,
   FileHistoryEntry,
+  FileMeasure,
   GitOpResult,
   GrepResult,
   HunkPick,
@@ -217,11 +218,11 @@ const api = {
       ipcRenderer.invoke('git:pathKind', root, rev, filePath),
     readImage: (root: string, rev: string | null, filePath: string): Promise<ImageFileContent> =>
       ipcRenderer.invoke('git:readImage', root, rev, filePath),
-    /** Count lines for a batch of files; returns counts in the same order. */
+    /** Measure a batch of files — lines and bytes — in the order asked. */
     fileLines: (
       root: string,
       pairs: Array<{ rev: string | null; filePath: string }>
-    ): Promise<Array<number | null>> => ipcRenderer.invoke('git:fileLines', root, pairs),
+    ): Promise<FileMeasure[]> => ipcRenderer.invoke('git:fileLines', root, pairs),
     /** Lines added and removed per path, for one commit, range or the work tree. */
     fileChurn: (
       root: string,

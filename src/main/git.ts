@@ -13,6 +13,7 @@ import type {
   CommitMeta,
   FileChurn,
   FileHistoryEntry,
+  FileMeasure,
   DiffOptions,
   DiffRequest,
   DiffResult,
@@ -34,6 +35,7 @@ import {
   parseBranches,
   parseLog,
   parseCommitNumstat,
+  parseBatchCheck,
   readBatchObjects,
   type CommitNumstat,
   parseNameStatus,
@@ -399,6 +401,29 @@ export async function fileHistory(
 }
 
 /**
+ * How many bytes each revision of a file is, in one `cat-file --batch-check`
+ * pass. Headers only: no revision's contents are read, so this answers for
+ * every row of a history however long it is, including the ones the counting
+ * budget below never reached and the binary ones it refuses to count.
+ */
+async function sizeAtRevs(
+  root: string,
+  pairs: Array<{ rev: string; filePath: string }>
+): Promise<Array<number | null>> {
+  if (pairs.length === 0) return []
+  try {
+    const { stdout } = await run(
+      root,
+      ['cat-file', '--batch-check'],
+      pairs.map((p) => `${p.rev}:${p.filePath}\n`).join('')
+    )
+    return parseBatchCheck(stdout)
+  } catch {
+    return []
+  }
+}
+
+/**
  * Count the lines of many revisions of a file in **one** git process, by asking
  * `cat-file --batch` for `<rev>:<path>` and reading the objects back in the
  * order they were asked for. A `git show` per revision is what this replaces:
@@ -475,6 +500,10 @@ async function countLinesAtRevs(
  * at the last measured row rather than only at the first. A revision whose
  * churn is not in lines ends it: nothing older than a binary revision can be
  * derived.
+ *
+ * Every row also carries its size in bytes, which is measured for all of them
+ * however long the history is — `--batch-check` reads no contents — and is what
+ * a row shows where there is no count to show.
  */
 async function withLineCounts(
   root: string,
@@ -490,11 +519,14 @@ async function withLineCounts(
     name = numstat.get(c.hash)?.path ?? name
     return { rev: c.hash, filePath: name }
   })
-  const measured = await countLinesAtRevs(root, pairs)
+  const [measured, sizes] = await Promise.all([
+    countLinesAtRevs(root, pairs),
+    sizeAtRevs(root, pairs)
+  ])
   let lines: number | null = null
   return commits.map((commit, i) => {
     if (i < measured.length) lines = measured[i]
-    const entry = { commit, lines }
+    const entry = { commit, lines, bytes: sizes[i] ?? null }
     const c = numstat.get(commit.hash)
     // A merge git kept in the history has no numstat of its own; it changed
     // nothing about this file, so the count carries over untouched.
@@ -1293,25 +1325,31 @@ function countNewlines(buf: Buffer): number {
 }
 
 /**
- * Count lines in working-tree and committed files in one batch. Each pair names
- * a revision (null for the work tree) and a repo-relative path. Returns line
- * counts in the same order; null for any file that could not be read.
+ * Measure working-tree and committed files in one batch. Each pair names a
+ * revision (null for the work tree) and a repo-relative path; the measurements
+ * come back in the same order.
+ *
+ * The size is kept even where the count is refused — a binary or oversized
+ * file has no line count but is still a file of some size, which is what the
+ * row shows instead — and both are null only where the file could not be read.
  */
 export async function countFileLines(
   root: string,
   pairs: Array<{ rev: string | null; filePath: string }>
-): Promise<Array<number | null>> {
+): Promise<FileMeasure[]> {
+  const unreadable: FileMeasure = { lines: null, bytes: null }
   return Promise.all(
     pairs.map(async ({ rev, filePath }) => {
       try {
         if (rev === null) {
           const abs = path.resolve(root, filePath)
-          if (abs !== root && !abs.startsWith(root + path.sep)) return null
+          if (abs !== root && !abs.startsWith(root + path.sep)) return unreadable
           const stat = await fs.promises.stat(abs)
-          if (stat.size > MAX_LINE_COUNT_BYTES) return null
+          if (stat.size > MAX_LINE_COUNT_BYTES) return { lines: null, bytes: stat.size }
           const buf = await fs.promises.readFile(abs)
-          if (buf.includes(0x00)) return null // binary
-          return countNewlines(buf)
+          const bytes = buf.length
+          if (buf.includes(0x00)) return { lines: null, bytes } // binary
+          return { lines: countNewlines(buf), bytes }
         }
         // Committed file via git show, read as a buffer to stay binary-safe.
         const { stdout } = await exec('git', ['show', `${rev}:${filePath}`], {
@@ -1322,11 +1360,12 @@ export async function countFileLines(
           env: { ...process.env, GIT_OPTIONAL_LOCKS: '0', LC_ALL: 'C' }
         })
         const buf = stdout as unknown as Buffer
-        if (buf.length > MAX_LINE_COUNT_BYTES) return null
-        if (buf.includes(0x00)) return null // binary
-        return countNewlines(buf)
+        const bytes = buf.length
+        if (bytes > MAX_LINE_COUNT_BYTES) return { lines: null, bytes }
+        if (buf.includes(0x00)) return { lines: null, bytes } // binary
+        return { lines: countNewlines(buf), bytes }
       } catch {
-        return null
+        return unreadable
       }
     })
   )

@@ -110,6 +110,14 @@ branch. The walk survives as the fallback for rows past
 `MAX_HISTORY_COUNT_BYTES`, where it is anchored at the last measured row rather
 than only at the first.
 
+A row that has no count says its size instead, so a binary file's history is a
+column of sizes rather than a blank one, and every row has one: a second pass
+asks `cat-file --batch-check` about the same `<rev>:<path>` list, which answers
+in headers alone — no revision's contents are read, so the pass costs nothing
+worth budgeting and reaches the rows the counting budget never did. The file
+tree measures the same way for the same reason: `countFileLines` keeps the size
+of a file it refuses to count, and returns both.
+
 `src/renderer/src/lanes.ts` computes the commit graph — deliberately not by
 parsing `git log --graph`, whose ASCII is typeset for a terminal. A lane holds
 the hash it expects next; a commit takes the first lane expecting it or opens

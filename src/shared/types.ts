@@ -60,11 +60,23 @@ export interface Commit {
 /**
  * One row of a file's history: the commit, and how long the file was once that
  * commit had landed. `lines` is null where the count cannot be derived — a
- * binary revision, or anything older than one.
+ * binary revision, or anything older than one — and `bytes` is what the row
+ * says instead, since a file that cannot be counted still has a size.
  */
 export interface FileHistoryEntry {
   commit: Commit
   lines: number | null
+  bytes: number | null
+}
+
+/**
+ * How big a file is, both ways it can be measured. `lines` is null for a binary
+ * or oversized file and `bytes` is null only where the file could not be read
+ * at all, so a row with no count still has something to show.
+ */
+export interface FileMeasure {
+  lines: number | null
+  bytes: number | null
 }
 
 export interface CommitFile {

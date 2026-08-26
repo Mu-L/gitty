@@ -7,6 +7,7 @@ import {
   parseNameStatus,
   parseNumstat,
   parseCommitNumstat,
+  parseBatchCheck,
   readBatchObjects,
   parseStatus,
   UNCOMMITTED_SHA,
@@ -259,6 +260,22 @@ describe('parseCommitNumstat', () => {
   it('keeps a tab in a path, which splits the record but not the name', () => {
     const raw = `${HASH}\0\n1\t0\ta\tb.ts\0`
     expect(parseCommitNumstat(raw).get(HASH)).toEqual({ churn: { added: 1, deleted: 0 }, path: 'a\tb.ts' })
+  })
+})
+
+describe('parseBatchCheck', () => {
+  it('reads one size per request, in the order asked', () => {
+    const raw = `${'a'.repeat(40)} blob 12\n${'b'.repeat(40)} blob 0\n`
+    expect(parseBatchCheck(raw)).toEqual([12, 0])
+  })
+
+  it('answers null for a revision git does not have, keeping the rows aligned', () => {
+    const raw = `deadbeef:no/such.png missing\n${'a'.repeat(40)} blob 7\n`
+    expect(parseBatchCheck(raw)).toEqual([null, 7])
+  })
+
+  it('is empty for an empty answer', () => {
+    expect(parseBatchCheck('')).toEqual([])
   })
 })
 

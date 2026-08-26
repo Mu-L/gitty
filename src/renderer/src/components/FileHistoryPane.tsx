@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type JSX } from 'react'
 import type { Commit, FileHistoryEntry } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
+import { humanBytes } from '../bytes'
 import { useMsg } from '../locale'
 import { fmtDateTimeZone, stamp, useTime } from '../time'
 import { useFind } from './useFind'
@@ -113,19 +114,22 @@ export function FileHistoryPane({
       {commits.length === 0 ? (
         <div className="empty">{msg.diff.emptyHistory}</div>
       ) : (
-        commits.map(({ commit: c, lines }, i) => (
+        commits.map(({ commit: c, lines, bytes }, i) => (
           <div
             className={`history-row${c.hash === selected ? ' selected' : c.hash === compare ? ' compare' : ''}`}
             key={c.hash}
             onClick={(e) => pick(c.hash, i, e.shiftKey)}
             onDoubleClick={() => onOpenCommit(c)}
-            title={`${c.hash}\n${c.author} <${c.email}>\n${fmtDateTimeZone(c.date, locale, time)}${lines === null ? '' : `\n${msg.files.lines(lines)}`}\n\n${c.subject}\n\n${msg.diff.historyRowHint}`}
+            title={`${c.hash}\n${c.author} <${c.email}>\n${fmtDateTimeZone(c.date, locale, time)}${lines === null ? (bytes === null ? '' : `\n${humanBytes(bytes)}`) : `\n${msg.files.lines(lines)}`}\n\n${c.subject}\n\n${msg.diff.historyRowHint}`}
           >
             <span className="history-hash">{c.short}</span>
             <span className="history-time">{stamp(c.date, time, msg.time)}</span>
             {/* How long the file was once this commit landed; a binary
-                revision, and anything older than one, has no count. */}
-            <span className="history-lines">{lines === null ? '' : lines}</span>
+                revision, and anything older than one, has no count, and says
+                how big it was instead. */}
+            <span className={`history-lines${lines === null ? ' size' : ''}`}>
+              {lines === null ? (bytes === null ? '' : humanBytes(bytes)) : lines}
+            </span>
             <span className="history-author">{c.author}</span>
             <span className="history-subject">{c.subject}</span>
           </div>

@@ -184,6 +184,24 @@ export function parseCommitNumstat(raw: string): Map<string, CommitNumstat> {
   return out
 }
 
+/**
+ * How big each object of a `git cat-file --batch-check` answer is, in the order
+ * they were asked for. One line per request — `<oid> <type> <size>`, or
+ * `<what was asked> missing` — and no bytes at all, which is what makes it
+ * cheap enough to ask about every revision of a file: nothing is read but the
+ * headers. A line that is neither is answered with null rather than skipped,
+ * so the answers stay aligned with the questions.
+ */
+export function parseBatchCheck(raw: string): Array<number | null> {
+  return raw
+    .split('\n')
+    .filter((line) => line.length > 0)
+    .map((line) => {
+      const size = Number(line.slice(line.lastIndexOf(' ') + 1))
+      return Number.isFinite(size) && size >= 0 ? size : null
+    })
+}
+
 /** One object as `git cat-file --batch` answers for it. */
 export interface BatchObject {
   /** The object's bytes, or null where git answered that it has no such one. */

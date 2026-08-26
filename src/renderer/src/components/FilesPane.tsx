@@ -3,6 +3,7 @@ import { useMsg } from '../locale'
 import type { FileChurn } from '../../../shared/types'
 import type { MenuState } from './ContextMenu'
 import { comparePaths, matchesFilter } from '../paths'
+import { humanBytes } from '../bytes'
 import { FileIcon } from './FileIcon'
 
 export interface FileEntry {
@@ -25,6 +26,8 @@ export interface FileEntry {
   origPath?: string
   /** Number of lines, when counted. */
   lines?: number | null
+  /** Size on disk, shown in place of a count a binary file cannot have. */
+  bytes?: number | null
   /** Lines this change added and removed; absent for binary files and snapshots. */
   churn?: FileChurn | null
 }
@@ -284,9 +287,13 @@ export function FilesPane({
             >
               {row.name}
             </span>
-            {row.entry!.lines != null && (
+            {/* A binary file has no lines to count, and its size is the
+                measurement it does have. */}
+            {row.entry!.lines != null ? (
               <span className="file-lines">{msg.files.lines(row.entry!.lines)}</span>
-            )}
+            ) : row.entry!.bytes != null ? (
+              <span className="file-lines">{humanBytes(row.entry!.bytes)}</span>
+            ) : null}
             {row.entry!.churn && (
               <span className="file-churn">
                 {row.entry!.churn!.added > 0 && (

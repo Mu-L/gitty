@@ -1,13 +1,8 @@
 import { useEffect, useState, type JSX } from 'react'
 import type { MenuState } from './ContextMenu'
 import { isImagePath } from '../paths'
+import { humanBytes } from '../bytes'
 import { useMsg } from '../locale'
-
-function humanBytes(n: number): string {
-  if (n < 1024) return `${n} B`
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`
-  return `${(n / (1024 * 1024)).toFixed(1)} MB`
-}
 
 /**
  * One image file, from the work tree or from a revision. The bytes arrive as a

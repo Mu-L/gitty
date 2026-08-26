@@ -170,8 +170,9 @@ itself, in its own blue and yellow. An extension Gitty does not know gets a
 plain page rather than a guess.
 Two status columns are shown: the staged state (green) and the work-tree state
 (yellow / red); untracked files are `??`. The count is read from disk in the
-work tree and from the revision everywhere else; binary files, deleted files and
-anything above 8 MB simply show none. After it comes the churn — how many lines
+work tree and from the revision everywhere else; where there is none to read —
+a binary file, or anything above 8 MB — the row says how big the file is
+instead, and a deleted file says nothing at all. After it comes the churn — how many lines
 this change added and removed in that file, `+12 −3`, against HEAD in the work
 tree and against the parent for a commit or a range. A snapshot is a tree rather
 than a change, so it has no churn; nor do binary files or a merge commit, whose
@@ -466,8 +467,8 @@ viewer, with an em dash where a line is not committed yet — at the revision yo
 are viewing. File History lists every commit
 that touched the file and follows renames; a
 column between the date and the author says how long the file was at that
-commit, and is blank where the count cannot be worked out — a binary revision,
-and anything older than one. Its rows behave like the commit log's: a click
+commit, and how big it was where the count cannot be worked out — a binary
+revision, and anything older than one. Its rows behave like the commit log's: a click
 picks one, a double click opens that commit, and Shift+click on a second row
 diffs the file between the two revisions — the same range view the log's second
 pick opens, with the file already selected.
