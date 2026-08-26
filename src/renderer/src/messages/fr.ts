@@ -157,6 +157,7 @@ export const fr: RendererMessages = {
     emptyBrowseWorktree: 'Sélectionnez un fichier pour le voir dans la copie de travail.',
     emptyBlame: 'Aucune ligne à imputer.',
     emptyHistory: 'Ce fichier n’a pas encore d’historique.',
+    historyRowHint: 'Cliquer pour sélectionner · Double-cliquer pour ouvrir · Maj+clic sur une seconde ligne pour comparer les deux révisions',
     showWholeDiff: 'Tout',
     allShown: 'Toutes les modifications non validées sont affichées',
     allCommitShown: 'Tous les fichiers de ce commit sont affichés',

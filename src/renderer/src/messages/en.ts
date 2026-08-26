@@ -158,6 +158,7 @@ export const en: RendererMessages = {
     emptyBrowseWorktree: 'Select a file to view it in the working tree.',
     emptyBlame: 'No lines to blame.',
     emptyHistory: 'This file has no history yet.',
+    historyRowHint: 'Click to pick · Double-click to open · Shift+click a second row to diff the two revisions',
     showWholeDiff: 'All',
     allShown: 'Every uncommitted change is shown',
     allCommitShown: 'Every file in this commit is shown',

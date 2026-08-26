@@ -800,6 +800,24 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     setView({ mode: 'commit', hash: c.hash, short: c.short, subject: c.subject })
   }, [])
 
+  /**
+   * Two revisions picked in a file's history: that one file's diff between
+   * them, oldest first. The range view is the same one the log's second pick
+   * opens, with the file already selected so the diff on screen is the file's
+   * rather than the whole range's.
+   */
+  const showFileRange = useCallback(
+    (path: string, from: string, to: string) => {
+      setSelectedCommit(to)
+      setCompareCommit(from)
+      setDocs([])
+      setActiveDoc(null)
+      setSelectedFile(path)
+      setView({ mode: 'range', from, to })
+    },
+    [setDocs, setActiveDoc]
+  )
+
   /** Browse the whole repository as it was at this commit, read-only. */
   const showSnapshot = useCallback((c: Commit) => {
     setCompareCommit(null)
@@ -1444,6 +1462,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                       onMenu={diffMenu}
                       setMenu={setMenu}
                       onOpenCommit={showCommit}
+                      onCompareRevs={(from, to) => showFileRange(doc.path, from, to)}
                       range={doc.range}
                       gotoLine={doc.line}
                       onOpenHit={openHit}

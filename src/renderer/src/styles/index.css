@@ -2602,7 +2602,8 @@ button:disabled:hover {
 
 /* ---------- file history ---------- */
 
-/* One commit per row, laid out like the commit log; clicking opens it. */
+/* One commit per row, laid out like the commit log; a click picks it and a
+   double click opens it. */
 .history-row {
   display: flex;
   align-items: center;
@@ -2614,6 +2615,18 @@ button:disabled:hover {
 
 .history-row:hover {
   background: var(--bg-hover);
+}
+
+/* Picked, and the second pick a comparison runs against — the same two marks
+   the commit log uses, so a picked row reads the same in either list. */
+.history-row.selected {
+  background: var(--bg-select-bright);
+  box-shadow: inset 3px 0 0 var(--border-active);
+}
+
+.history-row.compare {
+  background: var(--bg-select-dim);
+  box-shadow: inset 3px 0 0 var(--magenta);
 }
 
 .history-hash {

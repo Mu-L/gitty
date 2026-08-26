@@ -251,7 +251,12 @@ Each `RepoTab` holds a `View` of four modes — `worktree`, `commit`, `range`,
 | `range` | files changed between two commits | range diff |
 | `snapshot` | the entire tree at that commit | that file's contents, read-only |
 
-`selectedFile` narrows the diff within a mode. The commit log's first row is a
+`selectedFile` narrows the diff within a mode. `range` is reached two ways: a
+Shift+click on a second row of the commit log, and a Shift+click on a second row
+of a file's history — which selects that file as well, so the diff on screen is
+the file's own between the two revisions rather than the whole range's. The
+history keeps its two picks itself: they are about the file, not about the
+repository the log's selection names. The commit log's first row is a
 pseudo-commit (`WORKTREE_ROW`) standing for the uncommitted changes, drawn as
 the **Changes** row; it joins keyboard navigation and selecting it returns to
 `worktree` mode.

@@ -311,6 +311,8 @@ export interface RendererMessages {
     readonly emptyBlame: string
     /** The empty text shown when a file has no commit history. */
     readonly emptyHistory: string
+    /** Appended to a file-history row's tooltip: what the clicks do there. */
+    readonly historyRowHint: string
     /** The button that widens back to every file of a commit or a range. Kept
      *  to a word: it sits in a crowded header, and the four titles below say
      *  what it does. */

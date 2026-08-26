@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- A file's history reads like the commit log: a click picks a row, a double
+  click opens that commit, and Shift+click on a second row diffs the file
+  between the two revisions.
 - The recent-repositories menu lists a renamed repository under its tab name,
   matching the button above it; the path stays on the row.
 

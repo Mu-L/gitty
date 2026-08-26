@@ -156,6 +156,7 @@ export const pt: RendererMessages = {
     emptyBrowseWorktree: 'Selecione um ficheiro para o ver na árvore de trabalho.',
     emptyBlame: 'Nenhuma linha a atribuir.',
     emptyHistory: 'Este arquivo ainda não tem histórico.',
+    historyRowHint: 'Clique para selecionar · Duplo clique para abrir · Shift+clique numa segunda linha para comparar as duas revisões',
     showWholeDiff: 'Tudo',
     allShown: 'São mostradas todas as alterações por confirmar',
     allCommitShown: 'São mostrados todos os ficheiros deste commit',

@@ -156,6 +156,7 @@ export const ja: RendererMessages = {
     emptyBrowseWorktree: 'ワークツリーの内容を見るファイルを選択してください。',
     emptyBlame: '対象の行がありません。',
     emptyHistory: 'このファイルには履歴がありません。',
+    historyRowHint: 'クリックで選択 · ダブルクリックで開く · Shift+クリックで 2 つのリビジョンを比較',
     showWholeDiff: '全体',
     allShown: '未コミットの変更をすべて表示しています',
     allCommitShown: 'このコミットのファイルをすべて表示しています',

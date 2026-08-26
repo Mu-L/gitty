@@ -172,6 +172,7 @@ export const ru: RendererMessages = {
     emptyBrowseWorktree: 'Выберите файл, чтобы посмотреть его в рабочем дереве.',
     emptyBlame: 'Нет строк для вины.',
     emptyHistory: 'У этого файла пока нет истории.',
+    historyRowHint: 'Щелчок — выбрать · Двойной щелчок — открыть · Shift+щелчок по второй строке — сравнить две ревизии',
     showWholeDiff: 'Всё',
     allShown: 'Показаны все незакоммиченные изменения',
     allCommitShown: 'Показаны все файлы этого коммита',

@@ -153,6 +153,7 @@ export const zh: RendererMessages = {
     emptyBrowseWorktree: '选择一个文件以在工作树中查看。',
     emptyBlame: '没有可追溯的行。',
     emptyHistory: '此文件还没有历史。',
+    historyRowHint: '单击选中 · 双击打开 · Shift+单击第二行比较两个版本',
     showWholeDiff: '全部',
     allShown: '已显示所有未提交的变更',
     allCommitShown: '已显示此提交中的所有文件',

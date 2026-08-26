@@ -37,6 +37,7 @@ export function FileDoc({
   onMenu,
   setMenu,
   onOpenCommit,
+  onCompareRevs,
   range,
   onOpenHit,
   gotoLine,
@@ -72,6 +73,8 @@ export function FileDoc({
   setMenu: (state: MenuState) => void
   /** History rows hand the picked commit back here. */
   onOpenCommit?: (c: Commit) => void
+  /** Two revisions picked in the history: this file's diff between them. */
+  onCompareRevs?: (from: string, to: string) => void
   /** The lines a `lines` document follows; unused by every other kind. */
   range?: { start: number; end: number }
   /** A search hit opens the file it names, at the line it names. */
@@ -172,6 +175,7 @@ export function FileDoc({
         rev={rev}
         active={active}
         onOpenCommit={onOpenCommit ?? (() => undefined)}
+        onCompare={onCompareRevs ?? (() => undefined)}
         onMenu={onMenu}
       />
     )
