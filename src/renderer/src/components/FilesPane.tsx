@@ -118,6 +118,7 @@ export function FilesPane({
   onSelect,
   onOpen,
   onMenu,
+  onDirMenu,
   onToggleStage,
   emptyText,
   reveal,
@@ -138,6 +139,8 @@ export function FilesPane({
   onSelect: (entry: FileEntry) => void
   onOpen: (entry: FileEntry) => void
   onMenu: (entry: FileEntry, state: MenuState) => void
+  /** Right-click on a directory row rather than on a file. */
+  onDirMenu: (dir: string, state: MenuState) => void
   /** Changes view only: clicking the status marks moves the file in or out of
    *  the index. Absent in every other mode, where there is no index to move
    *  it to and the marks are just a status. */
@@ -233,6 +236,13 @@ export function FilesPane({
             data-dir={row.key}
             className="row"
             onClick={() => toggle(row.key)}
+            onContextMenu={(e) => {
+              // As with a file row: the tree's own menu listens above this
+              // one, and a folder has its own answer.
+              e.preventDefault()
+              e.stopPropagation()
+              onDirMenu(row.key, { x: e.clientX, y: e.clientY, items: [] })
+            }}
             title={row.key}
           >
             <span className="tree-indent" style={{ width: row.depth * 12 }} />

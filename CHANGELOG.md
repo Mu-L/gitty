@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A folder in the file tree has a context menu of its own: the three paths,
+  **Open in Browser** for the directory listing, **Open in File Manager**, and
+  a paste that lands inside that folder rather than at the root.
 - A rendered markdown preview marks the blocks the diff on screen inserted or
   changed: the gutter number wears the diff's own add colours, green on the
   green background a `+` line is drawn on. A block counts as changed when any

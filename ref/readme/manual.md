@@ -207,6 +207,11 @@ Both keys are listed in the pane title's tooltip.
   Stage / Unstage File, Discard Changes, Delete File. A submodule's row also
   offers **Pull Submodule**.
 - **Click a folder** — collapse or expand it.
+- **Right-click a folder** — Copy Relative Path, Copy Absolute Path, Copy Folder
+  Name, and the two ways of opening it outside Gitty: **Open in Browser**, which
+  is the browser's own listing of the directory, and **Open in File Manager**.
+  A revision's snapshot lists a tree that is not on disk, so it offers the paths
+  alone.
 
 Files copied in a file manager can be **pasted into the tree**: right-click the
 empty space below the rows for **Paste**, which writes into the repository

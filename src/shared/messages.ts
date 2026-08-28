@@ -539,6 +539,11 @@ export interface RendererMessages {
     readonly copyFileName: string
     readonly openInSystemApp: string
     readonly revealInFileManager: string
+    // a directory row in the file tree
+    readonly copyFolderName: string
+    /** The folder as a `file://` listing in the system browser. */
+    readonly openFolderInBrowser: string
+    readonly openFolderInFileManager: string
     /** Changes view only: sends the file to the system trash. */
     readonly deleteFile: string
     /** Changes view only: the index. */

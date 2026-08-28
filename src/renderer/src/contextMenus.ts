@@ -95,6 +95,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
   diffMenu: (at: MenuState) => void
   diffFileMenu: (path: string, at: MenuState) => void
   fileMenu: (entry: FileEntry, at: MenuState) => void
+  /** A directory row in the file tree, which is a path rather than a file. */
+  dirMenu: (dir: string, at: MenuState) => void
   /** The file tree's own menu, off the empty space below the rows. */
   treeMenu: (at: MenuState) => void
   commitMenu: (c: Commit, at: MenuState) => void
@@ -371,6 +373,44 @@ export function createContextMenus(deps: ContextMenuDeps): {
     setMenu({ ...at, items })
   }
 
+  /**
+   * Right-click on a directory row. A folder has no diff and no index entry,
+   * so what is left is where it is and how to get at it: the paths, the two
+   * ways of opening it outside Gitty, and a paste that lands inside it.
+   */
+  const dirMenu = async (dir: string, at: MenuState): Promise<void> => {
+    const can = await canPaste()
+    const absPath = `${root}/${dir}`
+    const items: MenuItem[] = [
+      { label: msg.contextMenu.copyRelativePath, action: () => void window.gitty.clipboard.write(dir) },
+      { label: msg.contextMenu.copyAbsolutePath, action: () => void window.gitty.clipboard.write(absPath) },
+      {
+        label: msg.contextMenu.copyFolderName,
+        action: () => void window.gitty.clipboard.write(dir.split('/').pop() ?? dir)
+      }
+    ]
+    // A snapshot of a revision is not a directory anyone can open: the tree it
+    // lists exists in git, not on disk. Every other view is the disk itself, or
+    // a commit whose paths still resolve there.
+    if (!(view.mode === 'snapshot' && view.hash !== null)) {
+      items.push(
+        {
+          label: msg.contextMenu.openFolderInBrowser,
+          separatorBefore: true,
+          // The browser's own directory listing; `file.open` would hand the
+          // folder to the file manager, which is the item below.
+          action: () => void window.gitty.file.openExternal(`file://${absPath}`)
+        },
+        {
+          label: msg.contextMenu.openFolderInFileManager,
+          action: () => void window.gitty.file.open(absPath)
+        }
+      )
+    }
+    items.push(...pasteItem(dir, can))
+    setMenu({ ...at, items })
+  }
+
   /** Right-click on the tree itself rather than on a row: the repository root
    *  is what a paste with no row under it means. */
   const treeMenu = async (at: MenuState): Promise<void> => {
@@ -456,5 +496,5 @@ export function createContextMenus(deps: ContextMenuDeps): {
     })
   }
 
-  return { diffMenu, diffFileMenu, fileMenu, treeMenu, commitMenu, worktreeMenu }
+  return { diffMenu, diffFileMenu, fileMenu, dirMenu, treeMenu, commitMenu, worktreeMenu }
 }

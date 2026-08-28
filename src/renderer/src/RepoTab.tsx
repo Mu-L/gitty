@@ -1192,7 +1192,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   /* ---------- context menus ---------- */
 
-  const { diffMenu, diffFileMenu, fileMenu, treeMenu, commitMenu, worktreeMenu } =
+  const { diffMenu, diffFileMenu, fileMenu, dirMenu, treeMenu, commitMenu, worktreeMenu } =
     createContextMenus({
       msg,
       root,
@@ -1395,6 +1395,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   openFileDoc(path)
                 }}
                 onMenu={fileMenu}
+                onDirMenu={dirMenu}
                 onTreeMenu={treeMenu}
                 onPasteFiles={pasteFiles}
                 onToggleStage={(f) => void toggleStage(f.path, !!f.staged)}

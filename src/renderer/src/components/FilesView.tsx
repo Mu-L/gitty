@@ -27,6 +27,8 @@ export interface FilesViewProps {
   onSelect: (path: string) => void
   onOpen: (path: string) => void
   onMenu: (entry: FileEntry, state: MenuState) => void
+  /** Right-click on a directory row of the tree. */
+  onDirMenu: (dir: string, state: MenuState) => void
   /** Right-click on the tree itself rather than on one of its rows. */
   onTreeMenu: (state: MenuState) => void
   /** Paste the clipboard's files into a directory, relative to the root. */
@@ -63,6 +65,7 @@ export function FilesView({
   onSelect,
   onOpen,
   onMenu,
+  onDirMenu,
   onTreeMenu,
   onPasteFiles,
   onToggleStage,
@@ -360,6 +363,7 @@ export function FilesView({
           onSelect={(f) => onSelect(f.path)}
           onOpen={(f) => onOpen(f.path)}
           onMenu={onMenu}
+          onDirMenu={onDirMenu}
           onToggleStage={view.mode === 'worktree' ? onToggleStage : undefined}
           emptyText={emptyText}
           reveal={reveal}
