@@ -55,6 +55,7 @@ export const ru: RendererMessages = {
       shortcuts: 'Этот список сочетаний клавиш',
       refresh: 'Обновить статус и лог',
       openRepo: 'Открыть другой репозиторий в новой вкладке',
+      quickOpen: 'Открыть файл по имени из любого места окна',
       settings: 'Настройки',
       menuBar: 'Показать или скрыть строку меню приложения'
     },
@@ -162,6 +163,14 @@ export const ru: RendererMessages = {
     filterCount: (shown: number, total: number) => `${shown} из ${total}`,
     filterNone: 'нет совпадений',
     filterClear: 'Очистить фильтр'
+  },
+  quickOpen: {
+    placeholder: 'Открыть файл по имени…',
+    title:
+      'Откройте любой файл рабочего каталога, набрав часть его имени.\n\nБуквы ищутся по порядку, поэтому «dfpn» находит DiffPane.tsx.\n↑ ↓ — выбор, Enter — открыть, Esc — закрыть.',
+    loading: 'Перечисляем рабочее дерево…',
+    noMatch: 'Нет подходящих файлов.',
+    count: (shown: number, total: number) => `${shown} из ${total} файлов`
   },
   diff: {
     titleFallback: 'Diff',

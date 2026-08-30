@@ -41,6 +41,7 @@ export const zh: RendererMessages = {
       shortcuts: '本快捷键列表',
       refresh: '刷新状态和日志',
       openRepo: '在新标签页中打开另一个仓库',
+      quickOpen: '从窗口任意位置按文件名打开文件',
       settings: '设置',
       menuBar: '显示或隐藏应用菜单栏'
     },
@@ -143,6 +144,14 @@ export const zh: RendererMessages = {
     filterCount: (shown: number, total: number) => `${total} 个中的 ${shown} 个`,
     filterNone: '无匹配',
     filterClear: '清除过滤'
+  },
+  quickOpen: {
+    placeholder: '按名称打开文件…',
+    title:
+      '输入文件名的一部分，打开工作目录中的任意文件。\n\n字母按顺序匹配，所以「dfpn」能找到 DiffPane.tsx。\n↑ ↓ 选择，Enter 打开，Esc 关闭。',
+    loading: '正在列出工作目录…',
+    noMatch: '没有匹配的文件。',
+    count: (shown: number, total: number) => `${shown} / ${total} 个文件`
   },
   diff: {
     titleFallback: '差异',

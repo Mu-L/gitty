@@ -87,6 +87,24 @@ export function isChangesChord(e: KeyboardEvent): boolean {
   return (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.code === 'KeyD'
 }
 
+/**
+ * Opening a file by name from anywhere in the window. E for the key a hand
+ * already resting on Ctrl can reach without moving — the file tree's own
+ * Ctrl+F filter is the near key, and this is the one that needs no pane
+ * focused. RepoTab handles it, since the list of files belongs to a repository.
+ */
+export const QUICK_OPEN_ACCEL = 'Ctrl+E'
+
+/**
+ * True for that key, in a terminal as much as anywhere else: `TerminalPane`
+ * keeps xterm from passing it on, the way it does for the copy and cycle
+ * chords. Ctrl+D is the one that yields to the shell, its end-of-input being
+ * how a shell is left; readline's end-of-line has the End key besides.
+ */
+export function isQuickOpenChord(e: KeyboardEvent): boolean {
+  return (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.code === 'KeyE'
+}
+
 /** Pasting files into the file tree; the shell keeps its own Ctrl+V. */
 export const PASTE_ACCEL = 'Ctrl+V'
 

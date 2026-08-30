@@ -41,6 +41,7 @@ export const fr: RendererMessages = {
       shortcuts: 'Cette liste de raccourcis',
       refresh: "Rafraîchir l'état et le journal",
       openRepo: 'Ouvrir un autre dépôt dans un nouvel onglet',
+      quickOpen: 'Ouvrir un fichier par son nom, depuis n’importe où dans la fenêtre',
       settings: 'Paramètres',
       menuBar: "Afficher ou masquer la barre de menus de l'application"
     },
@@ -147,6 +148,14 @@ export const fr: RendererMessages = {
     filterCount: (shown: number, total: number) => `${shown} sur ${total}`,
     filterNone: 'aucune correspondance',
     filterClear: 'Effacer le filtre'
+  },
+  quickOpen: {
+    placeholder: 'Ouvrir un fichier par son nom…',
+    title:
+      'Ouvrez n’importe quel fichier du répertoire de travail en tapant une partie de son nom.\n\nLes lettres sont mises en correspondance dans l’ordre : « dfpn » trouve DiffPane.tsx.\n↑ ↓ pour choisir, Entrée pour ouvrir, Échap pour fermer.',
+    loading: 'Liste de l’arbre de travail…',
+    noMatch: 'Aucun fichier ne correspond.',
+    count: (shown: number, total: number) => `${shown} fichiers sur ${total}`
   },
   diff: {
     titleFallback: 'Diff',

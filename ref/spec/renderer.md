@@ -356,3 +356,36 @@ is left to `scrollIntoView`, which knows about boxes on both sides of the
 frame boundary. The CSP is `img-src 'self' data:`, so a `https://` image
 in a document is not fetched — deliberately, since rendering someone else's
 README should not report to their host.
+
+## Opening a file by name
+
+Ctrl+E over a repository tab opens `components/QuickOpen.tsx`, a box that asks
+for a name and opens the file. It is deliberately *not* the file tree's filter,
+which answers a different question: that one narrows what the pane already
+lists, needs the pane focused, and in the Changes view only knows about the
+files that changed. This one lists the working directory — the same
+`git.worktreeFiles` call the Working Tree view uses, with the ignored files
+dropped, since `node_modules` would bury every real answer.
+
+The ranking lives in `quickopen.ts`, a leaf module and the only part worth
+testing: matching is by **subsequence**, so `dfpn` reaches `DiffPane.tsx`, and
+the placement of the letters is a dynamic program rather than a greedy walk.
+Greedy matters here — taking the first `d` in `src/renderer/...` spends the
+letter on a directory and never reaches the file name — so the program keeps,
+for each letter, the best placement over every position, one running maximum of
+the row above making it a single pass per letter. Scoring rewards a letter that
+starts a word (a path segment, or after `-`, `_`, `.`, or a lowercase-to-
+uppercase step, which is how initials are typed), a letter in the file name
+rather than in the directories above it, and letters that stay in a run; the
+path's length breaks a tie, and so does the path itself, so a row does not swap
+places under the cursor between keystrokes.
+
+Two things the wiring has to get right. The pick opens through
+`openLinkedPath(path, null)`, never `openFileDoc`, which would take the
+revision being browsed — the box listed the disk, so the disk is what it
+opens. And the key is RepoTab's rather than App's, because the list of files
+belongs to a repository. It is taken from the shell as well: `TerminalPane`'s
+`attachCustomKeyEventHandler` lists it beside the copy and cycle chords, so
+xterm does not pass it on. Ctrl+D is the one that yields — its end-of-input is
+how a shell is left — whereas readline's end-of-line is also the End key, so
+nothing is lost by taking Ctrl+E.

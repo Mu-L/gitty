@@ -41,6 +41,7 @@ export const ko: RendererMessages = {
       shortcuts: '이 단축키 목록',
       refresh: '상태와 로그 새로 고침',
       openRepo: '다른 저장소를 새 탭에서 열기',
+      quickOpen: '창 어디에서든 파일 이름으로 파일 열기',
       settings: '설정',
       menuBar: '애플리케이션 메뉴 막대 보이기 또는 숨기기'
     },
@@ -145,6 +146,14 @@ export const ko: RendererMessages = {
     filterCount: (shown: number, total: number) => `${total}개 중 ${shown}개`,
     filterNone: '일치 없음',
     filterClear: '필터 지우기'
+  },
+  quickOpen: {
+    placeholder: '이름으로 파일 열기…',
+    title:
+      '이름의 일부를 입력해 작업 디렉터리의 어떤 파일이든 엽니다.\n\n글자를 순서대로 맞추므로 "dfpn"으로 DiffPane.tsx를 찾습니다.\n↑ ↓ 로 선택, Enter 로 열기, Esc 로 닫기.',
+    loading: '작업 트리를 나열하는 중…',
+    noMatch: '일치하는 파일이 없습니다.',
+    count: (shown: number, total: number) => `${total}개 중 ${shown}개`
   },
   diff: {
     titleFallback: 'Diff',

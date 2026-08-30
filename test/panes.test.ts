@@ -4,6 +4,7 @@ import {
   BROWSE_PANES,
   isBrowseChord,
   isChangesChord,
+  isQuickOpenChord,
   nextPane,
   type PaneVisibility
 } from '../src/renderer/src/panes'
@@ -73,6 +74,23 @@ describe('isBrowseChord', () => {
 
   it('reads the code, not the character', () => {
     expect(isBrowseChord(key({ ctrlKey: true, code: 'KeyV' }))).toBe(false)
+  })
+})
+
+describe('isQuickOpenChord', () => {
+  it('takes Ctrl+E, and Cmd+E on macOS', () => {
+    expect(isQuickOpenChord(key({ ctrlKey: true, code: 'KeyE' }))).toBe(true)
+    expect(isQuickOpenChord(key({ metaKey: true, code: 'KeyE' }))).toBe(true)
+  })
+
+  it('leaves the plain key and the other modifiers alone', () => {
+    expect(isQuickOpenChord(key({ code: 'KeyE' }))).toBe(false)
+    expect(isQuickOpenChord(key({ ctrlKey: true, shiftKey: true, code: 'KeyE' }))).toBe(false)
+    expect(isQuickOpenChord(key({ ctrlKey: true, altKey: true, code: 'KeyE' }))).toBe(false)
+  })
+
+  it('reads the code, not the character', () => {
+    expect(isQuickOpenChord(key({ ctrlKey: true, code: 'KeyB' }))).toBe(false)
   })
 })
 

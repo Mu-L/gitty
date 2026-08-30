@@ -41,6 +41,7 @@ export const de: RendererMessages = {
       shortcuts: 'Diese Liste der Tastaturkürzel',
       refresh: 'Status und Log aktualisieren',
       openRepo: 'Ein weiteres Repository in einem neuen Tab öffnen',
+      quickOpen: 'Eine Datei über ihren Namen öffnen, von überall im Fenster',
       settings: 'Einstellungen',
       menuBar: 'Menüleiste der Anwendung ein- oder ausblenden'
     },
@@ -147,6 +148,14 @@ export const de: RendererMessages = {
     filterCount: (shown: number, total: number) => `${shown} von ${total}`,
     filterNone: 'keine Treffer',
     filterClear: 'Filter löschen'
+  },
+  quickOpen: {
+    placeholder: 'Datei über den Namen öffnen…',
+    title:
+      'Öffnet jede Datei im Arbeitsverzeichnis, indem ein Teil ihres Namens getippt wird.\n\nDie Buchstaben werden der Reihe nach gesucht, „dfpn“ findet also DiffPane.tsx.\n↑ ↓ wählt aus, Enter öffnet, Esc schließt.',
+    loading: 'Der Arbeitsbaum wird aufgelistet…',
+    noMatch: 'Keine Datei passt.',
+    count: (shown: number, total: number) => `${shown} von ${total} Dateien`
   },
   diff: {
     titleFallback: 'Diff',

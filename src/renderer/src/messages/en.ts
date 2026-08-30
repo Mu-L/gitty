@@ -41,6 +41,7 @@ export const en: RendererMessages = {
       shortcuts: 'This list of shortcuts',
       refresh: 'Refresh status and log',
       openRepo: 'Open another repository in a new tab',
+      quickOpen: 'Open a file by name, from anywhere in the window',
       settings: 'Settings',
       menuBar: 'Show or hide the application menu bar'
     },
@@ -148,6 +149,14 @@ export const en: RendererMessages = {
     filterCount: (shown: number, total: number) => `${shown} of ${total}`,
     filterNone: 'no match',
     filterClear: 'Clear the filter'
+  },
+  quickOpen: {
+    placeholder: 'Open a file by name…',
+    title:
+      'Open any file in the working directory by typing part of its name.\n\nThe letters are matched in order, so "dfpn" finds DiffPane.tsx.\n↑ ↓ to pick, Enter to open, Esc to close.',
+    loading: 'Listing the working tree…',
+    noMatch: 'No file matches.',
+    count: (shown: number, total: number) => `${shown} of ${total} files`
   },
   diff: {
     titleFallback: 'Diff',

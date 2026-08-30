@@ -41,6 +41,7 @@ export const ja: RendererMessages = {
       shortcuts: 'このショートカット一覧',
       refresh: 'ステータスとログを更新',
       openRepo: '別のリポジトリを新しいタブで開く',
+      quickOpen: 'ウィンドウのどこからでもファイル名で開く',
       settings: '設定',
       menuBar: 'アプリケーションメニューバーを表示／非表示'
     },
@@ -146,6 +147,14 @@ export const ja: RendererMessages = {
     filterCount: (shown: number, total: number) => `${total} 件中 ${shown} 件`,
     filterNone: '一致なし',
     filterClear: '絞り込みを消す'
+  },
+  quickOpen: {
+    placeholder: 'ファイル名で開く…',
+    title:
+      '名前の一部を入力して、作業ディレクトリ内のどのファイルでも開きます。\n\n文字は順番に照合されるので、「dfpn」で DiffPane.tsx が見つかります。\n↑ ↓ で選択、Enter で開く、Esc で閉じる。',
+    loading: '作業ツリーを一覧しています…',
+    noMatch: '一致するファイルはありません。',
+    count: (shown: number, total: number) => `${total} 件中 ${shown} 件`
   },
   diff: {
     titleFallback: '差分',

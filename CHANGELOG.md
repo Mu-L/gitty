@@ -21,6 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Ctrl+E opens a file by name from anywhere in the window, the terminal
+  included — the shell does not see the key. The letters are matched in order,
+  so `dfpn` finds `DiffPane.tsx`, and a hit on a word boundary or in the file
+  name ranks first. It lists the whole working directory, ignored files left
+  out, and opens the pick as a document.
 - A folder in the file tree has a context menu of its own: the three paths,
   **Open in Browser** for the directory listing, **Open in File Manager**, and
   a paste that lands inside that folder rather than at the root.

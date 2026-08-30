@@ -15,6 +15,7 @@ import {
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { ContextMenu, type MenuItem, type MenuState } from './components/ContextMenu'
 import { PromptDialog } from './components/PromptDialog'
+import { QuickOpen } from './components/QuickOpen'
 import {
   DiffPane,
   type CollapseState,
@@ -54,6 +55,7 @@ import {
   isPaneCycleChord,
   isBrowseChord,
   isChangesChord,
+  isQuickOpenChord,
   fromTerminal,
   ALL_PANES,
   BROWSE_PANES,
@@ -239,6 +241,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const [menu, setMenu] = useState<MenuState | null>(null)
   // The "New command…" prompt from the agent dropdown.
   const [agentPrompt, setAgentPrompt] = useState(false)
+  const [quickOpen, setQuickOpen] = useState(false)
   // The pane filling the window, if any. One at a time, and per tab: another
   // repository's layout is none of its business.
   const [full, setFull] = useState<PaneId | null>(null)
@@ -958,7 +961,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     const onKey = (e: KeyboardEvent): void => {
       // Escape unwinds one level at a time: a dialog, full screen, then view.
       if (e.key === 'Escape') {
-        if (dialogOpen || agentPrompt) return
+        if (dialogOpen || agentPrompt || quickOpen) return
         if (full) setFull(null)
         else backToWorkTree()
       } else if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && e.key === 'r')) {
@@ -970,6 +973,14 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
         e.preventDefault()
         const id = PANE_ORDER[Number(e.code.slice(-1)) - 1]
         if (panes[id]) setFull((f) => (f === id ? null : id))
+      } else if (isQuickOpenChord(e)) {
+        // Ctrl+E opens a file by name, from the terminal as much as from
+        // anywhere else — TerminalPane keeps xterm from passing it to the
+        // shell, the way it does for the copy and pane chords. Unlike Ctrl+D,
+        // whose shell meaning is how a shell is left, readline's end-of-line
+        // is also the End key, so taking this key costs nothing.
+        e.preventDefault()
+        setQuickOpen(true)
       } else if (isBrowseChord(e)) {
         // Ctrl+B for browse: the work tree as a tree of files, read-only.
         e.preventDefault()
@@ -995,6 +1006,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     active,
     dialogOpen,
     agentPrompt,
+    quickOpen,
     full,
     panes,
     backToWorkTree,
@@ -1681,6 +1693,14 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       </Group>
 
       <ContextMenu state={menu} onClose={() => setMenu(null)} />
+      <QuickOpen
+        open={quickOpen}
+        root={root}
+        // Always the file on disk, never the revision being browsed: the box
+        // lists the working tree, so a pick from it opens what it listed.
+        onOpen={(path) => openLinkedPath(path, null)}
+        onClose={() => setQuickOpen(false)}
+      />
       <PromptDialog
         open={agentPrompt}
         title={msg.terminal.agentPromptTitle}

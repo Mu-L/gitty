@@ -41,6 +41,7 @@ export const pt: RendererMessages = {
       shortcuts: 'Esta lista de atalhos',
       refresh: 'Atualizar estado e log',
       openRepo: 'Abrir outro repositório num novo separador',
+      quickOpen: 'Abrir um ficheiro pelo nome, a partir de qualquer ponto da janela',
       settings: 'Definições',
       menuBar: 'Mostrar ou ocultar a barra de menus da aplicação'
     },
@@ -146,6 +147,14 @@ export const pt: RendererMessages = {
     filterCount: (shown: number, total: number) => `${shown} de ${total}`,
     filterNone: 'sem correspondências',
     filterClear: 'Limpar o filtro'
+  },
+  quickOpen: {
+    placeholder: 'Abrir um ficheiro pelo nome…',
+    title:
+      'Abre qualquer ficheiro do diretório de trabalho escrevendo parte do seu nome.\n\nAs letras são procuradas por ordem, por isso «dfpn» encontra DiffPane.tsx.\n↑ ↓ para escolher, Enter para abrir, Esc para fechar.',
+    loading: 'A listar a árvore de trabalho…',
+    noMatch: 'Nenhum ficheiro corresponde.',
+    count: (shown: number, total: number) => `${shown} de ${total} ficheiros`
   },
   diff: {
     titleFallback: 'Diff',

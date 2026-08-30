@@ -5,7 +5,8 @@ import {
   BROWSE_ACCEL,
   CHANGES_ACCEL,
   PANE_CYCLE_ACCEL,
-  PASTE_ACCEL
+  PASTE_ACCEL,
+  QUICK_OPEN_ACCEL
 } from '../panes'
 import type { RendererMessages } from '../../../shared/messages'
 
@@ -69,6 +70,7 @@ function sections(msg: RendererMessages): Section[] {
         { keys: 'F1', action: h.shortcuts },
         { keys: 'F5 / Ctrl+R', action: h.refresh },
         { keys: 'Ctrl+O', action: h.openRepo },
+        { keys: QUICK_OPEN_ACCEL, action: h.quickOpen },
         { keys: 'Ctrl+,', action: h.settings },
         { keys: 'Alt', action: h.menuBar }
       ]

@@ -145,8 +145,8 @@ the two sides.
 **Bundle size.** highlight.js and markdown-it may be imported only from the
 `FileDoc` subtree, xterm only from `TerminalsPane`. A static import from a warm
 chunk drags the library back into the main bundle. `paths.ts`, `icons.ts`,
-`nav.ts`, `panes.ts` and `symbols.ts` are leaf modules and must stay
-import-free; `terminals.ts` imports xterm **only as `import type`**. Full rules:
+`nav.ts`, `panes.ts`, `symbols.ts` and `quickopen.ts` are leaf modules and must
+stay import-free; `terminals.ts` imports xterm **only as `import type`**. Full rules:
 `ref/spec/lazy-loading.md`.
 
 **Plugins.** Non-core features are plugins: a directory under

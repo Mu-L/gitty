@@ -172,6 +172,7 @@ export interface RendererMessages {
       readonly shortcuts: string
       readonly refresh: string
       readonly openRepo: string
+      readonly quickOpen: string
       readonly settings: string
       readonly menuBar: string
     }
@@ -296,6 +297,16 @@ export interface RendererMessages {
     readonly filterCount: (shown: number, total: number) => string
     readonly filterNone: string
     readonly filterClear: string
+  }
+  readonly quickOpen: {
+    /** The one field of the quick-open box, which is the whole dialog. */
+    readonly placeholder: string
+    readonly title: string
+    /** While `ls-files` is still answering. */
+    readonly loading: string
+    readonly noMatch: string
+    /** The footer: how many rows are shown out of the whole working tree. */
+    readonly count: (shown: number, total: number) => string
   }
   readonly diff: {
     readonly titleFallback: string

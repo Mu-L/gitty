@@ -7,7 +7,7 @@ import { getMessages } from '../messages'
 import { loadLocale, useMsg } from '../locale'
 import type { TerminalOptions } from '../../../shared/types'
 import { isCopyChord } from '../copy'
-import { isBrowseChord, isPaneCycleChord } from '../panes'
+import { isBrowseChord, isPaneCycleChord, isQuickOpenChord } from '../panes'
 
 export type Theme = 'dark' | 'light'
 
@@ -83,10 +83,15 @@ function ensureSession(
   // otherwise send it on as the interrupt. Returning false leaves the event to
   // bubble, which is where the app's copy handler picks it up.
   // Ctrl+Tab is the same kind of thing: while the terminal fills the window it
-  // is the only way out of it, so the shell must not see it either.
+  // is the only way out of it, so the shell must not see it either. Ctrl+E
+  // joins them because opening a file by name is worth more here than
+  // readline's end-of-line, which the End key still reaches.
   term.attachCustomKeyEventHandler(
     (e) =>
-      !(e.type === 'keydown' && (isCopyChord(e) || isPaneCycleChord(e) || isBrowseChord(e)))
+      !(
+        e.type === 'keydown' &&
+        (isCopyChord(e) || isPaneCycleChord(e) || isBrowseChord(e) || isQuickOpenChord(e))
+      )
   )
   term.onData((data) => window.gitty.terminal.input(id, data))
 

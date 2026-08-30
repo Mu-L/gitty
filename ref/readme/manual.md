@@ -238,6 +238,22 @@ rather than reported as an error. Nothing stays shut while the box has text — 
 directories down is the point of having typed. <kbd>Esc</kbd> or the **✕**
 clears it and puts the whole tree back, and so does moving to another commit.
 
+<kbd>Ctrl+E</kbd> answers the other question — not "narrow what is listed here"
+but "show me that file, wherever it is". It opens a box over the window from
+anywhere, needing no pane focused, and lists the whole working directory rather
+than the tree on screen: every file `git` would name, the ones `.gitignore`
+covers left out, so `node_modules` cannot bury the answer. The letters are
+matched **in order but not adjacently** — `dfpn` finds `DiffPane.tsx` — and the
+ranking prefers letters that start a word (a path segment, or after `-`, `_`,
+`.`, or a lowercase-to-uppercase step), letters in the file name rather than in
+the directories above it, and runs that stay together; a shorter path breaks a
+tie. <kbd>↑</kbd> <kbd>↓</kbd> pick, <kbd>Enter</kbd> opens the file as a
+document beside the diff, and <kbd>Esc</kbd> closes the box. The file opens as
+it is on disk even while a commit is on screen, since the working directory is
+what the box listed. The key works inside a terminal too, where the shell does
+not see it — unlike <kbd>Ctrl+D</kbd>, which stays end-of-input because that is
+how a shell is left; readline's end-of-line is <kbd>End</kbd> as well.
+
 **Pull Submodule** appears on the row of a path `.gitmodules` names, in the two
 views that are the directory on disk — **Changes** and **Working Tree**. It
 fetches that submodule's own remote and moves it to the tip of the branch it
@@ -814,6 +830,7 @@ opens the same sheet.
 | <kbd>F1</kbd> | The shortcuts, in a sheet over the window |
 | <kbd>F5</kbd> / <kbd>Ctrl+R</kbd> | Refresh status and log |
 | <kbd>Ctrl+O</kbd> | Open another repository in a new tab |
+| <kbd>Ctrl+E</kbd> | Open a file by name, from anywhere in the window — the terminal included |
 | <kbd>Ctrl+,</kbd> | Settings |
 | <kbd>Ctrl+1</kbd> … <kbd>Ctrl+4</kbd> | Hide or show Files, Diff, Commits, Terminal |
 | <kbd>Ctrl+Shift+0</kbd> | Show all four panes again |
