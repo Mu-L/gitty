@@ -23,6 +23,24 @@ emits one blob whose spans run across newlines (block comments, template
 literals): it walks the output keeping the stack of open spans, so each line can
 be its own element without broken markup.
 
+## Formatting JSON
+
+`src/renderer/src/json.ts` re-indents a JSON document, and the **Format** button
+in the diff header flips the same `preview` flag markdown's button flips — the
+two never appear together, so one flag carries both meanings and the browsing
+history records the choice for free.
+
+It is a small parser rather than `JSON.stringify(JSON.parse(text), null, 2)`,
+because that does not round-trip a file: `1e999` comes back `null`, a number
+past a double's precision loses its last digits, numeric-looking keys come back
+in numeric order and a duplicate key is dropped. A viewer must show what is in
+the file, so every scalar is re-emitted as the source spelled it and only the
+whitespace between tokens is the formatter's. `null` for anything that is not
+one complete document is the same answer as *there is nothing to offer here*:
+`RepoTab` calls it to decide whether the button exists at all, and `FileDoc`
+falls back to the stored text if it ever disagrees. Pure string work with a
+silent failure mode, so it is tested in `test/json.test.ts`.
+
 ## The code outline
 
 `src/renderer/src/symbols.ts` is the other outline — the declarations in a

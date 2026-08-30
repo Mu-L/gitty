@@ -468,6 +468,20 @@ own or grows to its content so the whole page scrolls as one. <kbd>Ctrl+F</kbd>
 and <kbd>Ctrl+Shift+C</kbd> work inside the frame, whose keys never reach the
 rest of the window.
 
+#### JSON
+
+A `.json`, `.geojson`, `.topojson` or `.webmanifest` file opens as the file
+stores it and gets a **Format** button beside **Wrap**: pressed, the document is
+re-indented two spaces to a level, so a minified file that arrives as one
+endless line reads as a tree. Press it again for the file as it is stored.
+
+Only the whitespace between tokens changes. Numbers keep the digits the file
+spells — a value too long for a double, an exponent too large — keys keep the
+order they are in, and a duplicate key stays. The button appears only where the
+text parses as one complete JSON document, so a template full of placeholders,
+or a truncated download, offers nothing rather than a button that does nothing.
+Formatting is a way of reading the file; nothing is written back.
+
 #### Images
 
 A `.png`, `.jpg`, `.gif`, `.webp`, `.bmp`, `.ico`, `.avif` or `.svg` opens as

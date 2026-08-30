@@ -4,7 +4,7 @@ import type { DiffSide, WorkingFile } from '../../../shared/types'
 import type { View } from '../contextMenus'
 import type { FileDocState } from '../nav'
 import { paneControls } from '../panes'
-import { isHtmlPath, isImagePath, isMarkdownPath } from '../paths'
+import { isHtmlPath, isImagePath, isJsonPath, isMarkdownPath } from '../paths'
 import { type CollapseState, type DiffPaneHandle, type DiffView } from './DiffPane'
 import { Tooltip } from './Tooltip'
 
@@ -15,6 +15,8 @@ export interface DiffHeaderProps {
   workingFile: WorkingFile | null
   viewingFile: boolean
   previewing: boolean
+  /** The document is JSON this run can re-indent, so the button is offered. */
+  jsonFormattable: boolean
   outlineable: boolean
   doc: FileDocState | null
   docs: FileDocState[]
@@ -53,6 +55,7 @@ export function DiffHeader({
   workingFile,
   viewingFile,
   previewing,
+  jsonFormattable,
   outlineable,
   doc,
   docs,
@@ -175,6 +178,18 @@ export function DiffHeader({
               {msg.diff.preview}
             </button>
           )}
+        {/* JSON is shown as the file stores it — a minified file included —
+            and this re-indents it. The same `preview` flag markdown's button
+            flips, so the two never appear together. */}
+        {viewingFile && doc && doc.kind === 'file' && isJsonPath(doc.path) && jsonFormattable && (
+          <button
+            className={`toggle${doc.preview ? ' on' : ''}`}
+            title={doc.preview ? msg.diff.jsonSourceTitle : msg.diff.formatJsonTitle}
+            onClick={onTogglePreview}
+          >
+            {msg.diff.formatJson}
+          </button>
+        )}
         {!viewingFile && collapseState.files > 1 && (
           <button
             className="toggle"

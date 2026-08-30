@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A JSON file viewed on its own has a **Format** button: it re-indents the
+  document, so a minified file reads as a tree. Numbers keep the digits the file
+  spells and keys their order — only the whitespace is the formatter's — and the
+  button appears only where the text parses.
 - Ctrl+E opens a file by name from anywhere in the window, the terminal
   included — the shell does not see the key. The letters are matched in order,
   so `dfpn` finds `DiffPane.tsx`, and a hit on a word boundary or in the file

@@ -15,6 +15,16 @@ export function isHtmlPath(path: string): boolean {
   return /\.(html?|xhtml)$/i.test(path)
 }
 
+/**
+ * JSON files open as they are written, with a button that re-indents them —
+ * a minified one is a single unreadable line. The extensions are the ones
+ * whose contents are plain JSON; `.jsonc` and `.json5` are not, and would only
+ * offer a button that cannot parse them.
+ */
+export function isJsonPath(path: string): boolean {
+  return /\.(json|geojson|topojson|webmanifest)$/i.test(path)
+}
+
 /** Extensions the image preview claims; must match `IMAGE_MIME` in main/git.ts. */
 const IMAGE_EXT = /\.(png|jpe?g|gif|webp|bmp|ico|avif|svg)$/i
 

@@ -26,6 +26,7 @@
     "src/renderer/src/tabs.ts",
     "src/renderer/src/diffLines.ts",
     "src/renderer/src/quickopen.ts",
+    "src/renderer/src/json.ts",
     "src/plugins/**/*.ts",
     "test/**/*.ts"
   ],

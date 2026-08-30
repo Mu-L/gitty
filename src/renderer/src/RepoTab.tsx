@@ -28,7 +28,8 @@ import { DiffHeader } from './components/DiffHeader'
 import { useMsg } from './locale'
 import { LogPane, WORKTREE_ROW } from './components/LogPane'
 import { destroyTerminals, runInTerminal } from './terminals'
-import { isMarkdownPath, shellQuote } from './paths'
+import { formatJson } from './json'
+import { isJsonPath, isMarkdownPath, shellQuote } from './paths'
 // A leaf module with no imports of its own; see the note on its extension
 // table. Asking it here does not drag the viewers into the main bundle.
 import { hasOutline, outlineLanguage } from './symbols'
@@ -649,6 +650,21 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // rendered document.
   const outlineable =
     doc !== null && doc.kind === 'file' && !previewing && hasOutline(outlineLanguage(doc.path))
+
+  // Whether the JSON on screen can be re-indented, which is what decides
+  // whether the button exists: a file named .json that does not parse — a
+  // template with placeholders in it, a truncated download — has nothing to
+  // offer. Parsed here rather than in the header because the header has the
+  // document but not its text.
+  const jsonFormattable = useMemo(
+    () =>
+      doc !== null &&
+      doc.kind === 'file' &&
+      isJsonPath(doc.path) &&
+      docSource !== null &&
+      formatJson(docSource) !== null,
+    [doc, docSource]
+  )
 
   /**
    * The one preview button in the diff header flips whichever face the current
@@ -1433,6 +1449,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   workingFile={workingFile}
                   viewingFile={viewingFile}
                   previewing={previewing}
+                  jsonFormattable={jsonFormattable}
                   outlineable={outlineable}
                   doc={doc}
                   docs={docs}

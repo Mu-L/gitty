@@ -1,4 +1,4 @@
-import { useEffect, useState, type JSX } from 'react'
+import { useEffect, useMemo, useState, type JSX } from 'react'
 import { useMsg } from '../locale'
 import { BlamePane } from './BlamePane'
 import { CodePane } from './CodePane'
@@ -8,7 +8,8 @@ import { LineHistoryPane } from './LineHistoryPane'
 import { HtmlPane } from './HtmlPane'
 import { ImagePane } from './ImagePane'
 import { MarkdownPane } from './MarkdownPane'
-import { isHtmlPath, isImagePath, isMarkdownPath } from '../paths'
+import { formatJson } from '../json'
+import { isHtmlPath, isImagePath, isJsonPath, isMarkdownPath } from '../paths'
 import type { MenuState } from './ContextMenu'
 import type { Commit } from '../../../shared/types'
 
@@ -51,7 +52,8 @@ export function FileDoc({
   /** Revision to read from; null means the file on disk. */
   rev: string | null
   kind?: FileDocKind
-  /** Render markdown instead of showing its source (files only). */
+  /** Render markdown instead of showing its source, or re-indent JSON
+   *  instead of showing the file as it is stored (files only). */
   preview: boolean
   wrap: boolean
   /** Show the outline beside the document: headings for markdown, symbols for
@@ -129,6 +131,16 @@ export function FileDoc({
   // An image has no text to copy from the context menu.
   useEffect(() => onSource(image ? null : source), [image, source, onSource])
 
+  // The JSON re-indented, or null wherever there is none to show that way —
+  // another kind of file, the button raised, or text that does not parse (a
+  // template with placeholders in it, a half-finished edit). Then the file is
+  // shown as it is stored rather than the pane emptying. A hook, so it sits
+  // above the early returns below with every other one.
+  const formatted = useMemo(
+    () => (source !== null && preview && isJsonPath(path) ? formatJson(source) : null),
+    [preview, path, source]
+  )
+
   if (kind === 'lines') {
     return (
       <LineHistoryPane
@@ -198,6 +210,7 @@ export function FileDoc({
   // "the reader opened something else" from "the text underneath them moved".
   const docKey = `${rev ?? ''}:${path}`
 
+
   return preview && isMarkdownPath(path) ? (
     <MarkdownPane
       source={source}
@@ -219,7 +232,7 @@ export function FileDoc({
     <HtmlPane source={source} docKey={docKey} wrap={wrap} active={active} onMenu={onMenu} />
   ) : (
     <CodePane
-      source={source}
+      source={formatted ?? source}
       docKey={docKey}
       root={root}
       path={path}

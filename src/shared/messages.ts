@@ -344,6 +344,11 @@ export interface RendererMessages {
     readonly renderMarkdownTitle: string
     readonly htmlPreviewTitle: string
     readonly htmlSourceTitle: string
+    /** The JSON re-indent button, and its two faces. A minified file is one
+     *  unreadable line; the button only appears where the text parses. */
+    readonly formatJson: string
+    readonly formatJsonTitle: string
+    readonly jsonSourceTitle: string
     readonly expandAll: string
     readonly collapseAll: string
     readonly expandAllTitle: string
