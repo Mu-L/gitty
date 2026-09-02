@@ -408,6 +408,12 @@ glance.
 - **Wrap** — the same toggle as the diff, on by default. Prose always wraps; in
   a preview this decides whether fenced code blocks, wide tables and long inline
   strings wrap too, rather than scrolling sideways.
+- **Table columns** — a table's columns are sized to their content, and each
+  boundary can be dragged: grab the right edge of a header cell and the column
+  follows the pointer, the rest keeping the width they had. A table wider than
+  the pane scrolls sideways. Double-click a boundary to give the table back to
+  the browser, i.e. back to widths that fit the content. The widths last as long
+  as the document is open.
 - **Outline** — the heading structure beside the document, indented by level,
   tracking the heading you have scrolled to. Click an entry to jump, and drag
   the separator between it and the document to give either side more room. The

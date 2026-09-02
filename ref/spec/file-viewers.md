@@ -93,6 +93,37 @@ A plugin can mark the *text* of a document as well as its markup, through a
 what is being marked: see the `marks` extension point in `ref/spec/plugins.md`,
 and `ref/spec/semantic-reading.md` for the plugin that uses it.
 
+## Table columns
+
+A rendered table is a real `<table>` inside a `.md-table` block, and it is the
+block that scrolls sideways: column widths mean nothing to a `display: block`
+table, and the wrapper was already there for the source-line gutter, which a
+scrolling table both clipped and pushed below the rows.
+
+Untouched, the table is laid out by the browser, so the columns fit their
+content — the point of the wrapping toggle being `overflow-wrap: break-word`
+rather than the `anywhere` the fences use: `anywhere` lets a column's minimum
+width fall to a single character, and one wide column then squeezes the rest
+into vertical stacks of letters.
+
+Dragging a boundary freezes the table at what it measures *then* — every column
+at its current width, `table-layout: fixed`, `width: max-content` — so one
+boundary moves and nothing else reflows. `max-content` rather than `auto`
+because an auto table is never narrower than its container, which would make
+the columns steal width from each other instead of the table growing and the
+wrapper scrolling. Measured widths are rounded **up**: they are fractional, and
+a column trimmed by half a pixel wraps the header it was fitted to.
+
+The widths are then applied as a generated stylesheet, keyed by the table's
+index in the document and scoped by the pane's own `useId` — `.md-body` is a
+global class, and another tab's document must not be resized along with this
+one. As CSS rather than as attributes on the cells, for the reason the images
+and the marks are also done in the render pass: React rewrites that subtree
+wholesale. The grips are rendered *into* the HTML for the same reason, empty so
+they stay out of a find and out of a copied selection. Double-clicking one
+drops the table's entry and hands it back to the browser; opening another
+document drops them all, since the indices name this document's tables.
+
 ## Images
 
 Images are the one thing the renderer cannot resolve for itself: a relative

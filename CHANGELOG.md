@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- A table in a preview sizes its columns to their content, wrapping or not: a
+  wide column no longer squeezes the narrow ones into stacks of single letters.
 - A file with no line count says how big it is instead — a binary file in the
   file tree, and every binary revision in a file's history. Sizes are measured
   for a whole history however long it is, the object headers alone being
@@ -21,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Table columns in a markdown preview can be dragged: grab the edge of a header
+  cell to widen or narrow one, and the table scrolls when it outgrows the pane.
+  Double-click a boundary to go back to widths that fit the content.
 - A JSON file viewed on its own has a **Format** button: it re-indents the
   document, so a minified file reads as a tree. Numbers keep the digits the file
   spells and keys their order — only the whitespace is the formatter's — and the

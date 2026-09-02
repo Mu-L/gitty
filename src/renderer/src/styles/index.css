@@ -1669,15 +1669,20 @@ button:disabled:hover {
   overflow-wrap: anywhere;
 }
 
+/* Wrapping makes the table fit the pane, but the columns are still shared out
+   by content: `fixed` would give a one-word column as much room as a
+   paragraph. */
 .md-body.wrap table {
-  display: table;
   width: 100%;
-  table-layout: fixed;
 }
 
+/* `break-word` rather than `anywhere`, which the fences and inline code above
+   can afford but a table cannot: `anywhere` lets a column's minimum width fall
+   to a single character, and the widest column then squeezes every other one
+   into a vertical stack of letters. */
 .md-body.wrap td,
 .md-body.wrap th {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 .md-body blockquote {
@@ -1686,11 +1691,47 @@ button:disabled:hover {
   color: var(--fg-dim);
 }
 
+/* The table is a real table — column widths only mean something to one — and
+   the wrapper is what scrolls when it is wider than the pane. */
+.md-table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 .md-body table {
   border-collapse: collapse;
-  display: block;
-  overflow-x: auto;
-  max-width: 100%;
+  display: table;
+}
+
+/* Columns are dragged by a strip at the trailing edge of each header cell,
+   which straddles the border so the boundary itself is what is grabbed. It is
+   invisible until the pointer is near it. */
+.md-body th {
+  position: relative;
+}
+
+.md-col-grip {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  z-index: 1;
+  width: 7px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+}
+
+.md-col-grip:hover,
+body.col-resizing .md-col-grip {
+  background: var(--blue);
+  opacity: 0.5;
+}
+
+/* The pointer keeps the resize cursor for the whole drag, wherever it has
+   wandered to, and nothing selects text under it. */
+body.col-resizing {
+  cursor: col-resize;
+  user-select: none;
 }
 
 .md-body th,

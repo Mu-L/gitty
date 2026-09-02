@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type JSX } from 'react'
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type JSX } from 'react'
 import MarkdownIt, { type Token } from 'markdown-it'
 import { Group, Panel, Separator } from 'react-resizable-panels'
 import { hljs } from '../highlight'
@@ -63,6 +63,8 @@ interface RenderEnv {
   marks: DocumentMarks | null
   /** Every text segment some plugin wants, collected as the document renders. */
   wanted: Set<string>
+  /** Tables seen so far, which is how each one is named to the width rules. */
+  tables: number
 }
 
 /**
@@ -141,25 +143,41 @@ md.renderer.rules.fence = (tokens, idx, options, rawEnv, self) => {
 }
 
 /**
- * A table scrolls sideways (`display: block; overflow-x: auto`), which both
- * clips a gutter number and puts its static position below the rows. Wrapping
- * it in a plain block gives the number something in normal flow to sit beside.
+ * The table itself is a real `<table>` so that column widths mean something;
+ * the sideways scrolling belongs to the `.md-table` block wrapped around it.
+ * That wrapper also gives a gutter number something in normal flow to sit
+ * beside — against a scrolling table the number was clipped, and its static
+ * position landed below the rows.
+ *
+ * The index is what the width rules address a table by: widths are applied as
+ * generated CSS rather than by patching the rendered DOM, which React rewrites
+ * wholesale.
  */
 md.renderer.rules.table_open = (tokens, idx, options, rawEnv, self) => {
   const env = rawEnv as unknown as RenderEnv
   const map = tokens[idx].map
+  tokens[idx].attrSet('data-table', String(env.tables++))
   const open = self.renderToken(tokens, idx, options)
-  if (!env.lines) return open
+  if (!env.lines) return `<div class="md-table">${open}`
   const line = map ? map[0] + 1 + env.lineOffset : 0
   const at = map ? ` data-line="${line}"` : ''
   const changed = map && changedIn(env.changed, map, env.lineOffset) ? ' data-changed=""' : ''
   return `<div class="md-table"${at}${changed}>${open}`
 }
-md.renderer.rules.table_close = (tokens, idx, options, rawEnv, self) => {
-  const env = rawEnv as unknown as RenderEnv
-  const close = self.renderToken(tokens, idx, options)
-  return env.lines ? `${close}</div>` : close
-}
+md.renderer.rules.table_close = (tokens, idx, options, _rawEnv, self) =>
+  `${self.renderToken(tokens, idx, options)}</div>`
+
+/**
+ * The grip a column is dragged by, at the trailing edge of its header cell.
+ * It is part of the rendered HTML rather than something added to the DOM
+ * afterwards, for the same reason the images and the marks are: React owns
+ * this subtree and rebuilds it whenever the document changes.
+ *
+ * Empty, so it adds nothing to the text a find walks or a copy picks up; which
+ * column it drags is read off the cell it sits in, at the moment of the drag.
+ */
+md.renderer.rules.th_close = (tokens, idx, options, _rawEnv, self) =>
+  `<span class="md-col-grip" aria-hidden="true"></span>${self.renderToken(tokens, idx, options)}`
 
 /**
  * Tag each block with the source line it starts on, for the gutter.
@@ -261,6 +279,34 @@ function headingFor(headings: Heading[], fragment: string): Heading | null {
   )
 }
 
+/** Narrowest a column can be dragged; below this a header cell is unreadable. */
+const MIN_COL_WIDTH = 32
+
+/**
+ * Dragged column widths, as a stylesheet.
+ *
+ * They are applied as CSS rather than written onto the cells because React
+ * owns the document through `dangerouslySetInnerHTML` and rebuilds it whenever
+ * anything changes — a width patched into that subtree would not survive the
+ * next re-render. The selectors carry the pane's own id: `.md-body` is a global
+ * class, and another tab's document must not be resized along with this one.
+ */
+function columnCss(paneId: string, widths: Map<number, number[]>): string {
+  const out: string[] = []
+  for (const [table, ws] of widths) {
+    const at = `[data-md="${paneId}"] .md-body table[data-table="${table}"]`
+    // Fixed layout is what makes a column width binding at all. `max-content`
+    // is then exactly the sum of the columns — an `auto` table is never
+    // narrower than the pane, so the columns would have to steal width from
+    // each other instead of the table growing and the wrapper scrolling.
+    out.push(`${at} { table-layout: fixed; width: max-content }`)
+    // Rounded up, never down: a measured width is fractional, and a column
+    // trimmed by half a pixel wraps the header it was fitted to.
+    ws.forEach((w, i) => out.push(`${at} tr > :nth-child(${i + 1}) { width: ${Math.ceil(w)}px }`))
+  }
+  return out.join('\n')
+}
+
 export interface Heading {
   id: string
   level: number
@@ -314,7 +360,16 @@ function render(
   // Token line numbers count from the start of what was parsed, and front
   // matter was sliced off first — so the gutter has to add it back.
   const lineOffset = fm ? (fm[0].match(/\n/g)?.length ?? 0) : 0
-  const env: RenderEnv = { refs: new Set(), loaded, lines, changed, lineOffset, marks, wanted: new Set() }
+  const env: RenderEnv = {
+    refs: new Set(),
+    loaded,
+    lines,
+    changed,
+    lineOffset,
+    marks,
+    wanted: new Set(),
+    tables: 0
+  }
   const tokens = md.parse(body, env as never)
   const headings: Heading[] = []
   const slug = slugger()
@@ -401,6 +456,12 @@ export function MarkdownPane({
     [source, images, lineNumbers, changedLines, docPath, msg, marks]
   )
   const bodyRef = useRef<HTMLDivElement>(null)
+  // Column widths a reader has dragged, by table index. A table absent from
+  // the map is laid out by the browser, i.e. sized to fit its own content;
+  // dragging one column freezes the whole table at what it measures then, so
+  // the drag moves one boundary rather than reflowing everything.
+  const [colWidths, setColWidths] = useState<Map<number, number[]>>(new Map())
+  const paneId = useId()
   // Which heading the outline marks — not to be confused with the `active`
   // prop, which is about this pane being the one on screen.
   const [activeHeading, setActiveHeading] = useState<string | null>(null)
@@ -420,6 +481,9 @@ export function MarkdownPane({
     // What the last document wanted marked is not what this one does; the
     // hook drops its own answers on the same key.
     setSegments([])
+    // Table indices name the tables of *this* document; another one's widths
+    // would land on whatever table happens to sit at the same index.
+    setColWidths(new Map())
     // headings belong to this source, and source changes with docKey.
   }, [docKey])
 
@@ -528,6 +592,57 @@ export function MarkdownPane({
     goto(heading.id)
   }, [anchor, docKey, headings, html])
 
+  /**
+   * Drag a column boundary. The widths every column has right now are what the
+   * drag starts from, so a table that has never been touched keeps the layout
+   * the browser gave it and only the dragged boundary moves. Listening on the
+   * window rather than the grip keeps the drag alive past the pointer leaving
+   * the narrow strip.
+   */
+  const onGripDown = (e: React.PointerEvent): void => {
+    const grip = e.target as HTMLElement
+    if (!grip.classList?.contains('md-col-grip')) return
+    const th = grip.closest('th')
+    const row = th?.parentElement
+    const table = th?.closest('table')
+    if (!th || !row || !table) return
+    e.preventDefault()
+    const key = Number(table.getAttribute('data-table'))
+    const cells = [...row.children] as HTMLElement[]
+    const index = cells.indexOf(th)
+    const start = cells.map((c) => c.getBoundingClientRect().width)
+    const from = e.clientX
+    const move = (ev: PointerEvent): void => {
+      const next = start.slice()
+      next[index] = Math.max(MIN_COL_WIDTH, start[index] + ev.clientX - from)
+      setColWidths((m) => new Map(m).set(key, next))
+    }
+    const up = (): void => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('pointerup', up)
+      document.body.classList.remove('col-resizing')
+    }
+    document.body.classList.add('col-resizing')
+    window.addEventListener('pointermove', move)
+    window.addEventListener('pointerup', up)
+  }
+
+  /** Double-clicking a grip gives the table back to the browser, which is to
+   *  say back to widths that fit the content. */
+  const onGripReset = (e: React.MouseEvent): void => {
+    const grip = e.target as HTMLElement
+    if (!grip.classList?.contains('md-col-grip')) return
+    const table = grip.closest('table')
+    if (!table) return
+    const key = Number(table.getAttribute('data-table'))
+    setColWidths((m) => {
+      if (!m.has(key)) return m
+      const next = new Map(m)
+      next.delete(key)
+      return next
+    })
+  }
+
   const nav = (
     <nav className="md-outline">
       <div className="md-outline-title">{msg.diff.outline}</div>
@@ -548,6 +663,8 @@ export function MarkdownPane({
     <div
       className={`md-body${wrap ? ' wrap' : ''}${lineNumbers ? ' lines' : ''}${find.open ? ' finding' : ''}`}
       ref={bodyRef}
+      onPointerDown={onGripDown}
+      onDoubleClick={onGripReset}
       onClick={(e) => {
         // Links must never navigate the window away from the app.
         const a = (e.target as HTMLElement).closest('a')
@@ -582,12 +699,13 @@ export function MarkdownPane({
   )
 
   return (
-    <div className="md-host" onContextMenu={(e) => {
+    <div className="md-host" data-md={paneId} onContextMenu={(e) => {
       e.preventDefault()
       onMenu({ x: e.clientX, y: e.clientY, items: [] })
     }}>
       {find.bar}
       {marks.css ? <style>{marks.css}</style> : null}
+      {colWidths.size > 0 ? <style>{columnCss(paneId, colWidths)}</style> : null}
       {outline && headings.length > 0 ? (
         // The width is shared by every document in this repository rather than
         // kept per file: it is a reading preference, not a property of the text.
