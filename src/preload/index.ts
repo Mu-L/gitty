@@ -223,6 +223,13 @@ const api = {
       root: string,
       pairs: Array<{ rev: string | null; filePath: string }>
     ): Promise<FileMeasure[]> => ipcRenderer.invoke('git:fileLines', root, pairs),
+    /** Who last touched each path, as of `rev` — the work tree's HEAD when it
+     *  is null. A path git has never seen is absent from the answer. */
+    fileAuthors: (
+      root: string,
+      rev: string | null,
+      paths: string[]
+    ): Promise<Record<string, string>> => ipcRenderer.invoke('git:fileAuthors', root, rev, paths),
     /** Lines added and removed per path, for one commit, range or the work tree. */
     fileChurn: (
       root: string,

@@ -645,6 +645,11 @@ function registerIpc(): void {
       git.countFileLines(root, pairs)
   )
 
+  ipcMain.handle(
+    'git:fileAuthors',
+    (_e, root: string, rev: string | null, paths: string[]) => git.fileAuthors(root, rev, paths)
+  )
+
   ipcMain.handle('git:fileChurn', (_e, root: string, spec: ChurnSpec, opts?: DiffOptions) =>
     git.fileChurn(root, spec, opts)
   )

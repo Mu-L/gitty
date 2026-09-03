@@ -166,6 +166,19 @@ is read by `submodules` from `.gitmodules` with one `git config -f .gitmodules
 repository to find the handful with mode 160000. No `.gitmodules` makes git
 exit non-zero, which is the empty list rather than an error.
 
+`fileAuthors` is the one walk over history rather than a read of a revision:
+who last touched each path in a browsed tree. A `git log -1` per file is the
+obvious implementation and the wrong one — a tree is thousands of rows, so it
+would be thousands of processes. Instead one `git log -z --name-only` streams
+backwards and every path is answered by the first commit that names it; the
+child is killed the moment the last one is, so a shallow answer costs a shallow
+walk. Twenty thousand commits is the ceiling, and a path the walk did not reach
+is simply absent from the answer — as is one git has never seen, which is what
+an untracked or ignored file is. `-z` is there for the reason every other
+reader here uses it: git would otherwise quote a path that is not plain ASCII.
+Merges name no files under the default diff, which is also what "who touched
+it" means.
+
 ## The local web server
 
 `src/main/web.ts` serves commits as plain HTML, and binding `127.0.0.1` is not

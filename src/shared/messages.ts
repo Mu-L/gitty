@@ -274,8 +274,16 @@ export interface RendererMessages {
     readonly emptyWorktree: string
     readonly emptySnapshot: string
     readonly emptyDiff: string
-    /** Suffix displayed after a file name, e.g. "142 lines". */
+    /** A line count written out, e.g. "142 lines". Tooltips, where there is
+     *  room for the word and nothing else says what the number counts. */
     readonly lines: (n: number) => string
+    /** The same count as a file row's suffix, where the column is narrow and
+     *  the unit is the same on every row. English drops the word for that
+     *  reason; a language whose unit is one character need not. */
+    readonly lineCount: (n: number) => string
+    /** Tooltip of the name beside it while browsing a tree: who committed the
+     *  file last. */
+    readonly lastAuthor: (name: string) => string
     /** Clicking a file's status marks moves it in or out of the index. */
     readonly toggleStage: (staged: boolean) => string
     /** Searching the repository from the file pane's header. */

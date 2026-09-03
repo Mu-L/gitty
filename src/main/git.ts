@@ -68,6 +68,16 @@ const MAX_LINE_COUNT_BYTES = 8 * 1024 * 1024
  */
 const MAX_HISTORY_COUNT_BYTES = 64 * 1024 * 1024
 
+/**
+ * How far back to walk when naming the last author of every file in a tree.
+ * A repository older than this leaves the rows it did not reach blank rather
+ * than reading a decade of history for a column beside a file name.
+ */
+const MAX_AUTHOR_SCAN_COMMITS = 20000
+
+/** Opens a commit's header in that walk; no path can begin with it. */
+const AUTHOR_MARK = '\x01'
+
 /** Untracked files inlined into the whole-work-tree diff before giving up. */
 const MAX_UNTRACKED_IN_DIFF = 50
 
@@ -1310,6 +1320,89 @@ export async function applyHunks(
   if (context === 0) apply.push('--unidiff-zero')
   apply.push('-')
   return localOp(root, apply, patch)
+}
+
+/**
+ * Who last touched each of `paths`, as of `rev`. One `git log` walk over the
+ * whole tree, stopped the moment every path has an answer — a `log -1` per
+ * file would be one process per row, and a browsed tree is thousands of rows.
+ *
+ * `-z` for the reason every other reader here uses it: a path with a space or
+ * a non-ASCII byte survives it, and git would otherwise quote it. Between a
+ * commit's header and its file list git writes a newline, so a token is
+ * trimmed of one before being read; a token opening with `AUTHOR_MARK` is the
+ * next commit's author rather than a path. Merges name no files by default,
+ * which is what "who touched it" means anyway.
+ *
+ * A path with no answer is simply absent: it is younger than the walk reached,
+ * or it was never committed at all. Ignored and untracked files are both.
+ */
+async function lastAuthors(
+  root: string,
+  rev: string | null,
+  paths: string[]
+): Promise<Record<string, string>> {
+  const out: Record<string, string> = {}
+  if (paths.length === 0) return out
+  const wanted = new Set(paths)
+  return new Promise((resolve) => {
+    let tail = ''
+    let author = ''
+    let commits = 0
+    let done = false
+    const child = spawn(
+      'git',
+      ['log', '-z', '--name-only', `--format=${AUTHOR_MARK}%an`, rev ?? 'HEAD'],
+      {
+        cwd: root,
+        windowsHide: true,
+        env: { ...process.env, GIT_OPTIONAL_LOCKS: '0', LC_ALL: 'C' }
+      }
+    )
+    // Whatever the walk answered stands. Killing the child is how the budget is
+    // enforced: a deep history goes on arriving long after the last row was
+    // named, and an empty repository has no HEAD to walk at all.
+    const finish = (): void => {
+      if (done) return
+      done = true
+      child.kill()
+      resolve(out)
+    }
+    child.on('error', finish)
+    child.on('close', finish)
+    child.stdout.setEncoding('utf8')
+    child.stdout.on('data', (chunk: string) => {
+      const parts = (tail + chunk).split('\0')
+      tail = parts.pop() ?? ''
+      for (const raw of parts) {
+        const token = raw.startsWith('\n') ? raw.slice(1) : raw
+        if (token.startsWith(AUTHOR_MARK)) {
+          author = token.slice(AUTHOR_MARK.length)
+          commits++
+          continue
+        }
+        if (wanted.delete(token)) out[token] = author
+      }
+      if (wanted.size === 0 || commits > MAX_AUTHOR_SCAN_COMMITS) finish()
+    })
+  })
+}
+
+/**
+ * The last author of each path, batched. Exported as its own call rather than
+ * folded into `countFileLines`: the count is what every view wants and this is
+ * what one of them does, and the walk is the expensive half.
+ */
+export async function fileAuthors(
+  root: string,
+  rev: string | null,
+  paths: string[]
+): Promise<Record<string, string>> {
+  try {
+    return await lastAuthors(root, rev, paths)
+  } catch {
+    return {}
+  }
 }
 
 /** Count the number of newlines in a buffer. The last line is counted even when

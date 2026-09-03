@@ -754,6 +754,22 @@ button:disabled:hover {
   flex-shrink: 0;
 }
 
+/* Who last committed the file, beside its line count in a snapshot. Dimmer
+   than the count and the first thing to give up its width: a name is context,
+   where the file name it would crowd out is the row itself. */
+.file-author {
+  color: var(--fg-dim);
+  opacity: 0.75;
+  font-size: 0.9em;
+  margin-left: 6px;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 12em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .file-churn {
   display: flex;
   gap: 5px;

@@ -576,11 +576,24 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
               : view.mode === 'range'
                 ? { kind: 'range', from: view.from, to: view.to }
                 : null
-        const [measures, churn] = await Promise.all([
+        // Who last touched each file, in the one view that is a tree rather
+        // than a change: a snapshot's rows have no churn, and the question
+        // there is who the file belongs to rather than what just happened to
+        // it. Every other view answers that already — a commit's files are the
+        // commit's author's, and what is uncommitted is the reader's own.
+        const authored = view.mode === 'snapshot'
+        const [measures, churn, authors] = await Promise.all([
           window.gitty.git.fileLines(root, pairs),
           spec
             ? window.gitty.git.fileChurn(root, spec, diffOptions)
-            : Promise.resolve<Record<string, FileChurn>>({})
+            : Promise.resolve<Record<string, FileChurn>>({}),
+          authored
+            ? window.gitty.git.fileAuthors(
+                root,
+                rev,
+                counted.map(({ e }) => e.path)
+              )
+            : Promise.resolve<Record<string, string>>({})
         ])
         if (!cancelled) {
           for (let k = 0; k < counted.length; k++) {
@@ -589,7 +602,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
               ...entries[i],
               lines: measures[k].lines,
               bytes: measures[k].bytes,
-              churn: churn[entries[i].path] ?? null
+              churn: churn[entries[i].path] ?? null,
+              author: authors[entries[i].path] ?? null
             }
           }
         }

@@ -131,6 +131,8 @@ export const ja: RendererMessages = {
     emptySnapshot: 'このスナップショットにファイルはありません。',
     emptyDiff: 'この差分にファイルはありません。',
     lines: (n: number) => `${n} 行`,
+    lineCount: (n: number) => `${n} 行`,
+    lastAuthor: (name: string) => `最終更新者: ${name}`,
     toggleStage: (staged: boolean) =>
       staged ? 'クリックでこのファイルをステージ解除' : 'クリックでこのファイルをステージ',
     search: '検索',

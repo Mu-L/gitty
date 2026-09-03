@@ -178,6 +178,12 @@ tree and against the parent for a commit or a range. A snapshot is a tree rather
 than a change, so it has no churn; nor do binary files or a merge commit, whose
 combined diff attributes nothing.
 
+Where the churn would be, a tree — the Working Tree listing and a commit's
+snapshot — names **who last committed each file** instead: a change is already
+somebody's, but a tree is a question of whose file this is. Hover the name for
+the whole sentence. A file git has never seen has none, so untracked and
+ignored files show nothing.
+
 The pane's title says what is listed, and clicking it opens a menu of the two
 standing views: **Changes**, the uncommitted ones, and **Working Tree**, every
 file in the directory on disk, read-only. A tick marks whichever is on screen;

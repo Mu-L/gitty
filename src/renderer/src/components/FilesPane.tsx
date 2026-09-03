@@ -30,6 +30,9 @@ export interface FileEntry {
   bytes?: number | null
   /** Lines this change added and removed; absent for binary files and snapshots. */
   churn?: FileChurn | null
+  /** Snapshot only: who last committed this file. Null where git has never
+   *  seen it, or where the walk did not reach back that far. */
+  author?: string | null
 }
 
 interface TreeRow {
@@ -300,10 +303,17 @@ export function FilesPane({
             {/* A binary file has no lines to count, and its size is the
                 measurement it does have. */}
             {row.entry!.lines != null ? (
-              <span className="file-lines">{msg.files.lines(row.entry!.lines)}</span>
+              <span className="file-lines">{msg.files.lineCount(row.entry!.lines)}</span>
             ) : row.entry!.bytes != null ? (
               <span className="file-lines">{humanBytes(row.entry!.bytes)}</span>
             ) : null}
+            {/* The snapshot's own column, where the churn of a change would
+                be: a tree is not a change, so the row has room for it. */}
+            {row.entry!.author && (
+              <span className="file-author" title={msg.files.lastAuthor(row.entry!.author!)}>
+                {row.entry!.author}
+              </span>
+            )}
             {row.entry!.churn && (
               <span className="file-churn">
                 {row.entry!.churn!.added > 0 && (

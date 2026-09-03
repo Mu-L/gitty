@@ -147,6 +147,8 @@ export const ru: RendererMessages = {
     emptySnapshot: 'В этом снимке нет файлов.',
     emptyDiff: 'В этом diff нет файлов.',
     lines: (n: number) => `${n} ${plural(n, 'строка', 'строки', 'строк')}`,
+    lineCount: (n: number) => `${n} стр.`,
+    lastAuthor: (name: string) => `Последним изменил ${name}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Щёлкните, чтобы убрать файл из индекса' : 'Щёлкните, чтобы добавить файл в индекс',
     search: 'Поиск',

@@ -132,6 +132,8 @@ export const en: RendererMessages = {
     emptySnapshot: 'No files in this snapshot.',
     emptyDiff: 'No files in this diff.',
     lines: (n: number) => `${n} lines`,
+    lineCount: (n: number) => `${n}`,
+    lastAuthor: (name: string) => `Last changed by ${name}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Click to unstage this file' : 'Click to stage this file',
     search: 'Search',

@@ -131,6 +131,8 @@ export const es: RendererMessages = {
     emptySnapshot: 'No hay archivos en esta instantánea.',
     emptyDiff: 'No hay archivos en este diff.',
     lines: (n: number) => `${n} línea${n === 1 ? '' : 's'}`,
+    lineCount: (n: number) => `${n} lín.`,
+    lastAuthor: (name: string) => `Modificado por última vez por ${name}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Clic para sacar el archivo del índice' : 'Clic para poner el archivo en el índice',
     search: 'Buscar',

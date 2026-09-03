@@ -130,6 +130,8 @@ export const ko: RendererMessages = {
     emptySnapshot: '이 스냅숏에 파일이 없습니다.',
     emptyDiff: '이 diff에 파일이 없습니다.',
     lines: (n: number) => `${n}줄`,
+    lineCount: (n: number) => `${n}줄`,
+    lastAuthor: (name: string) => `마지막 수정: ${name}`,
     toggleStage: (staged: boolean) =>
       staged ? '클릭하면 이 파일을 스테이지에서 내립니다' : '클릭하면 이 파일을 스테이지합니다',
     search: '검색',

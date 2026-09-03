@@ -132,6 +132,8 @@ export const de: RendererMessages = {
     emptySnapshot: 'Keine Dateien in diesem Snapshot.',
     emptyDiff: 'Keine Dateien in diesem Diff.',
     lines: (n: number) => `${n} Zeilen`,
+    lineCount: (n: number) => `${n} Z.`,
+    lastAuthor: (name: string) => `Zuletzt geändert von ${name}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Klicken, um die Datei aus dem Index zu nehmen' : 'Klicken, um die Datei vorzumerken',
     search: 'Suchen',

@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Browsing a tree — the Working Tree listing or a commit's snapshot — names who
+  last committed each file, where a change's row shows its churn.
+
 ### Changed
 
+- A file row's line count is the number alone in English; the word was most of
+  the column's width.
 - A table in a preview sizes its columns to their content, wrapping or not: a
   wide column no longer squeezes the narrow ones into stacks of single letters.
 - A file with no line count says how big it is instead — a binary file in the

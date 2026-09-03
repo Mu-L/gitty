@@ -131,6 +131,8 @@ export const pt: RendererMessages = {
     emptySnapshot: 'Nenhum ficheiro neste instantâneo.',
     emptyDiff: 'Nenhum ficheiro neste diff.',
     lines: (n: number) => `${n} linha${n === 1 ? '' : 's'}`,
+    lineCount: (n: number) => `${n} lin.`,
+    lastAuthor: (name: string) => `Modificado pela última vez por ${name}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Clique para tirar o ficheiro do índice' : 'Clique para pôr o ficheiro no índice',
     search: 'Procurar',

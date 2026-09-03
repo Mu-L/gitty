@@ -129,6 +129,8 @@ export const zh: RendererMessages = {
     emptySnapshot: '此快照中没有文件。',
     emptyDiff: '此差异中没有文件。',
     lines: (n: number) => `${n} 行`,
+    lineCount: (n: number) => `${n} 行`,
+    lastAuthor: (name: string) => `最后由 ${name} 修改`,
     toggleStage: (staged: boolean) => (staged ? '单击取消暂存该文件' : '单击暂存该文件'),
     search: '搜索',
     searchTitle: '用 git grep 搜索整个仓库。\n\nfoo bar — 一行中同时含这两个词\n"foo bar" — 整个短语；加引号也让操作符按字面搜索\n-foo — 不含该词的行\nfoo in:*.py — 只搜这些文件（多个用逗号分隔）\nfoo -in:test/* — 排除这些文件\nfoo in *.py — 后面跟路径时，in 可省略冒号',

@@ -132,6 +132,8 @@ export const fr: RendererMessages = {
     emptySnapshot: 'Aucun fichier dans cet instantané.',
     emptyDiff: 'Aucun fichier dans ce diff.',
     lines: (n: number) => `${n} ligne${n === 1 ? '' : 's'}`,
+    lineCount: (n: number) => `${n} l.`,
+    lastAuthor: (name: string) => `Modifié en dernier par ${name}`,
     toggleStage: (staged: boolean) =>
       staged ? 'Cliquer pour retirer ce fichier de l’index' : 'Cliquer pour indexer ce fichier',
     search: 'Rechercher',
