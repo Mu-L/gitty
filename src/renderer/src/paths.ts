@@ -33,6 +33,15 @@ export function isImagePath(path: string): boolean {
 }
 
 /**
+ * A PDF, which the preview hands to the viewer Chromium already carries rather
+ * than reading as text — the bytes are a document format, not a file with
+ * lines in it.
+ */
+export function isPdfPath(path: string): boolean {
+  return /\.pdf$/i.test(path)
+}
+
+/**
  * One argument of a POSIX shell command line, quoted so the shell reads it as
  * the single word it is: single quotes take everything literally, and the only
  * character they cannot hold is the single quote itself, which is closed,

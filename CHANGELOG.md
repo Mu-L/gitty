@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A `.pdf` opens as the document rather than as a note that it is binary, in
+  the work tree and at any revision — Chromium's own viewer, with its pages,
+  zoom and printing.
 - Browsing a tree — the Working Tree listing or a commit's snapshot — names who
   last committed each file, where a change's row shows its churn.
 

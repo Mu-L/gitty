@@ -22,6 +22,7 @@ import type {
   ImageFileContent,
   LogFilterMode,
   PathKind,
+  PdfFileContent,
   RepoStatus,
   SnapshotEntry,
   SnapshotExport,
@@ -869,6 +870,11 @@ export async function pathKind(
  */
 const MAX_IMAGE_BYTES = 12 * 1024 * 1024
 
+/** The same ceiling for a PDF, which is a document rather than an icon: the
+ *  bytes cross one IPC message, and a scan of a book is not worth blocking the
+ *  renderer's thread for. */
+const MAX_PDF_BYTES = 64 * 1024 * 1024
+
 /** Extensions a `<img>` can render. Anything else stays a binary file. */
 const IMAGE_MIME: Record<string, string> = {
   '.png': 'image/png',
@@ -935,6 +941,38 @@ export async function readImageFile(
     notice: null,
     bytes: buf.length
   }
+}
+
+/**
+ * One PDF's bytes — from the work tree when `rev` is null, from the object
+ * store otherwise, exactly like an image. The renderer has no disk access and
+ * a revision's copy was never on disk, so the file travels whole; Chromium's
+ * own viewer is what renders it at the other end.
+ */
+export async function readPdfFile(
+  root: string,
+  rev: string | null,
+  filePath: string
+): Promise<PdfFileContent> {
+  let buf: Buffer
+  if (rev === null) {
+    const abs = path.resolve(root, filePath)
+    // Never read outside the repository, whatever the renderer asks for.
+    if (abs !== root && !abs.startsWith(root + path.sep)) {
+      throw new Error(msg.git.pathEscapesRepo)
+    }
+    const stat = await fs.promises.stat(abs)
+    if (stat.size > MAX_PDF_BYTES) {
+      return { data: null, notice: msg.git.pdfTooLarge, bytes: stat.size }
+    }
+    buf = await fs.promises.readFile(abs)
+  } else {
+    buf = await gitBytes(root, ['show', `${rev}:${filePath}`])
+    if (buf.length > MAX_PDF_BYTES) {
+      return { data: null, notice: msg.git.pdfTooLarge, bytes: buf.length }
+    }
+  }
+  return { data: new Uint8Array(buf), notice: null, bytes: buf.length }
 }
 
 /**
@@ -1405,6 +1443,16 @@ export async function fileAuthors(
   }
 }
 
+/**
+ * A PDF is a document format that happens to be mostly text, so a small one
+ * has no NUL byte to give it away and would otherwise be counted in lines —
+ * a number that means nothing about a file measured in pages. The row shows
+ * its size instead, the way it does for anything else it cannot count.
+ */
+function isPdf(filePath: string): boolean {
+  return /\.pdf$/i.test(filePath)
+}
+
 /** Count the number of newlines in a buffer. The last line is counted even when
  *  it doesn't end with a newline — a non-empty file always has >=1 line. */
 function countNewlines(buf: Buffer): number {
@@ -1442,6 +1490,7 @@ export async function countFileLines(
           const buf = await fs.promises.readFile(abs)
           const bytes = buf.length
           if (buf.includes(0x00)) return { lines: null, bytes } // binary
+          if (isPdf(filePath)) return { lines: null, bytes }
           return { lines: countNewlines(buf), bytes }
         }
         // Committed file via git show, read as a buffer to stay binary-safe.
@@ -1456,6 +1505,7 @@ export async function countFileLines(
         const bytes = buf.length
         if (bytes > MAX_LINE_COUNT_BYTES) return { lines: null, bytes }
         if (buf.includes(0x00)) return { lines: null, bytes } // binary
+        if (isPdf(filePath)) return { lines: null, bytes }
         return { lines: countNewlines(buf), bytes }
       } catch {
         return unreadable

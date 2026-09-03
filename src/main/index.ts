@@ -284,7 +284,10 @@ function createWindow(): void {
       preload: path.join(__dirname, '../preload/index.js'),
       sandbox: false,
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      // Chromium's PDF viewer is a plugin, and off by default in Electron.
+      // Without this a PDF frame is a blank page rather than a document.
+      plugins: true
     }
   })
 
@@ -643,6 +646,10 @@ function registerIpc(): void {
     'git:fileLines',
     (_e, root: string, pairs: Array<{ rev: string | null; filePath: string }>) =>
       git.countFileLines(root, pairs)
+  )
+
+  ipcMain.handle('git:readPdf', (_e, root: string, rev: string | null, filePath: string) =>
+    git.readPdfFile(root, rev, filePath)
   )
 
   ipcMain.handle(

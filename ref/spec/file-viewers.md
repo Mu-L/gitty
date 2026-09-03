@@ -1,7 +1,7 @@
 # File viewers
 
 The panes that show a file rather than a diff — `CodePane`, `MarkdownPane`,
-`ImagePane` — and the two outlines beside them.
+`ImagePane`, `PdfPane` — and the two outlines beside them.
 
 ## `fileView`
 
@@ -136,6 +136,31 @@ markdown-it's `env` and re-renders once the fetches land. Patching `src` onto
 the rendered DOM instead is the obvious thing and does not work: React owns that
 subtree through `dangerouslySetInnerHTML` and rewrites it wholesale, silently
 discarding the patch.
+
+## PDFs
+
+A PDF is binary the way an image is, so it takes the same route: `FileDoc`
+branches on `isPdfPath` **before** reading anything as text, and `readPdfFile`
+returns the bytes from the work tree or from `git show`. What renders them is
+the viewer Chromium already carries — pages, zoom, search, printing and a
+thumbnail rail, none of it ours. Two things switch it on, and it is a blank
+frame without either: `plugins: true` in the window's `webPreferences`, since
+the viewer is a plugin and Electron leaves plugins off, and `frame-src 'self'
+blob:` in the CSP, since `default-src 'self'` covers frames as well.
+
+The bytes travel as a `Uint8Array` rather than as the data: URL an image uses:
+a document is megabytes where an icon is kilobytes, base64 is a third larger
+again, and it would sit in the DOM as an attribute. The renderer wraps them in
+a blob and revokes the URL when the pane lets go — an object URL keeps its blob
+alive for the life of the window otherwise. The cost is the name in the
+viewer's own toolbar, which is the object URL: a blob has no path to take a
+name from, and a `File` does not lend the viewer its name either — measured.
+The pane header and the document tab both name the file, so nothing is lost
+but the repetition.
+
+A PDF is also refused a line count, which it would otherwise get: it is mostly
+text, so a small one has no NUL byte to mark it binary, and "33 lines" says
+nothing about a file measured in pages. The row shows its size instead.
 
 ## The `dangerouslySetInnerHTML` subtree
 

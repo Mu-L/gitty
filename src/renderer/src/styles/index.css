@@ -2863,6 +2863,31 @@ body.col-resizing {
   text-align: center;
 }
 
+/* A PDF fills the pane: the viewer inside the frame does its own scrolling,
+   zooming and page furniture, so the host must not scroll as well. */
+.pdf-host {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pdf-frame {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  border: 0;
+  background: var(--bg-code);
+}
+
+.pdf-caption {
+  flex: none;
+  padding: 4px 10px;
+  border-top: 1px solid var(--border);
+  color: var(--fg-faint);
+  font-size: 11px;
+  text-align: center;
+}
+
 /* Images in a rendered document, and the placeholder for one the repository
    does not have at this revision. */
 .md-body img {

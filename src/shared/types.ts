@@ -291,6 +291,22 @@ export interface ImageFileContent {
   bytes: number
 }
 
+/**
+ * One PDF, handed over whole. The bytes themselves rather than a data: URL the
+ * way an image travels: a document is megabytes where an icon is kilobytes,
+ * and the renderer wraps these in a blob for the viewer anyway.
+ */
+export interface PdfFileContent {
+  /** null when the file is too large to hand over, or cannot be read. The
+   *  buffer is named in the type because a `Uint8Array` may sit on a shared
+   *  one, which a `Blob` refuses; what crosses IPC never does. */
+  data: Uint8Array<ArrayBuffer> | null
+  /** Why there is no document, when there is none. */
+  notice: string | null
+  /** Size of the file, for the caption. */
+  bytes: number
+}
+
 /** One shell's exit, delivered alongside the session id it came from. */
 export interface PtyExit {
   exitCode: number

@@ -22,6 +22,7 @@ import type {
   ImageFileContent,
   LogFilterMode,
   PathKind,
+  PdfFileContent,
   PtyExit,
   RepoChanged,
   RepoStatus,
@@ -223,6 +224,10 @@ const api = {
       root: string,
       pairs: Array<{ rev: string | null; filePath: string }>
     ): Promise<FileMeasure[]> => ipcRenderer.invoke('git:fileLines', root, pairs),
+    /** One PDF's bytes, from the work tree or a revision; the viewer is
+     *  Chromium's own, so the renderer only has to hand it the file. */
+    readPdf: (root: string, rev: string | null, filePath: string): Promise<PdfFileContent> =>
+      ipcRenderer.invoke('git:readPdf', root, rev, filePath),
     /** Who last touched each path, as of `rev` — the work tree's HEAD when it
      *  is null. A path git has never seen is absent from the answer. */
     fileAuthors: (

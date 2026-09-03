@@ -505,6 +505,16 @@ disk sit underneath. Images above 12 MB are not inlined.
 
 ![Image preview](../../ref/gitty-0.1.5-image.png)
 
+#### PDFs
+
+A `.pdf` opens as the document, read by the viewer the browser engine already
+carries: pages down the side, zoom, rotation, its own find, and buttons to
+print or save a copy. It works the same at a revision — a PDF in a commit's
+snapshot is read from git, so an old edition of a paper reads as it was then
+without checking anything out. The file's size sits underneath. PDFs above
+64 MB are not opened, and the name in the viewer's own toolbar is not the
+file's; the pane header above it is.
+
 #### Blame and file history
 
 Right-click any file in the tree and choose **Blame File** or **File History**;

@@ -7,9 +7,10 @@ import { GrepPane } from './GrepPane'
 import { LineHistoryPane } from './LineHistoryPane'
 import { HtmlPane } from './HtmlPane'
 import { ImagePane } from './ImagePane'
+import { PdfPane } from './PdfPane'
 import { MarkdownPane } from './MarkdownPane'
 import { formatJson } from '../json'
-import { isHtmlPath, isImagePath, isJsonPath, isMarkdownPath } from '../paths'
+import { isHtmlPath, isImagePath, isJsonPath, isMarkdownPath, isPdfPath } from '../paths'
 import type { MenuState } from './ContextMenu'
 import type { Commit } from '../../../shared/types'
 
@@ -97,6 +98,9 @@ export function FileDoc({
   const [error, setError] = useState<string | null>(null)
 
   const image = isImagePath(path)
+  // A PDF is binary like an image, and read by its own viewer for the same
+  // reason: there is no text under it to fall back to.
+  const pdf = isPdfPath(path)
 
   // Blame and history have no file contents to copy from the context menu.
   useEffect(() => {
@@ -105,8 +109,9 @@ export function FileDoc({
 
   useEffect(() => {
     // An image is never read as text: `readWorking` would only call it binary.
-    // Nor is anything but a file document — the others fetch their own.
-    if (image || kind !== 'file') return
+    // Nor is a PDF, nor anything but a file document — the others fetch their
+    // own.
+    if (image || pdf || kind !== 'file') return
     let cancelled = false
     void (async () => {
       try {
@@ -126,10 +131,10 @@ export function FileDoc({
       cancelled = true
     }
     // A file read from a revision never changes; only work-tree files reload.
-  }, [image, root, path, rev, rev === null ? reloadKey : 0, msg])
+  }, [image, pdf, root, path, rev, rev === null ? reloadKey : 0, msg])
 
-  // An image has no text to copy from the context menu.
-  useEffect(() => onSource(image ? null : source), [image, source, onSource])
+  // Neither an image nor a PDF has text to copy from the context menu.
+  useEffect(() => onSource(image || pdf ? null : source), [image, pdf, source, onSource])
 
   // The JSON re-indented, or null wherever there is none to show that way —
   // another kind of file, the button raised, or text that does not parse (a
@@ -195,6 +200,10 @@ export function FileDoc({
 
   if (image) {
     return <ImagePane root={root} path={path} rev={rev} reloadKey={reloadKey} onMenu={onMenu} />
+  }
+
+  if (pdf) {
+    return <PdfPane root={root} path={path} rev={rev} reloadKey={reloadKey} onMenu={onMenu} />
   }
 
   if (source === null) {

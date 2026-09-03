@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 // A renderer module, but a DOM-free one — hence the entry for it in
 // tsconfig.node.json, which is the project the tests belong to.
-import { comparePaths, matchesFilter, shellQuote } from '../src/renderer/src/paths'
+import { comparePaths, isPdfPath, matchesFilter, shellQuote } from '../src/renderer/src/paths'
 
 const sorted = (paths: string[]): string[] => [...paths].sort(comparePaths)
 
@@ -108,5 +108,19 @@ describe('matchesFilter', () => {
     expect(matchesFilter('a.ts', 'a')).toBe(true)
     expect(matchesFilter('a.ts', 'b')).toBe(false)
     expect(matchesFilter('a.ts', 'a')).toBe(true)
+  })
+})
+
+describe('isPdfPath', () => {
+  it('claims a PDF whatever the case of its extension', () => {
+    expect(isPdfPath('ref/paper.pdf')).toBe(true)
+    expect(isPdfPath('REPORT.PDF')).toBe(true)
+  })
+
+  it('claims nothing else — the extension has to end the name', () => {
+    expect(isPdfPath('notes.md')).toBe(false)
+    expect(isPdfPath('pdf')).toBe(false)
+    expect(isPdfPath('build/pdf.ts')).toBe(false)
+    expect(isPdfPath('doc.pdf.bak')).toBe(false)
   })
 })

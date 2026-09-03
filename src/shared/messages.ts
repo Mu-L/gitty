@@ -101,6 +101,7 @@ export interface MainMessages {
     readonly untrackedOmitted: (n: number) => string
     readonly notAnImage: string
     readonly imageTooLarge: string
+    readonly pdfTooLarge: string
     readonly done: string
     readonly gitFailed: string
     /** A hunk selection that came out empty — nothing was left to stage. */
