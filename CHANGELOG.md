@@ -31,6 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The recent-repositories menu lists a renamed repository under its tab name,
   matching the button above it; the path stays on the row.
 
+### Fixed
+
+- A file stored with Git LFS previews as the file rather than as its pointer:
+  an LFS-tracked PDF showed the browser's own "failed to load" error and an
+  image a broken icon, both from three lines of metadata. The object is read
+  straight out of the local store, so it works without `git lfs` installed; one
+  that was never fetched now says so.
+
 ### Added
 
 - Table columns in a markdown preview can be dragged: grab the edge of a header

@@ -179,6 +179,37 @@ reader here uses it: git would otherwise quote a path that is not plain ASCII.
 Merges name no files under the default diff, which is also what "who touched
 it" means.
 
+## Git LFS
+
+An LFS-tracked file is a three-line text pointer in the repository, and the
+media file lives in a store beside it. `git show <rev>:<path>` therefore hands
+back the pointer, not the bytes — and so does the work tree, wherever git-lfs
+is not installed or the objects were never fetched. A viewer handed those three
+lines fails in whatever way its format fails: Chromium's PDF viewer says the
+document could not be loaded, in its own language, and an `<img>` shows a
+broken icon. Neither says what happened.
+
+`src/main/lfs.ts` recognises the pointer — pure string work, and tested,
+because a false positive would hide a real file whose first bytes happened to
+look right. The format is taken exactly: LF endings, the keys in their fixed
+order, `sha256` only, one trailing newline. A document *about* Git LFS is not a
+pointer to one.
+
+`throughLfs` in `git.ts` then reads the object out of the store directly —
+`<git dir>/lfs/objects/ab/cd/<oid>`, which is what `git lfs smudge` would hand
+back and works whether or not git-lfs is installed. The git dir comes from
+`rev-parse --absolute-git-dir` rather than being assumed to be `<root>/.git`,
+which it is not for a submodule or a linked work tree. A pointer whose object
+is not in the store is the one case with something to *say* rather than
+something to draw, and the pointer knows the real file's size, so the notice
+appears where the picture would have been. The size ceilings are checked again
+after the pointer is followed: the pointer is 131 bytes and the file it names
+is not.
+
+Only the viewers follow pointers. The tree's byte count is the blob's, which
+for a tracked file is the pointer's — reading every blob in a tree to find out
+otherwise is the walk `fileAuthors` exists to avoid.
+
 ## The local web server
 
 `src/main/web.ts` serves commits as plain HTML, and binding `127.0.0.1` is not

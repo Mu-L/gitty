@@ -515,6 +515,17 @@ without checking anything out. The file's size sits underneath. PDFs above
 64 MB are not opened, and the name in the viewer's own toolbar is not the
 file's; the pane header above it is.
 
+#### Files stored with Git LFS
+
+A file tracked by [Git LFS](https://git-lfs.com/) is a three-line pointer in
+the repository itself, with the real file in a store beside it. Gitty follows
+the pointer, so an LFS-tracked image or PDF previews like any other — at a
+revision as well as in the work tree, and whether or not `git lfs` is installed
+on the machine. When the object has not been fetched, the pane says so rather
+than showing a broken picture or a viewer error. `git lfs pull` gets it, and
+the preview then works. The size beside the file in the tree stays the
+pointer's, which is what the repository actually stores.
+
 #### Blame and file history
 
 Right-click any file in the tree and choose **Blame File** or **File History**;

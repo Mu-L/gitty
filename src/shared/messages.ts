@@ -102,6 +102,7 @@ export interface MainMessages {
     readonly notAnImage: string
     readonly imageTooLarge: string
     readonly pdfTooLarge: string
+    readonly lfsNotFetched: string
     readonly done: string
     readonly gitFailed: string
     /** A hunk selection that came out empty — nothing was left to stage. */

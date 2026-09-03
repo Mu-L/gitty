@@ -31,6 +31,7 @@ import type {
 } from '../shared/types'
 import { DEFAULT_DIFF_OPTIONS, MAX_SNAPSHOT_EXPORT_BYTES } from '../shared/types'
 import { isExpression, literalPattern } from '../shared/regex'
+import { lfsObjectPath, parseLfsPointer } from './lfs'
 import {
   parseBlame,
   parseBranches,
@@ -906,6 +907,34 @@ async function gitBytes(cwd: string, args: string[]): Promise<Buffer> {
 }
 
 /**
+ * The bytes a file really has, following a Git LFS pointer to the media file
+ * it stands for. An LFS-tracked file is three lines of metadata both in a
+ * revision and — where git-lfs is not installed, or the objects were never
+ * fetched — on disk, so every viewer has to follow it or show nonsense.
+ *
+ * `{ buf }` is the content to show, whether or not a pointer was involved;
+ * `{ missing }` is a pointer whose object is not in the local store, which is
+ * the one case with something to say rather than something to draw. The store
+ * is read directly, which is what `git lfs smudge` would do and works whether
+ * or not git-lfs is installed.
+ */
+async function throughLfs(
+  root: string,
+  buf: Buffer
+): Promise<{ buf: Buffer; missing?: undefined } | { buf?: undefined; missing: number }> {
+  const ptr = parseLfsPointer(buf)
+  if (!ptr) return { buf }
+  try {
+    const dir = (await git(root, ['rev-parse', '--absolute-git-dir'])).trim()
+    return { buf: await fs.promises.readFile(lfsObjectPath(dir, ptr.oid)) }
+  } catch {
+    // Not fetched, or no store at all. Either way the file is not here, and
+    // the pointer knows how big the thing it names is.
+    return { missing: ptr.size }
+  }
+}
+
+/**
  * One image's bytes as a data: URL — from the work tree when `rev` is null,
  * from that revision otherwise.
  */
@@ -934,6 +963,15 @@ export async function readImageFile(
     if (buf.length > MAX_IMAGE_BYTES) {
       return { dataUrl: null, notice: msg.git.imageTooLarge, bytes: buf.length }
     }
+  }
+
+  const real = await throughLfs(root, buf)
+  if (real.missing !== undefined) {
+    return { dataUrl: null, notice: msg.git.lfsNotFetched, bytes: real.missing }
+  }
+  buf = real.buf
+  if (buf.length > MAX_IMAGE_BYTES) {
+    return { dataUrl: null, notice: msg.git.imageTooLarge, bytes: buf.length }
   }
 
   return {
@@ -971,6 +1009,14 @@ export async function readPdfFile(
     if (buf.length > MAX_PDF_BYTES) {
       return { data: null, notice: msg.git.pdfTooLarge, bytes: buf.length }
     }
+  }
+  const real = await throughLfs(root, buf)
+  if (real.missing !== undefined) {
+    return { data: null, notice: msg.git.lfsNotFetched, bytes: real.missing }
+  }
+  buf = real.buf
+  if (buf.length > MAX_PDF_BYTES) {
+    return { data: null, notice: msg.git.pdfTooLarge, bytes: buf.length }
   }
   return { data: new Uint8Array(buf), notice: null, bytes: buf.length }
 }
