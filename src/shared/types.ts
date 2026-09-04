@@ -33,6 +33,17 @@ export interface GitOpResult {
   output: string
 }
 
+/**
+ * Where this repository's remote publishes its pages, as the two prefixes an
+ * address is built from: `commit` takes a hash, `file` takes a revision and a
+ * path (`<file><rev>/<path>`). Inferred from the remote URL — a repository
+ * whose host has no layout we can name has neither.
+ */
+export interface RemoteBases {
+  readonly commit: string
+  readonly file: string
+}
+
 /** A ref the commit log can be pointed at, local or remote-tracking. */
 export interface Branch {
   /** Short name: "main", "origin/main". */

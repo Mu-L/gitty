@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { commitUrlBase, parseSshConfig } from '../src/main/remote'
+import { parseSshConfig, urlBases } from '../src/main/remote'
 
 const H = 'a'.repeat(40)
+
+/** The commit half alone, which most of these cases are about. */
+const commitUrlBase = (remote: string, sshHosts?: ReadonlyMap<string, string>): string | null =>
+  urlBases(remote, sshHosts ?? new Map())?.commit ?? null
+
+/** The file half: a revision and a path are appended to it. */
+const fileUrlBase = (remote: string): string | null => urlBases(remote)?.file ?? null
 
 describe('commitUrlBase', () => {
   it('reads the scp-like SSH form git prints for GitHub', () => {
@@ -85,6 +92,35 @@ describe('commitUrlBase', () => {
   it('appends a full hash to the prefix it returns', () => {
     expect(`${commitUrlBase('git@github.com:user/repo.git')}${H}`).toBe(
       `https://github.com/user/repo/commit/${H}`
+    )
+  })
+})
+
+describe('the file half of urlBases', () => {
+  it('says blob where the commit half says commit', () => {
+    expect(fileUrlBase('git@github.com:user/repo.git')).toBe('https://github.com/user/repo/blob/')
+    expect(fileUrlBase('git@codeberg.org:user/repo.git')).toBe(
+      'https://codeberg.org/user/repo/blob/'
+    )
+  })
+
+  it('keeps GitLab under /-/ and gives Bitbucket its own word', () => {
+    expect(fileUrlBase('git@gitlab.com:group/sub/repo.git')).toBe(
+      'https://gitlab.com/group/sub/repo/-/blob/'
+    )
+    expect(fileUrlBase('git@bitbucket.org:user/repo.git')).toBe(
+      'https://bitbucket.org/user/repo/src/'
+    )
+  })
+
+  it('is absent exactly where the commit half is', () => {
+    expect(fileUrlBase('https://dev.azure.com/org/project/_git/repo')).toBeNull()
+    expect(fileUrlBase('file:///srv/git/repo.git')).toBeNull()
+  })
+
+  it('takes a revision and a path, in that order', () => {
+    expect(`${fileUrlBase('git@github.com:user/repo.git')}main/src/index.ts`).toBe(
+      'https://github.com/user/repo/blob/main/src/index.ts'
     )
   })
 })

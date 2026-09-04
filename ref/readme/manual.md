@@ -208,10 +208,17 @@ Both keys are listed in the pane title's tooltip.
   line numbers and syntax highlighting (a rendered document for markdown, the
   picture itself for an image).
 - **Click a status column** — stage the file, or unstage it if it is staged.
-- **Right-click** — View File, Open in System App, Reveal in File Manager, Copy
-  Relative Path, Copy Absolute Path, Copy File Name, Blame File, File History,
-  Stage / Unstage File, Discard Changes, Delete File. A submodule's row also
-  offers **Pull Submodule**.
+- **Right-click** — View File, Open in System App, Reveal in File Manager, Open
+  Remote URL, Copy Relative Path, Copy Absolute Path, Copy File Name, Blame
+  File, File History, Stage / Unstage File, Discard Changes, Delete File. A
+  submodule's row also offers **Pull Submodule**.
+- **Right-click → Open Remote URL** — this file's page on the site the
+  repository is hosted on, opened in the system browser. The revision is the
+  one being looked at — a commit, a snapshot — and the checked-out branch in
+  the Changes and Working Tree views. The address is inferred from the remote
+  the same way the [commit menu's item](#commits-bottom-left) is, so it appears
+  only where that inference succeeds, and never for an untracked file or a
+  detached HEAD.
 - **Click a folder** — collapse or expand it.
 - **Right-click a folder** — Copy Relative Path, Copy Absolute Path, Copy Folder
   Name, and the two ways of opening it outside Gitty: **Open in Browser**, which

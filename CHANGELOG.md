@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   zoom and printing.
 - Browsing a tree — the Working Tree listing or a commit's snapshot — names who
   last committed each file, where a change's row shows its churn.
+- A file's right-click menu offers **Open Remote URL**: that file's page on the
+  site hosting the repository, at the revision on screen or at the checked-out
+  branch.
 
 ### Changed
 

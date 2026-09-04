@@ -23,6 +23,7 @@ import type {
   LogFilterMode,
   PathKind,
   PdfFileContent,
+  RemoteBases,
   RepoStatus,
   SnapshotEntry,
   SnapshotExport,
@@ -48,7 +49,7 @@ import {
   US
 } from './parse'
 import { buildPatch, parseFilePatch, type ApplyDirection, type HunkPick } from './patch'
-import { commitUrlBase } from './remote'
+import { urlBases } from './remote'
 import { sshConfig } from './sshconfig'
 import { readRemoteCache, writeRemoteCache } from './remoteCache'
 import { grepExpr, grepPathspecs, parseQuery } from '../shared/query'
@@ -144,9 +145,9 @@ export async function branches(root: string): Promise<Branch[]> {
 }
 
 /**
- * Where this repository's commits can be read on the web, as a prefix a hash
- * is appended to — or null when there is no remote, or its host is not one
- * whose page layout we can infer (see `remote.ts`).
+ * Where this repository can be read on the web, as the prefixes a commit page
+ * and a file page are built from — or null when there is no remote, or its
+ * host is not one whose page layout we can infer (see `remote.ts`).
  *
  * The remote is whichever one the current branch tracks, else `origin`, else
  * the first one configured: the same order a reader would use when asking
@@ -158,12 +159,12 @@ export async function branches(root: string): Promise<Branch[]> {
  * fingerprint that the ssh config has not changed. Remote moved or renamed,
  * config edited, or no entry: recompute and re-remember.
  */
-export async function remoteCommitBase(root: string): Promise<string | null> {
+export async function remoteBases(root: string): Promise<RemoteBases | null> {
   const cached = readRemoteCache(root)
   if (cached && (await remoteUnchanged(root, cached.name, cached.url)) && sshConfig().fp === cached.sshFp) {
-    return cached.base
+    return cached.bases
   }
-  return computeRemoteCommitBase(root)
+  return computeRemoteBases(root)
 }
 
 /** Whether the remote the entry was derived from still resolves to that URL. */
@@ -175,7 +176,7 @@ async function remoteUnchanged(root: string, name: string, url: string): Promise
   }
 }
 
-async function computeRemoteCommitBase(root: string): Promise<string | null> {
+async function computeRemoteBases(root: string): Promise<RemoteBases | null> {
   let names: string[]
   try {
     names = (await git(root, ['remote'])).split('\n').map((n) => n.trim()).filter(Boolean)
@@ -194,9 +195,9 @@ async function computeRemoteCommitBase(root: string): Promise<string | null> {
   try {
     const url = (await git(root, ['remote', 'get-url', name])).trim()
     const cfg = sshConfig()
-    const base = commitUrlBase(url, cfg.hosts)
-    writeRemoteCache(root, { name, url, base, sshFp: cfg.fp })
-    return base
+    const bases = urlBases(url, cfg.hosts)
+    writeRemoteCache(root, { name, url, bases, sshFp: cfg.fp })
+    return bases
   } catch {
     return null
   }

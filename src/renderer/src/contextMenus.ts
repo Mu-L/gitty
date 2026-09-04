@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { Commit, DiffResult } from '../../shared/types'
+import type { Commit, DiffResult, RemoteBases } from '../../shared/types'
 import type { MenuItem, MenuState } from './components/ContextMenu'
 import type { DiffView } from './components/DiffPane'
 import { isHtmlPath, isMarkdownPath } from './paths'
@@ -84,10 +84,15 @@ export interface ContextMenuDeps {
   /** The whole index as a patch, for a conversation happening elsewhere. */
   copyStagedDiff: () => void
   /**
-   * Prefix a commit hash is appended to for the hosting site's own page, or
+   * Prefixes the hosting site's own commit and file pages are built from, or
    * null when the repository has no remote whose page layout can be inferred.
    */
-  remoteCommitBase: string | null
+  remoteBases: RemoteBases | null
+  /**
+   * The revision a file's remote page is named by in the views that are the
+   * directory on disk: the checked-out branch, or null on a detached HEAD.
+   */
+  branchRev: string | null
 }
 
 /** The four context-menu builders, in one factory so RepoTab calls it once. */
@@ -138,7 +143,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
     toggleStage,
     discardChanges,
     copyStagedDiff,
-    remoteCommitBase
+    remoteBases,
+    branchRev
   } = deps
 
   const diffMenu = (at: MenuState): void => {
@@ -272,6 +278,24 @@ export function createContextMenus(deps: ContextMenuDeps): {
         ]
       : []
 
+  /**
+   * The hosting site's own page for a file, or null when there is nothing to
+   * point at: no remote whose layout we can name, no revision the remote would
+   * know (a detached HEAD), or a file git has never seen. The revision is the
+   * view's own where it names one, and the checked-out branch in the two views
+   * that are the directory on disk — which is a guess about what was pushed,
+   * the same kind of guess the address itself is.
+   */
+  const remoteFileUrl = (rel: string, untracked: boolean): string | null => {
+    if (!remoteBases || untracked) return null
+    const rev = revForView() ?? branchRev
+    if (!rev) return null
+    // Path and branch segments are escaped, the separators between them are
+    // not: `feature/x` is two segments of the URL, not one escaped string.
+    const enc = (p: string): string => p.split('/').map(encodeURIComponent).join('/')
+    return `${remoteBases.file}${enc(rev)}/${enc(rel)}`
+  }
+
   const fileMenu = async (entry: FileEntry, at: MenuState): Promise<void> => {
     const rel = entry.path
     const can = await canPaste()
@@ -299,6 +323,15 @@ export function createContextMenus(deps: ContextMenuDeps): {
         { label: msg.contextMenu.openInSystemApp, action: () => void window.gitty.file.open(entry.absPath) },
         { label: msg.contextMenu.revealInFileManager, action: () => void window.gitty.file.reveal(entry.absPath) }
       )
+    }
+    // The same file on the hosting site, which is the other place it can be
+    // read — and the one a link can be sent to somebody else.
+    const remoteUrl = remoteFileUrl(rel, !!entry.untracked)
+    if (remoteUrl) {
+      items.push({
+        label: msg.contextMenu.openRemoteUrl,
+        action: () => void window.gitty.file.openExternal(remoteUrl)
+      })
     }
     // Running it, and only where both halves of the question have an answer:
     // a tree Gitty can lay out on disk, and a file git recorded as a program.
@@ -452,10 +485,10 @@ export function createContextMenus(deps: ContextMenuDeps): {
     ]
     // Only when the remote's own page for this commit could be worked out —
     // there is no page to offer for a repository nobody hosts.
-    if (remoteCommitBase) {
+    if (remoteBases) {
       items.push({
         label: msg.contextMenu.openRemoteUrl,
-        action: () => void window.gitty.file.openExternal(remoteCommitBase + c.hash)
+        action: () => void window.gitty.file.openExternal(remoteBases.commit + c.hash)
       })
     }
     items.push(

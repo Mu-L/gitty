@@ -76,6 +76,7 @@ import type {
   DiffSide,
   FileChurn,
   LogFilterMode,
+  RemoteBases,
   RepoStatus,
   TerminalOptions,
   WorkingFile
@@ -271,9 +272,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // view like the filter, not a preference: it belongs to this repository's
   // session and starts off again next time.
   const [allBranches, setAllBranches] = useState(false)
-  // Where this repository is hosted, as a prefix a commit hash is appended to.
-  // A property of the remote, not of the view, so it is read once per root.
-  const [remoteCommitBase, setRemoteCommitBase] = useState<string | null>(null)
+  // Where this repository is hosted, as the prefixes a commit page and a file
+  // page are built from. A property of the remote, not of the view, so it is
+  // read once per root.
+  const [remoteBases, setRemoteBases] = useState<RemoteBases | null>(null)
   const loadingMore = useRef(false)
   const exhausted = useRef(false)
   // How many rows a refresh re-reads: everything paged in so far, so the whole
@@ -978,10 +980,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // point at — the same repositories whose menu leaves the item out.
   const openRemoteCommit = useCallback(
     (hash: string) => {
-      if (!remoteCommitBase) return
-      void window.gitty.file.openExternal(remoteCommitBase + hash)
+      if (!remoteBases) return
+      void window.gitty.file.openExternal(remoteBases.commit + hash)
     },
-    [remoteCommitBase]
+    [remoteBases]
   )
 
   // Only the active tab handles the shared Escape / refresh keys; the others
@@ -1214,8 +1216,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   useEffect(() => {
     let live = true
-    void window.gitty.git.remoteCommitBase(root).then((base) => {
-      if (live) setRemoteCommitBase(base)
+    void window.gitty.git.remoteBases(root).then((bases) => {
+      if (live) setRemoteBases(bases)
     })
     return () => {
       live = false
@@ -1271,7 +1273,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       toggleStage: (path, staged) => void toggleStage(path, staged),
       discardChanges: (path) => void discardChanges(path),
       copyStagedDiff,
-      remoteCommitBase
+      remoteBases,
+      // A detached HEAD has no name the remote would know, so the file menu's
+      // remote link is simply absent there rather than guessing a branch.
+      branchRev: status && status.branch !== '(detached)' ? status.branch : null
     })
 
   /* ---------- log header overflow ---------- */

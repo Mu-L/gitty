@@ -24,6 +24,7 @@ import type {
   PathKind,
   PdfFileContent,
   PtyExit,
+  RemoteBases,
   RepoChanged,
   RepoStatus,
   SnapshotEntry,
@@ -131,11 +132,11 @@ const api = {
       ipcRenderer.invoke('git:log', root, limit, skip, ref, filter, mode, all),
     branches: (root: string): Promise<Branch[]> => ipcRenderer.invoke('git:branches', root),
     /**
-     * Prefix a commit hash is appended to for the remote's web page, or null
-     * when no such page can be inferred from the remote URL.
+     * Prefixes the remote's own commit and file pages are built from, or null
+     * when no such pages can be inferred from the remote URL.
      */
-    remoteCommitBase: (root: string): Promise<string | null> =>
-      ipcRenderer.invoke('git:remoteCommitBase', root),
+    remoteBases: (root: string): Promise<RemoteBases | null> =>
+      ipcRenderer.invoke('git:remoteBases', root),
     /** Push the checked-out branch; `branch` is named only to set an upstream. */
     push: (root: string, branch: string | null = null): Promise<GitOpResult> =>
       ipcRenderer.invoke('git:push', root, branch),

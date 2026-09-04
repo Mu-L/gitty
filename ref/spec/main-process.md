@@ -224,24 +224,33 @@ put the token in a stranger's `Referer`.
 
 ## The remote's own pages
 
-`src/main/remote.ts` turns a remote URL into the prefix a commit hash is
-appended to, so the commit menu can offer **Open Remote URL** beside the local
-server's page, and <kbd>Ctrl/Cmd+Click</kbd> on a commit row to open it without
-the menu — the base is read once per root in `RepoTab`, so the click is local.
-It is inference and says so: no protocol asks a remote where its
-commit pages are, so an address that cannot be named comes back null and the
-menu item is simply absent — a repository with no remote, a `file://` remote, a
-Windows drive letter mistaken for a host, or Azure DevOps, whose commit page is
-not derivable from the remote path.
+`src/main/remote.ts` turns a remote URL into two prefixes — one a commit hash
+is appended to, one a revision and a path are — so the commit menu can offer
+**Open Remote URL** beside the local server's page, <kbd>Ctrl/Cmd+Click</kbd>
+on a commit row can open it without the menu, and the file tree's own menu can
+offer the same item for one file. Both come back together (`RemoteBases`) and
+are read once per root in `RepoTab`, so the click is local. It is inference and
+says so: no protocol asks a remote where its pages are, so an address that
+cannot be named comes back null and the menu item is simply absent — a
+repository with no remote, a `file://` remote, a Windows drive letter mistaken
+for a host, or Azure DevOps, whose pages are not derivable from the remote path.
 
 Everything else is a two-branch rule: GitLab keeps its non-file routes under
-`/-/`, Bitbucket says `commits`, and GitHub, Gitea, Forgejo, Codeberg, Gogs and
-sourcehut all say `/commit/<hash>` — which is what an unrecognised host is given
-too, self-hosted Gitea and Forgejo being common and carrying no name to match
-on. `git.ts` picks the remote the current branch tracks, else `origin`, else
-the first one configured; the parsing is pure string work with no repository
-behind it, and `test/remote.test.ts` is the list of forms that must keep
-working.
+`/-/`, Bitbucket says `commits` and `src`, and GitHub, Gitea, Forgejo, Codeberg
+and Gogs all say `/commit/<hash>` and `/blob/<rev>/<path>` — which is what an
+unrecognised host is given too, self-hosted Gitea and Forgejo being common and
+carrying no name to match on. `git.ts` picks the remote the current branch
+tracks, else `origin`, else the first one configured; the parsing is pure
+string work with no repository behind it, and `test/remote.test.ts` is the list
+of forms that must keep working.
+
+Which revision a file's address names is the renderer's question, not git's:
+the view's own revision where it has one — a commit, a snapshot, the newer end
+of a range — and the checked-out branch in the two views that are the directory
+on disk. A detached HEAD has no name the remote would know and an untracked
+file has never been pushed, so neither gets the item; that a named branch and
+its files actually reached the remote is a guess, the same kind of guess the
+address itself is.
 
 A bare host (`git@github:user/repo.git`) is an ssh config alias: git stores it
 verbatim, so `remote.ts` expands it through the user's `~/.ssh/config`

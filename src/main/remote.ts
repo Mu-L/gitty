@@ -1,16 +1,18 @@
 /**
- * Turning a git remote into a web address for one commit.
+ * Turning a git remote into web addresses for one commit and for one file.
  *
  * A remote URL is a transport address, not a page: `git@github.com:u/r.git`
- * names an SSH endpoint, and the browsable page for a commit is something the
- * hosting software decides. There is no protocol that asks a remote where its
- * commit pages are, so this is inference and nothing more — hence the `null`
- * return whenever the host is one whose layout we cannot name.
+ * names an SSH endpoint, and the browsable page for a commit or a file is
+ * something the hosting software decides. There is no protocol that asks a
+ * remote where those pages are, so this is inference and nothing more — hence
+ * the `null` return whenever the host is one whose layout we cannot name.
  *
  * Pure string work, kept out of `git.ts` so it can be tested without a
  * repository. `test/remote.test.ts` is the list of forms that have to keep
  * working.
  */
+
+import type { RemoteBases } from '../shared/types'
 
 /** A remote's host and path, from any of the five shapes git accepts. */
 interface Parsed {
@@ -131,32 +133,41 @@ export function expandHost(host: string, sshHosts: ReadonlyMap<string, string>):
 }
 
 /**
- * The prefix a commit hash is appended to, or null when the host is not one
- * whose commit pages we can name.
+ * The two prefixes a page address is built from, or null when the host is not
+ * one whose layout we can name.
+ *
+ * `commit` takes a hash; `file` takes a revision and a path
+ * (`<file><rev>/<path>`), which is why it ends in a slash the same way.
  *
  * GitLab moved its non-file routes under `/-/` to keep them out of the way of
- * branch names; Bitbucket says `commits` where everyone else says `commit`.
- * Everything else here — GitHub, Gitea, Forgejo, Codeberg, Gogs, sourcehut —
- * agrees on `/commit/<hash>`, which is why an unrecognised host is given that
- * layout rather than nothing: self-hosted Gitea and Forgejo are common and
- * carry no recognisable name, and a wrong guess costs a browser tab.
+ * branch names; Bitbucket says `commits` where everyone else says `commit`,
+ * and `src` where everyone else says `blob`. Everything else here — GitHub,
+ * Gitea, Forgejo, Codeberg, Gogs — agrees on `/commit/<hash>` and
+ * `/blob/<rev>/<path>`, which is why an unrecognised host is given that layout
+ * rather than nothing: self-hosted Gitea and Forgejo are common and carry no
+ * recognisable name, and a wrong guess costs a browser tab.
  *
- * Azure DevOps is the exception that must return null: its commit page is a
- * query string (`/_git/repo/commit/<hash>` under a project path that the
- * remote does not spell out the same way), so a guess there is wrong rather
- * than merely unproven.
+ * Azure DevOps is the exception that must return null: its pages are query
+ * strings (`/_git/repo/commit/<hash>` under a project path that the remote
+ * does not spell out the same way), so a guess there is wrong rather than
+ * merely unproven.
  *
  * `sshHosts` is the parsed ssh config (or empty), used to expand a bare host;
  * it is optional so the module stays pure and its tests stay repository-free.
  */
-export function commitUrlBase(remote: string, sshHosts: ReadonlyMap<string, string> = new Map()): string | null {
+export function urlBases(
+  remote: string,
+  sshHosts: ReadonlyMap<string, string> = new Map()
+): RemoteBases | null {
   const parsed = parseRemote(remote)
   if (!parsed) return null
   const { host, path } = parsed
   if (host === 'dev.azure.com' || host.endsWith('.visualstudio.com')) return null
   const baseHost = expandHost(host, sshHosts)
   const base = `https://${baseHost}/${path}`
-  if (baseHost === 'bitbucket.org') return `${base}/commits/`
-  if (baseHost === 'gitlab.com' || baseHost.includes('gitlab')) return `${base}/-/commit/`
-  return `${base}/commit/`
+  if (baseHost === 'bitbucket.org') return { commit: `${base}/commits/`, file: `${base}/src/` }
+  if (baseHost === 'gitlab.com' || baseHost.includes('gitlab')) {
+    return { commit: `${base}/-/commit/`, file: `${base}/-/blob/` }
+  }
+  return { commit: `${base}/commit/`, file: `${base}/blob/` }
 }

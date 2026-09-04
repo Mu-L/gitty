@@ -1,12 +1,13 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { app } from 'electron'
+import type { RemoteBases } from '../shared/types'
 
 /**
  * One repository's resolved remote page, remembered so reopening the repository
  * does not re-derive the address. Two fields make the entry self-invalidate:
  * `url` catches the remote moving or being rewritten, and `sshFp` catches the
- * ssh config that produced the host changing. `base` may be null — a host with
+ * ssh config that produced the host changing. `bases` may be null — a host with
  * no derivable page (Azure DevOps, no remote) is remembered too, so it is not
  * re-probed every time.
  */
@@ -15,8 +16,8 @@ export interface RemoteCacheEntry {
   name: string
   /** `git remote get-url <name>` at compute time. */
   url: string
-  /** The web prefix a hash is appended to, or null for a host with no page. */
-  base: string | null
+  /** The web prefixes pages are built from, or null for a host with none. */
+  bases: RemoteBases | null
   /** `sshConfig().fp` at compute time. */
   sshFp: string
 }
@@ -27,6 +28,12 @@ function storePath(): string {
   return path.join(app.getPath('userData'), 'remote-cache.json')
 }
 
+function isBases(b: unknown): b is RemoteBases {
+  if (!b || typeof b !== 'object') return false
+  const o = b as Record<string, unknown>
+  return typeof o.commit === 'string' && typeof o.file === 'string'
+}
+
 function isValid(e: unknown): e is RemoteCacheEntry {
   if (!e || typeof e !== 'object') return false
   const o = e as Record<string, unknown>
@@ -34,7 +41,7 @@ function isValid(e: unknown): e is RemoteCacheEntry {
     typeof o.name === 'string' &&
     typeof o.url === 'string' &&
     typeof o.sshFp === 'string' &&
-    (o.base === null || typeof o.base === 'string')
+    (o.bases === null || isBases(o.bases))
   )
 }
 
