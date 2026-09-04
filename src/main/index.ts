@@ -607,8 +607,9 @@ function registerIpc(): void {
       filePath: string,
       picks: HunkPick[],
       direction: ApplyDirection,
-      opts?: DiffOptions
-    ) => git.applyHunks(root, filePath, picks, direction, opts)
+      opts?: DiffOptions,
+      origPath?: string
+    ) => git.applyHunks(root, filePath, picks, direction, opts, origPath)
   )
 
   ipcMain.handle('git:snapshotFiles', (_e, root: string, hash: string) =>

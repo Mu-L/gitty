@@ -36,14 +36,31 @@ one that is easy to get backwards:
 - A `\ No newline at end of file` marker travels with the line it describes and
   is dropped when that line is.
 - Hunk counts are recomputed from the lines that survived, never carried over.
+- **A rename's header is rewritten to name one path.** The patch git writes for
+  a rename moves the file as well as changing its lines, so applying part of it
+  would carry the move along — unstaging one line of a staged rename would put
+  the whole rename back. `retargetRename` drops the `rename from`/`rename to`
+  and similarity lines and names both sides after the pre-image: the a path
+  when staging, the b path when unstaging in reverse. A path git had to quote
+  is left alone rather than guessed at.
 
-`git.applyHunks` fetches the patch itself, with the **same context count the
-pane drew**, or the hunk the user clicked is not the hunk that gets staged.
+`git.applyHunks` fetches the patch itself, with the **same context count and
+the same pathspec the pane drew with**, or the hunk the user clicked is not the
+hunk that gets staged.
 `--unidiff-zero` is added only at context 0. Hunk staging is withdrawn entirely
 while **Ignore whitespace** is on: that diff does not hold every change it would
 apply. The UI offers it only for a single tracked file's diff, where the
 displayed patch *is* `git diff -- <path>`; a whole-work-tree diff is against
 HEAD and merges both sides.
+
+**A renamed file is asked for by both of its names.** A pathspec is applied
+before git pairs a deletion with an addition, so `diff -- <new path>` leaves
+the old half filtered out and the file reads as wholly added — every line new,
+however little of it changed. `pathArgs` therefore appends the previous path
+whenever the file list says the change is a rename, and the renderer carries
+that path from the row it drew (`origPath`, out of `--name-status`) into the
+diff request and into `applyHunks`. It is the diff pane's answer to the file
+pane's, which counts a rename's lines against the old file all along.
 
 ## Searching, and the graph
 

@@ -85,7 +85,8 @@ export function useStaging(opts: {
             workingFile.path,
             picks,
             stageDirection,
-            diffOptions
+            diffOptions,
+            workingFile.origPath
           )
         )
       } finally {

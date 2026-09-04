@@ -239,3 +239,52 @@ describe('buildPatch — zero context', () => {
     expect(buildPatch(fp, [{ hunk: 1 }], 'stage')).toContain('@@ -9,1 +9,1 @@')
   })
 })
+
+describe('buildPatch — a rename', () => {
+  // What a rename that also changed lines looks like: two paths, and the
+  // header lines that move the file.
+  const RENAMED = [
+    'diff --git a/old.txt b/new.txt',
+    'similarity index 75%',
+    'rename from old.txt',
+    'rename to new.txt',
+    'index 1111111..2222222 100644',
+    '--- a/old.txt',
+    '+++ b/new.txt',
+    '@@ -1,3 +1,3 @@',
+    ' a',
+    '-b',
+    '+B',
+    ' c',
+    ''
+  ].join('\n')
+
+  it('unstages against the new path, leaving the rename staged', () => {
+    const out = buildPatch(parseFilePatch(RENAMED), [{ hunk: 0 }], 'unstage')
+    expect(out).toContain('diff --git a/new.txt b/new.txt')
+    expect(out).toContain('--- a/new.txt')
+    expect(out).toContain('+++ b/new.txt')
+    expect(out).not.toMatch(/rename (from|to)/)
+    expect(out).not.toContain('similarity index')
+    expect(out).toContain('index 1111111..2222222 100644')
+  })
+
+  it('stages against the old path, which is the side the index holds', () => {
+    const out = buildPatch(parseFilePatch(RENAMED), [{ hunk: 0 }], 'stage')
+    expect(out).toContain('diff --git a/old.txt b/old.txt')
+    expect(out).toContain('--- a/old.txt')
+    expect(out).toContain('+++ b/old.txt')
+  })
+
+  it('leaves a quoted path alone rather than guessing at it', () => {
+    const quoted = RENAMED.replace('--- a/old.txt', '--- "a/old \\342\\230\\203.txt"')
+    const out = buildPatch(parseFilePatch(quoted), [{ hunk: 0 }], 'unstage')
+    expect(out).toContain('rename from old.txt')
+    expect(out).toContain('--- "a/old \\342\\230\\203.txt"')
+  })
+
+  it('does not touch a header that is not a rename', () => {
+    const out = buildPatch(parseFilePatch(THREE_HUNKS), [{ hunk: 0 }], 'unstage')
+    expect(out.startsWith('diff --git a/a.txt b/a.txt\n')).toBe(true)
+  })
+})

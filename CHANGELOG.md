@@ -36,6 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A renamed file's diff shows what actually changed. Asking git for one path
+  hid the rename — every line read as added, however little of it moved — while
+  the row beside it counted the change against the old file. Staging by hunk
+  follows, and leaves the rename staged.
 - A file stored with Git LFS previews as the file rather than as its pointer:
   an LFS-tracked PDF showed the browser's own "failed to load" error and an
   image a broken icon, both from three lines of metadata. The object is read

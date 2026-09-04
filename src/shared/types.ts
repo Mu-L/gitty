@@ -203,10 +203,17 @@ export interface TerminalOptions {
   login: boolean
 }
 
+/**
+ * A pathspec is applied before rename detection, so asking for a renamed file
+ * by its new path alone leaves git nothing to pair it with and the whole file
+ * reads as added. Every single-file request therefore carries the previous
+ * path when the file list says the change is a rename.
+ */
 export interface DiffRequestWorking {
   kind: 'working'
   /** Omit for every uncommitted change at once. */
   path?: string
+  origPath?: string
   side: DiffSide
   untracked: boolean
 }
@@ -216,6 +223,7 @@ export interface DiffRequestCommit {
   hash: string
   /** Omit for the whole commit. */
   path?: string
+  origPath?: string
 }
 
 export interface DiffRequestRange {
@@ -223,6 +231,7 @@ export interface DiffRequestRange {
   from: string
   to: string
   path?: string
+  origPath?: string
 }
 
 export type DiffRequest = DiffRequestWorking | DiffRequestCommit | DiffRequestRange

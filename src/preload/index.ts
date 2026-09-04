@@ -194,9 +194,10 @@ const api = {
       filePath: string,
       picks: HunkPick[],
       direction: ApplyDirection,
-      opts: DiffOptions
+      opts: DiffOptions,
+      origPath?: string
     ): Promise<GitOpResult> =>
-      ipcRenderer.invoke('git:applyHunks', root, filePath, picks, direction, opts),
+      ipcRenderer.invoke('git:applyHunks', root, filePath, picks, direction, opts, origPath),
     snapshotFiles: (root: string, hash: string): Promise<SnapshotEntry[]> =>
       ipcRenderer.invoke('git:snapshotFiles', root, hash),
     /** Check a commit out into a temp work tree and answer with its path, or

@@ -725,6 +725,18 @@ function diffFlags(o: DiffOptions): string[] {
   return flags
 }
 
+/**
+ * The pathspec for one file. A rename needs both of its names: git applies the
+ * pathspec before it pairs a deletion with an addition, so the new path alone
+ * leaves the old half filtered out and the file reads as wholly added.
+ */
+function pathArgs(req: { path?: string; origPath?: string }): string[] {
+  if (!req.path) return []
+  return req.origPath && req.origPath !== req.path
+    ? ['--', req.path, req.origPath]
+    : ['--', req.path]
+}
+
 export async function diff(
   root: string,
   req: DiffRequest,
@@ -780,7 +792,7 @@ export async function diff(
     }
     const args = ['diff', ...common]
     if (req.side === 'index') args.push('--cached')
-    args.push('--', req.path)
+    args.push(...pathArgs(req))
     const patch = await git(root, args)
     return clip(
       patch,
@@ -789,14 +801,12 @@ export async function diff(
   }
 
   if (req.kind === 'commit') {
-    const args = ['show', ...common, '--format=', req.hash]
-    if (req.path) args.push('--', req.path)
+    const args = ['show', ...common, '--format=', req.hash, ...pathArgs(req)]
     const patch = await git(root, args)
     return clip(patch, req.path ? `${req.path} @ ${req.hash.slice(0, 8)}` : req.hash.slice(0, 8))
   }
 
-  const args = ['diff', ...common, `${req.from}..${req.to}`]
-  if (req.path) args.push('--', req.path)
+  const args = ['diff', ...common, `${req.from}..${req.to}`, ...pathArgs(req)]
   const patch = await git(root, args)
   const label = `${req.from.slice(0, 8)}..${req.to.slice(0, 8)}`
   return clip(patch, req.path ? `${req.path} @ ${label}` : label)
@@ -1379,7 +1389,7 @@ export async function stagedDiff(root: string): Promise<string> {
  * against HEAD, which merges staged and unstaged work and would stage things
  * twice. Unstaging works from `git diff --cached` and is applied in reverse.
  *
- * The context count has to match the one the pane drew, or the hunk the user
+ * The context count, and the pathspec, have to match the ones the pane drew with, or the hunk the user
  * clicked is not the hunk that gets staged. At zero context git needs
  * `--unidiff-zero` to apply the result — and only there: given unconditionally
  * it also turns off the check that keeps an ambiguous hunk from landing in the
@@ -1390,12 +1400,16 @@ export async function applyHunks(
   filePath: string,
   picks: HunkPick[],
   direction: ApplyDirection,
-  opts: DiffOptions = DEFAULT_DIFF_OPTIONS
+  opts: DiffOptions = DEFAULT_DIFF_OPTIONS,
+  origPath?: string
 ): Promise<GitOpResult> {
   const context = Math.min(100, Math.max(0, Math.round(opts.context)))
   const args = ['diff', '--no-color', '--no-ext-diff', `-U${context}`]
   if (direction === 'unstage') args.push('--cached')
-  args.push('--', filePath)
+  // The same pathspec the pane's diff used, renamed half included: a rename
+  // asked for by one name reads as a whole new file, and its one giant hunk is
+  // not the hunk the user clicked.
+  args.push(...pathArgs({ path: filePath, origPath }))
 
   const patch = buildPatch(parseFilePatch(await git(root, args)), picks, direction)
   if (!patch) return { ok: false, output: msg.git.nothingToApply }

@@ -230,6 +230,17 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   const [commits, setCommits] = useState<Commit[]>([])
   const [view, setView] = useState<View>({ mode: 'worktree' })
   const [viewFiles, setViewFiles] = useState<FileEntry[]>([])
+  // Where a rename's previous path comes from, which the diff needs to ask git
+  // for both halves of the change. A ref rather than a dependency of the diff
+  // effect: the list is rebuilt on every refresh, and following it would
+  // re-fetch an identical patch each time.
+  const viewFilesRef = useRef<FileEntry[]>([])
+  viewFilesRef.current = viewFiles
+  const origOf = useCallback(
+    (p: string | null): string | undefined =>
+      p ? viewFilesRef.current.find((f) => f.path === p)?.origPath : undefined,
+    []
+  )
   // The commit being read, shown above its file list; null outside commit and
   // snapshot mode.
   const [commitMeta, setCommitMeta] = useState<CommitMeta | null>(null)
@@ -811,23 +822,30 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       void loadDiff({
         kind: 'working',
         path: f.path,
+        origPath: f.origPath,
         side: sideOverride ?? (f.worktree === ' ' && f.index !== ' ' ? 'index' : 'worktree'),
         untracked: f.untracked
       })
     } else if (view.mode === 'commit') {
-      void loadDiff({ kind: 'commit', hash: view.hash, path: selectedFile ?? undefined })
+      void loadDiff({
+        kind: 'commit',
+        hash: view.hash,
+        path: selectedFile ?? undefined,
+        origPath: origOf(selectedFile)
+      })
     } else if (view.mode === 'range') {
       void loadDiff({
         kind: 'range',
         from: view.from,
         to: view.to,
-        path: selectedFile ?? undefined
+        path: selectedFile ?? undefined,
+        origPath: origOf(selectedFile)
       })
     } else {
       // Snapshot has no diff; the file view renders its contents instead.
       clearDiff()
     }
-  }, [view, selectedFile, status, tick, sideOverride, loadDiff, clearDiff])
+  }, [view, selectedFile, status, tick, sideOverride, loadDiff, clearDiff, origOf])
 
   /* ---------- commit interactions ---------- */
 

@@ -162,6 +162,41 @@ function rebuildHunk(
   return { text: [head, ...out].join('\n') + '\n', delta }
 }
 
+/** Lines that only describe a rename, and mean nothing once it is dropped. */
+const RENAME_HEADER = /^(similarity index |dissimilarity index |rename (from|to) |copy (from|to) )/
+
+/**
+ * Turn a rename's header into a plain one-path header.
+ *
+ * A rename patch moves the file as well as changing its lines, so applying one
+ * to stage a single line would move the file too — unstaging one line of a
+ * staged rename would put the whole rename back. Only the side the patch is
+ * applied against matters here, and it is the pre-image: the a side when
+ * staging, the b side when applying in reverse to unstage. Naming both sides
+ * after it leaves git patching the file in place, rename intact.
+ *
+ * A path git had to quote is left alone rather than guessed at; the patch then
+ * still applies, it just carries the rename with it.
+ */
+function retargetRename(header: string[], direction: ApplyDirection): string[] {
+  if (!header.some((l) => l.startsWith('rename from '))) return header
+  const a = header.find((l) => l.startsWith('--- '))?.match(/^--- a\/(.+)$/)?.[1]
+  const b = header.find((l) => l.startsWith('+++ '))?.match(/^\+\+\+ b\/(.+)$/)?.[1]
+  if (!a || !b) return header
+  const p = direction === 'stage' ? a : b
+  return header
+    .filter((l) => !RENAME_HEADER.test(l))
+    .map((l) =>
+      l.startsWith('diff --git ')
+        ? `diff --git a/${p} b/${p}`
+        : l.startsWith('--- ')
+          ? `--- a/${p}`
+          : l.startsWith('+++ ')
+            ? `+++ b/${p}`
+            : l
+    )
+}
+
 /**
  * A patch holding only the picked hunks and lines, ready for `git apply
  * --cached` (plus `-R` when unstaging). Empty when nothing survived the
@@ -191,5 +226,5 @@ export function buildPatch(
     before += built.delta
   }
   if (parts.length === 0) return ''
-  return fp.header.join('\n') + '\n' + parts.join('')
+  return retargetRename(fp.header, direction).join('\n') + '\n' + parts.join('')
 }
