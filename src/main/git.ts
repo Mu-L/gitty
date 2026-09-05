@@ -1263,6 +1263,28 @@ export function pullNeedsRebase(output: string): boolean {
 }
 
 /**
+ * The commits this repository has that no remote does — what "not pushed yet"
+ * means, and the answer to whether the hosting site would know a hash.
+ *
+ * `rev-list --all --not --remotes` is one call and the set is normally tiny:
+ * it is the work between the last push and now, not the history. A repository
+ * whose remote has never been fetched has no remote-tracking refs, and then
+ * every commit would be listed — which says nothing, so it answers with the
+ * empty set rather than declaring the whole history unpushed.
+ */
+export async function unpushedCommits(root: string): Promise<string[]> {
+  try {
+    const refs = await git(root, ['for-each-ref', '--count=1', '--format=%(refname)', 'refs/remotes/'])
+    if (refs.trim() === '') return []
+    const raw = await git(root, ['rev-list', '--all', '--not', '--remotes'])
+    return raw.split('\n').filter((h) => h.length > 0)
+  } catch {
+    // A repository with no commits yet has nothing to list either way.
+    return []
+  }
+}
+
+/**
  * Which paths in the work tree are submodules, read from `.gitmodules` — the
  * file git itself treats as the list of them. One `git config` call, no walk
  * of the tree: `ls-files --stage` would name every file in the repository to

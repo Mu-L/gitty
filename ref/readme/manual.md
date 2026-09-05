@@ -217,8 +217,9 @@ Both keys are listed in the pane title's tooltip.
   one being looked at — a commit, a snapshot — and the checked-out branch in
   the Changes and Working Tree views. The address is inferred from the remote
   the same way the [commit menu's item](#commits-bottom-left) is, so it appears
-  only where that inference succeeds, and never for an untracked file or a
-  detached HEAD.
+  only where that inference succeeds, and never for an untracked file, a
+  detached HEAD, or a commit that has not been pushed — the site has no page
+  for one yet.
 - **Click a folder** — collapse or expand it.
 - **Right-click a folder** — Copy Relative Path, Copy Absolute Path, Copy Folder
   Name, and the two ways of opening it outside Gitty: **Open in Browser**, which
@@ -670,7 +671,8 @@ regular expression reaches git as one argument.
   and the item appears only when that inference succeeds: GitHub, GitLab,
   Bitbucket, Gitea, Forgejo, Codeberg and sourcehut are known, as is any
   self-hosted host that follows the `/commit/<hash>` layout. A repository with
-  no remote, or one on Azure DevOps, does not get the item.
+  no remote, or one on Azure DevOps, does not get the item, and neither does a
+  commit that has not been pushed yet — nor does Ctrl+Click open one.
 
   It listens on `127.0.0.1`, and that alone would not be much: loopback keeps
   other machines out, not other pages in your own browser, any of which could

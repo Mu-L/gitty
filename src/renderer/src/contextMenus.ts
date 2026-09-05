@@ -93,6 +93,11 @@ export interface ContextMenuDeps {
    * directory on disk: the checked-out branch, or null on a detached HEAD.
    */
   branchRev: string | null
+  /**
+   * The commits no remote has yet. The hosting site has no page for one, so
+   * neither a commit's remote link nor a file's is offered at such a revision.
+   */
+  unpushed: Set<string>
 }
 
 /** The four context-menu builders, in one factory so RepoTab calls it once. */
@@ -144,7 +149,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
     discardChanges,
     copyStagedDiff,
     remoteBases,
-    branchRev
+    branchRev,
+    unpushed
   } = deps
 
   const diffMenu = (at: MenuState): void => {
@@ -281,15 +287,17 @@ export function createContextMenus(deps: ContextMenuDeps): {
   /**
    * The hosting site's own page for a file, or null when there is nothing to
    * point at: no remote whose layout we can name, no revision the remote would
-   * know (a detached HEAD), or a file git has never seen. The revision is the
-   * view's own where it names one, and the checked-out branch in the two views
-   * that are the directory on disk — which is a guess about what was pushed,
-   * the same kind of guess the address itself is.
+   * know (a detached HEAD, or a commit that has not been pushed), or a file git
+   * has never seen. The revision is the view's own where it names one, and the
+   * checked-out branch in the two views that are the directory on disk — a
+   * branch's files are still a guess about what was pushed, the same kind of
+   * guess the address itself is; a hash is not, which is why one the remote
+   * cannot have is left out rather than linked to a 404.
    */
   const remoteFileUrl = (rel: string, untracked: boolean): string | null => {
     if (!remoteBases || untracked) return null
     const rev = revForView() ?? branchRev
-    if (!rev) return null
+    if (!rev || unpushed.has(rev)) return null
     // Path and branch segments are escaped, the separators between them are
     // not: `feature/x` is two segments of the URL, not one escaped string.
     const enc = (p: string): string => p.split('/').map(encodeURIComponent).join('/')
@@ -484,8 +492,9 @@ export function createContextMenus(deps: ContextMenuDeps): {
       { label: msg.contextMenu.copyCommitUrl, action: copyUrl }
     ]
     // Only when the remote's own page for this commit could be worked out —
-    // there is no page to offer for a repository nobody hosts.
-    if (remoteBases) {
+    // there is no page to offer for a repository nobody hosts, and none for a
+    // commit that has not left this machine.
+    if (remoteBases && !unpushed.has(c.hash)) {
       items.push({
         label: msg.contextMenu.openRemoteUrl,
         action: () => void window.gitty.file.openExternal(remoteBases.commit + c.hash)

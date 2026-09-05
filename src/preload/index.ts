@@ -198,6 +198,10 @@ const api = {
       origPath?: string
     ): Promise<GitOpResult> =>
       ipcRenderer.invoke('git:applyHunks', root, filePath, picks, direction, opts, origPath),
+    /** The hashes no remote has yet, so a link to the hosting site's page for
+     *  one can be left out rather than pointing at a 404. */
+    unpushedCommits: (root: string): Promise<string[]> =>
+      ipcRenderer.invoke('git:unpushedCommits', root),
     snapshotFiles: (root: string, hash: string): Promise<SnapshotEntry[]> =>
       ipcRenderer.invoke('git:snapshotFiles', root, hash),
     /** Check a commit out into a temp work tree and answer with its path, or

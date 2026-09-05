@@ -287,6 +287,10 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   // page are built from. A property of the remote, not of the view, so it is
   // read once per root.
   const [remoteBases, setRemoteBases] = useState<RemoteBases | null>(null)
+  // The commits no remote has yet. The hosting site has no page for one, so
+  // the links to it are left out rather than opening a 404 — re-read on every
+  // refresh, because a push is exactly what empties this.
+  const [unpushed, setUnpushed] = useState<Set<string>>(() => new Set())
   const loadingMore = useRef(false)
   const exhausted = useRef(false)
   // How many rows a refresh re-reads: everything paged in so far, so the whole
@@ -995,13 +999,14 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
   )
 
   // Ctrl/Cmd+click on a commit row. Silent where the remote has no page to
-  // point at — the same repositories whose menu leaves the item out.
+  // point at — the same repositories whose menu leaves the item out, and the
+  // same commits: one that has not been pushed has no page yet either.
   const openRemoteCommit = useCallback(
     (hash: string) => {
-      if (!remoteBases) return
+      if (!remoteBases || unpushed.has(hash)) return
       void window.gitty.file.openExternal(remoteBases.commit + hash)
     },
-    [remoteBases]
+    [remoteBases, unpushed]
   )
 
   // Only the active tab handles the shared Escape / refresh keys; the others
@@ -1252,6 +1257,16 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
     }
   }, [root])
 
+  useEffect(() => {
+    let live = true
+    void window.gitty.git.unpushedCommits(root).then((hashes) => {
+      if (live) setUnpushed(new Set(hashes))
+    })
+    return () => {
+      live = false
+    }
+  }, [root, tick])
+
   /* ---------- context menus ---------- */
 
   const { diffMenu, diffFileMenu, fileMenu, dirMenu, treeMenu, commitMenu, worktreeMenu } =
@@ -1294,7 +1309,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       remoteBases,
       // A detached HEAD has no name the remote would know, so the file menu's
       // remote link is simply absent there rather than guessing a branch.
-      branchRev: status && status.branch !== '(detached)' ? status.branch : null
+      branchRev: status && status.branch !== '(detached)' ? status.branch : null,
+      unpushed
     })
 
   /* ---------- log header overflow ---------- */

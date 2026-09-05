@@ -269,6 +269,16 @@ file has never been pushed, so neither gets the item; that a named branch and
 its files actually reached the remote is a guess, the same kind of guess the
 address itself is.
 
+A hash is not a guess, though, which is why one the remote cannot have is left
+out rather than linked to a 404: `unpushedCommits` is `rev-list --all --not
+--remotes`, the work between the last push and now, and both a commit's remote
+link (menu item and <kbd>Ctrl/Cmd+Click</kbd> alike) and a file's are withheld
+at a revision in that set. It is re-read on every refresh, because a push is
+what empties it, and it answers with the empty set where there are no
+remote-tracking refs at all — a remote that has never been fetched would
+otherwise make the whole history look unpushed. A branch name stays the guess
+it was: it names a page that exists, whatever it holds.
+
 A bare host (`git@github:user/repo.git`) is an ssh config alias: git stores it
 verbatim, so `remote.ts` expands it through the user's `~/.ssh/config`
 (`src/main/sshconfig.ts`, parsed at most once per file change) before the

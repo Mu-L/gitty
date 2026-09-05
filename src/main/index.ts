@@ -612,6 +612,8 @@ function registerIpc(): void {
     ) => git.applyHunks(root, filePath, picks, direction, opts, origPath)
   )
 
+  ipcMain.handle('git:unpushedCommits', (_e, root: string) => git.unpushedCommits(root))
+
   ipcMain.handle('git:snapshotFiles', (_e, root: string, hash: string) =>
     git.snapshotFiles(root, hash)
   )
