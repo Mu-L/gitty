@@ -131,6 +131,16 @@ beside its GitHub link — the two things a reader opens that dialog looking for
 
 ## Multiple repositories, tabs
 
+Ctrl+O opens another repository, and it is `App.tsx`'s window handler that
+answers it, not File ▸ Open Repository's accelerator: an application-menu
+accelerator fires only while the compositor calls the window focused, which
+under Wayland it frequently does not. The chord is therefore also taken from
+the shell — `isOpenRepoChord` in `panes.ts`, listed in `TerminalPane`'s
+`attachCustomKeyEventHandler` — because the terminal holds the focus in most
+windows and readline's Ctrl+O would otherwise eat the key. The menu item keeps
+its accelerator all the same: it is what writes the chord next to the item, and
+`menu:open-repo` goes to the same `pickAndOpen`.
+
 `App.tsx` is a thin tab manager: the list of open roots, which is active, the
 app-wide preferences (theme, font size, wrap, …), and the settings dialog. Each
 open root renders one `RepoTab` (`src/renderer/src/RepoTab.tsx`) owning that

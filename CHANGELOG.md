@@ -36,6 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Ctrl/Cmd+O opens a repository again. The terminal had the focus in every
+  window that had one, and xterm passed the key to the shell instead of letting
+  it reach the window — the File menu's accelerator being no help, since one
+  fires only while the compositor calls the window focused.
 - A renamed file's diff shows what actually changed. Asking git for one path
   hid the rename — every line read as added, however little of it moved — while
   the row beside it counted the change against the old file. Staging by hunk

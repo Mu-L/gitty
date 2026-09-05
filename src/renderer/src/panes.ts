@@ -105,6 +105,23 @@ export function isQuickOpenChord(e: KeyboardEvent): boolean {
   return (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.code === 'KeyE'
 }
 
+/**
+ * Opening another repository. The application menu carries the same
+ * accelerator, but a menu accelerator only fires while the window is the
+ * focused one in the compositor's eyes, which under Wayland it often is not;
+ * the window handler is what actually answers the key.
+ */
+export const OPEN_REPO_ACCEL = 'Ctrl+O'
+
+/**
+ * True for that key, in a terminal as much as anywhere else: `TerminalPane`
+ * keeps xterm from passing it on, since readline's Ctrl+O — repeat this line
+ * and advance — is not a key a shell is used through.
+ */
+export function isOpenRepoChord(e: KeyboardEvent): boolean {
+  return (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.code === 'KeyO'
+}
+
 /** Pasting files into the file tree; the shell keeps its own Ctrl+V. */
 export const PASTE_ACCEL = 'Ctrl+V'
 

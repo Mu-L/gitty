@@ -4,6 +4,7 @@ import {
   BROWSE_PANES,
   isBrowseChord,
   isChangesChord,
+  isOpenRepoChord,
   isQuickOpenChord,
   nextPane,
   type PaneVisibility
@@ -74,6 +75,23 @@ describe('isBrowseChord', () => {
 
   it('reads the code, not the character', () => {
     expect(isBrowseChord(key({ ctrlKey: true, code: 'KeyV' }))).toBe(false)
+  })
+})
+
+describe('isOpenRepoChord', () => {
+  it('takes Ctrl+O, and Cmd+O on macOS', () => {
+    expect(isOpenRepoChord(key({ ctrlKey: true, code: 'KeyO' }))).toBe(true)
+    expect(isOpenRepoChord(key({ metaKey: true, code: 'KeyO' }))).toBe(true)
+  })
+
+  it('leaves the plain key and the other modifiers alone', () => {
+    expect(isOpenRepoChord(key({ code: 'KeyO' }))).toBe(false)
+    expect(isOpenRepoChord(key({ ctrlKey: true, shiftKey: true, code: 'KeyO' }))).toBe(false)
+    expect(isOpenRepoChord(key({ ctrlKey: true, altKey: true, code: 'KeyO' }))).toBe(false)
+  })
+
+  it('reads the code, not the character', () => {
+    expect(isOpenRepoChord(key({ ctrlKey: true, code: 'KeyB' }))).toBe(false)
   })
 })
 

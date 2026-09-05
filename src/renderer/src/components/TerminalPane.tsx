@@ -7,7 +7,7 @@ import { getMessages } from '../messages'
 import { loadLocale, useMsg } from '../locale'
 import type { TerminalOptions } from '../../../shared/types'
 import { isCopyChord } from '../copy'
-import { isBrowseChord, isPaneCycleChord, isQuickOpenChord } from '../panes'
+import { isBrowseChord, isOpenRepoChord, isPaneCycleChord, isQuickOpenChord } from '../panes'
 
 export type Theme = 'dark' | 'light'
 
@@ -90,7 +90,11 @@ function ensureSession(
     (e) =>
       !(
         e.type === 'keydown' &&
-        (isCopyChord(e) || isPaneCycleChord(e) || isBrowseChord(e) || isQuickOpenChord(e))
+        (isCopyChord(e) ||
+          isPaneCycleChord(e) ||
+          isBrowseChord(e) ||
+          isQuickOpenChord(e) ||
+          isOpenRepoChord(e))
       )
   )
   term.onData((data) => window.gitty.terminal.input(id, data))

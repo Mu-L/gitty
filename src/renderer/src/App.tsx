@@ -25,6 +25,7 @@ const RepoTab = lazy(() => import('./RepoTab').then((m) => ({ default: m.RepoTab
 import {
   ALL_PANES,
   ALL_PANES_ACCEL,
+  isOpenRepoChord,
   paneLabels,
   PANE_ORDER,
   paneAccel,
@@ -431,7 +432,7 @@ export default function App(): JSX.Element {
         // place the whole set of shortcuts is written down inside the app.
         e.preventDefault()
         setHelpOpen((v) => !v)
-      } else if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
+      } else if (isOpenRepoChord(e)) {
         e.preventDefault()
         void pickAndOpen()
       } else if ((e.ctrlKey || e.metaKey) && e.key === ',') {
