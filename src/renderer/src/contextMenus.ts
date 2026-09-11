@@ -5,6 +5,7 @@ import type { DiffView } from './components/DiffPane'
 import { isHtmlPath, isMarkdownPath } from './paths'
 import { BROWSE_ACCEL, PASTE_ACCEL } from './panes'
 import type { FileEntry } from './components/FilesPane'
+import type { FileDocState } from './nav'
 import type { RendererMessages } from '../../shared/messages'
 
 /**
@@ -98,6 +99,8 @@ export interface ContextMenuDeps {
    * neither a commit's remote link nor a file's is offered at such a revision.
    */
   unpushed: Set<string>
+  /** The file pane's rows, which a document tab looks its file up in. */
+  viewFiles: FileEntry[]
 }
 
 /** The four context-menu builders, in one factory so RepoTab calls it once. */
@@ -105,6 +108,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
   diffMenu: (at: MenuState) => void
   diffFileMenu: (path: string, at: MenuState) => void
   fileMenu: (entry: FileEntry, at: MenuState) => void
+  /** A document tab beside the diff: its file's menu, as the tree offers it. */
+  docMenu: (doc: FileDocState, at: MenuState) => void
   /** A directory row in the file tree, which is a path rather than a file. */
   dirMenu: (dir: string, at: MenuState) => void
   /** The file tree's own menu, off the empty space below the rows. */
@@ -150,7 +155,8 @@ export function createContextMenus(deps: ContextMenuDeps): {
     copyStagedDiff,
     remoteBases,
     branchRev,
-    unpushed
+    unpushed,
+    viewFiles
   } = deps
 
   const diffMenu = (at: MenuState): void => {
@@ -304,7 +310,13 @@ export function createContextMenus(deps: ContextMenuDeps): {
     return `${remoteBases.file}${enc(rev)}/${enc(rel)}`
   }
 
-  const fileMenu = async (entry: FileEntry, at: MenuState): Promise<void> => {
+  /**
+   * `listed` is false for a file the view's list does not hold — a document
+   * opened on an unchanged file, from a link or a search hit. The Changes view
+   * lists only what is uncommitted, so such a file has nothing to stage,
+   * discard or delete there, and is offered what the Working Tree would offer.
+   */
+  const fileMenu = async (entry: FileEntry, at: MenuState, listed = true): Promise<void> => {
     const rel = entry.path
     const can = await canPaste()
     // Snapshot entries carry a virtual absPath; opening must go through the
@@ -383,7 +395,7 @@ export function createContextMenus(deps: ContextMenuDeps): {
     })
     // The index, and the two ways of leaving it: only in the Changes view,
     // which is the only mode that has one.
-    if (view.mode === 'worktree') {
+    if (view.mode === 'worktree' && listed) {
       items.push({
         label: entry.staged ? msg.contextMenu.unstageFile : msg.contextMenu.stageFile,
         separatorBefore: true,
@@ -401,7 +413,7 @@ export function createContextMenus(deps: ContextMenuDeps): {
     // Deleting is about the file on disk, so it belongs to the Changes view
     // alone: a commit's file list and a snapshot describe revisions, where there
     // is nothing to delete. A file already gone from the tree is not offered either.
-    if (view.mode === 'worktree' && !entry.deleted) {
+    if (view.mode === 'worktree' && listed && !entry.deleted) {
       items.push({
         label: msg.contextMenu.deleteFile,
         separatorBefore: true,
@@ -412,6 +424,27 @@ export function createContextMenus(deps: ContextMenuDeps): {
     // where a paste aimed at a row belongs.
     items.push(...pasteItem(rel.split('/').slice(0, -1).join('/'), can))
     setMenu({ ...at, items })
+  }
+
+  /**
+   * A document tab names a file, so it offers that file's menu — the row's own
+   * entry where the list has one, so the marks that decide Stage or Unstage are
+   * the row's. A search has no file to offer. Every view change closes the
+   * documents, so one read at another revision than the view's is not expected;
+   * it would get items about the wrong revision, and gets none instead.
+   */
+  const docMenu = (doc: FileDocState, at: MenuState): void => {
+    if (doc.kind === 'grep' || doc.rev !== revForView()) return
+    const row = viewFiles.find((e) => e.path === doc.path)
+    if (row) {
+      void fileMenu(row, at)
+      return
+    }
+    const absPath =
+      view.mode === 'snapshot' && view.hash !== null
+        ? `gitty:snapshot:${view.hash}:${doc.path}`
+        : `${root}/${doc.path}`
+    void fileMenu({ path: doc.path, absPath, marks: [], deleted: false }, at, false)
   }
 
   /**
@@ -538,5 +571,5 @@ export function createContextMenus(deps: ContextMenuDeps): {
     })
   }
 
-  return { diffMenu, diffFileMenu, fileMenu, dirMenu, treeMenu, commitMenu, worktreeMenu }
+  return { diffMenu, diffFileMenu, fileMenu, docMenu, dirMenu, treeMenu, commitMenu, worktreeMenu }
 }

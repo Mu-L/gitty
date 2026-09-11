@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A file's right-click menu offers **Open Remote URL**: that file's page on the
   site hosting the repository, at the revision on screen or at the checked-out
   branch.
+- A document tab beside the diff has the file tree's right-click menu for its
+  file.
 
 ### Changed
 

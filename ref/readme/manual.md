@@ -349,7 +349,10 @@ The file opens as its own document in a strip of tabs beside the diff, rather
 than over it, so a file can be read without losing the diff you were on. The
 **Diff** tab is always first and a single click in the tree still browses diffs
 in place. Each document remembers the revision it was opened at, closes with its
-own **×**, and re-reads a work-tree file when the repository changes. Source
+own **×**, and re-reads a work-tree file when the repository changes.
+**Right-click** a document's tab for the same menu its row has in the file
+tree; a file the list does not hold — an unchanged one, in the Changes view —
+gets the Working Tree's version, without staging, discarding or deleting. Source
 files get line numbers and syntax highlighting; markdown opens
 [rendered](#markdown-preview), with a toggle back to the source; HTML opens
 [rendered too](#html-preview); an image opens as [the picture](#images).

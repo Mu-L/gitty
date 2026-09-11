@@ -1269,7 +1269,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
 
   /* ---------- context menus ---------- */
 
-  const { diffMenu, diffFileMenu, fileMenu, dirMenu, treeMenu, commitMenu, worktreeMenu } =
+  const { diffMenu, diffFileMenu, fileMenu, docMenu, dirMenu, treeMenu, commitMenu, worktreeMenu } =
     createContextMenus({
       msg,
       root,
@@ -1310,7 +1310,8 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
       // A detached HEAD has no name the remote would know, so the file menu's
       // remote link is simply absent there rather than guessing a branch.
       branchRev: status && status.branch !== '(detached)' ? status.branch : null,
-      unpushed
+      unpushed,
+      viewFiles
     })
 
   /* ---------- log header overflow ---------- */
@@ -1522,6 +1523,7 @@ export const RepoTab = forwardRef<RepoTabHandle, RepoTabProps>(function RepoTab(
                   onTogglePreview={togglePreview}
                   openFileDoc={openFileDoc}
                   closeDoc={closeDoc}
+                  onDocMenu={docMenu}
                   header={{ full: fullButton('diff'), hide: hideButton('diff') }}
                   onDoubleClick={headerDoubleClick('diff')}
                 />

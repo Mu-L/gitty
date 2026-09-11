@@ -5,6 +5,7 @@ import type { View } from '../contextMenus'
 import type { FileDocState } from '../nav'
 import { paneControls } from '../panes'
 import { isHtmlPath, isImagePath, isJsonPath, isMarkdownPath } from '../paths'
+import type { MenuState } from './ContextMenu'
 import { type CollapseState, type DiffPaneHandle, type DiffView } from './DiffPane'
 import { Tooltip } from './Tooltip'
 
@@ -36,6 +37,8 @@ export interface DiffHeaderProps {
   onTogglePreview: () => void
   openFileDoc: (path: string) => void
   closeDoc: (id: string) => void
+  /** Right-click on a document tab. */
+  onDocMenu: (doc: FileDocState, at: MenuState) => void
   /** The pane-chrome buttons, rendered by the tab so their state stays there. */
   header: { full: JSX.Element; hide: JSX.Element | null }
   onDoubleClick: (e: { target: EventTarget | null }) => void
@@ -75,6 +78,7 @@ export function DiffHeader({
   onTogglePreview,
   openFileDoc,
   closeDoc,
+  onDocMenu,
   header,
   onDoubleClick
 }: DiffHeaderProps): JSX.Element {
@@ -252,6 +256,11 @@ export function DiffHeader({
               key={d.id}
               className={`doc-tab${activeDoc === d.id ? ' active' : ''}`}
               onClick={() => setActiveDoc(d.id)}
+              onContextMenu={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                onDocMenu(d, { x: e.clientX, y: e.clientY, items: [] })
+              }}
               title={d.rev ? `${d.path} @ ${d.rev.slice(0, 8)}` : d.path}
             >
               {d.kind !== 'file' && (
