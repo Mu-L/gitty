@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-09-14
+
 ### Added
 
 - A `.pdf` opens as the document rather than as a note that it is binary, in
@@ -19,6 +21,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   branch.
 - A document tab beside the diff has the file tree's right-click menu for its
   file.
+- Table columns in a markdown preview can be dragged: grab the edge of a header
+  cell to widen or narrow one, and the table scrolls when it outgrows the pane.
+  Double-click a boundary to go back to widths that fit the content.
+- A JSON file viewed on its own has a **Format** button: it re-indents the
+  document, so a minified file reads as a tree. Numbers keep the digits the file
+  spells and keys their order — only the whitespace is the formatter's — and the
+  button appears only where the text parses.
+- Ctrl+E opens a file by name from anywhere in the window, the terminal
+  included — the shell does not see the key. The letters are matched in order,
+  so `dfpn` finds `DiffPane.tsx`, and a hit on a word boundary or in the file
+  name ranks first. It lists the whole working directory, ignored files left
+  out, and opens the pick as a document.
+- A folder in the file tree has a context menu of its own: the three paths,
+  **Open in Browser** for the directory listing, **Open in File Manager**, and
+  a paste that lands inside that folder rather than at the root.
+- A rendered markdown preview marks the blocks the diff on screen inserted or
+  changed: the gutter number wears the diff's own add colours, green on the
+  green background a `+` line is drawn on. A block counts as changed when any
+  of the source lines it spans does, so a fence whose body was edited is
+  marked even though its opening line was not.
 
 ### Changed
 
@@ -54,29 +76,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   image a broken icon, both from three lines of metadata. The object is read
   straight out of the local store, so it works without `git lfs` installed; one
   that was never fetched now says so.
-
-### Added
-
-- Table columns in a markdown preview can be dragged: grab the edge of a header
-  cell to widen or narrow one, and the table scrolls when it outgrows the pane.
-  Double-click a boundary to go back to widths that fit the content.
-- A JSON file viewed on its own has a **Format** button: it re-indents the
-  document, so a minified file reads as a tree. Numbers keep the digits the file
-  spells and keys their order — only the whitespace is the formatter's — and the
-  button appears only where the text parses.
-- Ctrl+E opens a file by name from anywhere in the window, the terminal
-  included — the shell does not see the key. The letters are matched in order,
-  so `dfpn` finds `DiffPane.tsx`, and a hit on a word boundary or in the file
-  name ranks first. It lists the whole working directory, ignored files left
-  out, and opens the pick as a document.
-- A folder in the file tree has a context menu of its own: the three paths,
-  **Open in Browser** for the directory listing, **Open in File Manager**, and
-  a paste that lands inside that folder rather than at the root.
-- A rendered markdown preview marks the blocks the diff on screen inserted or
-  changed: the gutter number wears the diff's own add colours, green on the
-  green background a `+` line is drawn on. A block counts as changed when any
-  of the source lines it spans does, so a fence whose body was edited is
-  marked even though its opening line was not.
 
 ## [0.2.0] - 2026-08-21
 
@@ -939,7 +938,8 @@ Initial release.
   `chrome-sandbox` cannot keep its root-owned setuid bit inside `node_modules`.
 - README shows a screenshot of the interface (`ref/gitty-0.1.0.png`).
 
-[Unreleased]: https://github.com/baojie/gitty/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/baojie/gitty/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/baojie/gitty/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/baojie/gitty/compare/v0.1.9...v0.2.0
 [0.1.9]: https://github.com/baojie/gitty/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/baojie/gitty/compare/v0.1.7...v0.1.8
